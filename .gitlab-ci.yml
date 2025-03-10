@@ -30,7 +30,7 @@ build-frontend:
     - docker pull $CONTAINER_IMAGE_FRONTEND:latest || true
     - cd vue-frontend
     - docker image pull node:14.18.3-bullseye
-    - DOCKER_BUILDKIT=0 docker build --cache-from $CONTAINER_IMAGE:latest  --tag $CONTAINER_IMAGE_FRONTEND:$CI_COMMIT_REF_SLUG --tag $CONTAINER_IMAGE_FRONTEND:latest .
+    - DOCKER_BUILDKIT=0 docker build --cache-from $CONTAINER_IMAGE_FRONTEND:latest  --tag $CONTAINER_IMAGE_FRONTEND:$CI_COMMIT_REF_SLUG --tag $CONTAINER_IMAGE_FRONTEND:latest .
     - docker push $CONTAINER_IMAGE_FRONTEND:$CI_COMMIT_REF_SLUG
     - docker push $CONTAINER_IMAGE_FRONTEND:latest
   tags:
@@ -50,7 +50,7 @@ build-backend:
     - docker pull $CONTAINER_IMAGE_BACKEND:latest || true
     - cd flask-backend
     - docker image pull node:14.18.3-bullseye
-    - DOCKER_BUILDKIT=0 docker build --cache-from $CONTAINER_IMAGE:latest --tag $CONTAINER_IMAGE_BACKEND:$CI_COMMIT_REF_SLUG --tag $CONTAINER_IMAGE_BACKEND:latest .
+    - DOCKER_BUILDKIT=0 docker build --cache-from $CONTAINER_IMAGE_BACKEND:latest --tag $CONTAINER_IMAGE_BACKEND:$CI_COMMIT_REF_SLUG --tag $CONTAINER_IMAGE_BACKEND:latest .
     - docker push $CONTAINER_IMAGE_BACKEND:$CI_COMMIT_REF_SLUG
     - docker push $CONTAINER_IMAGE_BACKEND:latest
   tags:
@@ -65,7 +65,7 @@ deploy-to-swarm-production:
   script:
     ## Set CI_DEPLOY_NETWORK variable based on CI_COMMIT_REF_SLUG and CI_PUBLISH
     - CI_DEPLOY_NETWORK=$(if [ $CI_COMMIT_REF_SLUG != "master" ] || [ $CI_PUBLISH == "private" ]; then echo "INTERNAL"; else echo $CI_DEPLOY_NETWORK; fi)
-    #$ Onlz set CI_PUBLISH to public if CI_DEPLOY_NETWORK was set to EXTERNAL
+    ## Only set CI_PUBLISH to public if CI_DEPLOY_NETWORK was set to EXTERNAL
     - CI_PUBLISH=$(if [ $CI_DEPLOY_NETWORK == "INTERNAL" ]; then echo "private"; else echo $CI_PUBLISH; fi)
     - CI_DEPLOY_TAG=$(echo $CI_DEPLOY_NETWORK | tr '[:upper:]' '[:lower:]')
     - CI_PROJECT_NAMESPACE=$(echo $CI_PROJECT_NAMESPACE | tr '[:upper:]' '[:lower:]')
@@ -88,11 +88,9 @@ deploy-to-swarm-production:
     - ssh deployer@$SSH_DEPLOY_HOST "docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY"
     # generate path for compose file
     - COMPOSE_PATH=/home/deployer/$CI_PROJECT_NAME/$CI_COMMIT_REF_SLUG/
-
     # generate directory to copy files to
     - ssh deployer@$SSH_DEPLOY_HOST "mkdir -p $COMPOSE_PATH"
     # copy necessary files to host (e.g. docker-compose.yml)
-
     - scp docker-compose.yml deployer@$SSH_DEPLOY_HOST:$COMPOSE_PATH
     # start new container
     - ssh -o SendEnv=CI_* deployer@$SSH_DEPLOY_HOST "cd $COMPOSE_PATH && CI_REGISTRY=$CI_REGISTRY CI_PROJECT_NAMESPACE=$CI_PROJECT_NAMESPACE CI_PROJECT_NAME=$CI_PROJECT_NAME CI_COMMIT_REF_SLUG=$CI_COMMIT_REF_SLUG CI_DEPLOY_NETWORK=$CI_DEPLOY_NETWORK CI_PUBLISH=$CI_PUBLISH CI_DEPLOY_TAG=$CI_DEPLOY_TAG CI_PASSWORD=$CI_PASSWORD CI_CONFIG_FILE_PATH_PRODUCTION=$CI_CONFIG_FILE_PATH_PRODUCTION CI_VOLUME_MOUNT_PATH=$CI_VOLUME_MOUNT_PATH docker stack deploy --with-registry-auth --compose-file docker-compose.yml  $CI_COMMIT_REF_SLUG"
@@ -111,7 +109,7 @@ deploy-to-swarm-staging-frontend:
   script:
     ## Set CI_DEPLOY_NETWORK variable based on CI_COMMIT_REF_SLUG and CI_PUBLISH
     - CI_DEPLOY_NETWORK=$(echo "INTERNAL")
-    #$ Onlz set CI_PUBLISH to public if CI_DEPLOY_NETWORK was set to EXTERNAL
+    ## Only set CI_PUBLISH to public if CI_DEPLOY_NETWORK was set to EXTERNAL
     - CI_PUBLISH=$(echo "private")
     - CI_DEPLOY_TAG=$(echo $CI_DEPLOY_NETWORK | tr '[:upper:]' '[:lower:]')
     - CI_PROJECT_NAMESPACE=$(echo $CI_PROJECT_NAMESPACE | tr '[:upper:]' '[:lower:]')
@@ -146,7 +144,6 @@ deploy-to-swarm-staging-frontend:
     - scp docker-compose-frontend.dev.yml deployer@$SSH_DEPLOY_HOST_INTERNAL:$COMPOSE_PATH
     - scp -r vue-frontend deployer@$SSH_DEPLOY_HOST_INTERNAL:$COMPOSE_PATH
     - ssh -o SendEnv=CI_* deployer@$SSH_DEPLOY_HOST_INTERNAL "cd $COMPOSE_PATH && CI_REGISTRY=$CI_REGISTRY CI_PROJECT_NAMESPACE=$CI_PROJECT_NAMESPACE CI_PROJECT_NAME=$CI_PROJECT_NAME CI_COMMIT_REF_SLUG=$CI_COMMIT_REF_SLUG CI_DEPLOY_NETWORK=$CI_DEPLOY_NETWORK CI_PUBLISH=$CI_PUBLISH CI_DEPLOY_TAG=$CI_DEPLOY_TAG CI_VOLUME_MOUNT_PATH=$CI_VOLUME_MOUNT_PATH docker-compose -f docker-compose-frontend.dev.yml up  --build  --remove-orphans -d"
-
   only:
     - master-internal
   tags:
