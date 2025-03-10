@@ -93,7 +93,7 @@ deploy-to-swarm-production:
     # copy necessary files to host (e.g. docker-compose.yml)
     - scp docker-compose.yml deployer@$SSH_DEPLOY_HOST:$COMPOSE_PATH
     # start new container
-    - ssh -o SendEnv=CI_* deployer@$SSH_DEPLOY_HOST "cd $COMPOSE_PATH && CI_REGISTRY=$CI_REGISTRY CI_PROJECT_NAMESPACE=$CI_PROJECT_NAMESPACE CI_PROJECT_NAME=$CI_PROJECT_NAME CI_COMMIT_REF_SLUG=$CI_COMMIT_REF_SLUG CI_DEPLOY_NETWORK=$CI_DEPLOY_NETWORK CI_PUBLISH=$CI_PUBLISH CI_DEPLOY_TAG=$CI_DEPLOY_TAG CI_PASSWORD=$CI_PASSWORD CI_CONFIG_FILE_PATH_PRODUCTION=$CI_CONFIG_FILE_PATH_PRODUCTION CI_VOLUME_MOUNT_PATH=$CI_VOLUME_MOUNT_PATH docker stack deploy --with-registry-auth --compose-file docker-compose.yml  $CI_COMMIT_REF_SLUG"
+    - ssh deployer@$SSH_DEPLOY_HOST "cd $COMPOSE_PATH && docker stack deploy --with-registry-auth --compose-file docker-compose.yml $CI_COMMIT_REF_SLUG"
   only:
     - master
   tags:
@@ -162,10 +162,6 @@ deploy-to-swarm-staging-backend:
     - echo "$SSH_PRIVATE_KEY_INTERNAL" | tr -d '\r' | ssh-add - > /dev/null
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
-    - echo $SSH_DEPLOY_HOST_INTERNAL
-    - echo $CI_REGISTRY_USER
-    - echo $CI_REGISTRY_PASSWORD
-    - echo $CI_REGISTRY
     - echo "$SSH_KNOWN_HOSTS_INTERNAL" >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
     - echo "SendEnv LANG CI_*" >> /etc/ssh/ssh_config
