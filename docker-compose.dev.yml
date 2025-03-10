@@ -1,0 +1,18 @@
+version: '3.6'
+services:
+  mtb_portal_vue_frontend:
+    image: "${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}:${CI_COMMIT_REF_SLUG}"
+    ports:
+      - "3834:3834"
+    environment:
+      - NODE_ENV=${CI_NODE_ENV}
+  mtb_portal_flask_backend:
+    image: "${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/backend:${CI_COMMIT_REF_SLUG}"
+    volumes:
+      - ${CI_VOLUME_MOUNT_PATH}:${CI_VOLUME_MOUNT_PATH}
+    ports:
+      - "3832:3832"
+    environment:
+      - CONFIG_FILE_PATH=${CI_CONFIG_FILE_PATH_DEVELOP}
+      - DB_PASSWORD=topaswp3
+
