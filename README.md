@@ -156,12 +156,13 @@ npm run serve
 
 Then access the app at http://localhost:8080
 This should open the portal, to upload the cohorts use the admin tools on Other tools tab
+
 ## Run backend locally with docker
 
 ```
 make create_docker_networks
-docker-compose -f docker-compose-backend.dev.yml build
-docker-compose -f docker-compose-backend.dev.yml up -d
+docker-compose -f docker-compose-backend.local.yml build
+docker-compose -f docker-compose-backend.local.yml up -d
 ```
 
 The backend is available at http://localhost:3832 (to test, try http://localhost:3832/config)
