@@ -16,7 +16,7 @@ RUN npm install -g http-server
 #####################
 
 ARG NODE_ENV=production
-ARG VUE_APP_API_HOST=/master_mtb_portal_backend
+ARG VUE_APP_API_HOST=/master_topas_portal_backend
 
 ADD ./ /root/vue-frontend
 WORKDIR /root/vue-frontend

@@ -4,7 +4,7 @@ services:
   mtb_portal_flask_backend:
     image: "${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/backend:${CI_COMMIT_REF_SLUG}"
     volumes:
-      - <path_to_your_folder>:<path_to_your_folder>
+      - ${CI_VOLUME_MOUNT_PATH}:${CI_VOLUME_MOUNT_PATH}
     networks:
       - INTERNAL
       - EXTERNAL
@@ -29,9 +29,9 @@ services:
         - "traefik.docker.network=${CI_DEPLOY_NETWORK}"
       resources:
         limits:
-          memory: 100000M
+          memory: 100G
         reservations:
-          memory: 40000M
+          memory: 40G
     environment:
       - CONFIG_FILE_PATH=$CI_CONFIG_FILE_PATH_PRODUCTION
       - DB_HOST=db

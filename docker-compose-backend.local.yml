@@ -6,7 +6,7 @@ services:
     build:
         context: ./flask-backend
     volumes:
-      - <path_to_your_folder>:<path_to_your_folder>
+      - /media:/media
     networks:
       - INTERNAL
       - EXTERNAL

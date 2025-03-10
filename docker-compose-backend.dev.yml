@@ -3,7 +3,7 @@ services:
   mtb_portal_flask_backend:
     build: ./flask-backend
     volumes:
-      - path_to_your_folder:path_to_your_folder
+      - ${CI_VOLUME_MOUNT_PATH}:${CI_VOLUME_MOUNT_PATH}
     ports:
       - "3832:3832"
     environment:

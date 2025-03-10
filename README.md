@@ -4,7 +4,7 @@ TOPAS portal is to explore proteome and phospho-proteome profiles of patients pr
 In this tab you can visualize meta dtata and number of detected modifications per type for each cohort.
 
 Use the dropdown menus to select a cohort and metadata for visualization. Adjust the minimum items per group to filter the data accordingly.
-This app is deployed at https://topas-portal.kusterlab.org/master_mtb_portal/
+This app is deployed at https://topas-portal.kusterlab.org/
 
 ## The bellow variables should be either set as variables in .bashrc or handled in CI/CD pipeline
 ```

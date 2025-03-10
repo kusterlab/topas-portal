@@ -13,7 +13,7 @@ build: dependencies
 	docker build -f Dockerfile -t $(IMAGE) . || (exit 1)
 
 run:
-	docker run -v <path_to_folder>:<path_to_folder> -p 3834:3834 $(IMAGE)
+	docker run -v /media:/media -p 3834:3834 $(IMAGE)
 
 flask:
 	cd flask-backend && poetry run python3 app.py

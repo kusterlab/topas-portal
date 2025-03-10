@@ -9,6 +9,6 @@ module.exports = defineConfig({
   assetsDir: 'static',
 
   publicPath: process.env.NODE_ENV === 'production'
-    ? '/master_mtb_portal/'
+    ? '/master_topas_portal/'
     : '/'
 })
