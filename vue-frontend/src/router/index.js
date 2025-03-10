@@ -8,6 +8,7 @@ import OtherComponent from '@/components/OthertoolsComponent.vue'
 import KinaseComponent from '@/components/KinaseComponent.vue'
 import PproteinComponent from '@/components/ProteinScores.vue'
 import TopasComponent from '@/components/BasketComponent.vue'
+import EntityComponent from '@/components/entitymodelComponent.vue'
 import ZscoringComponent from '@/components/ZscoringComponent.vue'
 
 Vue.use(Router)
@@ -15,7 +16,7 @@ Vue.use(Router)
 export default new Router({
   mode: 'hash',
   base: process.env.NODE_ENV === 'production'
-    ? '/master_topas-portal/'
+    ? '/master_mtb_portal/'
     : '/',
   routes: [
     { path: '/', component: OverviewComponent },
@@ -26,6 +27,7 @@ export default new Router({
     { path: '/other-tools', component: OtherComponent },
     { path: '/kinasescores', component: KinaseComponent },
     { path: '/proteinscores', component: PproteinComponent },
+    { path: '/entityscores', component: EntityComponent },
     { path: '/zscores', component: ZscoringComponent }
 
   ]
