@@ -1,0 +1,66 @@
+version: '3.6'
+ 
+services:
+  
+  mtb_portal_flask_backend:
+    build:
+        context: ./flask-backend
+    volumes:
+      - <path_to_your_folder>:<path_to_your_folder>
+    networks:
+      - INTERNAL
+      - EXTERNAL
+    ports:
+      - "80:80"  
+      - "3832:3832"
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 2s
+        max_attempts: 5
+        window: 10s
+      update_config:
+        parallelism: 1
+        delay: 5s
+        order: start-first
+      resources:
+        limits:
+          memory: 80000M
+        reservations:
+          memory: 80000M
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=cohort_db
+      - DB_USER=topas
+      - DB_PASSWORD=topaswp3
+    depends_on:
+      - db
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_USER=topas
+      - POSTGRES_PASSWORD=topaswp3
+      - POSTGRES_DB=cohort_db
+
+    volumes:
+      - flask_cohort_data:/var/lib/postgresql/data
+    networks:
+      - INTERNAL
+    ports:
+      - "5432:5432"
+
+
+
+
+networks:
+  INTERNAL:
+      external: true
+  EXTERNAL:
+      external: true
+
+volumes:
+    flask_cohort_data:
+

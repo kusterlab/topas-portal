@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "js-cookie": "^3.0.5",
+    "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@vue/cli-service": "^3.3.1"
+  }
+}

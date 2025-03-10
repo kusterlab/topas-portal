@@ -1,0 +1,88 @@
+<template>
+  <v-row class="pa-4 grey lighten-3">
+    <div class="d-flex flex-row">
+      <v-col
+        sm="4"
+        md="3"
+        lg="3"
+      >
+        <v-tabs
+          v-model="tabs"
+          vertical
+          class="d-flex justify-end"
+        >
+          <v-tab
+            v-for="item of allPlots"
+            :key="item"
+            @click="tabChange"
+          >
+            {{ item }}
+          </v-tab>
+        </v-tabs>
+      </v-col>
+      <v-col
+        sm="4"
+        md="10"
+        lg="10"
+      >
+        <v-tabs-items v-model="tabs">
+          <v-tab-item class="tab">
+            <heatmap-component />
+          </v-tab-item>
+          <v-tab-item class="tab">
+            <venn-component />
+          </v-tab-item>
+        </v-tabs-items>
+      </v-col>
+    </div>
+  </v-row>
+</template>
+
+<script>
+import HeatmapComponent from './HeatmapComponent.vue'
+import VennComponent from './VennComponent.vue'
+
+const d3 = require('d3')
+export default {
+  name: 'VisualizationComponent',
+  components: {
+    HeatmapComponent,
+    VennComponent
+  },
+  props: {
+    minWidth: {
+      type: Number,
+      default: 400
+    },
+    minHeight: {
+      type: Number,
+      default: 300
+    }
+  },
+  data: () => ({
+    allPlots: ['Heatmap Plots', 'Venn Diagrams'],
+    tabs: null
+  }),
+  computed: {
+  },
+  methods: {
+    tabChange () {
+    //  To Avoid data leakge between different d3 objects, SVGs remove during tab changes
+    //  if (this.items[this.tabs] === 'Protein Expression' || this.items[this.tabs] === 'Basket Scores' || this.items[this.tabs] === 'Drug Scores' || this.items[this.tabs] === 'Phosphorylation Scores') {
+      d3.selectAll('svg').remove()
+      d3.selectAll('.names').remove()
+      d3.selectAll('dot').remove()
+      d3.selectAll('circle').remove()
+      d3.selectAll('line').remove()
+      d3.selectAll('rect').remove()
+      d3.selectAll('toto').remove()
+      d3.selectAll('g').remove()
+    //  }
+    }
+  }
+}
+</script>
+
+<style>
+
+</style>

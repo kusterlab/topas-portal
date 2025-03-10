@@ -1,0 +1,24 @@
+IMAGE ?= mtb_portal
+DATA ?= $(HOME)
+OUT_DIR ?= $(DATA)
+
+INTERACTIVE := $(shell [ -t 0 ] && echo 1)
+MEMORY_LIMIT ?= 4gb
+CPU_LIMIT ?= 1
+
+ifdef INTERACTIVE
+	USE_TTY= -t
+else
+	USE_TTY=
+endif
+
+DOCKER_CMD ?= docker run -i ${USE_TTY} \
+					-v "$(DATA)":/root/data/ \
+					-v "$(OUT_DIR)":/root/data/out/ \
+					--memory=$(MEMORY_LIMIT) \
+					--cpus=$(CPU_LIMIT)
+
+
+
+CONTAINER_ID ?= `sudo docker container ls --all --quiet --filter "name=mtb_portal_mtb_portal_flask_backend_1"`
+POSTGRES_ID ?= `sudo docker container ls --all --quiet --filter "name=mtb_portal_db_1"`

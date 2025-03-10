@@ -1,0 +1,96 @@
+version: '3.6'
+ 
+services:
+  mtb_portal_flask_backend:
+    image: "${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/backend:${CI_COMMIT_REF_SLUG}"
+    volumes:
+      - <path_to_your_folder>:<path_to_your_folder>
+    networks:
+      - INTERNAL
+      - EXTERNAL
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 2s
+        max_attempts: 5
+        window: 10s
+      update_config:
+        parallelism: 1
+        delay: 5s
+        order: start-first
+      labels:
+        - "traefik.port=3832"
+        - "traefik.backend=${CI_COMMIT_REF_SLUG}_${CI_PROJECT_NAME}_backend"
+        - "traefik.frontend.rule=PathPrefixStrip:/${CI_COMMIT_REF_SLUG}_${CI_PROJECT_NAME}_backend/"
+        - "traefik.backend.loadbalancer.sticky=true"
+        - "traefik.tags=${CI_COMMIT_REF_SLUG},${CI_DEPLOY_TAG},${CI_PUBLISH}"
+        - "traefik.docker.network=${CI_DEPLOY_NETWORK}"
+      resources:
+        limits:
+          memory: 100000M
+        reservations:
+          memory: 40000M
+    environment:
+      - CONFIG_FILE_PATH=$CI_CONFIG_FILE_PATH_PRODUCTION
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=cohort_db
+      - DB_USER=topas
+      - DB_PASSWORD=$CI_PASSWORD
+
+    depends_on:
+      - db
+  db:
+    image: postgres:16
+    environment:
+      - POSTGRES_USER=topas
+      - POSTGRES_PASSWORD=$CI_PASSWORD
+      - POSTGRES_DB=cohort_db
+
+    volumes:
+      - flask_cohort_data:/var/lib/postgresql/data
+    networks:
+      - INTERNAL
+    ports:
+      - "5432:5432"
+
+  mtb_portal_vue_frontend:
+    image: "${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}:${CI_COMMIT_REF_SLUG}"
+    depends_on:
+      - mtb_portal_flask_backend
+    networks:
+      - INTERNAL
+      - EXTERNAL
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 2s
+        max_attempts: 5
+        window: 10s
+      update_config:
+        parallelism: 1
+        delay: 5s
+        order: start-first
+      labels:
+        - "traefik.port=3834"
+        - "traefik.backend=${CI_COMMIT_REF_SLUG}_${CI_PROJECT_NAME}"
+        - "traefik.frontend.rule=PathPrefixStrip:/${CI_COMMIT_REF_SLUG}_${CI_PROJECT_NAME}/"
+        - "traefik.backend.loadbalancer.sticky=true"
+        - "traefik.tags=${CI_COMMIT_REF_SLUG},${CI_DEPLOY_TAG},${CI_PUBLISH}"
+        - "traefik.docker.network=${CI_DEPLOY_NETWORK}"
+      resources:
+        limits:
+          memory: 1000M
+ 
+networks:
+  EXTERNAL:
+    external: true
+  INTERNAL:
+    external: true
+
+volumes:
+    flask_cohort_data:

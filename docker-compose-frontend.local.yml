@@ -1,0 +1,15 @@
+version: '3.6'
+ 
+services:
+  mtb_portal_vue_frontend:
+    build: 
+      context: ./vue-frontend
+      args:
+        - NODE_ENV=development
+        - VUE_APP_API_HOST=localhost:3832/
+  
+    image: mtb_portal_vue_frontend
+    ports:
+      - "3834:3834"
+
+

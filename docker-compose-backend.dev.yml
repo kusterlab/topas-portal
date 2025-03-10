@@ -1,0 +1,11 @@
+version: '3.6'
+services:
+  mtb_portal_flask_backend:
+    build: ./flask-backend
+    volumes:
+      - path_to_your_folder:path_to_your_folder
+    ports:
+      - "3832:3832"
+    environment:
+      - CONFIG_FILE_PATH=${CONFIG_FILE_PATH_DEVELOP}
+      - DB_PASSWORD=topaswp3
