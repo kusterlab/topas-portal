@@ -344,7 +344,7 @@ export default {
       }
     },
     swarmPrefix () {
-      return this.intensityUnit === 'Z-score' ? 'Z-Score' : 'log10 expression'
+      return this.intensityUnit === 'Z-score' ? 'Z-Score' : 'log10 abundance'
     },
     placeholder () {
       if (this.mode === DataType.TRANSCRIPTOMICS) {

@@ -63,7 +63,7 @@ export default {
     imagesrc: require('@/assets/topas_logo.png'),
     items: [
       { label: 'Home', path: '/', icon: 'mdi-home' },
-      { label: 'Expression', path: '/expression', icon: 'mdi-dna', useSvg: true },
+      { label: 'Abundance', path: '/expression', icon: 'mdi-dna', useSvg: true },
       { label: 'Scores', path: '/topasscores', icon: 'mdi-chart-bar' },
       { label: 'Analytics', path: '/analytics', icon: 'mdi-chart-line' },
       { label: 'Visualizations', path: '/visualizations', icon: 'mdi-image-filter' },
