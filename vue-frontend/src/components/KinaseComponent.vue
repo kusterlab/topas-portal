@@ -118,11 +118,11 @@
           <v-expansion-panels>
             <v-expansion-panel>
               <v-expansion-panel-header>
-                More info
+                More info?
               </v-expansion-panel-header>
               <v-expansion-panel-content>
                 <p class="text-body-2">
-                  In this tab you can visualize distribution of kinase activity (Substrate Phosphorylation scores) for single/multiple kinases across all patients/samples.
+                  In this tab you can visualize Substrate phosphorylation scores to interrogate the activity of protein kinases based on the abundance of kinase substrate phosphorylation sites annotated in Phosphositeplus. Use the dropdown menu to select a cohort, then apply filters as required to stratify samples. To visualize specific samples in the swarm plot, select samples in the list, pick a name in the field "Group" above the plot, adjust the color and click the blue edit button. Click the circled arrow to come back to default. To export the plot, click the export button on the right handside above the plot.
                 </p>
               </v-expansion-panel-content>
             </v-expansion-panel>

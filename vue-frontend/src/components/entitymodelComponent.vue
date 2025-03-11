@@ -39,11 +39,11 @@
           <v-expansion-panels>
             <v-expansion-panel>
               <v-expansion-panel-header>
-                More info
+                More info?
               </v-expansion-panel-header>
               <v-expansion-panel-content>
                 <p class="text-body-2">
-                  In this tab you can visualize the predicted entity (cancer type) scores calculated from our pretrained (logistic regression) classifier models for each patient/sample.
+                  In this tab you can interrogate the probability of samples matching pre-defined entities based on the expression of up to 100 proteins per entity. Use the dropdown menu to select a cohort and enter the sample of interest into the list. Matching probability is evaluated between 0 (low probability) to 1 (high probability).
                 </p>
               </v-expansion-panel-content>
             </v-expansion-panel>
