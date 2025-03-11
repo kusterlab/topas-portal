@@ -10,7 +10,6 @@ import PproteinComponent from '@/components/ProteinScores.vue'
 import TopasComponent from '@/components/BasketComponent.vue'
 import EntityComponent from '@/components/entitymodelComponent.vue'
 import ZscoringComponent from '@/components/ZscoringComponent.vue'
-import EntityComponent from '@/components/entitymodelComponent.vue'
 
 Vue.use(Router)
 
