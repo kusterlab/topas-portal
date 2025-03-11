@@ -1,20 +1,21 @@
-# MTB Portal
-TOPAS portal is to explore proteome and phospho-proteome profiles of patients processed with our clinical-proteomics piepline from LC/MS data. In addition it is possible to integrate other omics modalities such as Transcriptomics and Genomics for analysis and comparisons.
+# TOPAS Portal
 
-In this tab you can visualize meta dtata and number of detected modifications per type for each cohort.
+The TOPAS portal allows exploration of proteome and phospho-proteome profiles of patients processed with our clinical-proteomics pipeline from LC/MS data. 
+In addition, other omics modalities such as transcriptomics and genomics can be integrated for analysis and comparisons.
 
-Use the dropdown menus to select a cohort and metadata for visualization. Adjust the minimum items per group to filter the data accordingly.
 This app is deployed at https://topas-portal.kusterlab.org/
 
-## The bellow variables should be either set as variables in .bashrc or handled in CI/CD pipeline
+## Configuration
+
+The following variables are required to be set in your user's `~/.bashrc` or as part of a CI/CD pipeline:
 ```
-EXPORT DB_PASSWORD=<your passwords>
-EXPORT PORTAL_CONFIG_FILE=<the path to the config file of the portal>
+EXPORT DB_PASSWORD=<your password>
+EXPORT PORTAL_CONFIG_FILE=<path to your portal config file>
 ```
 
-
-## the bellow params need to be in the config file of the portal 
-```{
+The `PORTAL_CONFIG_FILE` is a `json` file with the following format:
+```
+{
     "local_http": "http://localhost:3832",
     "basket_annotation_path": "TOPAS_SCORING_4th gen_5th gen 231212.xlsx",
     "drug_annotation_path": "Drug_List.xlsx",
@@ -43,170 +44,169 @@ EXPORT PORTAL_CONFIG_FILE=<the path to the config file of the portal>
     "pspRegulatoryFile": "Regulatory_sites"
 }
 ```
-basket_annotation_path : an excel file with the bellow columns
 
-```
-'GROUP'        : '(R)TK', 'SIGNALING', 'OTHER'
-'BASKET'       : i.e 'KIT', 'PDGFRA', 'PDGFRB', 'FGFR1', 'FGFR4', 'FGFR2', 'FGFR3'
-'SUBBASKET'    : i.e 'KIT', 'PDGFRA', 'PDGFRB', 'Ligand', 'FGFR1', 'FGFR4', 'FGFR2'
-'LEVEL'        : i.e 'phosphorylation', 'expression', 'kinase activity'
-'SCORING RULE' : i.e 'highest protein phosphorylation score ,  'highest z-score', 'highest kinase score'highest z-score'
-'WEIGHT'       : i.e  2. ,  nan,  0.5,  3. , -1. , -0.5,  0. 
-'GENE NAME'    : i.e 'KIT', 'PDGFRA', 'PDGFRB', ..., 'FBLN2', 'ITGA5', 'COL3A1'
-'Site positions (MQ identified - PSP)' : i.e 'P09619_Y751', 'P11362_Y654', 'P11362_Y653'
-'Kinase'       : 'AXL;CSK;Chk1;Fyn;Lck;PDGFRA;PDGFRB;PKACA;Src'
-'MODIFIED SEQUENCE' : i.e  '_LLLATpYARPPR_', '_EPPPpYQEPRPR_', 
-'Literature' : optional
-'Comment'    : optional
-```
+- `basket_annotation_path`: path to an Excel file with the following columns:
+    ```
+    'GROUP'        : '(R)TK', 'SIGNALING', 'OTHER'
+    'BASKET'       : i.e 'KIT', 'PDGFRA', 'PDGFRB', 'FGFR1', 'FGFR4', 'FGFR2', 'FGFR3'
+    'SUBBASKET'    : i.e 'KIT', 'PDGFRA', 'PDGFRB', 'Ligand', 'FGFR1', 'FGFR4', 'FGFR2'
+    'LEVEL'        : i.e 'phosphorylation', 'expression', 'kinase activity'
+    'SCORING RULE' : i.e 'highest protein phosphorylation score ,  'highest z-score', 'highest kinase score'highest z-score'
+    'WEIGHT'       : i.e  2. ,  nan,  0.5,  3. , -1. , -0.5,  0. 
+    'GENE NAME'    : i.e 'KIT', 'PDGFRA', 'PDGFRB', ..., 'FBLN2', 'ITGA5', 'COL3A1'
+    'Site positions (MQ identified - PSP)' : i.e 'P09619_Y751', 'P11362_Y654', 'P11362_Y653'
+    'Kinase'       : 'AXL;CSK;Chk1;Fyn;Lck;PDGFRA;PDGFRB;PKACA;Src'
+    'MODIFIED SEQUENCE' : i.e  '_LLLATpYARPPR_', '_EPPPpYQEPRPR_', 
+    'Literature' : optional
+    'Comment'    : optional
+    ```
 
+- `drug_annotation_path`: path to an Excel file with the following columns:
+    ```      
+    "Drug"
+    "Kinobeads Target List"
+    "Designated targets"
+    "Other targets"
+    "Clinical Phase"
+    ```
 
-drug_annotation_path : path to excel file with the bellow columns
-```      
-   "Drug"
-   "Kinobeads Target List"
-   "Designated targets"
-   "Other targets"
-   "Clinical Phase"
-```
-"report_directory" : for each cohort path to the results from the topas_pipeline
+- `report_directory`: dictionary of `cohort_name -> path to a pipeline results folder` (https://github.com/kusterlab/topas-pipeline).
 
-"sample_annotation_path" : for each cohort path to csv file with the bellow columns replicates should be as new rows 
-```
-Sample name
-Batch Name
-TMT Channel
-QC
-is_reference
-```
-FP and PP : 1 or 0 value for each cohort if the FP (full proteome) or PP (Phospho proteomics) data exist for that specific cohort
+- `sample_annotation_path` : dictionary of `cohort_name -> path to csv file` with the following columns. Replicates should each get their own row. 
+    ```
+    Sample name
+    Batch Name
+    TMT Channel
+    QC
+    is_reference
+    ```
 
-"patient_annotation_path" : for each cohort excel file with meta data 
-the column 'Sample name' should exist which corresponds to the same record in sample annotation 
-the information for the replicates are not needed 
+- `FP` and `PP`: dictionary of `cohort_name -> value`, where value is `1` (available) or `0` (unavailable)
 
-'meta_data_columns_config' : path to json file with Meta data columns.  
-json file should be formatted as bellow:
-```
-{"front_end_col_names": [
+- `patient_annotation_path`: dictionary of `cohort_name -> excel file with meta data`.
+The column 'Sample name' is mandatory and has to corresponds to the same record in `sample_annotation_path`. Additional columns containing metadata can be added freely.
+Replicates of the same sample should not be repeated in this file.
+
+- `meta_data_columns_config`: path to json file with additional metadata columns in `patient_annotation_path` with the following format:
+    ```
     {
-        "dataField": "case_submitter_id",
-        "dataType": "string",
-        "width": "70",
-        "visible": "false"
-    },
-        {
-        "dataField": "ethnicity",
-        "dataType": "string",
-        "width": "70",
-        "visible": "false"
-    },
-    {
-        "dataField": "gender",
-        "dataType": "string",
-        "width": "70",
-        "visible": "false"
-    },
-]}
-```
-## installation of backend locally without docker
-- first clone the portal from the repo 
-- To run the flask server:
-- first install and activate a conda env on python 3.9.12 by:
+        "front_end_col_names": [
+            {
+                "dataField": "case_submitter_id",
+                "dataType": "string",
+                "width": "70",
+                "visible": "false"
+            },
+                {
+                "dataField": "ethnicity",
+                "dataType": "string",
+                "width": "70",
+                "visible": "false"
+            },
+            {
+                "dataField": "gender",
+                "dataType": "string",
+                "width": "70",
+                "visible": "false"
+            },
+        ]
+    }
+    ```
 
-```
-conda create --name portal python=3.9.12
-conda activate portal
-```
+## Installation
 
+### Option 1: Deploy on server (recommended)
 
-## using poetry (recommended) 
-```
-- cat flask-backend/poetry.lock |grep lock|grep version  # to get the lock version of poetry
-- pip install poetry==`cat flask-backend/poetry.lock |grep lock|grep version|awk -F = {'print $2'}|sed 's/"//g'|tr -d ' '|tr -d ''`
-- poetry --version # to ensure the version is satisfied
-- cd flask_backend
-- poetry install
+1. ssh into the server
+2. clone this repo:
+    ```
+    git clone https://github.com/kusterlab/topas-portal.git`
+    ```
+3. export password and path to config file (see above):
+    ```
+    EXPORT DB_PASSWORD=<your password>
+    EXPORT PORTAL_CONFIG_FILE=<path to your portal config file>
+    ```
+4. deploy backend and frontend
+    ```
+    make db            # this should deploy the backend and postgres database as two different containers
+    make frontend      # this should deploy the frontend as a separate container
+    ```
+5. Open the portal at http://localhost:8080. To upload cohort data, go to `Other tools -> Admin tools` and press the `Reload all cohorts` button at the bottom of the page.
 
-```
-or
-
-##  without poetry (not recommended)
-
-```
-pip install -r flask-backend/requirements.txt
-```
-To deploy backend on debug mode:
-
-```
-make test_flask # to run the portal on Debug mode
-```
-- To test the backend:
-open   http://localhost:3832/config          in your browser, if the config file is shown everything is fine
+Check the `Makefile` for additional functionalities.
 
 
+### Option 2: deploy without docker
 
-# To run the vue server without docker (you must use another shell):
+1. clone this repo:
+    ```
+    git clone https://github.com/kusterlab/topas-portal.git`
+    ```
+2. install and activate a conda env on python 3.9.12:
+    ```
+    conda create --name portal python=3.9.12
+    conda activate portal
+    ```
+3. install the dependencies:
+    - option 1: using poetry (recommended) 
+        ```
+        pip install poetry==1.8.3
+        cd flask_backend
+        poetry install
+        ```
+    - option 2: using pip (not recommended)
+        ```
+        pip install -r flask-backend/requirements.txt
+        ```
+4. deploy the backend in debug mode:
 
-```
-cd vue-frontend
-npm install
-npm run serve
-```
+    ```
+    make test_flask
+    ```
+5. Check that the backend is running by opening http://localhost:3832/config in your browser. Your config file should be displayed.
+6. Open a new shell and deploy the frontend by running:
+    ```
+    cd vue-frontend
+    npm install
+    npm run serve
+    ```
+7. Open the portal at http://localhost:8080. To upload cohort data, go to `Other tools -> Admin tools` and press the `Reload all cohorts` button at the bottom of the page.
 
-Then access the app at http://localhost:8080
-This should open the portal, to upload the cohorts use the admin tools on Other tools tab
 
-## Run backend locally with docker
+### Option 3: deploy with docker
 
-```
-make create_docker_networks
-docker-compose -f docker-compose-backend.local.yml build
-docker-compose -f docker-compose-backend.local.yml up -d
-```
+1. Run docker-compose to start the backend:
+    ```
+    make create_docker_networks
+    docker-compose -f docker-compose-backend.local.yml build
+    docker-compose -f docker-compose-backend.local.yml up -d
+    ```
+2. The backend is available at http://localhost:3832 (to test, try http://localhost:3832/config)
+    - in the debug mode the config file which is used by default can be found at flask-backend/config_mtb_portal_mintest.json
+    - in the production mode the config file path is in settings.py
+3. Deploy the frontend:
+    ```
+    cd vue-frontend
+    sudo docker build --build-arg NODE_ENV=development --build-arg VUE_APP_API_HOST=http://$(hostname -I | awk '{print $1}'):3832 -t mtb:dev . 
+    sudo docker run -d --name mtb_portal_frontend -it -p 3834:3834 --rm mtb:dev
+    ```
+4. Open the portal at http://localhost:3834. To upload cohort data, go to `Other tools -> Admin tools` and press the `Reload all cohorts` button at the bottom of the page.
 
-The backend is available at http://localhost:3832 (to test, try http://localhost:3832/config)
-- in the debug mode the config file which is used by default can be found at flask-backend/config_mtb_portal_mintest.json
-- in the production mode the config file path is in settings.py
+### Option 4: Run with PostgreSQL as database backend
 
-### Run with PostgreSQL support in the backend
+If you have a lot of data but not so much memory, you may want to consider switching to PostgreSQL as the database backend:
 
 1. Set `DATABASE_MODE = True` in `settings.py`.
-2. Start a local backend with docker as above, this creates and starts a PostgreSQL database docker.
+2. Start a local backend with docker (see above), this creates and starts a PostgreSQL database docker.
 3. Import the data into the postgreSQL database (this takes 5-10 minutes for a small cohort):
    ```
    make database_import
    ```
+4. Deploy the frontend (see above)
 
 
-
-### deploying on Test server
-
-- On a server the portal can also be deployed without using CI pipeline
-- ssh to server
-- git clone the repository and cd to the repository folder
-- export password and path to config file as explained above
-```
-make db            # this should deploy the backend and postgres database as two different containers
-make frontend      # this should deploy the frontend as a separate container
-```
-- check the make file for more functionalities including linting, import to database etc.
-
-### stopping the container 
-ssh to the server
-
-```
-sudo docker stop `sudo docker ps|grep "mtb_portal/backend"|awk {'print $1'}`
-```
-
-
-
-
-## Common bugs
+## Common development issues
 
 - DataGrid tables show "Unexpected server response" error: probably NaN values in the flask response. Replace NaNs with empty strings should solve it.
-- Since the frontend of the poral is using the eslint if any changes of the vue code lead to error you can use
-```
-make lint
-```
-will fix the problem
+- The frontend of the portal uses eslint which can lead to vue complaining about improper linting. Run `make lint` to fix these errors.
