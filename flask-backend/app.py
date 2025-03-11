@@ -21,6 +21,7 @@ import topas_portal.settings as settings
 import topas_portal.prexp_preprocess as pp
 import topas_portal.basket_preprocess as bp
 import topas_portal.correlations_preprocess as cp
+
 import topas_portal.fetch_data_matrix as hp
 import topas_portal.differential_expression as differential_test
 import topas_portal.genomics_preprocess as genomics_process
@@ -52,7 +53,7 @@ with app.app_context():
     from compartments.entityscore_app import entityscore_page
     from compartments.overview_app import overview_page
     from compartments.z_scoring_app import zscoring_page
-
+    from compartments.entityscore_app import entityscore_page
 
 app.register_blueprint(qc_page)
 # app.register_blueprint(drugscore_page) # under development
@@ -63,6 +64,8 @@ app.register_blueprint(integration_page)
 app.register_blueprint(entityscore_page)
 app.register_blueprint(overview_page)
 app.register_blueprint(zscoring_page)
+app.register_blueprint(entityscore_page)
+
 CORS(app)
 
 logging.basicConfig(filename=settings.PORTAL_LOG_FILE, level=logging.ERROR)
@@ -159,6 +162,7 @@ def get_patient_report_table(
             download_method=downloadmethod,
         )
     )
+
 
 
 # http://localhost:3832//entityscore/status

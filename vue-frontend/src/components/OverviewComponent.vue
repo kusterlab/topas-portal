@@ -1,270 +1,156 @@
 <template>
   <div>
-    <!-- Main Content -->
-    <v-row class="pa-4">
-      <!-- Sidebar -->
-      <v-col
-        sm="12"
-        md="3"
-        lg="3"
-      >
-        <v-card
-          elevation="2"
-          class="pa-4"
+    <v-col
+      sm="12"
+      md="12"
+      lg="12"
+    >
+      <v-row class="pa-4">
+        <v-col
+          sm="12"
+          md="6"
+          lg="6"
         >
-          <v-card-title
-            tag="h2"
-            class="text-h6 font-weight-bold mb-3"
+          <v-card
+            elevation="2"
+            class="pa-4"
           >
-            Options
-          </v-card-title>
-          <v-card-text>
-            <v-combobox
-              v-model="diseaseName"
-              dense
-              outlined
-              hide-details
-              :items="all_diseases"
-              label="Cohort / Cell Type"
-              prepend-icon="mdi-database"
-              @change="allUpdate"
-            />
-          </v-card-text>
-          <v-card-text>
-            <v-row class="mb-4">
-              <v-col cols="12">
-                <v-select
-                  v-model="activeMeta"
-                  dense
-                  outlined
-                  hide-details
-                  :items="metaData"
-                  label="Color by Metadata"
-                  prepend-icon="mdi-palette"
-                  @change="updateplotaData"
-                />
-              </v-col>
-            </v-row>
-            <v-row class="mb-4">
-              <v-col cols="12">
-                <v-text-field
-                  v-model="minNumitems"
-                  label="Min Items per Group"
-                  type="number"
-                  dense
-                  outlined
-                  prepend-icon="mdi-counter"
-                  hide-details
-                  @change="updateplotaData"
-                />
-              </v-col>
-            </v-row>
-          </v-card-text>
-        </v-card>
-
-        <!-- Collapsible Help Box -->
-        <v-card
-          elevation="2"
-          class="pa-4 mt-4"
-        >
-          <v-expansion-panels>
-            <v-expansion-panel>
-              <v-expansion-panel-header>
-                More info?
-              </v-expansion-panel-header>
-              <v-expansion-panel-content>
-                <p class="text-body-2">
-                  TOPAS portal is to explore proteome and phospho-proteome profiles of patients processed with our clinical-proteomics pipeline from LC/MS
-                  data. In addition it is possible to integrate other omics modalities such as Transcriptomics and Genomics for analysis and comparisons.
-                </p>
-                <p class="text-body-2">
-                  In this tab you can visualize meta dtata and number of detected modifications per type for each cohort.
-                </p>
-                <p class="text-body-2">
-                  Use the dropdown menus to select a cohort and metadata for visualization. Adjust the minimum items per group to filter the data accordingly.
-                </p>
-              </v-expansion-panel-content>
-            </v-expansion-panel>
-          </v-expansion-panels>
-        </v-card>
-      </v-col>
-
-      <!-- Data Visualization Section -->
-      <v-col
-        sm="12"
-        md="9"
-        lg="9"
-      >
-        <v-card
-          elevation="2"
-          class="pa-4"
-        >
-          <v-row class="pa-0 home-hero grey lighten-4">
-            <v-col cols="12">
-              <div class="home-hero__banner d-flex align-left justify-left py-12">
-                <v-container>
-                  <h1 class="display-2 font-weight-bold black--text text-left mb-4">
-                    Welcome to TOPAS Portal
-                  </h1>
-                  <p class="text-h6 black--text text-left mb-6">
-                    A multi-omics resource for precision oncology research. Explore data and tools for proteomics, transcriptomics, and genomics.
+            <v-card-title
+              tag="h2"
+              class="text-h6 font-weight-bold mb-3"
+            >
+              Options
+            </v-card-title>
+            <v-card-text>
+              <v-combobox
+                v-model="diseaseName"
+                dense
+                outlined
+                hide-details
+                :items="all_diseases"
+                label="Cohort / Cell Type"
+                prepend-icon="mdi-database"
+                @change="allUpdate"
+              />
+            </v-card-text>
+            <v-card-text>
+              <v-row class="mb-4">
+                <v-col cols="12">
+                  <v-select
+                    v-model="activeMeta"
+                    dense
+                    outlined
+                    hide-details
+                    :items="metaData"
+                    label="Color by Metadata"
+                    prepend-icon="mdi-palette"
+                    @change="updateplotaData"
+                  />
+                </v-col>
+              </v-row>
+              <v-row class="mb-4">
+                <v-col cols="12">
+                  <v-text-field
+                    v-model="minNumitems"
+                    label="Min Items per Group"
+                    type="number"
+                    dense
+                    outlined
+                    prepend-icon="mdi-counter"
+                    hide-details
+                    @change="updateplotaData"
+                  />
+                </v-col>
+              </v-row>
+            </v-card-text>
+          </v-card>
+          <v-card
+            elevation="2"
+            class="pa-4 mt-4"
+          >
+            <v-expansion-panels>
+              <v-expansion-panel>
+                <v-expansion-panel-header>
+                  More info?
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  <p class="text-body-2">
+                    In this tab you can visualize meta dtata and number of detected modifications per type for each cohort.
                   </p>
-                </v-container>
-              </div>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col
-              sm="6"
-              md="6"
-              lg="6"
-            >
-              <v-card outlined>
-                <v-card-title
-                  class="text-h6 font-weight-bold"
-                >
-                  TumOr PAthway Status (TOPAS) scores
-                </v-card-title>
-                <v-card-text>
-                  <v-skeleton-loader
-                    height="200"
-                    width="100%"
-                    type="image, list-item-two-line"
-                  >
-                    <router-link
-                      :to="topasactivityPath"
-                      class="card-link"
-                    >
-                      <v-responsive>
-                        <v-img
-                          :src="require('@/assets/topas_scores.png')"
-                          alt="Entity Image"
-                          height="200"
-                          contain
-                        />
-                      </v-responsive>
-                    </router-link>
-                  </v-skeleton-loader>
-                </v-card-text>
-              </v-card>
-            </v-col>
-            <v-col
-              sm="6"
-              md="6"
-              lg="6"
-            >
-              <v-card outlined>
-                <v-card-title
-                  class="text-h6 font-weight-bold"
-                >
-                  Kinase activity (substrate phosphorylation)
-                </v-card-title>
-                <v-card-text>
-                  <v-skeleton-loader
-                    height="200"
-                    width="100%"
-                    type="image, list-item-two-line"
-                  >
-                    <router-link
-                      :to="kinasectivityPath"
-                      class="card-link"
-                    >
-                      <v-responsive>
-                        <v-img
-                          :src="require('@/assets/kinase_score.png')"
-                          alt="Entity Image"
-                          height="200"
-                          contain
-                        />
-                      </v-responsive>
-                    </router-link>
-                  </v-skeleton-loader>
-                </v-card-text>
-              </v-card>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col
-              sm="6"
-              md="6"
-              lg="6"
-            >
-              <v-card flat>
-                <v-card-title
-                  v-if="entityData.data"
-                  class="text-h6 font-weight-bold"
-                >
-                  Entity Data
-                </v-card-title>
-                <v-card-text>
-                  <v-skeleton-loader
-                    :loading="loadingEntity"
-                    height="200"
-                    width="100%"
-                    type="image, list-item-two-line"
-                  >
-                    <v-responsive>
-                      <Plotly
-                        v-if="entityData.data"
-                        :key="componentKey"
-                        :data="entityData.data"
-                        :layout="entityData.layout"
-                        :to-image-button-options="toImageButtonOptions"
-                      />
-                    </v-responsive>
-                  </v-skeleton-loader>
-                </v-card-text>
-              </v-card>
-            </v-col>
+                  <p class="text-body-2">
+                    Use the dropdown menus to select a cohort and metadata for visualization. Adjust the minimum items per group to filter the data accordingly.
+                  </p>
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+            </v-expansion-panels>
+          </v-card>
+        </v-col>
 
-            <v-col
-              sm="6"
-              md="6"
-              lg="6"
-            >
-              <v-card flat>
-                <v-card-title
-                  v-if="modificationData.data"
-                  class="text-h6 font-weight-bold"
+        <!-- Data Visualization Section -->
+        <v-col
+          sm="12"
+          md="6"
+          lg="6"
+        >
+          <v-row>
+            <v-col cols="12">
+              <v-card-title
+                v-if="entityData.data"
+                class="text-h6 font-weight-bold"
+              >
+                Entity Data
+              </v-card-title>
+              <v-card-text>
+                <v-skeleton-loader
+                  :loading="loadingEntity"
+                  height="200"
+                  width="200"
+                  type="image, list-item-two-line"
                 >
-                  Modification Data
-                </v-card-title>
-                <v-card-text>
-                  <v-skeleton-loader
-                    :loading="loadingEntity"
-                    height="200"
-                    width="100%"
-                    type="image, list-item-two-line"
-                  >
-                    <v-responsive>
-                      <Plotly
-                        v-if="modificationData.data"
-                        :key="componentKey"
-                        :data="modificationData.data"
-                        :layout="modificationData.layout"
-                        :to-image-button-options="toImageButtonOptions"
-                      />
-                    </v-responsive>
-                  </v-skeleton-loader>
-                </v-card-text>
-              </v-card>
+                  <v-responsive>
+                    <Plotly
+                      v-if="entityData.data"
+                      :key="componentKey"
+                      :data="entityData.data"
+                      :layout="entityData.layout"
+                      :to-image-button-options="toImageButtonOptions"
+                    />
+                  </v-responsive>
+                </v-skeleton-loader>
+              </v-card-text>
             </v-col>
           </v-row>
-        </v-card>
-      </v-col>
-    </v-row>
-    <div>
-      <!-- Cookie Consent Banner -->
-      <div
-        v-if="!cookieAccepted"
-        class="cookie-banner"
-      >
-        This page uses cookies to save table preferences.
-        <button @click="acceptCookies">
-          Accept
-        </button>
-      </div>
-    </div>
+          <v-row>
+            <v-card flat>
+              <v-card-title
+                v-if="modificationData.data"
+                class="text-h6 font-weight-bold"
+              >
+                Modification Data
+              </v-card-title>
+              <v-card-text>
+                <v-skeleton-loader
+                  :loading="loadingEntity"
+                  height="200"
+                  width="200"
+                  type="image, list-item-two-line"
+                >
+                  <v-responsive>
+                    <Plotly
+                      v-if="modificationData.data"
+                      :key="componentKey"
+                      :data="modificationData.data"
+                      :layout="modificationData.layout"
+                      :to-image-button-options="toImageButtonOptions"
+                    />
+                  </v-responsive>
+                </v-skeleton-loader>
+              </v-card-text>
+            </v-card>
+          </v-row>
+        </v-col>
+      </v-row>
+    </v-col>
   </div>
 </template>
 
@@ -343,7 +229,7 @@ export default {
       try {
         response = await axios.get(`${process.env.VUE_APP_API_HOST}/overview/entity_count/${this.cohortIndex}/${this.activeMeta}/${this.minNumitems}`)
         this.entityData = response.data
-        this.componentKey = this.componentKey + 1
+        // this.componentKey = this.componentKey + 1
       } catch (error) {
         console.log(error)
         this.entityData = []
@@ -357,7 +243,7 @@ export default {
       try {
         response = await axios.get(`${process.env.VUE_APP_API_HOST}/overview/mod_seq_type/${this.cohortIndex}`)
         this.modificationData = response.data
-        this.componentKey = this.componentKey + 1
+        // this.componentKey = this.componentKey + 1
         this.loadingPhospho = false
       } catch (error) {
         this.modificationData = []

@@ -19,6 +19,9 @@
         <drug-component />
       </v-tab-item>
       <v-tab-item class="tab">
+        <meta-analysis />
+      </v-tab-item>
+      <v-tab-item class="tab">
         <log-component />
       </v-tab-item>
     </v-tabs-items>
@@ -29,12 +32,14 @@
 import PatientComponent from './PatientReportComponent.vue'
 import LogComponent from './LogComponent.vue'
 import DrugComponent from './DrugComponent.vue'
+import metaAnalysis from './OverviewComponent.vue'
 
 export default {
   name: 'VisualizationComponent',
   components: {
     PatientComponent,
     LogComponent,
+    metaAnalysis,
     DrugComponent
   },
   props: {
@@ -48,7 +53,7 @@ export default {
     }
   },
   data: () => ({
-    allPlots: ['Patient reports', 'Kino beads', 'Admin Tools'],
+    allPlots: ['Patient reports', 'Kino beads', 'Meta analysis', 'Admin Tools'],
     tabs: null
   }),
   computed: {

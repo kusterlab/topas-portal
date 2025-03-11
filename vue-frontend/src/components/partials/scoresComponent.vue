@@ -52,7 +52,7 @@ export default {
     imagesrc: require('@/assets/topas_logo.png'),
     items: [
       { label: 'Topas Scores', path: '/topasscores' },
-      { label: 'Substrate Phoshphorylation Scores', path: '/kinasescores' },
+      { label: 'Substrate Phosphorylation Scores', path: '/kinasescores' },
       { label: 'Protein Phoshphorylation Scores', path: '/proteinscores' },
       { label: 'Z Scores', path: '/zscores' }
     ],
