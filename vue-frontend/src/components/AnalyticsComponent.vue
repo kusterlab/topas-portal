@@ -29,15 +29,12 @@
 import PcaComponent from './QCComponent.vue'
 import CorrelationComponent from './CorrelationComponent.vue'
 import DifferentialComponent from './DifferentialComponent.vue'
-import HeatmapComponentVue from './HeatmapComponent.vue'
-import vennComponent from './VennComponent.vue
 
 const d3 = require('d3')
 export default {
   name: 'ScoreComponent',
   components: {
     PcaComponent,
-    HeatmapComponentVue,
     CorrelationComponent,
     DifferentialComponent
   },
