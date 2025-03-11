@@ -21,6 +21,12 @@
       <v-tab-item class="tab">
         <differential-component />
       </v-tab-item>
+      <v-tab-item class="tab">
+        <heatmap-component />
+      </v-tab-item>
+      <v-tab-item class="tab">
+        <venn-component />
+      </v-tab-item>
     </v-tabs-items>
   </v-row>
 </template>
@@ -29,6 +35,8 @@
 import PcaComponent from './QCComponent.vue'
 import CorrelationComponent from './CorrelationComponent.vue'
 import DifferentialComponent from './DifferentialComponent.vue'
+import VennComponent from './VennComponent.vue'
+import HeatmapComponent from './HeatmapComponent.vue'
 
 const d3 = require('d3')
 export default {
@@ -36,6 +44,8 @@ export default {
   components: {
     PcaComponent,
     CorrelationComponent,
+    VennComponent,
+    HeatmapComponent,
     DifferentialComponent
   },
   props: {
@@ -50,7 +60,7 @@ export default {
   },
   data: () => ({
     scoreType: 'Correlation Analysis',
-    allScores: ['Correlation', 'PCA/UMAP', 'Diff. Expression'],
+    allScores: ['Correlation', 'PCA/UMAP', 'Diff. Expression', 'Heatmap plots', 'Venn diagrams'],
     tabs: null
   }),
   computed: {

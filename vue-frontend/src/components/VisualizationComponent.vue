@@ -1,6 +1,5 @@
 <template>
   <v-row class="pa-4 grey lighten-3">
-    <div class="d-flex flex-row">
       <v-col
         sm="4"
         md="3"
@@ -8,8 +7,6 @@
       >
         <v-tabs
           v-model="tabs"
-          vertical
-          class="d-flex justify-end"
         >
           <v-tab
             v-for="item of allPlots"
@@ -34,13 +31,12 @@
           </v-tab-item>
         </v-tabs-items>
       </v-col>
-    </div>
   </v-row>
 </template>
 
 <script>
-import HeatmapComponent from './HeatmapComponent.vue'
-import VennComponent from './VennComponent.vue'
+import PatientreportComponent from './PatientReportComponent.vue'
+import overviewComponent from './OverviewComponent.vue'
 
 const d3 = require('d3')
 export default {
