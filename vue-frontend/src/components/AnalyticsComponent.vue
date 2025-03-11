@@ -27,6 +27,9 @@
       <v-tab-item class="tab">
         <venn-component />
       </v-tab-item>
+      <v-tab-item class="tab">
+        <kinobeads-component />
+      </v-tab-item>
     </v-tabs-items>
   </v-row>
 </template>
@@ -37,6 +40,7 @@ import CorrelationComponent from './CorrelationComponent.vue'
 import DifferentialComponent from './DifferentialComponent.vue'
 import VennComponent from './VennComponent.vue'
 import HeatmapComponent from './HeatmapComponent.vue'
+import KinobeadsComponent from './DrugComponent.vue'
 
 const d3 = require('d3')
 export default {
@@ -46,7 +50,8 @@ export default {
     CorrelationComponent,
     VennComponent,
     HeatmapComponent,
-    DifferentialComponent
+    DifferentialComponent,
+    KinobeadsComponent
   },
   props: {
     minWidth: {
@@ -60,7 +65,7 @@ export default {
   },
   data: () => ({
     scoreType: 'Correlation Analysis',
-    allScores: ['Correlation', 'PCA/UMAP', 'Diff. Expression', 'Heatmap plots', 'Venn diagrams'],
+    allScores: ['Correlation', 'PCA/UMAP', 'Diff. Expression', 'Heatmap plots', 'Venn diagrams', 'Kino Beads'],
     tabs: null
   }),
   computed: {

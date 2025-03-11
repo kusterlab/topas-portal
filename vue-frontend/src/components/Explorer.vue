@@ -66,7 +66,7 @@ export default {
       { label: 'Abundance', path: '/expression', icon: 'mdi-dna', useSvg: true },
       { label: 'Scores', path: '/topasscores', icon: 'mdi-chart-bar' },
       { label: 'Analytics', path: '/analytics', icon: 'mdi-chart-line' },
-      { label: 'Visualizations', path: '/visualizations', icon: 'mdi-periodic-table' },
+      { label: 'Patient', path: '/visualizations', icon: 'mdi-periodic-table' },
       { label: 'Settings', path: '/other-tools', icon: 'mdi-tools' }
     ]
   })

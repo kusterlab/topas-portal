@@ -63,7 +63,6 @@ app.register_blueprint(integration_page)
 app.register_blueprint(entityscore_page)
 app.register_blueprint(overview_page)
 app.register_blueprint(zscoring_page)
-app.register_blueprint(entityscore_page)
 
 CORS(app)
 

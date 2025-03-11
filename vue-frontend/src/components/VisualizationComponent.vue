@@ -24,10 +24,10 @@
       >
         <v-tabs-items v-model="tabs">
           <v-tab-item class="tab">
-            <heatmap-component />
+            <patientreport-component />
           </v-tab-item>
           <v-tab-item class="tab">
-            <venn-component />
+            <overview-component />
           </v-tab-item>
         </v-tabs-items>
       </v-col>
@@ -42,8 +42,8 @@ const d3 = require('d3')
 export default {
   name: 'VisualizationComponent',
   components: {
-    HeatmapComponent,
-    VennComponent
+    PatientreportComponent,
+    overviewComponent
   },
   props: {
     minWidth: {
@@ -56,7 +56,7 @@ export default {
     }
   },
   data: () => ({
-    allPlots: ['Heatmap Plots', 'Venn Diagrams'],
+    allPlots: ['Patient Report', 'Meta analysis'],
     tabs: null
   }),
   computed: {
