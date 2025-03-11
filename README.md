@@ -48,15 +48,15 @@ The `PORTAL_CONFIG_FILE` is a `json` file with the following format:
 - `basket_annotation_path`: path to an Excel file with the following columns:
     ```
     'GROUP'        : '(R)TK', 'SIGNALING', 'OTHER'
-    'BASKET'       : i.e 'KIT', 'PDGFRA', 'PDGFRB', 'FGFR1', 'FGFR4', 'FGFR2', 'FGFR3'
-    'SUBBASKET'    : i.e 'KIT', 'PDGFRA', 'PDGFRB', 'Ligand', 'FGFR1', 'FGFR4', 'FGFR2'
-    'LEVEL'        : i.e 'phosphorylation', 'expression', 'kinase activity'
-    'SCORING RULE' : i.e 'highest protein phosphorylation score ,  'highest z-score', 'highest kinase score'highest z-score'
-    'WEIGHT'       : i.e  2. ,  nan,  0.5,  3. , -1. , -0.5,  0. 
-    'GENE NAME'    : i.e 'KIT', 'PDGFRA', 'PDGFRB', ..., 'FBLN2', 'ITGA5', 'COL3A1'
-    'Site positions (MQ identified - PSP)' : i.e 'P09619_Y751', 'P11362_Y654', 'P11362_Y653'
-    'Kinase'       : 'AXL;CSK;Chk1;Fyn;Lck;PDGFRA;PDGFRB;PKACA;Src'
-    'MODIFIED SEQUENCE' : i.e  '_LLLATpYARPPR_', '_EPPPpYQEPRPR_', 
+    'BASKET'       : e.g. 'KIT', 'PDGFRA', 'PDGFRB', 'FGFR1', 'FGFR4', 'FGFR2', 'FGFR3'
+    'SUBBASKET'    : e.g. 'KIT', 'PDGFRA', 'PDGFRB', 'Ligand', 'FGFR1', 'FGFR4', 'FGFR2'
+    'LEVEL'        : 'phosphorylation', 'expression', 'kinase activity'
+    'SCORING RULE' : 'highest protein phosphorylation score ,  'highest z-score', 'highest kinase score'highest z-score'
+    'WEIGHT'       : e.g.  2. ,  nan,  0.5,  3. , -1. , -0.5,  0. 
+    'GENE NAME'    : e.g. 'KIT', 'PDGFRA', 'PDGFRB', ..., 'FBLN2', 'ITGA5', 'COL3A1'
+    'Site positions (MQ identified - PSP)' : e.g. 'P09619_Y751', 'P11362_Y654', 'P11362_Y653'
+    'Kinase'       : e.g. 'AXL;CSK;Chk1;Fyn;Lck;PDGFRA;PDGFRB;PKACA;Src'
+    'MODIFIED SEQUENCE' : e.g. '_LLLATpYARPPR_', '_EPPPpYQEPRPR_', 
     'Literature' : optional
     'Comment'    : optional
     ```
