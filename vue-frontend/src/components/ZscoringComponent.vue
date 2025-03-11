@@ -80,11 +80,11 @@
           <v-expansion-panels>
             <v-expansion-panel>
               <v-expansion-panel-header>
-                More info
+                More info?
               </v-expansion-panel-header>
               <v-expansion-panel-content>
                 <p class="text-body-2">
-                  In this tab you can recalculate the z-scores for each group of patints based on the meta data and compare it with the precalculated z-scores across all patients.
+                  In this tab you can recalculate the z-scores for each group of patients based on the metadata and compare it with the precalculated z-scores across all patients.
                 </p>
               </v-expansion-panel-content>
             </v-expansion-panel>

@@ -48,11 +48,11 @@
           <v-expansion-panels>
             <v-expansion-panel>
               <v-expansion-panel-header>
-                More info
+                More info?
               </v-expansion-panel-header>
               <v-expansion-panel-content>
                 <p class="text-body-2">
-                  In this tab you can visualize distribution of TOPAS scores across all patients for RTKs or other Kinases. You can activate the Show TOPAS Subscores to visualize the components of TOPAS scores across all patients/samples.
+                  In this tab you can visualize the TOPAS scores and TOPAS z-scores to interrogate the activation of receptor tyrosine kinases based on protein expression, abundance of auto- and total phosphorylation and RTK substrate phosphorylation as annotated in Phosphositeplus. Use the dropdown menu to select a cohort, then apply filters as required to stratify samples. To visualize specific samples in the swarm plot, select samples in the list, pick a name in the field "Group" above the plot, adjust the color and click the blue edit button. Click the circled arrow to come back to default. To export the plot, click the export button on the right handside above the plot.
                 </p>
               </v-expansion-panel-content>
             </v-expansion-panel>
