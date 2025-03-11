@@ -53,7 +53,6 @@ with app.app_context():
     from compartments.entityscore_app import entityscore_page
     from compartments.overview_app import overview_page
     from compartments.z_scoring_app import zscoring_page
-    from compartments.entityscore_app import entityscore_page
 
 app.register_blueprint(qc_page)
 # app.register_blueprint(drugscore_page) # under development
@@ -64,7 +63,6 @@ app.register_blueprint(integration_page)
 app.register_blueprint(entityscore_page)
 app.register_blueprint(overview_page)
 app.register_blueprint(zscoring_page)
-app.register_blueprint(entityscore_page)
 
 CORS(app)
 

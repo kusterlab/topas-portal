@@ -192,7 +192,7 @@ export default {
     topasactivityPath: '/topasscores',
     kinasectivityPath: '/kinasescores',
     cohortAnalysis: '/analytics',
-    patientReport: '/other-tools',
+    patientReport: '/patient',
     componentKey: 0,
     loadingEntity: false,
     loadingPhospho: false,
