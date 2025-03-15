@@ -9,11 +9,13 @@ This app is deployed at https://topas-portal.kusterlab.org/
 
 The following variables are required to be set in your user's `~/.bashrc` or as part of a CI/CD pipeline:
 ```
-EXPORT DB_PASSWORD=<your password>
-EXPORT PORTAL_CONFIG_FILE=<path to your portal config file>
+export DB_PASSWORD=<your password>
+export CONFIG_FILE_PATH=<path to your portal config file>
 ```
 
-The `PORTAL_CONFIG_FILE` is a `json` file with the following format:
+The `DB_PASSWORD` you can choose yourself and is needed to login to the admin tools panel in the portal.
+
+The `CONFIG_FILE_PATH` is a `json` file with the following format:
 ```
 {
     "local_http": "http://localhost:3832",
@@ -121,11 +123,12 @@ Replicates of the same sample should not be repeated in this file.
 2. clone this repo:
     ```
     git clone https://github.com/kusterlab/topas-portal.git`
+    cd topas-portal
     ```
 3. export password and path to config file (see above):
     ```
-    EXPORT DB_PASSWORD=<your password>
-    EXPORT PORTAL_CONFIG_FILE=<path to your portal config file>
+    export DB_PASSWORD=<your password>
+    export CONFIG_FILE_PATH=<path to your portal config file>
     ```
 4. deploy backend and frontend
     ```
@@ -142,6 +145,7 @@ Check the `Makefile` for additional functionalities.
 1. clone this repo:
     ```
     git clone https://github.com/kusterlab/topas-portal.git`
+    cd topas-portal
     ```
 2. install and activate a conda env on python 3.9.12:
     ```
@@ -159,43 +163,54 @@ Check the `Makefile` for additional functionalities.
         ```
         pip install -r flask-backend/requirements.txt
         ```
-4. deploy the backend in debug mode:
+4. export password and path to config file (see above):
+    ```
+    export DB_PASSWORD=<your password>
+    export CONFIG_FILE_PATH=<path to your portal config file>
+    export VUE_APP_API_HOST=http://localhost:3832
+    ```
+5. deploy the backend in debug mode:
 
     ```
     make test_flask
     ```
-5. Check that the backend is running by opening http://localhost:3832/config in your browser. Your config file should be displayed.
-6. Open a new shell and deploy the frontend by running:
+6. Check that the backend is running by opening http://localhost:3832/config in your browser. Your config file should be displayed.
+7. Open a new shell and deploy the frontend by running:
     ```
     cd vue-frontend
     npm install
     npm run serve
     ```
-7. Open the portal at http://localhost:8080. To upload cohort data, go to `Other tools -> Admin tools` and press the `Reload all cohorts` button at the bottom of the page.
+8. Open the portal at http://localhost:8080. To upload cohort data, go to `Other tools -> Admin tools` and press the `Reload all cohorts` button at the bottom of the page.
 
 
 ### Option 3: deploy with docker
 
-1. Run docker-compose to start the backend:
+1. clone this repo:
+    ```
+    git clone https://github.com/kusterlab/topas-portal.git`
+    cd topas-portal
+    ```
+2. Run docker-compose to start the backend:
     ```
     make create_docker_networks
     docker-compose -f docker-compose-backend.local.yml build
     docker-compose -f docker-compose-backend.local.yml up -d
     ```
-2. The backend is available at http://localhost:3832 (to test, try http://localhost:3832/config)
+3. The backend is available at http://localhost:3832 (to test, try http://localhost:3832/config)
     - in the debug mode the config file which is used by default can be found at flask-backend/config_mtb_portal_mintest.json
     - in the production mode the config file path is in settings.py
-3. Deploy the frontend:
+4. Deploy the frontend:
     ```
     cd vue-frontend
     sudo docker build --build-arg NODE_ENV=development --build-arg VUE_APP_API_HOST=http://$(hostname -I | awk '{print $1}'):3832 -t mtb:dev . 
     sudo docker run -d --name mtb_portal_frontend -it -p 3834:3834 --rm mtb:dev
     ```
-4. Open the portal at http://localhost:3834. To upload cohort data, go to `Other tools -> Admin tools` and press the `Reload all cohorts` button at the bottom of the page.
+5. Open the portal at http://localhost:3834. To upload cohort data, go to `Other tools -> Admin tools` and press the `Reload all cohorts` button at the bottom of the page.
 
 ### Option 4: Run with PostgreSQL as database backend
 
-If you have a lot of data but not so much memory, you may want to consider switching to PostgreSQL as the database backend:
+If you have a lot of data and not enough memory, consider switching to PostgreSQL as the database backend:
 
 1. Set `DATABASE_MODE = True` in `settings.py`.
 2. Start a local backend with docker (see above), this creates and starts a PostgreSQL database docker.
