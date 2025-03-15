@@ -1,5 +1,5 @@
 <template>
-  <v-row class="pa-4 grey lighten-3">
+  <v-main>
     <v-tabs
       v-model="tabs"
     >
@@ -16,7 +16,7 @@
         <log-component />
       </v-tab-item>
     </v-tabs-items>
-  </v-row>
+  </v-main>
 </template>
 
 <script>

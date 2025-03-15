@@ -251,7 +251,7 @@ class SQLProvider:
                 patients_list
             )
 
-        elif data_type == "phoshpho_scores":  # for the phoshpho scores
+        elif data_type == "phospho_scores":  # for the phospho scores
             intensity_file = cn.PHOSPHORYLATION_SCORES
             key = cn.FP_KEY
             df_to_insert = phospho_score_loader.load_phosphorylation_scores(
@@ -364,7 +364,7 @@ class SQLProvider:
             config,
             cohort_index,
             models.Phosphoscores(),
-            "phoshpho_scores",
+            "phospho_scores",
             id_key="protein_name",
         )
 

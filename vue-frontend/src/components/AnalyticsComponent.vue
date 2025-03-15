@@ -1,5 +1,5 @@
 <template>
-  <v-row class="pa-4 grey lighten-3">
+  <v-main>
     <v-tabs
       v-model="tabs"
     >
@@ -31,7 +31,7 @@
         <kinobeads-component />
       </v-tab-item>
     </v-tabs-items>
-  </v-row>
+  </v-main>
 </template>
 
 <script>
@@ -65,7 +65,7 @@ export default {
   },
   data: () => ({
     scoreType: 'Correlation Analysis',
-    allScores: ['Correlation', 'PCA/UMAP', 'Diff. Expression', 'Heatmap plots', 'Venn diagrams', 'Kino Beads'],
+    allScores: ['Correlation', 'PCA/UMAP', 'Diff. Expression', 'Heatmaps', 'Venn diagrams', 'Kinobeads'],
     tabs: null
   }),
   computed: {

@@ -223,7 +223,7 @@ def _load_all_tables(cohort, config: Dict, do_return_place_holder: bool = False)
             )
             fp_df_patients = fp_df_patients.join(fp_intensity)
 
-        ## Loading Phoshpho data to the portal
+        ## Loading Phospho data to the portal
         if config["PP"][cohort] == 1:
             print("Reading the data at at the PP level")
             pp_intensity = expression_loader.load_annotated_intensity_file(

@@ -1,37 +1,19 @@
 <template>
-  <v-row class="pa-4 grey lighten-3">
-      <v-col
-        sm="4"
-        md="3"
-        lg="3"
-      >
-        <v-tabs
-          v-model="tabs"
-        >
-          <v-tab
-            v-for="item of allPlots"
-            :key="item"
-            @click="tabChange"
-          >
-            {{ item }}
-          </v-tab>
-        </v-tabs>
-      </v-col>
-      <v-col
-        sm="4"
-        md="10"
-        lg="10"
-      >
-        <v-tabs-items v-model="tabs">
-          <v-tab-item class="tab">
-            <patientreport-component />
-          </v-tab-item>
-          <v-tab-item class="tab">
-            <overview-component />
-          </v-tab-item>
-        </v-tabs-items>
-      </v-col>
-  </v-row>
+  <v-main>
+    <v-tabs v-model="tabs">
+      <v-tab v-for="item of allPlots" :key="item" @click="tabChange">
+        {{ item }}
+      </v-tab>
+    </v-tabs>
+    <v-tabs-items v-model="tabs">
+      <v-tab-item class="tab">
+        <patientreport-component />
+      </v-tab-item>
+      <v-tab-item class="tab">
+        <overview-component />
+      </v-tab-item>
+    </v-tabs-items>
+  </v-main>
 </template>
 
 <script>
@@ -56,15 +38,15 @@ export default {
     }
   },
   data: () => ({
-    allPlots: ['Patient Report', 'Meta analysis'],
+    allPlots: ['Patient Report', 'Cohort statistics'],
     tabs: null
   }),
   computed: {
   },
   methods: {
     tabChange () {
-    //  To Avoid data leakge between different d3 objects, SVGs remove during tab changes
-    //  if (this.items[this.tabs] === 'Protein Expression' || this.items[this.tabs] === 'Basket Scores' || this.items[this.tabs] === 'Drug Scores' || this.items[this.tabs] === 'Phosphorylation Scores') {
+      //  To Avoid data leakge between different d3 objects, SVGs remove during tab changes
+      //  if (this.items[this.tabs] === 'Protein Expression' || this.items[this.tabs] === 'Basket Scores' || this.items[this.tabs] === 'Drug Scores' || this.items[this.tabs] === 'Phosphorylation Scores') {
       d3.selectAll('svg').remove()
       d3.selectAll('.names').remove()
       d3.selectAll('dot').remove()
@@ -73,12 +55,10 @@ export default {
       d3.selectAll('rect').remove()
       d3.selectAll('toto').remove()
       d3.selectAll('g').remove()
-    //  }
+      //  }
     }
   }
 }
 </script>
 
-<style>
-
-</style>
+<style></style>

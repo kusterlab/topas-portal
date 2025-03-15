@@ -86,10 +86,6 @@ export default {
   margin-right: 18px; /* Adjust this value to your desired space */
 }
 
-.tabs-spacing {
-  margin-top: 8px; /* Adjust this value to your desired space */
-}
-
 .protein-icon {
         fill: rgba(190, 227, 234, 0.54);
     }

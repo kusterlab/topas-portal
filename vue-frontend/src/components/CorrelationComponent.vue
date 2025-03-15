@@ -9,7 +9,7 @@
         <v-card-title
           tag="h1"
         >
-          correlations
+          Correlations
         </v-card-title>
         <v-card-text>
           <v-select
@@ -305,7 +305,7 @@ export default {
       },
       // {
       //  text: 'Important Phosphorylation',
-      //  value: 'important_phoshphorylation'
+      //  value: 'important_phosphorylation'
       // },
       {
         text: 'Protein Poshphorylation scores',

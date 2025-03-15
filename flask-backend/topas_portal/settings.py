@@ -35,7 +35,7 @@ REGEX_META = (
 PREPROCESSED_FP_INTENSITY = "annot_fp.csv"
 PREPROCESSED_PP_INTENSITY = "annot_pp.csv"
 
-# phoshphorylation scores from wp2 pipeline (FH)
+# phosphorylation scores from wp2 pipeline (FH)
 PHOSPHORYLATION_SCORES = "protein_results/protein_scores.tsv"
 
 # Drug scores from wp2 pipeline (FH)

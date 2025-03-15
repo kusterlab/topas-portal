@@ -11,7 +11,7 @@ export const DataType = Object.freeze({
   KINASE_SUBSTRATE: 'kinase_substrate',
   TUPAC_KINASE_SCORE: 'tupac_kinase',
   TUPAC_KINASE_SUBSTRATE: 'tupac_kinase_substrate',
-  TUPAC_IMPORTANT_PHOSPHO: 'important_phoshphorylation',
+  TUPAC_IMPORTANT_PHOSPHO: 'important_phosphorylation',
   TUPAC_PHOSPHO_SCORE: 'tupac_phospho',
   TUPAC_PHOSPHO_SCORE_PSITE: 'tupac_phospho_psite',
   TUPAC_PROTEIN: 'tupac_expression',

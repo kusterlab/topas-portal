@@ -674,7 +674,7 @@ def abundance(cohort_index, level, identifier, imputation):
 # http://localhost:3832/0/basket_score/correlation/protein/EGFR/z_scored
 # http://localhost:3832/0/phospho_score/correlation/protein/EGFR/intensity
 # http://localhost:3832/0/fpkm/correlation/protein/EGFR/z_scored
-# http://localhost:3832/0/important_phoshphorylation/correlation/protein/EGFR/z_scored
+# http://localhost:3832/0/important_phosphorylation/correlation/protein/EGFR/z_scored
 def correlation(cohort_index, level, identifier, level_2, intensity_unit, patients_list=None):
     patients_list = None if patients_list=='all' else patients_list.split(',')
     return cp.compute_correlation_df(

@@ -224,7 +224,7 @@ class SQLCohortDataAPI:
         ]
         return self.config.config["report_directory"][cohortname]
 
-    # TODO : Completing the DB models for the phoshpho scores and the kinase scores
+    # TODO : Completing the DB models for the phospho scores and the kinase scores
     def get_phosphorylation_scores_df(
         self,
         cohort_index: str,
