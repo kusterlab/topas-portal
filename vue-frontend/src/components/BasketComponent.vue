@@ -14,20 +14,13 @@
             TOPAS scores
           </v-card-title>
           <v-card-text>
-            <v-select
-              v-model="diseaseName"
-              class="cohort"
-              dense
-              outlined
-              hide-details
-              prepend-icon="mdi-database"
-              :items="all_diseases"
-              label="Cohort / Cell Type"
-              @change="getbasketData"
-            />
-
+            <v-card-text>
+              <cohort-select
+                @select-cohort="updateCohort"
+              />
+            </v-card-text>
             <basket-select
-              :cohort-index="all_diseases.indexOf(diseaseName)"
+              :cohort-index="activeCohortIndex"
               @select-basket="updateBasket"
             />
             <v-checkbox
@@ -141,7 +134,7 @@
 
 <script>
 import axios from 'axios'
-import { mapGetters, mapState } from 'vuex'
+import CohortSelect from './partials/CohortSelect.vue'
 import SwarmPlot from '@/components/plots/SwarmPlot'
 import BasketTable from '@/components/tables/BasketTable'
 import BasketSelect from '@/components/partials/BasketSelect'
@@ -153,6 +146,7 @@ export default {
   name: 'BasketComponent',
   components: {
     BasketTable,
+    CohortSelect,
     PlotSaveVue,
     SwarmPlot,
     ExplorerComponent,
@@ -173,7 +167,7 @@ export default {
   data: () => ({
     basketName: '',
     savePlot: false,
-    diseaseName: '',
+    cohortIndex: 0,
     firstPatient: '',
     selectedDotsInPlot: '',
     basketType: '',
@@ -190,18 +184,18 @@ export default {
     swarmField: ''
   }),
   computed: {
-    ...mapState({
-      all_diseases: state => state.all_diseases
-    }),
-    ...mapGetters({
-      hasData: 'hasData'
-    }),
     swarmPrefix () {
       return this.basketType === 'basket_score' ? 'TOPAS score' : 'TOPAS Z-score'
+    },
+    activeCohortIndex () {
+      return this.cohortIndex
     }
   },
   watch: {
     basketType: function () {
+      this.getbasketData()
+    },
+    activeCohortIndex: function () {
       this.getbasketData()
     }
   },
@@ -220,7 +214,9 @@ export default {
       this.multiGroupPlotSelectedPatients = selectedPatients
       this.multiGroupPlotSelectedColor = value.colorCode
     },
-
+    updateCohort ({ dataSource, cohortIndex }) {
+      this.cohortIndex = cohortIndex
+    },
     async getbasketData () {
       if (this.basketName.length === 0) return
       this.loading = true
@@ -229,7 +225,7 @@ export default {
       this.basketData = []
       const bskid = this.basketName
       const bsktyp = this.basketType
-      const cohortIndex = this.all_diseases.indexOf(this.diseaseName)
+      const cohortIndex = this.cohortIndex
       let response = await axios.get(`${process.env.VUE_APP_API_HOST}/basket/${cohortIndex}/${bskid}/${bsktyp}`)
       if (response.data.length > 0) {
         this.basketData = response.data

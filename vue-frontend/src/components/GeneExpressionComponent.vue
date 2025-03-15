@@ -16,7 +16,7 @@
           </v-card-title>
           <v-card-text>
             <cohort-select
-            @select-cohort="updateCohort"
+              @select-cohort="updateCohort"
             />
             <v-radio-group
               v-model="mode"
@@ -301,10 +301,6 @@ export default {
     swarmField: '',
     loading: false
   }),
-  mounted () {
-    this.selectedData = []
-    this.swarmSelIds = []
-  },
   computed: {
     chartData () {
       const hData = this.swarmPlotData.filter(z => z[this.intensityUnit] !== 'n.d.')
@@ -344,7 +340,14 @@ export default {
   watch: {
     showOncokbcnv: function () {
       this.getoncoKB(this.identifier)
+    },
+    cohortIndex: function () {
+      this.updateId()
     }
+  },
+  mounted () {
+    this.selectedData = []
+    this.swarmSelIds = []
   },
   methods: {
     selectDot (value) {
@@ -357,7 +360,6 @@ export default {
     updateCohort ({ dataSource, cohortIndex }) {
       this.cohortIndex = cohortIndex
     },
-
     changePlotSavestaus ({ status }) {
       this.savePlot = status
     },
