@@ -22,13 +22,13 @@
       v-if="selectionMethod === 'metadata'"
       v-model="activeMeta"
       prepend-icon="mdi-account"
-      class="mb-2 mt-4"
+      class="mb-2"
       dense
       outlined
       hide-details
       auto-select-first
       :items="metaDatatypes"
-      label="Metadata types"
+      label="Metadata column"
       @change="metaDataChanged"
     />
     <v-autocomplete

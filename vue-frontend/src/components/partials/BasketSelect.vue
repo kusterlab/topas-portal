@@ -37,8 +37,8 @@
     </v-autocomplete>
     <v-checkbox
       v-if="scoreType"
-      class="ml-8"
       v-model="showTopasRtkOnly"
+      class="ml-8"
       label="TOPAS RTKs only"
       hide-details
       dense

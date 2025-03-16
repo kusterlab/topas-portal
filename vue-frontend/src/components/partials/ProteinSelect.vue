@@ -11,7 +11,7 @@
       :multiple="multiple"
       :clearable="multiple"
       :small-chips="multiple"
-      :label="label"
+      :label="label_or_datalayer"
       @change="updateProteins"
     />
   </div>
@@ -27,6 +27,10 @@ export default {
       type: Number,
       default: -1
     },
+    label: {
+      type: String,
+      default: ''
+    },
     dataLayer: {
       type: String,
       default: 'protein'
@@ -41,11 +45,15 @@ export default {
     allProteins: []
   }),
   computed: {
-    label () {
+    label_or_datalayer () {
+      let label = this.dataLayer
+      if (this.label.length > 0) {
+        label = this.label
+      }
       if (this.multiple) {
-        return `Select ${this.dataLayer}s`
+        return `Select ${label}s`
       } else {
-        return `Select ${this.dataLayer}`
+        return `Select ${label}`
       }
     }
   },

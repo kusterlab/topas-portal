@@ -24,15 +24,46 @@
               :items="all_diseases"
               label="Cohort / Cell Type"
             />
+          </v-card-text>
+        </v-card>
+        <v-card
+          class="mt-4"
+          flat
+        >
+          <v-card-title
+            tag="h1"
+          >
+            Select subcohort
+          </v-card-title>
+          <v-card-text>
+            <sample-select
+              :show-toggle="false"
+              :cohort-index="cohortIndex"
+              :sample-ids="customGroup"
+              @update-field="updateSampleGroup"
+              @update-meta="updateSelectionMethodGroup"
+            />
+          </v-card-text>
+        </v-card>
+        <v-card
+          flat
+          class="mt-4"
+        >
+          <v-card-title
+            tag="h1"
+          >
+            Select protein/p-peptide
+          </v-card-title>
+          <v-card-text>
             <v-select
               v-model="mode"
-              class="input_data_type mb-2 mt-4"
+              class="input_data_type mb-2"
               dense
               prepend-icon="mdi-filter"
               outlined
               hide-details
               :items="allInputDataTypes"
-              label="Input Data Type"
+              label="Data Type"
               @change="updateHeatmap"
             />
             <basket-select
@@ -55,20 +86,13 @@
               :data-layer="mode"
               @select-protein="updateProtein"
             />
-            <sample-select
-              :show-toggle="false"
-              :cohort-index="cohortIndex"
-              :sample-ids="customGroup"
-              @update-field="updateSampleGroup"
-              @update-meta="updateSelectionMethodGroup"
-            />
             <v-btn
               :loading="loading"
-              class="ma-2"
+              class="mt-4"
               color="primary"
               @click="getData"
             >
-              calculate
+              Compute z-scores
             </v-btn>
           </v-card-text>
         </v-card>
@@ -85,7 +109,7 @@
                   Tab info
                 </v-expansion-panel-header>
                 <v-expansion-panel-content>
-                  In this tab you can calculate the z-scores for each group of patients based on the metadata and compare it with the precalculated z-scores across all patients.
+                  In this tab you can calculate the z-scores for each group of patients based on the metadata and compare it with the z-scores across all patients.
                 </v-expansion-panel-content>
               </v-expansion-panel>
               <v-expansion-panel>
@@ -93,7 +117,7 @@
                   How to use
                 </v-expansion-panel-header>
                 <v-expansion-panel-content>
-                  Search and select a protein of interest, then apply filters as required to compute z-scores for a certain group of patients.
+                  Select a group of patients based on one of the metadata columns. Then select a protein or phosphopeptide of interest and press the "Compute z-scores" button compute the z-scores within that subcohort.
                 </v-expansion-panel-content>
               </v-expansion-panel>
             </v-expansion-panels>
@@ -112,8 +136,8 @@
           <v-row>
             <v-col
               sm="12"
-              md="3"
-              lg="3"
+              md="6"
+              lg="6"
             >
               <v-card-text>
                 <zscore-table
@@ -127,8 +151,8 @@
             </v-col>
             <v-col
               sm="12"
-              md="9"
-              lg="9"
+              md="6"
+              lg="6"
             >
               <v-card flat>
                 <multi-group-plot

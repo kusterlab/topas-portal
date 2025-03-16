@@ -11,7 +11,7 @@
           <v-card-title
             tag="h1"
           >
-            Protein Phosphorylation Scores
+            Protein Phosph. Scores
           </v-card-title>
           <v-card-text>
             <v-select
@@ -25,37 +25,12 @@
               label="Cohort / Cell Type"
               @change="getPatientslist"
             />
-            <v-radio-group
-              v-model="inputType"
-              label="Input type"
-              hide-details
-              @change="updateId"
-            >
-              <v-radio
-                label="Compare patients (per phosphoprotein)"
-                value="per_protein"
-              />
-              <v-radio
-                label="Compare phosphoproteins (per patient)"
-                value="per_patient"
-              />
-            </v-radio-group>
             <protein-select
-              v-if="inputType == 'per_protein'"
               :cohort-index="cohortIndex"
+              label-override="Phosphoprotein"
               data-layer="phospho_score"
               class="mt-4"
               @select-protein="updateProtein"
-            />
-            <v-autocomplete
-              v-if="inputType == 'per_patient'"
-              v-model="patientidentifier"
-              :items="allPatients"
-              outlined
-              dense
-              label="Select Patient"
-              class="mt-4"
-              @change="updateId('patient')"
             />
           </v-card-text>
         </v-card>
@@ -154,17 +129,6 @@ export default {
     explorerComponent,
     ProteinSelect
   },
-  props: {
-    minWidth: {
-      type: Number,
-      default: 400
-    },
-
-    minHeight: {
-      type: Number,
-      default: 300
-    }
-  },
   data: () => ({
     proteinidentifier: '',
     patientidentifier: '',
@@ -209,13 +173,8 @@ export default {
       this.swarmShow = false
       this.plotData = []
       this.plotSelIds = []
-      if (type === 'protein' && this.proteinidentifier.length > 0) {
+      if (this.proteinidentifier.length > 0) {
         this.getProteindata(this.proteinidentifier)
-        this.getPatientslist()
-      }
-
-      if (type === 'patient' && this.patientidentifier.length > 0) {
-        this.getpatientdata(this.patientidentifier)
       }
     },
     async getProteindata (key) {
@@ -229,14 +188,6 @@ export default {
       this.plotData = response.data
       this.loading = false
     },
-
-    async getpatientdata (key) {
-      this.proteinidentifier = ''
-      this.plotData = []
-      const query = `${process.env.VUE_APP_API_HOST}/proteinscore/${this.cohortIndex}/patient/${key}`
-      this.url = query
-    },
-
     updateSelectedRows (selectedIds, selectedData) {
       this.plotSelIds = []
       selectedData.forEach((rowData) => {
