@@ -1,19 +1,37 @@
 <template>
-  <v-main>
-    <v-tabs v-model="tabs">
-      <v-tab v-for="item of allPlots" :key="item" @click="tabChange">
-        {{ item }}
-      </v-tab>
-    </v-tabs>
-    <v-tabs-items v-model="tabs">
-      <v-tab-item class="tab">
-        <patientreport-component />
-      </v-tab-item>
-      <v-tab-item class="tab">
-        <overview-component />
-      </v-tab-item>
-    </v-tabs-items>
-  </v-main>
+  <v-row class="pa-4 grey lighten-3">
+    <v-col
+      sm="4"
+      md="3"
+      lg="3"
+    >
+      <v-tabs
+        v-model="tabs"
+      >
+        <v-tab
+          v-for="item of allPlots"
+          :key="item"
+          @click="tabChange"
+        >
+          {{ item }}
+        </v-tab>
+      </v-tabs>
+    </v-col>
+    <v-col
+      sm="4"
+      md="10"
+      lg="10"
+    >
+      <v-tabs-items v-model="tabs">
+        <v-tab-item class="tab">
+          <patientreport-component />
+        </v-tab-item>
+        <v-tab-item class="tab">
+          <overview-component />
+        </v-tab-item>
+      </v-tabs-items>
+    </v-col>
+  </v-row>
 </template>
 
 <script>

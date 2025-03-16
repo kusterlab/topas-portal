@@ -15,16 +15,8 @@
             Protein/p-site abundance
           </v-card-title>
           <v-card-text>
-            <v-select
-              v-model="diseaseName"
-              class="cohort"
-              prepend-icon="mdi-database"
-              dense
-              outlined
-              hide-details
-              :items="all_diseases"
-              label="Cohort / Cell Type"
-              @change="updateId"
+            <cohort-select
+              @select-cohort="updateCohort"
             />
             <v-radio-group
               v-model="mode"
@@ -258,11 +250,11 @@
 <script>
 
 import axios from 'axios'
-import { mapGetters, mapState } from 'vuex'
 import expressionTable from '@/components/tables/ExpressionTable'
 import histogram from '@/components/plots/GenericHistogram'
 import SwarmPlot from '@/components/plots/SwarmPlot'
 import ProteinSelect from '@/components/partials/ProteinSelect.vue'
+import CohortSelect from './partials/CohortSelect.vue'
 import { DataType } from '@/constants'
 import PlotSaveVue from './partials/PlotSave.vue'
 
@@ -272,6 +264,7 @@ export default {
     expressionTable,
     PlotSaveVue,
     histogram,
+    CohortSelect,
     SwarmPlot,
     ProteinSelect
   },
@@ -288,7 +281,7 @@ export default {
   },
   data: () => ({
     identifier: '',
-    diseaseName: 'sarcoma',
+    cohortIndex: 0,
     savePlot: false,
     mode: DataType.FULL_PROTEOME,
     showOncokbcnv: false,
@@ -308,17 +301,7 @@ export default {
     swarmField: '',
     loading: false
   }),
-  mounted () {
-    this.selectedData = []
-    this.swarmSelIds = []
-  },
   computed: {
-    ...mapState({
-      all_diseases: state => state.all_diseases
-    }),
-    ...mapGetters({
-      hasData: 'hasData'
-    }),
     chartData () {
       const hData = this.swarmPlotData.filter(z => z[this.intensityUnit] !== 'n.d.')
       return hData.map(d => d[this.intensityUnit])
@@ -352,15 +335,19 @@ export default {
       } else {
         return '_AAAAAPApSED_'
       }
-    },
-    cohortIndex: function () {
-      return this.all_diseases.indexOf(this.diseaseName)
     }
   },
   watch: {
     showOncokbcnv: function () {
       this.getoncoKB(this.identifier)
+    },
+    cohortIndex: function () {
+      this.updateId()
     }
+  },
+  mounted () {
+    this.selectedData = []
+    this.swarmSelIds = []
   },
   methods: {
     selectDot (value) {
@@ -370,7 +357,9 @@ export default {
       this.identifier = identifier
       this.updateId()
     },
-
+    updateCohort ({ dataSource, cohortIndex }) {
+      this.cohortIndex = cohortIndex
+    },
     changePlotSavestaus ({ status }) {
       this.savePlot = status
     },
