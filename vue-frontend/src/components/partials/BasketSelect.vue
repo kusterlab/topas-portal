@@ -109,13 +109,19 @@ export default {
       if (this.cohortIndex < 0) return
 
       const categories = this.showTopasRtkOnly ? 'RTK' : 'all'
-      const response = await axios.get(`${process.env.VUE_APP_API_HOST}/basket/${this.cohortIndex}/basketids/${categories}`)
       const baskets = []
-      response.data.forEach(element => {
-        if (element.ids !== 'num_identified' && element.ids !== 'num_annotated') {
-          baskets.push(element.ids)
-        }
-      })
+      try {
+        const response = await axios.get(`${process.env.VUE_APP_API_HOST}/basket/${this.cohortIndex}/basketids/${categories}`)
+
+        response.data.forEach(element => {
+          if (element.ids !== 'num_identified' && element.ids !== 'num_annotated') {
+            baskets.push(element.ids)
+          }
+        })
+      } catch (error) {
+        console.error('An error occurred while processing response data:', error)
+      }
+
       this.allBaskets = baskets
     },
     updateBasket () {

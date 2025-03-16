@@ -72,8 +72,13 @@ export default {
   methods: {
     async loadProteins () {
       if (this.cohortIndex < 0) return
-      const response = await axios.get(`${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/${this.dataLayer}/list`)
-      this.allProteins = response.data
+      try {
+        const response = await axios.get(`${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/${this.dataLayer}/list`)
+        this.allProteins = response.data
+      } catch (error) {
+        console.error('An error occurred while retrieving the list of proteins for this cohort:', error)
+        this.allProteins = []
+      }
     },
     updateProteins () {
       if (!this.selectedProteins || this.selectedProteins.length === 0) return

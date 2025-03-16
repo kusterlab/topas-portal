@@ -13,16 +13,9 @@
           >
             Entity scores
           </v-card-title>
-          <v-select
-            v-model="diseaseName"
-            prepend-icon="mdi-database"
-            class="cohort"
-            dense
-            outlined
-            hide-details
-            :items="all_diseases"
-            label="Cohort"
-          />
+          <cohort-select
+              @select-cohort="updateCohort"
+            />
           <v-btn
             class="ma-2"
             color="primary"
@@ -65,7 +58,7 @@
 
 <script>
 // import axios from 'axios'
-import { mapGetters, mapState } from 'vuex'
+import CohortSelect from './partials/CohortSelect.vue'
 import entityscoreTable from '@/components/tables/entityscoreTable'
 import explorerComponent from './partials/scoresComponent.vue'
 
@@ -73,7 +66,8 @@ export default {
   name: 'EntityComponent',
   components: {
     entityscoreTable,
-    explorerComponent
+    explorerComponent,
+    CohortSelect
   },
   props: {
     minWidth: {
@@ -86,25 +80,21 @@ export default {
     }
   },
   data: () => ({
-    diseaseName: '',
-    // loading: false,
+    cohortIndex: 0,
     scores: [],
     jsonUrl: ''
 
   }),
   computed: {
-    ...mapState({
-      all_diseases: state => state.all_diseases
-    }),
-    ...mapGetters({
-      hasData: 'hasData'
-    }),
-    cohortIndex: function () {
-      return this.all_diseases.indexOf(this.diseaseName)
+    activeCohortIndex () {
+      return this.cohortIndex
     }
   },
 
   methods: {
+    updateCohort ({ dataSource, cohortIndex }) {
+      this.cohortIndex = cohortIndex
+    },
     getScores () {
       this.jsonUrl = `${process.env.VUE_APP_API_HOST}/entityscore/${this.cohortIndex}`
     }

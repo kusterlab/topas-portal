@@ -14,15 +14,8 @@
             Subcohort z-scores
           </v-card-title>
           <v-card-text>
-            <v-select
-              v-model="diseaseName"
-              prepend-icon="mdi-database"
-              class="cohort"
-              dense
-              outlined
-              hide-details
-              :items="all_diseases"
-              label="Cohort"
+            <cohort-select
+              @select-cohort="updateCohort"
             />
           </v-card-text>
         </v-card>
@@ -175,7 +168,7 @@
 
 <script>
 import axios from 'axios'
-import { mapGetters, mapState } from 'vuex'
+import CohortSelect from './partials/CohortSelect.vue'
 import multiGroupPlot from '@/components/plots/MultiGroupPlot'
 import proteinSelect from './partials/ProteinSelect.vue'
 import SampleSelect from './partials/SampleSelect.vue'
@@ -188,6 +181,7 @@ export default {
   name: 'ZscoreComponent',
   components: {
     multiGroupPlot,
+    CohortSelect,
     ZscoreTable,
     SampleSelect,
     explorerComponent,
@@ -205,7 +199,7 @@ export default {
     }
   },
   data: () => ({
-    diseaseName: '',
+    cohortIndex: 0,
     firstPatient: '',
     identifier: '',
     loading: false,
@@ -243,19 +237,16 @@ export default {
 
   }),
   computed: {
-    ...mapState({
-      all_diseases: state => state.all_diseases
-    }),
-    ...mapGetters({
-      hasData: 'hasData'
-    }),
-    cohortIndex () {
-      return this.all_diseases.indexOf(this.diseaseName)
+    activeCohortIndex () {
+      return this.cohortIndex
     }
   },
   watch: {
   },
   methods: {
+    updateCohort ({ dataSource, cohortIndex }) {
+      this.cohortIndex = cohortIndex
+    },
     updateProtein ({ dataSource, identifier }) {
       this.identifier = identifier
     },
@@ -283,14 +274,13 @@ export default {
       this.multiGroupPlotSelectedPatients = SelIds
     },
     async getData () {
-      const cohortIndex = this.all_diseases.indexOf(this.diseaseName)
       const customGroup = this.customGroup
       const activeMeta = this.activeMeta
       const identifier = this.identifier
       const mode = this.mode
       try {
         this.loading = true
-        const response = await axios.get(`${process.env.VUE_APP_API_HOST}/zscore/${mode}/${cohortIndex}/${identifier}/${customGroup}/${activeMeta}`)
+        const response = await axios.get(`${process.env.VUE_APP_API_HOST}/zscore/${mode}/${this.cohortIndex}/${identifier}/${customGroup}/${activeMeta}`)
         this.componentKey = this.componentKey + 1
         this.plotData = response.data
       } catch (error) {
@@ -301,7 +291,3 @@ export default {
   }
 }
 </script>
-
-<style>
-
-</style>

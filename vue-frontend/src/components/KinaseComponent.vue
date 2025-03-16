@@ -14,18 +14,11 @@
             Substrate Phosph. scores
           </v-card-title>
           <v-card-text>
-            <v-select
-              v-model="diseaseName"
-              prepend-icon="mdi-database"
-              class="cohort"
-              dense
-              outlined
-              hide-details
-              :items="all_diseases"
-              label="Cohort"
+            <cohort-select
+              @select-cohort="updateCohort"
             />
             <protein-select
-              :cohort-index="cohortIndex"
+              :cohort-index="activeCohortIndex"
               data-layer="kinase"
               class="mt-4"
               @select-protein="updateKinase"
@@ -113,22 +106,23 @@
 
 <script>
 import axios from 'axios'
+import CohortSelect from './partials/CohortSelect.vue'
 import kinasescoreTable from '@/components/tables/KinasescoreTable.vue'
 import SwarmPlot from '@/components/plots/SwarmPlot'
-import { mapGetters, mapState } from 'vuex'
 import ProteinSelect from '@/components/partials/ProteinSelect'
 import explorerComponent from './partials/scoresComponent.vue'
 
 export default {
   name: 'KinaseComponent',
   components: {
+    CohortSelect,
     kinasescoreTable,
     SwarmPlot,
     explorerComponent,
     ProteinSelect
   },
   data: () => ({
-    diseaseName: '',
+    cohortIndex: 0,
     selectedData: [],
     singleswarmData: [],
     url: '',
@@ -138,14 +132,8 @@ export default {
     activeKinases: []
   }),
   computed: {
-    ...mapState({
-      all_diseases: state => state.all_diseases
-    }),
-    ...mapGetters({
-      hasData: 'hasData'
-    }),
-    cohortIndex () {
-      return this.all_diseases.indexOf(this.diseaseName)
+    activeCohortIndex () {
+      return this.cohortIndex
     }
   },
   methods: {
