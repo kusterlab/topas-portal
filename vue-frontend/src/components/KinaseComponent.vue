@@ -14,14 +14,8 @@
             Substrate Phosphorylation scores
           </v-card-title>
           <v-card-text>
-            <v-select
-              v-model="diseaseName"
-              prepend-icon="mdi-database"
-              class="cohort"
-              dense
-              outlined
-              :items="all_diseases"
-              label="Cohort / Cell Type"
+            <cohort-select
+              @select-cohort="updateCohort"
             />
             <v-radio-group
               v-model="selectPatient"
@@ -74,7 +68,7 @@
             />
             <protein-select
               v-if="selectKinase !== 'all'"
-              :cohort-index="cohortIndex"
+              :cohort-index="activeCohortIndex"
               :multiple="multiKinase"
               data-layer="kinase"
               class="mt-4"
@@ -212,9 +206,9 @@
 
 <script>
 import axios from 'axios'
+import CohortSelect from './partials/CohortSelect.vue'
 import kinasescoreTable from '@/components/tables/KinasescoreTable.vue'
 import SwarmPlot from '@/components/plots/SwarmPlot'
-import { mapGetters, mapState } from 'vuex'
 import { Plotly } from 'vue-plotly'
 import multiGroupPlot from '@/components/plots/MultiGroupPlot'
 import ProteinSelect from '@/components/partials/ProteinSelect'
@@ -226,6 +220,7 @@ export default {
   components: {
     Plotly,
     PlotSaveVue,
+    CohortSelect,
     kinasescoreTable,
     multiGroupPlot,
     SwarmPlot,
@@ -244,7 +239,7 @@ export default {
   },
   data: () => ({
     heatmapData: [],
-    diseaseName: '',
+    cohortIndex: 0,
     savePlot: false,
     selectedData: [],
     showLegends: true,
@@ -266,17 +261,14 @@ export default {
     showPlot: false
   }),
   computed: {
-    ...mapState({
-      all_diseases: state => state.all_diseases
-    }),
-    ...mapGetters({
-      hasData: 'hasData'
-    }),
-    cohortIndex () {
-      return this.all_diseases.indexOf(this.diseaseName)
+    activeCohortIndex () {
+      return this.cohortIndex
     }
   },
   methods: {
+    updateCohort ({ dataSource, cohortIndex }) {
+      this.cohortIndex = cohortIndex
+    },
     async getEntityOrPatientslist () {
       this.activePatients = ''
       let response = null
