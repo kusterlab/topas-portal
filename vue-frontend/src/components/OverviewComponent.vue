@@ -28,7 +28,7 @@
                 outlined
                 hide-details
                 :items="all_diseases"
-                label="Cohort / Cell Type"
+                label="Cohort"
                 prepend-icon="mdi-database"
                 @change="allUpdate"
               />

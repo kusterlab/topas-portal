@@ -20,15 +20,64 @@
             prepend-icon="mdi-database"
             hide-details
             :items="all_diseases"
-            label="Cohort / Cell Type"
+            label="Cohort"
           />
+
+          <v-btn-toggle
+            v-model="allPatients"
+            color="primary"
+            mandatory
+            hide-details
+            dense
+            class="mt-4"
+          >
+            <v-btn value="cohort">
+              Full cohort
+            </v-btn>
+            <v-btn value="subcohort">
+              Subcohort
+            </v-btn>
+          </v-btn-toggle>
+          <sample-select
+            v-if="allPatients === 'subcohort'"
+            :cohort-index="cohortIndex"
+            :sample-ids="customGroup"
+            @update-group="updateSampleGroup"
+            @update-selection-method="updateSelectionMethodGroup"
+          />
+          <v-radio-group
+            v-model="intensityUnit"
+            class="mt-0"
+            label="Intensity unit"
+            hide-details
+          >
+            <v-radio
+              label="Z-scores"
+              value="z_scored"
+            />
+            <v-radio
+              label="Intensity"
+              value="intensity"
+            />
+          </v-radio-group>
+        </v-card-text>
+      </v-card>
+      <v-card
+        flat
+        class="mt-4"
+      >
+        <v-card-title
+          tag="h1"
+        >
+          Select correlation inputs
+        </v-card-title>
+        <v-card-text>
 
           <v-select
             v-model="correlationInputType"
             prepend-icon="mdi-filter"
             :items="dataTypes"
             label="Input type"
-            class="mt-8"
             hide-details
             outlined
             dense
@@ -67,34 +116,8 @@
             @change="jsonUrl = ''"
           />
 
-          <v-radio-group
-            v-model="intensityUnit"
-            class="mb-2"
-            label="Intensity unit"
-            hide-details
-          >
-            <v-radio
-              label="Z-scores"
-              value="z_scored"
-            />
-            <v-radio
-              label="Intensity"
-              value="intensity"
-            />
-          </v-radio-group>
-          <sample-select
-            v-if="!allPatients"
-            :cohort-index="cohortIndex"
-            :sample-ids="customGroup"
-            @update-group="updateSampleGroup"
-            @update-selection-method="updateSelectionMethodGroup"
-          />
-          <v-checkbox
-            v-model="allPatients"
-            label="All Patients"
-          />
           <v-btn
-            class="ma-2"
+            class="mt-4"
             color="primary"
             :loading="loading"
             @click="loadCorrelation"
@@ -123,7 +146,7 @@
                 How to use
               </v-expansion-panel-header>
               <v-expansion-panel-content>
-                To visualize the correlation for specific correlation partners, select one item in the upper list. In the lower list you can select specific samples to highlight them in the correlation plot. To remove samples where one correlation partner has not been annotated, uncheck the "Impute NA on plot" and click on "Run analysis" again. You can also show a density distribution by checking the box next to "Show Density Distribution" and clicking on "Run analysis" again. To export plots, click the export button on the right handside above the plot.
+                To visualize the correlation for specific correlation partners, select one item in the upper table. In the lower table you can select specific samples to highlight them in the correlation plot. You can also click on individual data points in the correlation plot to display the corresponding sample. To remove samples where one correlation partner has not been detected/scored, uncheck the "Impute NA on plot" and click "Run analysis" again. You can also show a density distribution by checking the box next to "Show Density Distribution" and clicking on "Run analysis" again. To export plots, click the export button on the right handside above the plot.
               </v-expansion-panel-content>
             </v-expansion-panel>
           </v-expansion-panels>
@@ -185,7 +208,10 @@
               />
             </v-col>
           </v-row>
-          <v-divider class="mb-2 mt-2" />
+        </v-card-text>
+      </v-card>
+      <v-card class="mt-4" flat>
+        <v-card-text>
           <v-row>
             <v-col
               sm="12"
@@ -274,7 +300,7 @@ export default {
     customGroup: [],
     selectionMethod: [],
     loading: false,
-    allPatients: true,
+    allPatients: 'cohort',
     histPlottitleVariables: [],
     allBaskets: [],
     expressionPlusMeta1: [],
@@ -426,7 +452,7 @@ export default {
           this.expressionData1 = []
           this.expressionData1 = expressions
           this.expressionPlusMeta1 = response.data
-          if (!this.allPatients) {
+          if (this.allPatients === 'subcohort') {
             this.expressionData1 = this.makeLimited(expressions, this.customGroup)
             this.expressionPlusMeta1 = this.makeLimited(response.data, this.customGroup)
           }
@@ -434,7 +460,7 @@ export default {
           this.expressionData2 = []
           this.expressionData2 = expressions
           this.expressionPlusMeta2 = response.data
-          if (!this.allPatients) {
+          if (this.allPatients === 'subcohort') {
             this.expressionData2 = this.makeLimited(expressions, this.customGroup)
             this.expressionPlusMeta2 = this.makeLimited(response.data, this.customGroup)
           }
@@ -456,7 +482,7 @@ export default {
 
     getCorrelation (level, inputLevel, key) {
       if (this.cohortIndex >= 0) {
-        const customGroup = this.allPatients ? 'all' : this.customGroup
+        const customGroup = this.allPatients === 'cohort' ? 'all' : this.customGroup
         this.jsonUrl = `${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/${inputLevel}/correlation/${level}/${key}/${this.intensityUnit}/${customGroup}`
       }
     },

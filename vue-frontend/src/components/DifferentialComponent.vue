@@ -20,7 +20,7 @@
             outlined
             hide-details
             :items="all_diseases"
-            label="Cohort / Cell Type"
+            label="Cohort"
           />
 
           <p class="mt-4 mb-2">

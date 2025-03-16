@@ -23,7 +23,7 @@
               outlined
               hide-details
               :items="all_diseases"
-              label="Cohort / Cell Type"
+              label="Cohort"
               @change="updateId"
             />
             <v-radio-group

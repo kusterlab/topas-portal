@@ -19,7 +19,7 @@
             dense
             outlined
             :items="all_diseases"
-            label="Cohort / Cell Type"
+            label="Cohort"
             @change="getBatchlist"
           />
           <v-select

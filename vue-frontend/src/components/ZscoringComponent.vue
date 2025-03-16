@@ -22,7 +22,7 @@
               outlined
               hide-details
               :items="all_diseases"
-              label="Cohort / Cell Type"
+              label="Cohort"
             />
           </v-card-text>
         </v-card>

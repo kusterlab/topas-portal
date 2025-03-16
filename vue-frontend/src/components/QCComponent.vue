@@ -17,22 +17,34 @@
             prepend-icon="mdi-database"
             class="cohort"
             dense
+            hide-details
             outlined
             :items="all_diseases"
             label="Cohort"
           />
-          <v-select
-            v-model="inputDataType"
-            prepend-icon="mdi-filter"
-            class="input_data_type mb-2"
-            dense
-            outlined
-            hide-details
-            :items="allInputDataTypes"
-            label="Input Data Type"
-            @change="loading=false"
-          />
 
+          <v-btn-toggle
+            v-model="allPatients"
+            color="primary"
+            mandatory
+            hide-details
+            dense
+            class="mt-4"
+          >
+            <v-btn value="cohort">
+              Full cohort
+            </v-btn>
+            <v-btn value="subcohort">
+              Subcohort
+            </v-btn>
+          </v-btn-toggle>
+          <sample-select
+            v-if="allPatients === 'subcohort'"
+            :cohort-index="cohortIndex"
+            :sample-ids="customGroup"
+            @update-group="updateSampleGroup"
+            @update-selection-method="updateSelectionMethodGroup"
+          />
           <v-checkbox
             v-model="includeReplicates"
             label="Include replicates"
@@ -45,50 +57,28 @@
             hide-details
             dense
           />
-          <v-checkbox
-            v-model="geneSubsetActive"
-            label="Select Genes/Psites (Upload a text file )"
-            hide-details
-            dense
-          />
-
-          <v-card
-            v-if="geneSubsetActive"
-            class="grey lighten-3 mt-1"
-          >
-            <v-card-text>
-              <v-file-input
-                v-model="file"
-                placeholder="Upload a txt file"
-                accept="text/*,.txt"
-                hint="one gene name/Psite per line"
-                persistent-hint
-                dense
-              />
-            </v-card-text>
-          </v-card>
           <v-text-field
+            class="mt-4"
             v-model="imputationRatio"
-            label="Minimum Samples Occurence for imputation"
-            hide-details
+            label="Min. sample occurrence [%]"
+            hint="Only use proteins/p-peptides occurring in >x% of total samples. The remaining missing values are imputed by PPCA."
+            persistent-hint
             type="number"
           />
-          <v-checkbox
-            v-model="allPatients"
-            label="All Patients"
-          />
-          <sample-select
-            v-if="!allPatients"
-            :cohort-index="cohortIndex"
-            :sample-ids="customGroup"
-            @update-group="updateSampleGroup"
-            @update-selection-method="updateSelectionMethodGroup"
-          />
+        </v-card-text>
+      </v-card>
+      <v-card flat class="mt-4">
+        <v-card-title
+          tag="h1"
+        >
+          Select plot inputs
+        </v-card-title>
+        <v-card-text>
           <v-btn-toggle
             v-model="dimReductionMethod"
             color="primary"
             mandatory
-            class="mt-4 mb-6"
+            dense
           >
             <v-btn value="ppca">
               PCA
@@ -97,11 +87,32 @@
               UMAP
             </v-btn>
           </v-btn-toggle>
+          <v-select
+            v-model="inputDataType"
+            prepend-icon="mdi-filter"
+            class="input_data_type my-2"
+            dense
+            outlined
+            hide-details
+            :items="allInputDataTypes"
+            label="Input Type"
+            @change="loading=false"
+          />
+          <v-file-input
+            class="mt-4"
+            v-show="geneSubsetActive"
+            v-model="file"
+            placeholder="Upload a txt file"
+            accept="text/*,.txt"
+            hint="one gene name/Psite per line"
+            persistent-hint
+            dense
+          />
 
           <v-select
             v-model="activeMeta"
             prepend-icon="mdi-palette"
-            class="metadata mb-4"
+            class="metadata mt-4"
             dense
             outlined
             hide-details
@@ -109,16 +120,15 @@
             label="Color by Metadata"
             @change="loading=false"
           />
-
           <v-btn
-            class="primary ma-2"
+            class="primary mt-4"
             @click="updatePCA"
           >
-            Generate PCA/UMAP plot
+            Generate plot
           </v-btn>
         </v-card-text>
       </v-card>
-      <v-card flat>
+      <v-card flat class="mt-4">
         <v-card-title
           tag="h1"
         >
@@ -127,7 +137,7 @@
         <v-card-text>
           <v-text-field
             v-model="minNumPatients"
-            label="Min Number patients in each group"
+            label="Min. #patients per group"
             hide-details
             type="number"
           />
@@ -142,7 +152,7 @@
             />
 
             <v-radio
-              :label="dimReductionMethod"
+              :label="dimReductionMethod.toUpperCase() + ' coordinates'"
               value="afterCluster"
             />
           </v-radio-group>
@@ -152,7 +162,7 @@
             :loading="loading"
             @click="updateSilhouette"
           >
-            Generate Silhouette plot
+            Generate Silhouette
           </v-btn>
         </v-card-text>
       </v-card>
@@ -261,9 +271,9 @@ export default {
   data: () => ({
     qcData: [],
     silData: [],
-    allPatients: true,
+    allPatients: 'cohort',
     minNumPatients: 1,
-    imputationRatio: 0.9,
+    imputationRatio: 90,
     variance1: 0,
     variance2: 0,
     fixedDomain: [{ min: -1, max: 1 }],
@@ -303,6 +313,10 @@ export default {
       {
         text: 'TOPAS scores',
         value: DataType.TUPAC_SCORE
+      },
+      {
+        text: 'Custom gene/psite list',
+        value: DataType.CUSTOM
       }
     ],
     inputDataType: DataType.FULL_PROTEOME,
@@ -311,7 +325,6 @@ export default {
     dimReductionMethod: 'ppca',
     includeReplicates: true,
     includeReferenceChannels: false,
-    geneSubsetActive: false,
     allorSelectedgenes: 'all',
     loading: false,
     customGroup: [],
@@ -334,6 +347,9 @@ export default {
     }),
     cohortIndex () {
       return this.all_diseases.indexOf(this.diseaseName)
+    },
+    geneSubsetActive () {
+      return this.inputDataType === DataType.CUSTOM
     }
   },
 
@@ -365,9 +381,9 @@ export default {
             console.log(response)
             this.allorSelectedgenes = 'selected' // running with selected genes
           }
-          const customGroup = this.allPatients ? 'all' : this.customGroup
+          const customGroup = this.allPatients === 'cohort' ? 'all' : this.customGroup
           const allOrselected = this.allorSelectedgenes
-          const imputationRatio = this.imputationRatio
+          const imputationRatio = this.imputationRatio / 100.0
           const response = await axios.get(`${process.env.VUE_APP_API_HOST}/qc/sil/all/${inputDataType}/${cohortIndex}/${dimReductionMethod}/${referenceChannel}/${replicate}/${this.activeMeta}/${numPatient}/${silInputType}/${allOrselected}/${customGroup}/${imputationRatio}`)
           this.silData = response.data
           this.silData.length > 0 ? this.showPlot = true : this.showPlot = false
@@ -417,7 +433,7 @@ export default {
     },
 
     async getqcData () {
-      const customGroup = this.allPatients ? 'all' : this.customGroup
+      const customGroup = this.allPatients === 'cohort' ? 'all' : this.customGroup
       const inputDataType = this.inputDataType
       const dimReductionMethod = this.dimReductionMethod
       const referenceChannel = this.includeReferenceChannels ? 'ref' : 'noref'

@@ -22,7 +22,7 @@
               hide-details
               prepend-icon="mdi-database"
               :items="all_diseases"
-              label="Cohort / Cell Type"
+              label="Cohort"
               @change="getbasketData"
             />
             <basket-select

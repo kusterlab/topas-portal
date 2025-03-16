@@ -21,7 +21,7 @@
             outlined
             hide-details
             :items="all_diseases"
-            label="Cohort / Cell Type"
+            label="Cohort"
           />
           <v-btn
             class="ma-2"
