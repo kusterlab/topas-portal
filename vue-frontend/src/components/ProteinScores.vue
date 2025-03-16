@@ -14,16 +14,8 @@
             Protein Phosphorylation Scores
           </v-card-title>
           <v-card-text>
-            <v-select
-              v-model="diseaseName"
-              prepend-icon="mdi-database"
-              class="cohort"
-              dense
-              outlined
-              hide-details
-              :items="all_diseases"
-              label="Cohort / Cell Type"
-              @change="getPatientslist"
+            <cohort-select
+              @select-cohort="updateCohort"
             />
             <v-radio-group
               v-model="inputType"
@@ -132,7 +124,7 @@
 </template>
 <script>
 import axios from 'axios'
-import { mapGetters, mapState } from 'vuex'
+import CohortSelect from './partials/CohortSelect.vue'
 import proteinscoreTable from '@/components/tables/ProteinscoreTable.vue'
 import SwarmPlot from '@/components/plots/SwarmPlot'
 import ProteinSelect from '@/components/partials/ProteinSelect'
@@ -142,6 +134,7 @@ export default {
   components: {
     proteinscoreTable,
     SwarmPlot,
+    CohortSelect,
     explorerComponent,
     ProteinSelect
   },
@@ -159,7 +152,7 @@ export default {
   data: () => ({
     proteinidentifier: '',
     patientidentifier: '',
-    diseaseName: 'sarcoma',
+    cohortIndex: 0,
     inputType: 'per_protein',
     swarmShow: false,
     loading: false,
@@ -171,26 +164,34 @@ export default {
     place_holder: 'Imatinib',
     identifierLbl: 'Protein Name'
   }),
+  computed: {
+    activeCohortIndex () {
+      return this.cohortIndex
+    }
+  },
+  watch: {
+    activeCohortIndex: function () {
+      this.getPatientslist()
+    }
+  },
   mounted () {
     this.plotData = null
     this.plotSelIds = []
     this.swarmSelIds = []
   },
-  computed: {
-    ...mapState({
-      all_diseases: state => state.all_diseases
-    }),
-    ...mapGetters({
-      hasData: 'hasData'
-    }),
-    cohortIndex: function () {
-      return this.all_diseases.indexOf(this.diseaseName)
-    }
-  },
   methods: {
+    updateCohort ({ dataSource, cohortIndex }) {
+      this.cohortIndex = cohortIndex
+      this.updateProtein()
+    },
     async getPatientslist () {
-      const response = await axios.get(`${process.env.VUE_APP_API_HOST}/proteinscore/${this.cohortIndex}/patients_list`)
-      this.allPatients = response.data
+      try {
+        const response = await axios.get(`${process.env.VUE_APP_API_HOST}/proteinscore/${this.cohortIndex}/patients_list`)
+        this.allPatients = response.data
+      } catch (error) {
+        console.log('Error geting patients list for this cohort', error)
+        this.allPatients = []
+      }
     },
     updateProtein ({ dataSource, identifier }) {
       this.proteinidentifier = identifier
