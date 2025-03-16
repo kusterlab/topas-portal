@@ -41,7 +41,7 @@ export default {
     },
     savePlot: {
       type: Boolean,
-      default: false
+      default: true
     },
     variableA: {
       type: String,

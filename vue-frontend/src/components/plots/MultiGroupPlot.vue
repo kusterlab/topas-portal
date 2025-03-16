@@ -1,19 +1,17 @@
 <template>
-  <div>
-    <div :id="iD">
-      <v-btn
-        v-if="savePlot"
-        class="ma-2"
-        color="primary"
-        @click="downloadSVG"
+  <div :id="iD">
+    <v-btn
+      v-if="savePlot & plotData.length > 0"
+      class="ma-2"
+      color="primary"
+      @click="downloadSVG"
+    >
+      <v-icon
+        dark
       >
-        <v-icon
-          dark
-        >
-          mdi-cloud-download
-        </v-icon>
-      </v-btn>
-    </div>
+        mdi-cloud-download
+      </v-icon>
+    </v-btn>
   </div>
 </template>
 

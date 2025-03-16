@@ -104,8 +104,9 @@
         </v-card-text>
       </v-card>
       <v-card
-          flat class="mt-4"
-        >
+        flat
+        class="mt-4"
+      >
         <v-card-title>Help</v-card-title>
         <v-card-text>
           <v-expansion-panels>
@@ -260,7 +261,6 @@ export default {
   },
   data: () => ({
     identifier1: '',
-    savePlot: false,
     expressionData1: [],
     xaxisTable: 'Scores1',
     yaxisTable: 'Scores2',
@@ -459,9 +459,6 @@ export default {
         const customGroup = this.allPatients ? 'all' : this.customGroup
         this.jsonUrl = `${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/${inputLevel}/correlation/${level}/${key}/${this.intensityUnit}/${customGroup}`
       }
-    },
-    changePlotSavestaus ({ status }) {
-      this.savePlot = status
     },
     updateSelectedRowsSample (selectedIds, selectedData) {
       const selectedPatients = []

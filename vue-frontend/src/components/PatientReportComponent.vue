@@ -1,11 +1,11 @@
 <template>
   <v-container fluid>
-    <v-row class="pa-4 grey lighten-3">
+    <v-row class="grey lighten-3">
       <!-- Sidebar for Filters and Controls -->
       <v-col
         cols="12"
         md="3"
-        lg="3"
+        lg="2"
       >
         <v-card flat>
           <v-card-title tag="h1">
@@ -45,9 +45,6 @@
               label="Open Report from pipeline Folder"
               @change="getscoresTable"
             />
-            <plot-save-vue
-              @status="changePlotSavestaus"
-            />
           </v-card-text>
         </v-card>
       </v-col>
@@ -55,7 +52,7 @@
       <v-col
         cols="12"
         md="9"
-        lg="9"
+        lg="10"
       >
         <v-card flat>
           <v-card-text>
@@ -87,7 +84,6 @@
                           id="proteinfreq"
                           ref="histogram"
                           :full-chart-data="proteinCount"
-                          :save-plot="savePlot"
                           :plot-histogram="true"
                           :plot-k-d-e="false"
                           :selected-lines="selectedFPLines"
@@ -108,7 +104,6 @@
                           id="peptidefpfreq"
                           ref="histogram"
                           :full-chart-data="peptidefpCount"
-                          :save-plot="savePlot"
                           :plot-histogram="true"
                           :plot-k-d-e="false"
                           :selected-lines="selectedfppepLines"
@@ -131,7 +126,6 @@
                           id="pepppfreq"
                           ref="histogram"
                           :full-chart-data="peptideCount"
-                          :save-plot="savePlot"
                           :plot-histogram="true"
                           :plot-k-d-e="false"
                           :selected-lines="selectedpepLines"
@@ -152,7 +146,6 @@
                           id="ppintensity"
                           ref="histogram"
                           :full-chart-data="ppintensitySum"
-                          :save-plot="savePlot"
                           :plot-histogram="false"
                           :plot-k-d-e="true"
                           :selected-lines="selectedLineppintensity"
@@ -173,7 +166,6 @@
                           id="fpintensity"
                           ref="histogram"
                           :full-chart-data="fpintensitySum"
-                          :save-plot="savePlot"
                           :plot-histogram="false"
                           :plot-k-d-e="true"
                           :selected-lines="selectedLinefpintensity"
@@ -194,7 +186,6 @@
                           id="correlation"
                           ref="histogram"
                           :v-show="showCorrelation"
-                          :save-plot="savePlot"
                           :full-chart-data="correlationCount"
                           :plot-histogram="true"
                           :plot-k-d-e="false"
@@ -277,7 +268,6 @@
                     >
                       <Lolipop-plot
                         v-if="lolipopData && displayrtkBar"
-                        :save-plot="savePlot"
                         width="800"
                         lollipop-id="tupac2Lolipop"
                         loli-title="TOPAS Z-scores"
@@ -294,7 +284,6 @@
                     >
                       <Circularbar-plot
                         v-if="lolipopData && displayrtkBar"
-                        :save-plot="savePlot"
                         plot-id="circular2Patway"
                         :plot-data="lolipopData"
                         :patient-name="firstPatient"
@@ -308,7 +297,6 @@
                     >
                       <Lolipop-plot
                         v-if="lolipopDataTumor && displayTumorbar"
-                        :save-plot="savePlot"
                         width="800"
                         lollipop-id="tupac2LolipopTumorantigen"
                         loli-title="Expression Z-scores"
@@ -325,7 +313,6 @@
                     >
                       <Circularbar-plot
                         v-if="lolipopDataTumor && displayTumorbar"
-                        :save-plot="savePlot"
                         plot-id="circular2Tumor"
                         :plot-data="lolipopDataTumor"
                         :patient-name="firstPatient"
@@ -340,7 +327,6 @@
                 <v-col cols="12">
                   <Lolipop-plot
                     v-if="expressionDataRTK && displaylolipop"
-                    :save-plot="savePlot"
                     width="1600"
                     height="400"
                     :fixed-domain="fixedDomain"
@@ -358,7 +344,6 @@
                 <v-col cols="12">
                   <Lolipop-plot
                     v-if="expressionDataDownstream && displaylolipop"
-                    :save-plot="savePlot"
                     width="1600"
                     height="400"
                     :fixed-domain="fixedDomain"
@@ -390,13 +375,11 @@ import LolipopPlot from '@/components/plots/LolipopPlot'
 import CircularbarPlot from '@/components/plots/CircularbarPlot'
 import histogram from '@/components/plots/GenericHistogram.vue'
 import { DataType } from '@/constants'
-import PlotSaveVue from './partials/PlotSave.vue'
 
 export default {
   name: 'ReportComponent',
   components: {
     PatientTable,
-    PlotSaveVue,
     LolipopPlot,
     histogram,
     CircularbarPlot,
@@ -414,7 +397,6 @@ export default {
   },
   data: () => ({
     basketName: '',
-    savePlot: false,
     isCollapsed: true,
     diseaseName: '',
     fixedDomain: false,
@@ -503,9 +485,6 @@ export default {
     }
   },
   methods: {
-    changePlotSavestaus ({ status }) {
-      this.savePlot = status
-    },
     toggleDiv (type) {
       if (type === 'rtk') {
         this.displayrtkBar = true

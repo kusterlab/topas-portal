@@ -32,7 +32,7 @@ export default {
     },
     savePlot: {
       type: Boolean,
-      default: false
+      default: true
     },
     patientName: {
       type: String,

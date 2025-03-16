@@ -61,7 +61,8 @@
         </v-card>
         <!-- Collapsible Help Box -->
         <v-card
-          flat class="mt-4"
+          flat
+          class="mt-4"
         >
           <v-card-title>Help</v-card-title>
           <v-card-text>

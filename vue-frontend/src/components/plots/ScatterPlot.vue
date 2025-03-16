@@ -25,7 +25,7 @@ export default {
   props: {
     savePlot: {
       type: Boolean,
-      default: false
+      default: true
     },
     id: {
       type: String,

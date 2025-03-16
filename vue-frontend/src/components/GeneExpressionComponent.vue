@@ -90,25 +90,22 @@
               v-model="showOncokbcnv"
               dense
               hide-details
-              label="OncoKB CNV info"
+              label="Load OncoKB annotations"
             />
             <v-textarea
               v-if="showOncokbcnv"
               v-model="cnvDescription"
-              clear-icon="mdi-close-circle"
               :readonly="true"
               outlined
               hide-details
               height="120"
             />
-            <plot-save-vue
-              @status="changePlotSavestaus"
-            />
           </v-card-text>
         </v-card>
         <!-- Collapsible Help Box -->
         <v-card
-          flat class="mt-4"
+          flat
+          class="mt-4"
         >
           <v-card-title>Help</v-card-title>
           <v-card-text>
@@ -173,7 +170,6 @@
                     </v-btn>
                     <swarm-plot
                       v-if="swarmPlotData.length>0"
-                      :save-plot="savePlot"
                       :swarm-data="swarmPlotData"
                       swarm-id="singleGene"
                       :swarm-sel-ids="swarmSelIds"
@@ -196,7 +192,6 @@
                 <histogram
                   id="numPep"
                   ref="histogram"
-                  :save-plot="savePlot"
                   :full-chart-data="numPep"
                   :plot-histogram="true"
                   :plot-k-d-e="true"
@@ -218,7 +213,6 @@
                 <histogram
                   id="ec50Histogram"
                   ref="histogram"
-                  :save-plot="savePlot"
                   :full-chart-data="chartData"
                   :plot-histogram="true"
                   :plot-k-d-e="false"
@@ -240,7 +234,6 @@
                 <histogram
                   id="confidence"
                   ref="histogram"
-                  :save-plot="savePlot"
                   :full-chart-data="confidenceScore"
                   :plot-histogram="true"
                   :plot-k-d-e="false"
@@ -272,13 +265,11 @@ import histogram from '@/components/plots/GenericHistogram'
 import SwarmPlot from '@/components/plots/SwarmPlot'
 import ProteinSelect from '@/components/partials/ProteinSelect.vue'
 import { DataType } from '@/constants'
-import PlotSaveVue from './partials/PlotSave.vue'
 
 export default {
   name: 'GeneComponent',
   components: {
     expressionTable,
-    PlotSaveVue,
     histogram,
     SwarmPlot,
     ProteinSelect
@@ -297,7 +288,6 @@ export default {
   data: () => ({
     identifier: '',
     diseaseName: 'sarcoma',
-    savePlot: false,
     mode: DataType.FULL_PROTEOME,
     showOncokbcnv: false,
     swarmShow: false,
@@ -377,10 +367,6 @@ export default {
     updateProtein ({ dataSource, identifier }) {
       this.identifier = identifier
       this.updateId()
-    },
-
-    changePlotSavestaus ({ status }) {
-      this.savePlot = status
     },
     updateId () {
       this.swarmShow = false

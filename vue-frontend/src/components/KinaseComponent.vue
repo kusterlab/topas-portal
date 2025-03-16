@@ -105,14 +105,12 @@
             >
               Plot
             </v-btn>
-            <plot-save-vue
-              @status="changePlotSavestaus"
-            />
           </v-card-text>
         </v-card>
         <!-- Collapsible Help Box -->
         <v-card
-          flat class="mt-4"
+          flat
+          class="mt-4"
         >
           <v-card-title>Help</v-card-title>
           <v-card-text>
@@ -169,7 +167,6 @@
                   <v-responsive>
                     <swarm-plot
                       v-if="swarmShow"
-                      :save-plot="savePlot"
                       :swarm-data="singleswarmData"
                       swarm-id="kinasescore"
                       :swarm-sel-ids="plotSelIds"
@@ -193,7 +190,6 @@
                   <multi-group-plot
                     v-if="swarmData.length > 0 && plotType==='multiswarm'"
                     i-d="kinasePlot"
-                    :save-plot="savePlot"
                     field-x="Gene names"
                     field-y="score"
                     title="Sample"
@@ -226,14 +222,12 @@ import { mapGetters, mapState } from 'vuex'
 import { Plotly } from 'vue-plotly'
 import multiGroupPlot from '@/components/plots/MultiGroupPlot'
 import ProteinSelect from '@/components/partials/ProteinSelect'
-import PlotSaveVue from './partials/PlotSave.vue'
 import explorerComponent from './partials/scoresComponent.vue'
 
 export default {
   name: 'KinaseComponent',
   components: {
     Plotly,
-    PlotSaveVue,
     kinasescoreTable,
     multiGroupPlot,
     SwarmPlot,
@@ -253,7 +247,6 @@ export default {
   data: () => ({
     heatmapData: [],
     diseaseName: '',
-    savePlot: false,
     selectedData: [],
     showLegends: true,
     oneVsAll: false,
@@ -303,9 +296,6 @@ export default {
         }
       })
       this.allPatients = patients
-    },
-    changePlotSavestaus ({ status }) {
-      this.savePlot = status
     },
     updateKinase ({ dataSource, identifier }) {
       this.activeKinases = identifier

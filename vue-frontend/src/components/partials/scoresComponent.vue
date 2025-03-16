@@ -3,6 +3,7 @@
     <v-main>
       <v-tabs
         v-model="tabIndex"
+        show-arrows
       >
         <v-tab
           v-for="item in items"

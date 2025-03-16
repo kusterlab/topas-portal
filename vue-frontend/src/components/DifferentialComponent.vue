@@ -301,9 +301,6 @@ export default {
     selectDot (selectedDot) {
       this.selectedDotsInPlot = selectedDot
     },
-    changePlotSavestaus ({ status }) {
-      this.savePlot = status
-    },
     updateSampleGroup1 (sampleIdList) {
       this.customGroup1 = sampleIdList
     },

@@ -35,14 +35,12 @@
               label="Show TOPAS Subscores"
               @change="getbasketData"
             />
-            <plot-save-vue
-              @status="changePlotSavestaus"
-            />
           </v-card-text>
         </v-card>
         <!-- Collapsible Help Box -->
         <v-card
-          flat class="mt-4"
+          flat
+          class="mt-4"
         >
           <v-card-title>Help</v-card-title>
           <v-card-text>
@@ -74,72 +72,62 @@
       >
         <v-card flat>
           <v-card-text>
-            <div class="collapsible-container">
-              <v-row>
-                <v-col
-                  sm="12"
-                  md="7"
-                  lg="7"
+            <v-row>
+              <v-col
+                sm="12"
+                md="7"
+                lg="7"
+              >
+                <basket-table
+                  :data-source="basketData"
+                  :selected-patient="selectedDotsInPlot"
+                  @onRowSelect="updateSelectedRows"
                 >
-                  <basket-table
-                    :data-source="basketData"
-                    :selected-patient="selectedDotsInPlot"
-                    @onRowSelect="updateSelectedRows"
                   >
-                    >
-                  </basket-table>
-                </v-col>
-                <v-col
-                  sm="12"
-                  md="5"
-                  lg="5"
+                </basket-table>
+              </v-col>
+              <v-col
+                sm="12"
+                md="5"
+                lg="5"
+              >
+                <v-skeleton-loader
+                  :loading="loading"
+                  height="200"
+                  width="200"
+                  type="image, list-item-two-line"
                 >
-                  <v-skeleton-loader
-                    :loading="loading"
-                    height="200"
-                    width="200"
-                    type="image, list-item-two-line"
-                  >
-                    <v-responsive>
-                      <swarm-plot
-                        v-if="basketName"
-                        :save-plot="savePlot"
-                        :swarm-data="swarmPLotData"
-                        :swarm-sel-ids="swarmSelIds"
-                        swarm-id="singleBasket"
-                        :swarm-title="basketName"
-                        :swarm-title-prefix="swarmPrefix"
-                        field-name="Sample name"
-                        :draw-box-plot="true"
-                        :field-values="swarmField"
-                        @selectedCells="getSelectedCells"
-                        @onDotClick="selectDot"
-                      />
-                    </v-responsive>
-                  </v-skeleton-loader>
-                </v-col>
-              </v-row>
-            </div>
-            <div class="collapsible-container">
-              <v-row>
-                <v-card
-                  plain
-                  outlined
-                >
-                  <multi-group-plot
-                    v-if="ShowSubBaskets"
-                    :save-plot="savePlot"
-                    i-d="basketPlot"
-                    field-x="basket"
-                    field-y="score"
-                    title="sample"
-                    :plot-data="subbasketData"
-                    :selected-patients="multiGroupPlotSelectedPatients"
-                    :selected-color="multiGroupPlotSelectedColor"
-                  />
-                </v-card>
-              </v-row>
-            </div>
+                  <v-responsive>
+                    <swarm-plot
+                      v-if="basketName"
+                      :swarm-data="swarmPLotData"
+                      :swarm-sel-ids="swarmSelIds"
+                      swarm-id="singleBasket"
+                      :swarm-title="basketName"
+                      :swarm-title-prefix="swarmPrefix"
+                      field-name="Sample name"
+                      :draw-box-plot="true"
+                      :field-values="swarmField"
+                      @selectedCells="getSelectedCells"
+                      @onDotClick="selectDot"
+                    />
+                  </v-responsive>
+                </v-skeleton-loader>
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </v-card>
+        <v-card v-show="ShowSubBaskets" flat class="mt-4">
+          <v-card-text>
+            <multi-group-plot
+              i-d="basketPlot"
+              field-x="basket"
+              field-y="score"
+              title="sample"
+              :plot-data="subbasketData"
+              :selected-patients="multiGroupPlotSelectedPatients"
+              :selected-color="multiGroupPlotSelectedColor"
+            />
           </v-card-text>
         </v-card>
       </v-col>
@@ -154,14 +142,12 @@ import SwarmPlot from '@/components/plots/SwarmPlot'
 import BasketTable from '@/components/tables/BasketTable'
 import BasketSelect from '@/components/partials/BasketSelect'
 import multiGroupPlot from '@/components/plots/MultiGroupPlot'
-import PlotSaveVue from './partials/PlotSave.vue'
 import ExplorerComponent from '@/components/partials/scoresComponent.vue'
 
 export default {
   name: 'BasketComponent',
   components: {
     BasketTable,
-    PlotSaveVue,
     SwarmPlot,
     ExplorerComponent,
     BasketSelect,
@@ -180,7 +166,6 @@ export default {
 
   data: () => ({
     basketName: '',
-    savePlot: false,
     diseaseName: '',
     firstPatient: '',
     selectedDotsInPlot: '',
@@ -216,9 +201,6 @@ export default {
   methods: {
     selectDot (value) {
       this.selectedDotsInPlot = value
-    },
-    changePlotSavestaus ({ status }) {
-      this.savePlot = status
     },
     getSelectedCells (value) {
       const selectedPatients = []

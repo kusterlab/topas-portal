@@ -2,6 +2,7 @@
   <v-main>
     <v-tabs
       v-model="tabs"
+      show-arrows
     >
       <v-tab
         v-for="item of allScores"

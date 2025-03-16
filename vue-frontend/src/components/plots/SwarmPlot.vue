@@ -26,6 +26,7 @@
       </v-btn>
 
       <v-btn
+        v-if="savePlot"
         class="ma-2"
         color="primary"
         @click="downloadSVG"
@@ -90,7 +91,7 @@ export default {
      },
     savePlot: {
       type: Boolean,
-      default: false
+      default: true
     },
     swarmSelIds: {
       type: Array,

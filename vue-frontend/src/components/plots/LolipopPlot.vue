@@ -33,7 +33,7 @@ export default {
     },
     savePlot: {
       type: Boolean,
-      default: false
+      default: true
     },
     // title for the plot
     loliTitle: {

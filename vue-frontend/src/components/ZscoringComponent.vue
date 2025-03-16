@@ -74,7 +74,8 @@
         </v-card>
         <!-- Collapsible Help Box -->
         <v-card
-          flat class="mt-4"
+          flat
+          class="mt-4"
         >
           <v-card-title>Help</v-card-title>
           <v-card-text>
@@ -181,7 +182,6 @@ export default {
   },
   data: () => ({
     diseaseName: '',
-    savePlot: false,
     firstPatient: '',
     identifier: '',
     loading: false,
@@ -234,9 +234,6 @@ export default {
   methods: {
     updateProtein ({ dataSource, identifier }) {
       this.identifier = identifier
-    },
-    changePlotSavestaus ({ status }) {
-      this.savePlot = status
     },
     updateSampleGroup (filedsInterest) {
       this.customGroup = filedsInterest

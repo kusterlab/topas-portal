@@ -1,13 +1,12 @@
 <template>
   <div class="datahistclass">
     <v-btn
-      v-if="savePlot"
+      v-show="savePlot & fullChartData.length > 0"
       class="ma-2"
       color="primary"
       @click="downloadSVG"
     >
       <v-icon
-        v-if="savePlot"
         dark
       >
         mdi-cloud-download
@@ -32,7 +31,7 @@ export default {
     },
     savePlot: {
       type: Boolean,
-      default: false
+      default: true
     },
     fullTooltip: {
       type: Function,

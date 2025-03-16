@@ -77,7 +77,7 @@ export default {
   props: {
     savePlot: {
       type: Boolean,
-      default: false
+      default: true
     },
     qcSelIds: { // the index of the selected items from table etc.
       type: Array,
