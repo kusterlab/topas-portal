@@ -1,7 +1,11 @@
 <template>
   <v-main>
     <v-tabs v-model="tabs">
-      <v-tab v-for="item of allPlots" :key="item" @click="tabChange">
+      <v-tab
+        v-for="item of allPlots"
+        :key="item"
+        @click="tabChange"
+      >
         {{ item }}
       </v-tab>
     </v-tabs>

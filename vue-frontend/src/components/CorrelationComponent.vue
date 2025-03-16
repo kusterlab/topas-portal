@@ -104,22 +104,30 @@
         </v-card-text>
       </v-card>
       <v-card
-          elevation="2"
-          class="pa-4 mt-4"
+          flat class="mt-4"
         >
+        <v-card-title>Help</v-card-title>
+        <v-card-text>
           <v-expansion-panels>
             <v-expansion-panel>
-              <v-expansion-panel-header>
-                More info?
+              <v-expansion-panel-header class="mb-0">
+                Tab info
               </v-expansion-panel-header>
               <v-expansion-panel-content>
-                <p class="text-body-2">
-                  In this tab you can visualize correlations between proteins, phosphopeptides, mRNA-transcripts, TOPAS scores, protein phosphorylation scores and substrate phosphorylation scores. To visualize the correlation for specific correlation partners, select one item in the upper list. In the lower list you can select specific samples to highlight them in the correlation plot. To remove samples where one correlation partner has not been annotated, uncheck the "Impute NA on plot" and click on "Run analysis" again. You can also show a density distribution by checking the box next to "Show Density Distribution" and clicking on "Run analysis" again. To export plots, click the export button on the right handside above the plot.
-                </p>
+                In this tab you can visualize correlations between proteins, phosphopeptides, mRNA-transcripts, TOPAS scores, protein phosphorylation scores and substrate phosphorylation scores.
+              </v-expansion-panel-content>
+            </v-expansion-panel>
+            <v-expansion-panel>
+              <v-expansion-panel-header class="mb-0">
+                How to use
+              </v-expansion-panel-header>
+              <v-expansion-panel-content>
+                To visualize the correlation for specific correlation partners, select one item in the upper list. In the lower list you can select specific samples to highlight them in the correlation plot. To remove samples where one correlation partner has not been annotated, uncheck the "Impute NA on plot" and click on "Run analysis" again. You can also show a density distribution by checking the box next to "Show Density Distribution" and clicking on "Run analysis" again. To export plots, click the export button on the right handside above the plot.
               </v-expansion-panel-content>
             </v-expansion-panel>
           </v-expansion-panels>
-        </v-card>
+        </v-card-text>
+      </v-card>
     </v-col>
 
     <v-col

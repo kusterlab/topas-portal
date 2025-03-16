@@ -1,11 +1,11 @@
 <template>
   <v-container fluid>
-    <v-row class="pa-4 grey lighten-3">
+    <v-row class="grey lighten-3">
       <!-- Sidebar Section -->
       <v-col
         sm="12"
         md="3"
-        lg="3"
+        lg="2"
       >
         <v-card
           flat
@@ -108,21 +108,29 @@
         </v-card>
         <!-- Collapsible Help Box -->
         <v-card
-          elevation="2"
-          class="pa-4 mt-4"
+          flat class="mt-4"
         >
-          <v-expansion-panels>
-            <v-expansion-panel>
-              <v-expansion-panel-header>
-                More info?
-              </v-expansion-panel-header>
-              <v-expansion-panel-content>
-                <p class="text-body-2">
-                  In this tab you can visualize the normalized intensity and z-score of proteins and phosphopeptides. Use the dropdown menu to select a cohort, then apply filters as required to stratify samples. To visualize specific samples in the swarm plot, select samples in the list, pick a name in the field "Group" above the plot, adjust the color and click the blue edit button. Click the circled arrow to come back to default. To export the plot, click the export button on the right handside above the plot.
-                </p>
-              </v-expansion-panel-content>
-            </v-expansion-panel>
-          </v-expansion-panels>
+          <v-card-title>Help</v-card-title>
+          <v-card-text>
+            <v-expansion-panels>
+              <v-expansion-panel>
+                <v-expansion-panel-header class="mb-0">
+                  Tab info
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  In this tab you can visualize the normalized intensity and z-score of proteins and phosphopeptides.
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+              <v-expansion-panel>
+                <v-expansion-panel-header class="mb-0">
+                  How to use
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  Use the dropdown menu to select a cohort, then apply filters as required to stratify samples. To visualize specific samples in the swarm plot, select samples in the list, pick a name in the field "Group" above the plot, adjust the color and click the blue edit button. Click the circled arrow to come back to default. To export the plot, click the export button on the right handside above the plot.
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+            </v-expansion-panels>
+          </v-card-text>
         </v-card>
       </v-col>
 
@@ -130,7 +138,7 @@
       <v-col
         sm="12"
         md="9"
-        lg="9"
+        lg="10"
       >
         <v-card flat>
           <v-card-text>

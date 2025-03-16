@@ -74,21 +74,29 @@
         </v-card>
         <!-- Collapsible Help Box -->
         <v-card
-          elevation="2"
-          class="pa-4 mt-4"
+          flat class="mt-4"
         >
-          <v-expansion-panels>
-            <v-expansion-panel>
-              <v-expansion-panel-header>
-                More info?
-              </v-expansion-panel-header>
-              <v-expansion-panel-content>
-                <p class="text-body-2">
-                  In this tab you can recalculate the z-scores for each group of patients based on the metadata and compare it with the precalculated z-scores across all patients.
-                </p>
-              </v-expansion-panel-content>
-            </v-expansion-panel>
-          </v-expansion-panels>
+          <v-card-title>Help</v-card-title>
+          <v-card-text>
+            <v-expansion-panels>
+              <v-expansion-panel>
+                <v-expansion-panel-header class="mb-0">
+                  Tab info
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  In this tab you can calculate the z-scores for each group of patients based on the metadata and compare it with the precalculated z-scores across all patients.
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+              <v-expansion-panel>
+                <v-expansion-panel-header class="mb-0">
+                  How to use
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  Search and select a protein of interest, then apply filters as required to compute z-scores for a certain group of patients.
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+            </v-expansion-panels>
+          </v-card-text>
         </v-card>
       </v-col>
       <v-col

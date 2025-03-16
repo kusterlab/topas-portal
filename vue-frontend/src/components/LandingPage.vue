@@ -1,172 +1,155 @@
 <template>
-  <div>
-    <!-- Main Content -->
-    <v-row class="pa-4">
-      <!-- Data Visualization Section -->
+  <v-container fluid>
+    <v-row class="pa-4 grey lighten-3">
       <v-col
         sm="12"
         md="9"
         lg="9"
       >
-        <v-card
-          elevation="2"
-          class="pa-4"
-        >
-          <v-row class="pa-0 home-hero grey lighten-4">
-            <v-col cols="12">
-              <div class="home-hero__banner d-flex align-left justify-left py-12">
-                <v-container>
-                  <h1 class="display-2 font-weight-bold black--text text-left mb-4">
-                    Welcome to the TOPAS Portal
-                  </h1>
-                  <p class="text-h6 black--text text-left mb-6">
-                    A multi-omics resource for precision oncology research. Explore data and tools for proteomics, transcriptomics, and genomics.
-                  </p>
-                </v-container>
-              </div>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col
-              sm="6"
-              md="6"
-              lg="6"
+        <v-row class="pa-0 home-hero light lighten-4">
+          <v-col cols="12">
+            <div class="home-hero__banner d-flex align-left justify-left py-1">
+              <v-container>
+                <h1 class="display-2 font-weight-bold black--text text-left mb-4">
+                  Welcome to the TOPAS Portal
+                </h1>
+                <p class="text-h6 black--text text-left mb-6">
+                  A multi-omics resource for precision oncology. Explore data and tools for proteomics, transcriptomics, and genomics.
+                </p>
+              </v-container>
+            </div>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col
+            sm="3"
+            md="3"
+            lg="3"
+          >
+            <v-card
+              :to="topasactivityPath"
+              outlined
             >
-              <v-card outlined>
-                <v-card-title
-                  class="text-h6 font-weight-bold"
+              <v-card-title
+                class="text-h6 font-weight-bold"
+              >
+                TOPAS scores
+              </v-card-title>
+              <v-card-text>
+                <v-skeleton-loader
+                  height="200"
+                  width="100%"
+                  type="image, list-item-two-line"
                 >
-                  TumOr PAthway Status (TOPAS) scores
-                </v-card-title>
-                <v-card-text>
-                  <v-skeleton-loader
-                    height="200"
-                    width="100%"
-                    type="image, list-item-two-line"
-                  >
-                    <router-link
-                      :to="topasactivityPath"
-                      class="card-link"
-                    >
-                      <v-responsive>
-                        <v-img
-                          :src="require('@/assets/topas_scores.png')"
-                          alt="Entity Image"
-                          height="200"
-                          contain
-                        />
-                      </v-responsive>
-                    </router-link>
-                  </v-skeleton-loader>
-                </v-card-text>
-              </v-card>
-            </v-col>
-            <v-col
-              sm="6"
-              md="6"
-              lg="6"
+                  <v-responsive>
+                    <v-img
+                      :src="require('@/assets/topas_scores.png')"
+                      alt="Entity Image"
+                      height="200"
+                      contain
+                    />
+                  </v-responsive>
+                </v-skeleton-loader>
+              </v-card-text>
+            </v-card>
+          </v-col>
+          <v-col
+            sm="3"
+            md="3"
+            lg="3"
+          >
+            <v-card
+              :to="kinasectivityPath"
+              outlined
             >
-              <v-card outlined>
-                <v-card-title
-                  class="text-h6 font-weight-bold"
+              <v-card-title
+                class="text-h6 font-weight-bold"
+              >
+                Kinase activity
+              </v-card-title>
+              <v-card-text>
+                <v-skeleton-loader
+                  height="200"
+                  width="100%"
+                  type="image, list-item-two-line"
                 >
-                  Kinase activity (substrate phosphorylation)
-                </v-card-title>
-                <v-card-text>
-                  <v-skeleton-loader
-                    height="200"
-                    width="100%"
-                    type="image, list-item-two-line"
-                  >
-                    <router-link
-                      :to="kinasectivityPath"
-                      class="card-link"
-                    >
-                      <v-responsive>
-                        <v-img
-                          :src="require('@/assets/kinase_score.png')"
-                          alt="Entity Image"
-                          height="200"
-                          contain
-                        />
-                      </v-responsive>
-                    </router-link>
-                  </v-skeleton-loader>
-                </v-card-text>
-              </v-card>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col
-              sm="6"
-              md="6"
-              lg="6"
+                  <v-responsive>
+                    <v-img
+                      :src="require('@/assets/kinase_score.png')"
+                      alt="Entity Image"
+                      height="200"
+                      contain
+                    />
+                  </v-responsive>
+                </v-skeleton-loader>
+              </v-card-text>
+            </v-card>
+          </v-col>
+          <v-col
+            sm="3"
+            md="3"
+            lg="3"
+          >
+            <v-card
+              :to="cohortAnalysis"
+              outlined
             >
-              <v-card outlined>
-                <v-card-title
-                  class="text-h6 font-weight-bold"
+              <v-card-title
+                class="text-h6 font-weight-bold"
+              >
+                Cohort Analysis
+              </v-card-title>
+              <v-card-text>
+                <v-skeleton-loader
+                  height="200"
+                  width="100%"
+                  type="image, list-item-two-line"
                 >
-                  Cohort Analysis
-                </v-card-title>
-                <v-card-text>
-                  <v-skeleton-loader
-                    height="200"
-                    width="100%"
-                    type="image, list-item-two-line"
-                  >
-                    <router-link
-                      :to="cohortAnalysis"
-                      class="card-link"
-                    >
-                      <v-responsive>
-                        <v-img
-                          :src="require('@/assets/volcano.png')"
-                          alt="Entity Image"
-                          height="200"
-                          contain
-                        />
-                      </v-responsive>
-                    </router-link>
-                  </v-skeleton-loader>
-                </v-card-text>
-              </v-card>
-            </v-col>
-            <v-col
-              sm="6"
-              md="6"
-              lg="6"
+                  <v-responsive>
+                    <v-img
+                      :src="require('@/assets/volcano.png')"
+                      alt="Entity Image"
+                      height="200"
+                      contain
+                    />
+                  </v-responsive>
+                </v-skeleton-loader>
+              </v-card-text>
+            </v-card>
+          </v-col>
+          <v-col
+            sm="3"
+            md="3"
+            lg="3"
+          >
+            <v-card
+              :to="patientReport"
+              outlined
             >
-              <v-card outlined>
-                <v-card-title
-                  class="text-h6 font-weight-bold"
+              <v-card-title
+                class="text-h6 font-weight-bold"
+              >
+                Patient Report
+              </v-card-title>
+              <v-card-text>
+                <v-skeleton-loader
+                  height="200"
+                  width="100%"
+                  type="image, list-item-two-line"
                 >
-                  Patient Report
-                </v-card-title>
-                <v-card-text>
-                  <v-skeleton-loader
-                    height="200"
-                    width="100%"
-                    type="image, list-item-two-line"
-                  >
-                    <router-link
-                      :to="patientReport"
-                      class="card-link"
-                    >
-                      <v-responsive>
-                        <v-img
-                          :src="require('@/assets/patientReport.png')"
-                          alt="Entity Image"
-                          height="200"
-                          contain
-                        />
-                      </v-responsive>
-                    </router-link>
-                  </v-skeleton-loader>
-                </v-card-text>
-              </v-card>
-            </v-col>
-          </v-row>
-        </v-card>
+                  <v-responsive>
+                    <v-img
+                      :src="require('@/assets/patient_report.png')"
+                      alt="Entity Image"
+                      height="200"
+                      contain
+                    />
+                  </v-responsive>
+                </v-skeleton-loader>
+              </v-card-text>
+            </v-card>
+          </v-col>
+        </v-row>
       </v-col>
     </v-row>
     <div>
@@ -180,7 +163,7 @@
         </button>
       </div>
     </div>
-  </div>
+  </v-container>
 </template>
 
 <script>

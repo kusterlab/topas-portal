@@ -65,24 +65,29 @@
             </v-card-text>
           </v-card>
           <v-card
-            elevation="2"
-            class="pa-4 mt-4"
+            flat class="mt-4"
           >
-            <v-expansion-panels>
-              <v-expansion-panel>
-                <v-expansion-panel-header>
-                  More info?
-                </v-expansion-panel-header>
-                <v-expansion-panel-content>
-                  <p class="text-body-2">
+            <v-card-title>Help</v-card-title>
+            <v-card-text>
+              <v-expansion-panels>
+                <v-expansion-panel>
+                  <v-expansion-panel-header class="mb-0">
+                    Tab info
+                  </v-expansion-panel-header>
+                  <v-expansion-panel-content>
                     In this tab you can visualize meta dtata and number of detected modifications per type for each cohort.
-                  </p>
-                  <p class="text-body-2">
+                  </v-expansion-panel-content>
+                </v-expansion-panel>
+                <v-expansion-panel>
+                  <v-expansion-panel-header class="mb-0">
+                    How to use
+                  </v-expansion-panel-header>
+                  <v-expansion-panel-content>
                     Use the dropdown menus to select a cohort and metadata for visualization. Adjust the minimum items per group to filter the data accordingly.
-                  </p>
-                </v-expansion-panel-content>
-              </v-expansion-panel>
-            </v-expansion-panels>
+                  </v-expansion-panel-content>
+                </v-expansion-panel>
+              </v-expansion-panels>
+            </v-card-text>
           </v-card>
         </v-col>
 

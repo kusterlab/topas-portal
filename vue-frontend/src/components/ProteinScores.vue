@@ -61,21 +61,29 @@
         </v-card>
         <!-- Collapsible Help Box -->
         <v-card
-          elevation="2"
-          class="pa-4 mt-4"
+          flat class="mt-4"
         >
-          <v-expansion-panels>
-            <v-expansion-panel>
-              <v-expansion-panel-header>
-                More info?
-              </v-expansion-panel-header>
-              <v-expansion-panel-content>
-                <p class="text-body-2">
-                  In this tab you can visualize the protein phosphorylation scores to interrogate the relative phosphorylation of proteins based on the abundance of all protein phosphorylation sites. You can select a protein- or sample-centric view. Use the dropdown menu to select a cohort, then apply filters as required to stratify samples. To visualize specific samples in the swarm plot, select samples in the list, pick a name in the field "Group" above the plot, adjust the color and click the blue edit button. Click the circled arrow to come back to default. To export the plot, click the export button on the right handside above the plot.
-                </p>
-              </v-expansion-panel-content>
-            </v-expansion-panel>
-          </v-expansion-panels>
+          <v-card-title>Help</v-card-title>
+          <v-card-text>
+            <v-expansion-panels>
+              <v-expansion-panel>
+                <v-expansion-panel-header class="mb-0">
+                  Tab info
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  In this tab you can visualize the protein phosphorylation scores to interrogate the relative phosphorylation of proteins based on the abundance of all protein phosphorylation sites.
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+              <v-expansion-panel>
+                <v-expansion-panel-header class="mb-0">
+                  How to use
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  You can select a protein- or sample-centric view. Use the dropdown menu to select a cohort, then apply filters as required to stratify samples. To visualize specific samples in the swarm plot, select samples in the list, pick a name in the field "Group" above the plot, adjust the color and click the blue edit button. Click the circled arrow to come back to default. To export the plot, click the export button on the right handside above the plot.
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+            </v-expansion-panels>
+          </v-card-text>
         </v-card>
       </v-col>
       <v-col
