@@ -24,90 +24,12 @@
               :items="all_diseases"
               label="Cohort / Cell Type"
             />
-            <v-radio-group
-              v-model="selectPatient"
-              label="Filter patients"
-              @change="getEntityOrPatientslist"
-            >
-              <v-radio
-                label="All Patients"
-                value="all"
-              />
-              <v-radio
-                label="Select Entities"
-                value="selectedEntities"
-              />
-            </v-radio-group>
-            <v-checkbox
-              v-if="selectPatient !== 'all' && selectPatient !== 'selectedPatients'"
-              v-model="oneVsAll"
-              label="One Entity Vs all"
-              hide-details
-            />
-            <v-autocomplete
-              v-if="selectPatient !== 'all'"
-              v-model="activePatients"
-              :items="allPatients"
-              outlined
-              dense
-              chips
-              small-chips
-              :label="selectPatient"
-              :multiple="!oneVsAll"
-            />
-            <v-radio-group
-              v-model="selectKinase"
-              label="Filter kinases"
-              hide-details
-            >
-              <v-radio
-                label="All Kinases"
-                value="all"
-              />
-              <v-radio
-                label="Select Kinases"
-                value="selected"
-              />
-            </v-radio-group>
-            <v-checkbox
-              v-if="selectKinase !== 'all'"
-              v-model="multiKinase"
-              label="Multi Kinase selection"
-              hide-details
-            />
             <protein-select
-              v-if="selectKinase !== 'all'"
               :cohort-index="cohortIndex"
-              :multiple="multiKinase"
               data-layer="kinase"
               class="mt-4"
               @select-protein="updateKinase"
             />
-            <v-radio-group
-              v-model="plotType"
-              class="mt-8"
-              @change="react"
-            >
-              <v-radio
-                label="Multi swarm plot"
-                value="multiswarm"
-              />
-              <v-radio
-                label="Heatmap"
-                value="heatmap"
-              />
-              <v-radio
-                label="Dendrogram"
-                value="dendro"
-              />
-            </v-radio-group>
-            <v-btn
-              class="ma-2"
-              color="primary"
-              @click="react"
-            >
-              Plot
-            </v-btn>
           </v-card-text>
         </v-card>
         <!-- Collapsible Help Box -->
@@ -131,7 +53,7 @@
                   How to use
                 </v-expansion-panel-header>
                 <v-expansion-panel-content>
-                  Use the dropdown menu to select a cohort, then apply filters as required to stratify samples. To visualize specific samples in the swarm plot, select samples in the list, pick a name in the field "Group" above the plot, adjust the color and click the blue edit button. Click the circled arrow to come back to default. To export the plot, click the export button on the right handside above the plot.
+                  Use the dropdown menu to select a cohort. To visualize specific samples in the swarm plot, select samples in the table, pick a name in the field "Group" above the plot, adjust the color and click the blue edit button. Click the refresh button to reset the swarmplot. To export the plot, click the export button on the right handside above the plot.
                 </v-expansion-panel-content>
               </v-expansion-panel>
             </v-expansion-panels>
@@ -169,7 +91,6 @@
                 >
                   <v-responsive>
                     <swarm-plot
-                      v-if="swarmShow"
                       :swarm-data="singleswarmData"
                       swarm-id="kinasescore"
                       :swarm-sel-ids="plotSelIds"
@@ -183,33 +104,6 @@
                 </v-skeleton-loader>
               </v-col>
             </v-row>
-            <v-row>
-              <v-card>
-                <v-col
-                  sm="12"
-                  md="7"
-                  lg="7"
-                >
-                  <multi-group-plot
-                    v-if="swarmData.length > 0 && plotType==='multiswarm'"
-                    i-d="kinasePlot"
-                    field-x="Gene names"
-                    field-y="score"
-                    title="Sample"
-                    :plot-data="swarmData"
-                    :selected-patients="null"
-                    selected-color="red"
-                    :show-legends="showLegends"
-                  />
-
-                  <plotly
-                    v-if="showPlot && (plotType==='heatmap' || plotType==='dendro' )"
-                    :data="heatmapData.data"
-                    :layout="heatmapData.layout"
-                  />
-                </v-col>
-              </v-card>
-            </v-row>
           </v-card-text>
         </v-card>
       </v-col>
@@ -222,52 +116,26 @@ import axios from 'axios'
 import kinasescoreTable from '@/components/tables/KinasescoreTable.vue'
 import SwarmPlot from '@/components/plots/SwarmPlot'
 import { mapGetters, mapState } from 'vuex'
-import { Plotly } from 'vue-plotly'
-import multiGroupPlot from '@/components/plots/MultiGroupPlot'
 import ProteinSelect from '@/components/partials/ProteinSelect'
 import explorerComponent from './partials/scoresComponent.vue'
 
 export default {
   name: 'KinaseComponent',
   components: {
-    Plotly,
     kinasescoreTable,
-    multiGroupPlot,
     SwarmPlot,
     explorerComponent,
     ProteinSelect
   },
-  props: {
-    minWidth: {
-      type: Number,
-      default: 400
-    },
-    minHeight: {
-      type: Number,
-      default: 300
-    }
-  },
   data: () => ({
-    heatmapData: [],
     diseaseName: '',
     selectedData: [],
-    showLegends: true,
-    oneVsAll: false,
-    allPatients: [],
     singleswarmData: [],
-    multiKinase: false,
     url: '',
     plotSelIds: [],
     proteinidentifier: '',
     loading: false,
-    activeKinases: [],
-    swarmData: [],
-    swarmShow: false,
-    activePatients: [],
-    selectPatient: 'all',
-    plotType: 'heatmap',
-    selectKinase: 'selected',
-    showPlot: false
+    activeKinases: []
   }),
   computed: {
     ...mapState({
@@ -281,25 +149,6 @@ export default {
     }
   },
   methods: {
-    async getEntityOrPatientslist () {
-      this.activePatients = ''
-      let response = null
-      if (this.selectPatient === 'selectedPatients') {
-        this.oneVsAll = false
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/annotation/${this.cohortIndex}/allpatients`)
-      } else {
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/patients/${this.cohortIndex}/all_entities`)
-      }
-      const patients = []
-      response.data.forEach(element => {
-        if (this.selectPatient === 'selectedPatients') {
-          patients.push(element.result)
-        } else {
-          patients.push(element.Entity)
-        }
-      })
-      this.allPatients = patients
-    },
     updateKinase ({ dataSource, identifier }) {
       this.activeKinases = identifier
       this.react()
@@ -312,41 +161,11 @@ export default {
       this.selectedData = selectedData
     },
     async react () {
-      let activePatients = this.activePatients
-      let activeKinases = this.activeKinases
-      this.showPlot = false
-      this.swarmShow = false
-      this.loading = true
-      let patientOrEntity = 'patient'
-      const plotType = this.plotType
-      const oneVsAll = this.oneVsAll ? 'one_vs_all' : 'none_vs_all'
-      if (this.selectKinase === 'all') { activeKinases = 'all' } // including all kinases for the plot
-      if (this.selectPatient === 'all') { activePatients = 'all' } else {
-        if (this.selectPatient === 'selectedPatients') {
-          this.showLegends = false
-          patientOrEntity = 'patient'
-        } else {
-          this.showLegends = true
-          patientOrEntity = 'entity'
-        }
-      }
-      const response = await axios.get(`${process.env.VUE_APP_API_HOST}/kinasescores/${this.cohortIndex}/${patientOrEntity}/${activePatients}/${activeKinases}/${plotType}/${oneVsAll}`)
-      this.heatmapData = response.data
-      // swarm
-      if ((!this.multiKinase) & (this.selectPatient === 'all') & (this.selectKinase === 'selected')) {
-        const firstKinase = activeKinases
-        this.proteinidentifier = firstKinase
-        const query = `${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/kinase/abundance/${firstKinase}/noimpute`
-        this.url = query
-        const singleSwarm = await axios.get(query)
-        this.swarmShow = true
-        this.singleswarmData = singleSwarm.data
-      } else {
-        this.showPlot = true
-        const swarm = await axios.get(`${process.env.VUE_APP_API_HOST}/kinasescores/${this.cohortIndex}/${patientOrEntity}/${activePatients}/${activeKinases}/swarm/${oneVsAll}`)
-        this.swarmData = swarm.data
-      }
-      this.loading = false
+      const query = `${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/kinase/abundance/${this.activeKinases}/noimpute`
+      this.url = query
+      const singleSwarm = await axios.get(query)
+      this.swarmShow = true
+      this.singleswarmData = singleSwarm.data
     }
 
   }

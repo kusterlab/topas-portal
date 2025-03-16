@@ -13,12 +13,6 @@
     </v-btn>
     <DxDataGrid
       :ref="dataGridRefName"
-      :state-storing="{
-        enabled: true,
-        type: 'custom',
-        customLoad: loadGridState,
-        customSave: saveGridState
-      }"
       :data-source="dataSource"
       :remote-operations="false"
       :allow-column-resizing="true"
@@ -115,6 +109,7 @@ export default {
         const savedState = localStorage.getItem('gridStateKinase')
         return savedState ? JSON.parse(savedState) : null
       }
+      return null
     },
     async getCommonfield () {
       const response = await axios.get(`${process.env.VUE_APP_API_HOST}/colnames`)
