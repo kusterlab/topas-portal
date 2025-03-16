@@ -1,43 +1,39 @@
 <template>
   <div>
     <v-main>
-      <v-toolbar
-        color="white"
+      <v-tabs
+        v-model="tabIndex"
       >
-        <v-tabs
-          v-model="tabIndex"
+        <v-tab
+          v-for="item in items"
+          :key="item.path"
+          :to="item.path"
+          class="tab-item"
         >
-          <v-tab
-            v-for="item in items"
-            :key="item.path"
-            :to="item.path"
-            class="tab-item"
+          <v-icon
+            left
+            class="tab-icon"
           >
-            <v-icon
-              left
-              class="tab-icon"
-            >
-              {{ item.icon }}
-            </v-icon>
-            <span class="tab-text">{{ item.label }}</span>
-          </v-tab>
-          <v-tab
-            v-for="item in customitems"
-            v-show="customitemsStatus"
-            :key="item.path"
-            :to="item.path"
-            class="tab-item"
+            {{ item.icon }}
+          </v-icon>
+          <span class="tab-text">{{ item.label }}</span>
+        </v-tab>
+        <v-tab
+          v-for="item in customitems"
+          v-show="customitemsStatus"
+          :key="item.path"
+          :to="item.path"
+          class="tab-item"
+        >
+          <v-icon
+            left
+            class="tab-icon"
           >
-            <v-icon
-              left
-              class="tab-icon"
-            >
-              {{ item.icon }}
-            </v-icon>
-            <span class="tab-text">{{ item.label }}</span>
-          </v-tab>
-        </v-tabs>
-      </v-toolbar>
+            {{ item.icon }}
+          </v-icon>
+          <span class="tab-text">{{ item.label }}</span>
+        </v-tab>
+      </v-tabs>
 
       <router-view />
     </v-main>
@@ -53,7 +49,7 @@ export default {
     items: [
       { label: 'Topas Scores', path: '/topasscores' },
       { label: 'Substrate Phosphorylation Scores', path: '/kinasescores' },
-      { label: 'Protein Phoshphorylation Scores', path: '/proteinscores' },
+      { label: 'Protein Phosphorylation Scores', path: '/proteinscores' },
       { label: 'Z Scores', path: '/zscores' }
     ],
     customitems: [

@@ -17,7 +17,7 @@
               <div class="home-hero__banner d-flex align-left justify-left py-12">
                 <v-container>
                   <h1 class="display-2 font-weight-bold black--text text-left mb-4">
-                    Welcome to TOPAS Portal
+                    Welcome to the TOPAS Portal
                   </h1>
                   <p class="text-h6 black--text text-left mb-6">
                     A multi-omics resource for precision oncology research. Explore data and tools for proteomics, transcriptomics, and genomics.

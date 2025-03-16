@@ -56,15 +56,15 @@ export default {
     }
   },
   data: () => ({
-    allPlots: ['Patient Report', 'Meta analysis'],
+    allPlots: ['Patient Report', 'Cohort statistics'],
     tabs: null
   }),
   computed: {
   },
   methods: {
     tabChange () {
-    //  To Avoid data leakge between different d3 objects, SVGs remove during tab changes
-    //  if (this.items[this.tabs] === 'Protein Expression' || this.items[this.tabs] === 'Basket Scores' || this.items[this.tabs] === 'Drug Scores' || this.items[this.tabs] === 'Phosphorylation Scores') {
+      //  To Avoid data leakge between different d3 objects, SVGs remove during tab changes
+      //  if (this.items[this.tabs] === 'Protein Expression' || this.items[this.tabs] === 'Basket Scores' || this.items[this.tabs] === 'Drug Scores' || this.items[this.tabs] === 'Phosphorylation Scores') {
       d3.selectAll('svg').remove()
       d3.selectAll('.names').remove()
       d3.selectAll('dot').remove()
@@ -73,12 +73,10 @@ export default {
       d3.selectAll('rect').remove()
       d3.selectAll('toto').remove()
       d3.selectAll('g').remove()
-    //  }
+      //  }
     }
   }
 }
 </script>
 
-<style>
-
-</style>
+<style></style>
