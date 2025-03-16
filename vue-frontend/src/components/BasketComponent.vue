@@ -25,14 +25,16 @@
               label="Cohort / Cell Type"
               @change="getbasketData"
             />
-
             <basket-select
+              class="mt-4"
               :cohort-index="all_diseases.indexOf(diseaseName)"
               @select-basket="updateBasket"
             />
             <v-checkbox
               v-model="ShowSubBaskets"
-              label="Show TOPAS Subscores"
+              label="Show TOPAS subscore plots"
+              dense
+              hide-details
               @change="getbasketData"
             />
           </v-card-text>
@@ -117,7 +119,11 @@
             </v-row>
           </v-card-text>
         </v-card>
-        <v-card v-show="ShowSubBaskets" flat class="mt-4">
+        <v-card
+          v-show="ShowSubBaskets"
+          flat
+          class="mt-4"
+        >
           <v-card-text>
             <multi-group-plot
               i-d="basketPlot"

@@ -34,16 +34,10 @@
               @change="updateId"
             >
               <v-radio
-                label="Protein"
-                value="protein"
-              />
-              <v-radio
-                label="Phosphopeptide"
-                value="psite"
-              />
-              <v-radio
-                label="mRNA (FPKM)"
-                value="fpkm"
+                v-for="(label, value) in radioOptions"
+                :key="value"
+                :label="label"
+                :value="value"
               />
             </v-radio-group>
             <v-radio-group
@@ -67,7 +61,7 @@
 
         <v-card flat>
           <v-card-title tag="h1">
-            Select gene/p-site
+            Select {{ radioOptions[mode] }}
           </v-card-title>
           <v-card-text>
             <v-text-field
@@ -291,6 +285,11 @@ export default {
     mode: DataType.FULL_PROTEOME,
     showOncokbcnv: false,
     swarmShow: false,
+    radioOptions: {
+      protein: 'Protein',
+      psite: 'Phosphopeptide',
+      fpkm: 'mRNA (FPKM)'
+    },
     intensityUnit: 'Z-score',
     selectedDotsInPlot: '',
     cnvDescription: '',

@@ -11,7 +11,7 @@
           <v-card-title
             tag="h1"
           >
-            Substrate Phosphorylation scores
+            Substrate Phosph. scores
           </v-card-title>
           <v-card-text>
             <v-select
@@ -20,11 +20,13 @@
               class="cohort"
               dense
               outlined
+              hide-details
               :items="all_diseases"
               label="Cohort / Cell Type"
             />
             <v-radio-group
               v-model="selectPatient"
+              label="Filter patients"
               @change="getEntityOrPatientslist"
             >
               <v-radio
@@ -55,6 +57,7 @@
             />
             <v-radio-group
               v-model="selectKinase"
+              label="Filter kinases"
               hide-details
             >
               <v-radio

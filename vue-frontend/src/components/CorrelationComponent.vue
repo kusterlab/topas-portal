@@ -74,7 +74,7 @@
             hide-details
           >
             <v-radio
-              label="Z_scores"
+              label="Z-scores"
               value="z_scored"
             />
             <v-radio

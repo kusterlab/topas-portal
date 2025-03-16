@@ -2,8 +2,8 @@
   <v-row class="pa-4 grey lighten-3">
     <v-col
       sm="12"
-      md="5"
-      lg="5"
+      md="3"
+      lg="2"
     >
       <v-card flat>
         <v-card-title
@@ -99,7 +99,7 @@
     <v-col
       sm="12"
       md="9"
-      lg="7"
+      lg="10"
     >
       <v-card flat>
         <v-card-text>

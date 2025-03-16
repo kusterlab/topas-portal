@@ -2,7 +2,6 @@
   <div>
     <v-main>
       <v-tabs
-        v-model="tabIndex"
         show-arrows
       >
         <v-tab
@@ -49,9 +48,9 @@ export default {
     imagesrc: require('@/assets/topas_logo.png'),
     items: [
       { label: 'Topas Scores', path: '/topasscores' },
-      { label: 'Substrate Phosphorylation Scores', path: '/kinasescores' },
-      { label: 'Protein Phosphorylation Scores', path: '/proteinscores' },
-      { label: 'Z Scores', path: '/zscores' }
+      { label: 'Substrate Phosph. Scores', path: '/kinasescores' },
+      { label: 'Protein Phosph. Scores', path: '/proteinscores' },
+      { label: 'Subcohort z-scores', path: '/zscores' }
     ],
     customitems: [
       { label: 'Entity Scores', path: '/entityscores' }

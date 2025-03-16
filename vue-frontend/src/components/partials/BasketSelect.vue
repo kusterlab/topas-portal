@@ -1,30 +1,8 @@
 <template>
   <div>
-    <v-radio-group
-      v-if="scoreType"
-      v-model="dataSource"
-      label="Score type"
-      hide-details
-    >
-      <v-radio
-        label="TOPAS scores"
-        value="basket_score"
-      />
-      <v-radio
-        label="TOPAS Z_scores"
-        value="z_score"
-      />
-    </v-radio-group>
-    <v-checkbox
-      v-if="scoreType"
-      v-model="showNonRTK"
-      label="Show non-RTK TOPAS"
-      hide-details
-      dense
-    />
     <v-autocomplete
       v-model="basketName"
-      class="basket mt-4"
+      class="basket mt-1"
       dense
       outlined
       hide-details
@@ -35,7 +13,7 @@
       :clearable="multiple"
       :small-chips="multiple"
       :deletable-chips="multiple"
-      label="Kinase Name"
+      label="Select kinase"
       @change="updateBasket"
     >
       <template #prepend-item>
@@ -57,6 +35,28 @@
         <v-divider v-show="multiple" />
       </template>
     </v-autocomplete>
+    <v-checkbox
+      v-if="scoreType"
+      class="ml-8"
+      v-model="showTopasRtkOnly"
+      label="TOPAS RTKs only"
+      hide-details
+      dense
+    />
+    <v-radio-group
+      v-if="scoreType"
+      v-model="dataSource"
+      label="Score type"
+    >
+      <v-radio
+        label="TOPAS Z-scores"
+        value="z_score"
+      />
+      <v-radio
+        label="TOPAS raw scores"
+        value="basket_score"
+      />
+    </v-radio-group>
   </div>
 </template>
 
@@ -82,8 +82,8 @@ export default {
   data: () => ({
     basketName: null,
     allBaskets: [],
-    dataSource: 'basket_score',
-    showNonRTK: false
+    dataSource: 'z_score',
+    showTopasRtkOnly: true
   }),
   computed: {
     allSelected: function () {
@@ -94,7 +94,7 @@ export default {
     cohortIndex: function () {
       this.basketComboupdater()
     },
-    showNonRTK: function () {
+    showTopasRtkOnly: function () {
       this.basketComboupdater()
     },
     dataSource: function () {
@@ -108,7 +108,7 @@ export default {
     async basketComboupdater () { // retrieving different basket types RTK or main from the backend
       if (this.cohortIndex < 0) return
 
-      const categories = this.showNonRTK ? 'all' : 'RTK'
+      const categories = this.showTopasRtkOnly ? 'RTK' : 'all'
       const response = await axios.get(`${process.env.VUE_APP_API_HOST}/basket/${this.cohortIndex}/basketids/${categories}`)
       const baskets = []
       response.data.forEach(element => {

@@ -9,7 +9,7 @@
         <v-card-title
           tag="h1"
         >
-          PCA plots
+          PCA/UMAP plots
         </v-card-title>
         <v-card-text>
           <v-select

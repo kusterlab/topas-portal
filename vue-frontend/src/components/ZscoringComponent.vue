@@ -11,7 +11,7 @@
           <v-card-title
             tag="h1"
           >
-            z-scores
+            Subcohort z-scores
           </v-card-title>
           <v-card-text>
             <v-select
