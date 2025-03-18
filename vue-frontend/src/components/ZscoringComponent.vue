@@ -17,20 +17,8 @@
             <cohort-select
               @select-cohort="updateCohort"
             />
-          </v-card-text>
-        </v-card>
-        <v-card
-          class="mt-4"
-          flat
-        >
-          <v-card-title
-            tag="h1"
-          >
-            Select subcohort
-          </v-card-title>
-          <v-card-text>
             <sample-select
-              :show-toggle="false"
+              class="mt-4"
               :cohort-index="cohortIndex"
               :sample-ids="customGroup"
               @update-field="updateSampleGroup"
@@ -62,7 +50,7 @@
             <basket-select
               v-if="mode=== 'tupac'"
               :score-type="false"
-              :cohort-index="all_diseases.indexOf(diseaseName)"
+              :cohort-index="cohortIndex"
               @select-basket="updateBasket"
             />
             <v-text-field
@@ -237,9 +225,6 @@ export default {
 
   }),
   computed: {
-    activeCohortIndex () {
-      return this.cohortIndex
-    }
   },
   watch: {
   },

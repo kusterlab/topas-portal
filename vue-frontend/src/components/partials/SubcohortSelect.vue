@@ -6,7 +6,6 @@
       mandatory
       hide-details
       dense
-      class="mt-4"
     >
       <v-btn
         value="cohort"

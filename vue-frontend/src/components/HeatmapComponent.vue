@@ -16,6 +16,7 @@
             @select-cohort="updateCohort"
           />
           <subcohort-select
+            class="mt-4"
             :cohort-index="cohortIndex"
             :sample-ids="selectedSamples"
             @update-group="updateSampleGroup"
@@ -90,6 +91,7 @@
 </template>
 <script>
 import axios from 'axios'
+import CohortSelect from './partials/CohortSelect.vue'
 import PatientTable from './tables/DifferentialmetaTable.vue'
 import BasketSelect from '@/components/partials/BasketSelect'
 import ProteinSelect from '@/components/partials/ProteinSelect'
@@ -100,6 +102,7 @@ import { DataType } from '@/constants'
 export default {
   name: 'HeatmapComponent',
   components: {
+    CohortSelect,
     PatientTable,
     BasketSelect,
     ProteinSelect,

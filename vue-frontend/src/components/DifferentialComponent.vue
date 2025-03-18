@@ -176,6 +176,7 @@
 
 <script>
 import axios from 'axios'
+import CohortSelect from './partials/CohortSelect.vue'
 import PatientTable from './tables/DifferentialmetaTable.vue'
 import ScatterPlot from './plots/ScatterPlot.vue'
 import StatisticTable from './tables/StatisticsTable.vue'
@@ -186,6 +187,7 @@ import { proteinTypes } from './plots/proteinTypes'
 export default {
   name: 'BasketComponent',
   components: {
+    CohortSelect,
     PatientTable,
     StatisticTable,
     ScatterPlot,

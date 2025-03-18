@@ -12,15 +12,8 @@
           Protein/p-site overlap
         </v-card-title>
         <v-card-text>
-          <v-select
-            v-model="diseaseName"
-            prepend-icon="mdi-database"
-            class="cohort"
-            dense
-            outlined
-            :items="all_diseases"
-            label="Cohort"
-            @change="getBatchlist"
+          <cohort-select
+            @select-cohort="updateCohort"
           />
           <v-select
             v-model="activeBatches"
@@ -122,12 +115,13 @@
 
 <script>
 import axios from 'axios'
-import { mapGetters, mapState } from 'vuex'
+import CohortSelect from './partials/CohortSelect.vue'
 import VennPlot from '@/components/plots/VennPlot.vue'
 
 export default {
   name: 'VennComponent',
   components: {
+    CohortSelect,
     VennPlot
   },
   props: {
@@ -141,9 +135,9 @@ export default {
     }
   },
   data: () => ({
+    cohortIndex: 0,
     vennData: [],
     phospho: 'fp',
-    diseaseName: '',
     allPossibleBatches: [],
     activeBatches: [],
     modalityType: 'batchcompare',
@@ -151,14 +145,11 @@ export default {
 
   }),
   computed: {
-    ...mapState({
-      all_diseases: state => state.all_diseases
-    }),
-    ...mapGetters({
-      hasData: 'hasData'
-    })
   },
   methods: {
+    updateCohort ({ dataSource, cohortIndex }) {
+      this.cohortIndex = cohortIndex
+    },
     async readFile () {
       // parsing a csv file for d3
       this.file = this.$refs.docreader.files[0]
@@ -178,12 +169,11 @@ export default {
     },
     async getBatchlist () {
       this.activeBatches = ''
-      const cohortIndex = this.all_diseases.indexOf(this.diseaseName)
       let response = null
       if (this.modalityType === 'batchcompare') {
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/annotation/${cohortIndex}/allbatch`)
+        response = await axios.get(`${process.env.VUE_APP_API_HOST}/annotation/${this.cohortIndex}/allbatch`)
       } else {
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/annotation/${cohortIndex}/allpatients`)
+        response = await axios.get(`${process.env.VUE_APP_API_HOST}/annotation/${this.cohortIndex}/allpatients`)
       }
       const allPossibleBatches = []
       response.data.forEach(element => {
@@ -200,10 +190,9 @@ export default {
       }
 
       const phospho = this.phospho
-      const cohortIndex = this.all_diseases.indexOf(this.diseaseName)
       const modalityType = this.modalityType
       try {
-        const response = await axios.get(`${process.env.VUE_APP_API_HOST}/venn/${cohortIndex}/${modalityType}/${phospho}/${querY}`)
+        const response = await axios.get(`${process.env.VUE_APP_API_HOST}/venn/${this.cohortIndex}/${modalityType}/${phospho}/${querY}`)
         this.vennData = response.data
         this.loading = false
       } catch (error) {

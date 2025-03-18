@@ -12,46 +12,29 @@
           Cohort statistics
         </v-card-title>
         <v-card-text>
-          <v-combobox
-            v-model="diseaseName"
+          <cohort-select
+            @select-cohort="updateCohort"
+          />
+          <v-select
+            v-model="activeMeta"
             dense
             outlined
             hide-details
-            :items="all_diseases"
-            label="Cohort"
-            prepend-icon="mdi-database"
-            @change="allUpdate"
+            :items="metaData"
+            label="Color by Metadata"
+            prepend-icon="mdi-palette"
+            @change="updateplotaData"
           />
-        </v-card-text>
-        <v-card-text>
-          <v-row class="mb-4">
-            <v-col cols="12">
-              <v-select
-                v-model="activeMeta"
-                dense
-                outlined
-                hide-details
-                :items="metaData"
-                label="Color by Metadata"
-                prepend-icon="mdi-palette"
-                @change="updateplotaData"
-              />
-            </v-col>
-          </v-row>
-          <v-row class="mb-4">
-            <v-col cols="12">
-              <v-text-field
-                v-model="minNumitems"
-                label="Min Items per Group"
-                type="number"
-                dense
-                outlined
-                prepend-icon="mdi-counter"
-                hide-details
-                @change="updateplotaData"
-              />
-            </v-col>
-          </v-row>
+          <v-text-field
+            v-model="minNumitems"
+            label="Min Items per Group"
+            type="number"
+            dense
+            outlined
+            prepend-icon="mdi-counter"
+            hide-details
+            @change="updateplotaData"
+          />
         </v-card-text>
       </v-card>
       <v-card
@@ -150,15 +133,17 @@
 
 <script>
 import axios from 'axios'
-import { mapGetters, mapState } from 'vuex'
+import CohortSelect from './partials/CohortSelect.vue'
 import { Plotly } from 'vue-plotly'
 
 export default {
   name: 'OverviewComponent',
   components: {
+    CohortSelect,
     Plotly
   },
   data: () => ({
+    cohortIndex: 0,
     entityData: [],
     topasactivityPath: '/topasscores',
     kinasectivityPath: '/kinasescores',
@@ -170,7 +155,6 @@ export default {
     metaData: [],
     minNumitems: 10,
     activeMeta: 'code_oncotree',
-    diseaseName: null,
     showPlot: false,
     layout: {
       title: 'plotlyoverview'
@@ -187,20 +171,14 @@ export default {
     this.metaComboUpdater()
   },
   computed: {
-    ...mapState({
-      all_diseases: state => state.all_diseases
-    }),
-    ...mapGetters({
-      hasData: 'hasData'
-    }),
-    cohortIndex: function () {
-      return this.all_diseases.indexOf(this.diseaseName)
-    },
     cookieAccepted () {
       return this.$store.state.cookieAccepted
     }
   },
   methods: {
+    updateCohort ({ dataSource, cohortIndex }) {
+      this.cohortIndex = cohortIndex
+    },
     acceptCookies () {
       this.$store.dispatch('acceptCookies')
     },

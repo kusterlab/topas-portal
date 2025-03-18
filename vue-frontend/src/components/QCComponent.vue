@@ -12,18 +12,11 @@
           PCA/UMAP plots
         </v-card-title>
         <v-card-text>
-          <v-select
-            v-model="diseaseName"
-            prepend-icon="mdi-database"
-            class="cohort"
-            dense
-            hide-details
-            outlined
-            :items="all_diseases"
-            label="Cohort"
+          <cohort-select
+            @select-cohort="updateCohort"
           />
-
           <subcohort-select
+            class="mt-4"
             :cohort-index="cohortIndex"
             :sample-ids="customGroup"
             @update-group="updateSampleGroup"
@@ -231,12 +224,12 @@
 
 <script>
 import axios from 'axios'
-import { mapGetters, mapState } from 'vuex'
 import QcTable from '@/components/tables/QCTable'
 import silhouetteTable from '@/components/tables/silhouetteTable'
 import QcPlot from '@/components/plots/QCPlot.vue'
 import LolipopPlot from './plots/LolipopPlot.vue'
 import { DataType } from '@/constants'
+import CohortSelect from './partials/CohortSelect.vue'
 import SubcohortSelect from './partials/SubcohortSelect.vue'
 
 export default {
@@ -246,6 +239,7 @@ export default {
     QcPlot,
     LolipopPlot,
     silhouetteTable,
+    CohortSelect,
     SubcohortSelect
   },
   props: {
@@ -259,6 +253,7 @@ export default {
     }
   },
   data: () => ({
+    cohortIndex: 0,
     qcData: [],
     silData: [],
     minNumPatients: 1,
@@ -309,7 +304,6 @@ export default {
       }
     ],
     inputDataType: DataType.FULL_PROTEOME,
-    diseaseName: 'sarcoma',
     plotType: 'Intensity',
     dimReductionMethod: 'ppca',
     includeReplicates: true,
@@ -328,21 +322,15 @@ export default {
   },
 
   computed: {
-    ...mapState({
-      all_diseases: state => state.all_diseases
-    }),
-    ...mapGetters({
-      hasData: 'hasData'
-    }),
-    cohortIndex () {
-      return this.all_diseases.indexOf(this.diseaseName)
-    },
     geneSubsetActive () {
       return this.inputDataType === DataType.CUSTOM
     }
   },
 
   methods: {
+    updateCohort ({ dataSource, cohortIndex }) {
+      this.cohortIndex = cohortIndex
+    },
     async updateSilhouette () {
       try {
         this.loading = true
@@ -354,7 +342,6 @@ export default {
           const inputDataType = this.inputDataType
           const referenceChannel = this.includeReferenceChannels ? 'ref' : 'noref'
           const replicate = this.includeReplicates ? 'replicate' : 'noreplicate'
-          const cohortIndex = this.all_diseases.indexOf(this.diseaseName)
           const silInputType = this.silhouetteInputType
           this.allorSelectedgenes = 'all' // running with all genes
           if (this.geneSubsetActive && this.file !== null) {
@@ -373,7 +360,7 @@ export default {
           const customGroup = this.customGroup.length === 0 ? 'all' : this.customGroup
           const allOrselected = this.allorSelectedgenes
           const imputationRatio = this.imputationRatio / 100.0
-          const response = await axios.get(`${process.env.VUE_APP_API_HOST}/qc/sil/all/${inputDataType}/${cohortIndex}/${dimReductionMethod}/${referenceChannel}/${replicate}/${this.activeMeta}/${numPatient}/${silInputType}/${allOrselected}/${customGroup}/${imputationRatio}`)
+          const response = await axios.get(`${process.env.VUE_APP_API_HOST}/qc/sil/all/${inputDataType}/${this.cohortIndex}/${dimReductionMethod}/${referenceChannel}/${replicate}/${this.activeMeta}/${numPatient}/${silInputType}/${allOrselected}/${customGroup}/${imputationRatio}`)
           this.silData = response.data
           this.silData.length > 0 ? this.showPlot = true : this.showPlot = false
         } else {
@@ -428,11 +415,10 @@ export default {
       const referenceChannel = this.includeReferenceChannels ? 'ref' : 'noref'
       const allSelected = this.allorSelectedgenes
       const replicate = this.includeReplicates ? 'replicate' : 'noreplicate'
-      const cohortIndex = this.all_diseases.indexOf(this.diseaseName)
       const imputationRatio = this.imputationRatio / 100.0
       try {
         this.isLoading = true
-        const response = await axios.get(`${process.env.VUE_APP_API_HOST}/qc/${allSelected}/${inputDataType}/${cohortIndex}/${dimReductionMethod}/${referenceChannel}/${replicate}/${customGroup}/${imputationRatio}`)
+        const response = await axios.get(`${process.env.VUE_APP_API_HOST}/qc/${allSelected}/${inputDataType}/${this.cohortIndex}/${dimReductionMethod}/${referenceChannel}/${replicate}/${customGroup}/${imputationRatio}`)
         this.qcData = response.data.dataFrame
         this.variance1 = response.data.pcVars[0]
         this.variance2 = response.data.pcVars[1]

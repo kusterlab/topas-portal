@@ -16,6 +16,7 @@
             @select-cohort="updateCohort"
           />
           <subcohort-select
+            class="mt-4"
             :cohort-index="cohortIndex"
             :sample-ids="customGroup"
             @update-group="updateSampleGroup"

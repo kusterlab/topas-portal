@@ -12,16 +12,8 @@
             Patient Reports
           </v-card-title>
           <v-card-text>
-            <v-select
-              v-model="diseaseName"
-              prepend-icon="mdi-database"
-              class="cohort"
-              dense
-              outlined
-              hide-details
-              :items="all_diseases"
-              label="Cohort"
-              @change="getpatientData"
+            <cohort-select
+              @select-cohort="updateCohort"
             />
             <v-select
               v-model="scoreType"
@@ -367,8 +359,7 @@
 
 <script>
 import axios from 'axios'
-
-import { mapGetters, mapState } from 'vuex'
+import CohortSelect from './partials/CohortSelect.vue'
 import patientscoreTable from '@/components/tables/PatientscoreTable.vue'
 import PatientTable from '@/components/tables/PatientReportTable.vue'
 import LolipopPlot from '@/components/plots/LolipopPlot'
@@ -379,6 +370,7 @@ import { DataType } from '@/constants'
 export default {
   name: 'ReportComponent',
   components: {
+    CohortSelect,
     PatientTable,
     LolipopPlot,
     histogram,
@@ -396,9 +388,9 @@ export default {
     }
   },
   data: () => ({
+    cohortIndex: 0,
     basketName: '',
     isCollapsed: true,
-    diseaseName: '',
     fixedDomain: false,
     sumIntesitiespp: [],
     sumIntesitiesfp: [],
@@ -459,12 +451,6 @@ export default {
     ]
   }),
   computed: {
-    ...mapState({
-      all_diseases: state => state.all_diseases
-    }),
-    ...mapGetters({
-      hasData: 'hasData'
-    }),
     proteinCount () {
       return this.proteinSatitistics.map(d => d.identified)
     },
@@ -485,6 +471,9 @@ export default {
     }
   },
   methods: {
+    updateCohort ({ dataSource, cohortIndex }) {
+      this.cohortIndex = cohortIndex
+    },
     toggleDiv (type) {
       if (type === 'rtk') {
         this.displayrtkBar = true
@@ -503,49 +492,48 @@ export default {
       }
     },
     async getpatientData () {
-      const cohortIndex = this.all_diseases.indexOf(this.diseaseName)
       this.patientData = null
       let response = []
       try {
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/${cohortIndex}/metadata`)
+        response = await axios.get(`${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/metadata`)
         this.patientData = response.data
       } catch (error) {
         alert('Error: Probably no meta data exists for this cohort')
         console.error(error)
       }
       try {
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/patientcenteric/proteincounts/${cohortIndex}/fp`)
+        response = await axios.get(`${process.env.VUE_APP_API_HOST}/patientcenteric/proteincounts/${this.cohortIndex}/fp`)
         this.proteinSatitistics = response.data
       } catch (error) {
         console.log('protein counts error')
       }
       try {
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/patientcentric/ppintensity/${cohortIndex}/pp`)
+        response = await axios.get(`${process.env.VUE_APP_API_HOST}/patientcentric/ppintensity/${this.cohortIndex}/pp`)
         this.sumIntesitiespp = response.data
       } catch (error) {
         console.log('phospho intensities error')
       }
       try {
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/patientcentric/ppintensity/${cohortIndex}/fp`)
+        response = await axios.get(`${process.env.VUE_APP_API_HOST}/patientcentric/ppintensity/${this.cohortIndex}/fp`)
         this.sumIntesitiesfp = response.data
       } catch (error) {
         console.log('Full proteome intensities error')
       }
       try {
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/patientcenteric/proteincounts/${cohortIndex}/pp`)
+        response = await axios.get(`${process.env.VUE_APP_API_HOST}/patientcenteric/proteincounts/${this.cohortIndex}/pp`)
         this.peptideSatitistics = response.data
       } catch (error) {
         console.log('phospho peptide counts error')
       }
       try {
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/patientcenteric/proteincounts/${cohortIndex}/fppeptide`)
+        response = await axios.get(`${process.env.VUE_APP_API_HOST}/patientcenteric/proteincounts/${this.cohortIndex}/fppeptide`)
         this.peptidefpSatitistics = response.data
       } catch (error) {
         console.log('FP peptide counts error')
       }
       if (this.showCorrelation) {
         try {
-          response = await axios.get(`${process.env.VUE_APP_API_HOST}/correlation/fpkmprotein/${cohortIndex}`)
+          response = await axios.get(`${process.env.VUE_APP_API_HOST}/correlation/fpkmprotein/${this.cohortIndex}`)
           this.correlationStatistics = response.data
         } catch (error) {
           console.log('Error: correlation statistics')
@@ -558,8 +546,7 @@ export default {
     getscoresTable () {
       this.patientscoresDataurl = ''
       const downloadmethod = this.openReport ? 'fromreport' : 'onfly'
-      const cohortIndex = this.all_diseases.indexOf(this.diseaseName)
-      this.patientscoresDataurl = `${process.env.VUE_APP_API_HOST}/${cohortIndex}/patient_report/${this.firstPatient}/${this.scoreType}/${downloadmethod}`
+      this.patientscoresDataurl = `${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/patient_report/${this.firstPatient}/${this.scoreType}/${downloadmethod}`
       // this.patientscoresData = response.data
     },
     async updateSelectedRows (selectedIds, selectedData) {
@@ -570,14 +557,13 @@ export default {
       if (selectedData.length > 0) {
         const firstPatient = selectedData[0]['Sample name']
         this.firstPatient = firstPatient
-        const cohortIndex = this.all_diseases.indexOf(this.diseaseName)
-        let response = await axios.get(`${process.env.VUE_APP_API_HOST}/basket/lolipopdata/${cohortIndex}/${firstPatient}`)
+        let response = await axios.get(`${process.env.VUE_APP_API_HOST}/basket/lolipopdata/${this.cohortIndex}/${firstPatient}`)
         this.lolipopData = response.data
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/basket/lolipopdata/${cohortIndex}/${firstPatient}/tumor_antigen`)
+        response = await axios.get(`${process.env.VUE_APP_API_HOST}/basket/lolipopdata/${this.cohortIndex}/${firstPatient}/tumor_antigen`)
         this.lolipopDataTumor = response.data
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/basket/lolipopdata/expression/${cohortIndex}/${firstPatient}/rtk`)
+        response = await axios.get(`${process.env.VUE_APP_API_HOST}/basket/lolipopdata/expression/${this.cohortIndex}/${firstPatient}/rtk`)
         this.expressionDataRTK = response.data
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/basket/lolipopdata/expression/${cohortIndex}/${firstPatient}/downstream_signaling`)
+        response = await axios.get(`${process.env.VUE_APP_API_HOST}/basket/lolipopdata/expression/${this.cohortIndex}/${firstPatient}/downstream_signaling`)
         this.expressionDataDownstream = response.data
         this.getscoresTable()
         this.selectedFPLines = [] // for full proteome
