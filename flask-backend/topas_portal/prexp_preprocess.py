@@ -330,7 +330,7 @@ def get_batches_proteins_as_json(
     samples_list = sample_annotation['Sample name'].unique().tolist()
     sample_names = ef.intersection(samples_list,df.columns)
     df = df[sample_names]
-    list_batches = batchlists.split("_")
+    list_batches = batchlists.split(";")
     df_list = []
     for batch in list_batches:
         df_list.append(_get_protein_list_per_batch(batch, sample_annotation, df))
@@ -356,7 +356,7 @@ def get_patients_proteins_as_json(
     samples_list = sample_annotation['Sample name'].unique().tolist()
     sample_names = ef.intersection(samples_list,df.columns)
     df = df[sample_names]
-    list_patients = patientslists.split("_")
+    list_patients = patientslists.split(";")
     df_list = []
     for patient in list_patients:
         df_list.append(get_protein_list_per_patient(patient, df))
