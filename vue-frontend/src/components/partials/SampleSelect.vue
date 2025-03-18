@@ -11,7 +11,10 @@
       <v-btn value="metadata">
         Metadata
       </v-btn>
-      <v-btn v-if="showTableSelect" value="table">
+      <v-btn
+        v-if="showTableSelect"
+        value="table"
+      >
         Table
       </v-btn>
       <v-btn value="samplelist">

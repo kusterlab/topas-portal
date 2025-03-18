@@ -1,5 +1,5 @@
 <template>
-  <div id="container">
+  <v-container fluid>
     <v-row>
       <v-col
         sm="12"
@@ -32,80 +32,72 @@
       </v-col>
       <v-col
         sm="12"
-        md="3"
-        lg="3"
+        md="5"
+        lg="5"
       >
-        <div>
-          <div id="venn" />
-        </div>
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-radio-group
-        v-model="tableCriteria"
-      >
-        <v-radio
-          label="Show None"
-          color="red"
-          value="none"
-        />
-        <v-radio
-          label="Show all items in the selected area"
-          color="blue"
-          value="all"
-        />
-        <v-radio
-          label="Show unique items in the selected area"
-          color="green"
-          value="uniq"
-        />
-      </v-radio-group>
-    </v-row>
-    <v-row>
-      <v-btn
-        class="ma-2"
-        color="primary"
-        @click="downloadSVG"
-      >
-        SVG
-        <v-icon
-          dark
+        <v-btn
+          class="ma-2 float-right"
+          color="primary"
+          @click="downloadSVG"
         >
-          mdi-cloud-download
-        </v-icon>
-      </v-btn>
-    </v-row>
-    <v-row>
+          SVG
+          <v-icon
+            dark
+          >
+            mdi-cloud-download
+          </v-icon>
+        </v-btn>
+        <div id="venn" />
+      </v-col>
       <v-col
         sm="12"
-        md="7"
-        lg="7"
+        md="5"
+        lg="5"
       >
-        <v-table theme="dark">
-          <thead>
-            <tr>
-              <th class="text-left">
-                Search:       <input
-                  v-model="search"
-                  type="text"
-                  label="search"
-                  class="search-txt"
-                >
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="item in filteredItems"
-              :key="item"
-            >
-              <td>{{ item }}</td>
-            </tr>
-          </tbody>
-        </v-table>
+        <v-checkbox
+          v-model="showProteinTable"
+          label="Show table of proteins in selected group"
+          dense
+          hide-details
+        />
+        <v-btn-toggle
+          class="mt-4"
+          v-if="showProteinTable"
+          v-model="tableCriteria"
+          dense
+        >
+          <v-btn
+            value="all"
+          >
+            all
+          </v-btn>
+          <v-btn
+            value="uniq"
+          >
+            unique
+          </v-btn>
+        </v-btn-toggle>
+        <v-data-table
+          v-if="showProteinTable"
+          :headers="tableHeaders"
+          :items="filteredItems"
+          :items-per-page="10"
+          :search="search"
+          dense
+        >
+          <template #top>
+            <v-text-field
+              v-model="search"
+              label="Search protein/p-peptide"
+              prepend-icon="mdi-magnify"
+              class="mb-2"
+              hide-details
+            />
+          </template>
+        </v-data-table>
       </v-col>
     </v-row>
-  </div>
+  </v-container>
 </template>
 
 <script>
@@ -122,7 +114,7 @@ export default {
   },
   props: {
     vennplotData: {
-      // The data should be structured as bellow
+      // The data should be structured as below
       /*
       const plotSet = [
         { sample: 'gene1', group: 'A' },
@@ -148,6 +140,7 @@ export default {
         key: 'sample'
       }
     ],
+    tableHeaders: [{ text: 'Protein/p-peptide', value: 'name' }],
     finalPlotData: [{ sample: 'gene1', group: 'A' }],
     selectedBatch: '',
     selectedProteins: [],
@@ -155,7 +148,8 @@ export default {
     selectedSize: 0,
     uniqueSize: 0,
     search: '',
-    tableCriteria: 'none',
+    tableCriteria: 'all',
+    showProteinTable: false,
     showListIntersect: true,
     showListDiff: true
   }),
@@ -163,9 +157,12 @@ export default {
     filteredItems () {
       let tempFiltered = this.tableCriteria === 'uniq' ? this.uniqProteins : this.selectedProteins
       tempFiltered = this.tableCriteria === 'none' ? [] : tempFiltered
-      return tempFiltered.filter(item => {
+      const items = tempFiltered.filter(item => {
         return item.toLowerCase().indexOf(this.search.toLowerCase()) > -1
+      }).map(item => {
+        return { name: item }
       })
+      return items
     }
   },
   watch: {

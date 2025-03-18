@@ -317,14 +317,14 @@ export default {
     file: null
   }),
 
-  mounted () {
-    this.metaComboUpdater()
-  },
-
   computed: {
     geneSubsetActive () {
       return this.inputDataType === DataType.CUSTOM
     }
+  },
+
+  mounted () {
+    this.metaComboUpdater()
   },
 
   methods: {

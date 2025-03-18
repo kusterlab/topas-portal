@@ -165,15 +165,15 @@ export default {
       filename: 'piechart'
     }
   }),
-  watch: {
-  },
-  mounted () {
-    this.metaComboUpdater()
-  },
   computed: {
     cookieAccepted () {
       return this.$store.state.cookieAccepted
     }
+  },
+  watch: {
+  },
+  mounted () {
+    this.metaComboUpdater()
   },
   methods: {
     updateCohort ({ dataSource, cohortIndex }) {

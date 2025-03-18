@@ -147,12 +147,12 @@ export default {
     place_holder: 'Imatinib',
     identifierLbl: 'Drug Name'
   }),
+  computed: {
+  },
   mounted () {
     this.plotData = []
     this.selectedIds = []
     this.swarmSelIds = []
-  },
-  computed: {
   },
   methods: {
     updateCohort ({ dataSource, cohortIndex }) {

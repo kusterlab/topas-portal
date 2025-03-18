@@ -17,7 +17,10 @@
           />
         </v-card-text>
       </v-card>
-      <v-card flat class="mt-4">
+      <v-card
+        flat
+        class="mt-4"
+      >
         <v-card-title
           tag="h1"
         >
@@ -33,7 +36,10 @@
           />
         </v-card-text>
       </v-card>
-      <v-card flat class="mt-4">
+      <v-card
+        flat
+        class="mt-4"
+      >
         <v-card-title
           tag="h1"
         >
@@ -90,13 +96,16 @@
       md="5"
       lg="6"
     >
-    <v-card flat v-if="heatmapData.data">
-      <v-card-text>
-        <Plotly
-          :data="heatmapData.data"
-          :layout="heatmapData.layout"
-          :to-image-button-options="toImageButtonOptions"
-        />
+      <v-card
+        v-if="heatmapData.data"
+        flat
+      >
+        <v-card-text>
+          <Plotly
+            :data="heatmapData.data"
+            :layout="heatmapData.layout"
+            :to-image-button-options="toImageButtonOptions"
+          />
         </v-card-text>
       </v-card>
     </v-col>
@@ -203,14 +212,14 @@ export default {
       filename: 'heatmap'
     }
   }),
+  computed: {
+  },
   watch: {
     diseaseChange: function () {
       this.getPatientsData()
     }
   },
   mounted () {
-  },
-  computed: {
   },
   methods: {
     updateCohort ({ dataSource, cohortIndex }) {

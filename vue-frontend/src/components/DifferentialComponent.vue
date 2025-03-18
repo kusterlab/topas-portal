@@ -46,7 +46,10 @@
           />
         </v-card-text>
       </v-card>
-      <v-card flat class="mt-4">
+      <v-card
+        flat
+        class="mt-4"
+      >
         <v-card-title
           tag="h1"
         >
@@ -99,7 +102,11 @@
       md="9"
       lg="10"
     >
-      <v-card flat v-show="selectionMethod1 === 'table' | selectionMethod2 === 'table'" class="mb-4">
+      <v-card
+        v-show="selectionMethod1 === 'table' | selectionMethod2 === 'table'"
+        flat
+        class="mb-4"
+      >
         <v-card-text>
           <v-row>
             <v-col

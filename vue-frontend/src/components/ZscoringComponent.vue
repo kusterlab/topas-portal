@@ -110,21 +110,25 @@
         md="10"
         lg="10"
       >
-      <v-card flat v-show="selectionMethod === 'table'" class="mb-4">
-        <v-card-text>
-          <v-row>
-            <v-col
-              sm="12"
-              md="12"
-              lg="12"
-            >
-              <patient-select-table
-                :cohort-index="cohortIndex"
-              />
-            </v-col>
-          </v-row>
-        </v-card-text>
-      </v-card>
+        <v-card
+          v-show="selectionMethod === 'table'"
+          flat
+          class="mb-4"
+        >
+          <v-card-text>
+            <v-row>
+              <v-col
+                sm="12"
+                md="12"
+                lg="12"
+              >
+                <patient-select-table
+                  :cohort-index="cohortIndex"
+                />
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </v-card>
         <v-card
           plain
           outlined
