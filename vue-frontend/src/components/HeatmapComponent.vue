@@ -15,16 +15,34 @@
           <cohort-select
             @select-cohort="updateCohort"
           />
-          <subcohort-select
-            class="mt-4"
+        </v-card-text>
+      </v-card>
+      <v-card flat class="mt-4">
+        <v-card-title
+          tag="h1"
+        >
+          Select samples
+        </v-card-title>
+        <v-card-text>
+          <sample-select
             :cohort-index="cohortIndex"
+            :show-table-select="true"
             :sample-ids="selectedSamples"
             @update-group="updateSampleGroup"
             @update-selection-method="updateSelectionMethod"
           />
+        </v-card-text>
+      </v-card>
+      <v-card flat class="mt-4">
+        <v-card-title
+          tag="h1"
+        >
+          Select data
+        </v-card-title>
+        <v-card-text>
           <v-select
             v-model="inputDataType"
-            class="input_data_type mb-2 mt-6"
+            class="input_data_type mb-2"
             prepend-icon="mdi-filter"
             dense
             outlined
@@ -53,37 +71,32 @@
       </v-card>
     </v-col>
     <v-col
+      v-show="selectionMethod === 'table'"
       sm="12"
-      md="9"
-      lg="10"
+      md="4"
+      lg="4"
     >
       <v-card flat>
         <v-card-text>
-          <v-row>
-            <v-col
-              v-show="selectionMethod === 'table'"
-              sm="12"
-              md="5"
-              lg="5"
-            >
-              <patient-table
-                :cohort-index="cohortIndex"
-                @onRowSelect="updateSelectedSamples"
-              />
-            </v-col>
-            <v-col
-              sm="12"
-              md="7"
-              lg="7"
-            >
-              <Plotly
-                v-if="heatmapData.data"
-                :data="heatmapData.data"
-                :layout="heatmapData.layout"
-                :to-image-button-options="toImageButtonOptions"
-              />
-            </v-col>
-          </v-row>
+          <patient-select-table
+            :cohort-index="cohortIndex"
+            @onRowSelect="updateSelectedSamples"
+          />
+        </v-card-text>
+      </v-card>
+    </v-col>
+    <v-col
+      sm="12"
+      md="5"
+      lg="6"
+    >
+    <v-card flat v-if="heatmapData.data">
+      <v-card-text>
+        <Plotly
+          :data="heatmapData.data"
+          :layout="heatmapData.layout"
+          :to-image-button-options="toImageButtonOptions"
+        />
         </v-card-text>
       </v-card>
     </v-col>
@@ -92,10 +105,10 @@
 <script>
 import axios from 'axios'
 import CohortSelect from './partials/CohortSelect.vue'
-import PatientTable from './tables/DifferentialmetaTable.vue'
+import PatientSelectTable from './tables/DifferentialmetaTable.vue'
 import BasketSelect from '@/components/partials/BasketSelect'
 import ProteinSelect from '@/components/partials/ProteinSelect'
-import SubcohortSelect from './partials/SubcohortSelect.vue'
+import SampleSelect from './partials/SampleSelect.vue'
 import { Plotly } from 'vue-plotly'
 import { DataType } from '@/constants'
 
@@ -103,11 +116,11 @@ export default {
   name: 'HeatmapComponent',
   components: {
     CohortSelect,
-    PatientTable,
+    PatientSelectTable,
     BasketSelect,
     ProteinSelect,
     Plotly,
-    SubcohortSelect
+    SampleSelect
   },
   props: {
     minWidth: {
@@ -224,7 +237,7 @@ export default {
       this.updateHeatmap()
     },
     async updateHeatmap () {
-      if (this.cohortIndex >= 0 && this.identifier !== null && this.selectedSamples !== null) {
+      if (this.cohortIndex >= 0 && this.identifier !== null && this.selectedSamples !== null && this.selectedSamples.length > 0) {
         const response = await axios.get(`${process.env.VUE_APP_API_HOST}/batcheffect/${this.inputDataType}/${this.cohortIndex}/${this.identifier}/${this.selectedSamples}/plot`)
         this.showPlot = true
         this.heatmapData = response.data

@@ -45,7 +45,6 @@ export default {
       this.$store.commit('setCohortIndex', newValue)
     },
     loadDefaultCohort () {
-      this.cohortIndex = this.$store.state.cohortIndex
       this.diseaseName = this.$store.state.diseaseName
     },
     updateCohort () {

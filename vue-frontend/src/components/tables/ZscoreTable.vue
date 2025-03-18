@@ -82,6 +82,7 @@ export default {
 
         dataField: 'zscores',
         dataType: 'number',
+        format: { type: 'fixedPoint', precision: 2 },
         width: '100'
       }, {
 

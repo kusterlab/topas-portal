@@ -29,6 +29,7 @@
         <sample-select
           :cohort-index="cohortIndex"
           :sample-ids="sampleIds"
+          :show-table-select="showTableSelect"
           @update-group="updateSampleGroup"
           @update-selection-method="updateSelectionMethodGroup"
         />
@@ -52,6 +53,10 @@ export default {
     sampleIds: {
       type: Array,
       default: () => []
+    },
+    showTableSelect: {
+      type: Boolean,
+      default: false
     }
   },
   data: () => ({

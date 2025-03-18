@@ -20,9 +20,10 @@
             <sample-select
               class="mt-4"
               :cohort-index="cohortIndex"
+              :show-table-select="true"
               :sample-ids="customGroup"
               @update-field="updateSampleGroup"
-              @update-meta="updateSelectionMethodGroup"
+              @update-selection-method="updateSelectionMethodGroup"
             />
           </v-card-text>
         </v-card>
@@ -45,7 +46,6 @@
               hide-details
               :items="allInputDataTypes"
               label="Data Type"
-              @change="updateHeatmap"
             />
             <basket-select
               v-if="mode=== 'tupac'"
@@ -110,6 +110,21 @@
         md="10"
         lg="10"
       >
+      <v-card flat v-show="selectionMethod === 'table'" class="mb-4">
+        <v-card-text>
+          <v-row>
+            <v-col
+              sm="12"
+              md="12"
+              lg="12"
+            >
+              <patient-select-table
+                :cohort-index="cohortIndex"
+              />
+            </v-col>
+          </v-row>
+        </v-card-text>
+      </v-card>
         <v-card
           plain
           outlined
@@ -125,9 +140,7 @@
                   :ref="componentKey"
                   :data-source="plotData"
                   @onRowSelect="updateSelectedRows"
-                >
-                  >
-                </zscore-table>
+                />
               </v-card-text>
             </v-col>
             <v-col
@@ -161,6 +174,7 @@ import multiGroupPlot from '@/components/plots/MultiGroupPlot'
 import proteinSelect from './partials/ProteinSelect.vue'
 import SampleSelect from './partials/SampleSelect.vue'
 import ZscoreTable from './tables/ZscoreTable.vue'
+import PatientSelectTable from './tables/DifferentialmetaTable.vue'
 import { DataType } from '@/constants'
 import BasketSelect from '@/components/partials/BasketSelect'
 import explorerComponent from './partials/scoresComponent.vue'
@@ -171,6 +185,7 @@ export default {
     multiGroupPlot,
     CohortSelect,
     ZscoreTable,
+    PatientSelectTable,
     SampleSelect,
     explorerComponent,
     proteinSelect,
@@ -194,10 +209,10 @@ export default {
     mode: DataType.FULL_PROTEOME,
     fixedDomain: false,
     customGroup: [],
-    selectionMethod: [],
+    selectionMethod: '',
     plotData: [],
     componentKey: 0,
-    activeMeta: 'code_oncotree',
+    activeMeta: 'index',
     multiGroupPlotSelectedPatients: [],
     multiGroupPlotSelectedColor: 'red',
     allInputDataTypes: [
@@ -242,8 +257,8 @@ export default {
     updateBasket ({ dataSource, identifier }) {
       this.identifier = identifier
     },
-    updateSelectionMethodGroup (activeMeta) {
-      this.activeMeta = activeMeta
+    updateSelectionMethodGroup (selectionMethod) {
+      this.selectionMethod = selectionMethod
     },
     async updateSelectedRows (selectedIds, selectedData) {
       const SelIds = []
@@ -259,13 +274,9 @@ export default {
       this.multiGroupPlotSelectedPatients = SelIds
     },
     async getData () {
-      const customGroup = this.customGroup
-      const activeMeta = this.activeMeta
-      const identifier = this.identifier
-      const mode = this.mode
       try {
         this.loading = true
-        const response = await axios.get(`${process.env.VUE_APP_API_HOST}/zscore/${mode}/${this.cohortIndex}/${identifier}/${customGroup}/${activeMeta}`)
+        const response = await axios.get(`${process.env.VUE_APP_API_HOST}/zscore/${this.mode}/${this.cohortIndex}/${this.identifier}/${this.customGroup}/${this.activeMeta}`)
         this.componentKey = this.componentKey + 1
         this.plotData = response.data
       } catch (error) {

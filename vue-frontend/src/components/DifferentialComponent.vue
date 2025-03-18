@@ -58,8 +58,8 @@
           </p>
           <sample-select
             :cohort-index="cohortIndex"
-            prepend-icon="mdi-account"
             :sample-ids="customGroup1"
+            :show-table-select="true"
             @update-group="updateSampleGroup1"
             @update-selection-method="updateSelectionMethodGroup1"
           />
@@ -78,6 +78,7 @@
             v-if="!secondGroup"
             :cohort-index="cohortIndex"
             :sample-ids="customGroup2"
+            :show-table-select="true"
             @update-group="updateSampleGroup2"
             @update-selection-method="updateSelectionMethodGroup2"
           />
@@ -108,7 +109,7 @@
               lg="6"
             >
               <h2>Group1</h2>
-              <patient-table
+              <patient-select-table
                 :cohort-index="cohortIndex"
                 @onRowSelect="updatemetaSelectedRows1"
               />
@@ -120,7 +121,7 @@
               lg="6"
             >
               <h2>Group2</h2>
-              <patient-table
+              <patient-select-table
                 :cohort-index="cohortIndex"
                 @onRowSelect="updatemetaSelectedRows2"
               />
@@ -177,7 +178,7 @@
 <script>
 import axios from 'axios'
 import CohortSelect from './partials/CohortSelect.vue'
-import PatientTable from './tables/DifferentialmetaTable.vue'
+import PatientSelectTable from './tables/DifferentialmetaTable.vue'
 import ScatterPlot from './plots/ScatterPlot.vue'
 import StatisticTable from './tables/StatisticsTable.vue'
 import SampleSelect from './partials/SampleSelect.vue'
@@ -188,7 +189,7 @@ export default {
   name: 'BasketComponent',
   components: {
     CohortSelect,
-    PatientTable,
+    PatientSelectTable,
     StatisticTable,
     ScatterPlot,
     SampleSelect

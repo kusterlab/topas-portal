@@ -81,7 +81,7 @@
             <span>Upload a comma delimited file with two columns<br>
               - the first column is protein/peptides <br>
               - the second columns is the groups they belong to <br>
-              - If a protein belongs to multi groups it should be in separate rows as bellow <br>
+              - If a protein belongs to multi groups it should be in separate rows as below <br>
               EGFR, GroupA <br>
               EGFR, GroupB <br>
               - the columns should have headers with any names</span>
