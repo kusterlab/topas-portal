@@ -108,7 +108,6 @@
 </template>
 <script>
 import axios from 'axios'
-import { mapGetters, mapState } from 'vuex'
 import DrugscoreTable from '@/components/tables/DrugscoreTable.vue'
 import SwarmPlot from '@/components/plots/SwarmPlot'
 

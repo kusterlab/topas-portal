@@ -61,9 +61,9 @@
           hide-details
         />
         <v-btn-toggle
-          class="mt-4"
           v-if="showProteinTable"
           v-model="tableCriteria"
+          class="mt-4"
           dense
         >
           <v-btn

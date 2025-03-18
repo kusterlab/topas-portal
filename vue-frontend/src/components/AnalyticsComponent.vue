@@ -66,7 +66,7 @@ export default {
   },
   data: () => ({
     scoreType: 'Correlation Analysis',
-    allScores: ['Correlation', 'PCA/UMAP', 'Diff. Expression', 'Heatmap', 'Venn diagram', 'Kinobeads'],
+    allScores: ['Correlation', 'PCA/UMAP', 'Diff. Expression', 'Heatmap', 'Venn diagram', 'Kinase inhibitors'],
     tabs: null
   }),
   computed: {

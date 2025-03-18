@@ -24,7 +24,7 @@
       v-model="advancedFilter"
       hide-details
       dense
-      label="Advanced filter"
+      label="Advanced table filter"
     />
     <div
       v-show="advancedFilter"

@@ -1,82 +1,151 @@
 <template>
-  <v-row class="pa-4 grey lighten-3">
-    <v-col
-      sm="12"
-      md="3"
-      lg="2"
-    >
-      <v-card flat>
-        <v-card-title
-          tag="h1"
+  <v-container fluid>
+    <v-row class="grey lighten-3">
+      <v-col
+        sm="12"
+        md="3"
+        lg="2"
+      >
+        <v-card flat>
+          <v-card-title
+            tag="h1"
+          >
+            Kinase inhibitors
+          </v-card-title>
+          <v-card-text>
+            <v-text-field
+              v-model="identifierDrug"
+              dense
+              persistent-hint
+              outlined
+              hint="Use semicolons (;) for multiple targets"
+              label="Kinase(s) to target"
+              placeholder="EGFR;ERBB2"
+            />
+            <v-select
+              v-model="sortFunction"
+              class="mt-2"
+              prepend-icon="mdi-sort"
+              :items="sortFunctions"
+              label="Sort by"
+              hide-details
+              outlined
+              dense
+            />
+          </v-card-text>
+        </v-card>
+        <!-- Collapsible Help Box -->
+        <v-card
+          flat
+          class="mt-4"
         >
-          Kinobeads
-        </v-card-title>
-        <v-card-text>
-          <v-text-field
-            v-model="identifierDrug"
-            dense
-            outlined
-            label="Single or multi kinodbeads_Targets"
-            placeholder="EGFR_YES1"
-            @change="updateDrugId"
-          />
-          <v-radio-group
-            v-model="sortFunction"
-          >
-            <v-radio
-              label="Sort Drugs by Average Kd values of  genes"
-              color="red"
-              value="mean"
-            />
-            <v-radio
-              label="Sort Drugs by Median Kd of genes"
-              color="blue"
-              value="median"
-            />
-            <v-radio
-              label="Sort Drugs by their top gene from the above list"
-              color="green"
-              value="min"
-            />
-          </v-radio-group>
-          <v-flex
-            class="box"
-            xs2
-            sm2
-            md2
-            lg2
-            xl2
-          >
-            <bar-plot
-              v-if="barplotData"
-              :barplot-data="barplotData"
-              :barplot-max="barplotMaximum"
-            />
-          </v-flex>
-        </v-card-text>
-      </v-card>
-    </v-col>
-    <v-col
-      sm="12"
-      md="9"
-      lg="10"
-    >
-      <v-card flat>
-        <v-card-text>
-          <drug-table
-            :data-source="drugData"
-            @getGenes="yieldGenes"
-          />
-        </v-card-text>
-      </v-card>
-    </v-col>
-  </v-row>
+          <v-card-title>Help</v-card-title>
+          <v-card-text>
+            <v-expansion-panels>
+              <v-expansion-panel>
+                <v-expansion-panel-header class="mb-0">
+                  Tab info
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  In this tab you can find candidate kinase inhibitors for a list of
+                  kinases you want to target based on Kinobeads experiments (Klaeger et al. 2017, Science).
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+              <v-expansion-panel>
+                <v-expansion-panel-header class="mb-0">
+                  How to use
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  Input one or multiple kinases to target. The table will give you a
+                  list of drugs that target all kinases of your input list. The table
+                  will be sorted with the most potent drug for your target on top. If
+                  you provide multiple kinases, you can choose to sort by the average,
+                  median or minimum Kd of your chosen targets. You can put additional
+                  filters on the table using the advanced filter box above the table.
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+            </v-expansion-panels>
+          </v-card-text>
+        </v-card>
+      </v-col>
+      <v-col
+        sm="12"
+        md="9"
+        lg="10"
+      >
+        <v-card flat>
+          <v-card-text>
+            <v-container fluid>
+              <v-row>
+                <v-col
+                  sm="12"
+                  md="6"
+                  lg="6"
+                >
+                  <drug-table
+                    :data-source="drugData"
+                    @getGenes="yieldGenes"
+                  />
+                </v-col>
+                <v-col
+                  sm="12"
+                  md="2"
+                  lg="2"
+                >
+                  <v-data-table
+                    v-if="barplotData"
+                    sort-by="Kdapp"
+                    :sort-desc="false"
+                    :headers="tableHeaders"
+                    :items="barplotData"
+                    :page="tablePage"
+                    :items-per-page="10"
+                    :search="searchTarget"
+                    :hide-default-footer="true"
+                    dense
+                  >
+                    <template #top>
+                      <v-text-field
+                        v-model="searchTarget"
+                        label="Search target"
+                        prepend-icon="mdi-magnify"
+                        class="mb-2"
+                        hide-details
+                      />
+                    </template>
+                    <template v-slot:footer>
+                      <v-pagination
+                        v-model="tablePage"
+                        class="hide-numbers float-right"
+                        :length="Math.floor(barplotData.length / 10)+1"
+                      ></v-pagination>
+                      <div class="float-right mt-3 mr-1">page {{ tablePage }} /  {{ Math.floor(barplotData.length / 10)+1 }}</div>
+                    </template>
+                  </v-data-table>
+                </v-col>
+                <v-col
+                  sm="12"
+                  md="4"
+                  lg="4"
+                >
+                  <bar-plot
+                    v-if="barplotData"
+                    :barplot-data="barplotData"
+                    :barplot-max="barplotMaximum"
+                  />
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
 import drugTable from '@/components/tables/DrugTable'
 import barPlot from '@/components/plots/DrugBarPlot.vue'
-import axios from 'axios'
 
 export default {
   name: 'DrugComponent',
@@ -95,49 +164,58 @@ export default {
     }
   },
   data: () => ({
-
     identifierDrug: '',
     sortFunction: 'mean',
+    sortFunctions: [
+      {
+        text: 'Average Kd value',
+        value: 'mean'
+      },
+      {
+        text: 'Median Kd value',
+        value: 'median'
+      },
+      {
+        text: 'Min Kd value',
+        value: 'min'
+      }
+    ],
+    tableHeaders: [{ text: 'Target', value: 'Drug' }, { text: 'Kdapp', value: 'Kdapp' }],
+    searchTarget: '',
+    tablePage: 1,
     barplotData: false,
-    barplotMaximum: 5000,
-    drugData: `${process.env.VUE_APP_API_HOST}/drugs`
-
+    barplotMaximum: 5000
   }),
-  watch: {
-    sortFunction: function () {
-      this.updateDrugId()
+  computed: {
+    drugData: function () {
+      const drugGeneName = this.identifierDrug
+      const sortFunction = this.sortFunction
+      if (drugGeneName.length === 0) {
+        return `${process.env.VUE_APP_API_HOST}/drugs`
+      } else {
+        return `${process.env.VUE_APP_API_HOST}/drug_genes/${sortFunction}/${drugGeneName}`
+      }
     }
+  },
+  watch: {
   },
   methods: {
     yieldGenes (value) {
       this.barplotData = value.plotData
       this.barplotMaximum = value.maximum
-    },
-    async updateDrugId () {
-      const drugGeneName = this.identifierDrug
-      const sortFunction = this.sortFunction
-      if (drugGeneName.length === 0) {
-        return axios.get(`${process.env.VUE_APP_API_HOST}/drugs`)
-          .then(response => {
-            this.drugData = response.data
-          })
-          .catch(error => {
-            console.log(error)
-          })
-      } else {
-        return axios.get(`${process.env.VUE_APP_API_HOST}/drug_genes/${sortFunction}/${drugGeneName}`)
-          .then(response => {
-            // this.drugData=response.data.filter(item => item.Drug == drugName)
-            this.drugData = response.data
-          })
-          .catch(error => {
-            console.log(error)
-          })
-      }
     }
   }
 
 }
 </script>
 <style scoped>
+::v-deep(.v-pagination__item) {
+  display: none;
+}
+::v-deep(.v-pagination__more) {
+  display: none;
+}
+::v-deep(.v-pagination__navigation) {
+  display: flex; /* Keep arrows visible */
+}
 </style>

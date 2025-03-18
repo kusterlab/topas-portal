@@ -20,7 +20,7 @@
             class="mt-4"
             dense
             hide-details
-            label="Multiple testing correction (BH)"
+            label="Multiple testing correction (Benjamini-Hochberg)"
           />
           <v-select
             v-model="modality"

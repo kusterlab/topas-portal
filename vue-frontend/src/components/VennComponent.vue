@@ -98,7 +98,7 @@
               - If a protein belongs to multiple groups it should be in separate rows, e.g.: <br>
               EGFR, GroupA <br>
               EGFR, GroupB <br>
-              </span>
+            </span>
           </v-tooltip>
         </v-card-text>
       </v-card>
