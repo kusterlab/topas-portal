@@ -6,7 +6,7 @@
       color="primary"
       mandatory
       dense
-      class="mb-2"
+      class="mb-0"
     >
       <v-btn value="metadata">
         Metadata
@@ -22,7 +22,6 @@
       v-if="selectionMethod === 'metadata'"
       v-model="activeMeta"
       prepend-icon="mdi-account"
-      class="mb-2"
       dense
       outlined
       hide-details
@@ -35,7 +34,7 @@
       v-if="selectionMethod === 'metadata'"
       v-model="fieldOfInterest"
       prepend-icon="mdi-filter"
-      class="mb-2 mt-4"
+      class="mt-4"
       dense
       small-chips
       outlined
@@ -111,6 +110,7 @@ export default {
       this.updateMetadata()
     },
     selectionMethod: function () {
+      // toggle visibility of the sample selection table in the parent component
       this.$emit('update-selection-method', this.selectionMethod)
     }
   },

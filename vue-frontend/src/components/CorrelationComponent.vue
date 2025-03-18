@@ -12,34 +12,10 @@
           Correlations
         </v-card-title>
         <v-card-text>
-          <v-select
-            v-model="diseaseName"
-            class="cohort mb-2"
-            dense
-            outlined
-            prepend-icon="mdi-database"
-            hide-details
-            :items="all_diseases"
-            label="Cohort"
+          <cohort-select
+            @select-cohort="updateCohort"
           />
-
-          <v-btn-toggle
-            v-model="allPatients"
-            color="primary"
-            mandatory
-            hide-details
-            dense
-            class="mt-4"
-          >
-            <v-btn value="cohort">
-              Full cohort
-            </v-btn>
-            <v-btn value="subcohort">
-              Subcohort
-            </v-btn>
-          </v-btn-toggle>
-          <sample-select
-            v-if="allPatients === 'subcohort'"
+          <subcohort-select
             :cohort-index="cohortIndex"
             :sample-ids="customGroup"
             @update-group="updateSampleGroup"
@@ -47,7 +23,7 @@
           />
           <v-radio-group
             v-model="intensityUnit"
-            class="mt-0"
+            class="mt-4"
             label="Intensity unit"
             hide-details
           >
@@ -72,7 +48,6 @@
           Select correlation inputs
         </v-card-title>
         <v-card-text>
-
           <v-select
             v-model="correlationInputType"
             prepend-icon="mdi-filter"
@@ -210,7 +185,10 @@
           </v-row>
         </v-card-text>
       </v-card>
-      <v-card class="mt-4" flat>
+      <v-card
+        class="mt-4"
+        flat
+      >
         <v-card-text>
           <v-row>
             <v-col
@@ -255,7 +233,8 @@
 import axios from 'axios'
 import { mapGetters, mapState } from 'vuex'
 import correlationTable from '@/components/tables/CorrelationTable'
-import SampleSelect from './partials/SampleSelect.vue'
+import CohortSelect from './partials/CohortSelect.vue'
+import SubcohortSelect from './partials/SubcohortSelect.vue'
 import sampleTable from '@/components/tables/CorrelationTableSamples'
 import scatterPlot from '@/components/plots/ScatterPlot'
 import basketSelect from '@/components/partials/BasketSelect'
@@ -272,7 +251,8 @@ export default {
     scatterPlot,
     basketSelect,
     ProteinSelect,
-    SampleSelect
+    CohortSelect,
+    SubcohortSelect
   },
   props: {
     minWidth: {
@@ -286,12 +266,12 @@ export default {
     }
   },
   data: () => ({
+    cohortIndex: 0,
     identifier1: '',
     expressionData1: [],
     xaxisTable: 'Scores1',
     yaxisTable: 'Scores2',
     intensityUnit: 'z_scored',
-    diseaseName: 'sarcoma',
     phospho: 'FP',
     labelX: '',
     labelY: '',
@@ -372,9 +352,6 @@ export default {
       } else {
         return 'EGFR'
       }
-    },
-    cohortIndex () {
-      return this.all_diseases.indexOf(this.diseaseName)
     }
   },
   watch: {
@@ -383,6 +360,9 @@ export default {
     }
   },
   methods: {
+    updateCohort ({ dataSource, cohortIndex }) {
+      this.cohortIndex = cohortIndex
+    },
     updateIdentifier ({ dataSource, identifier }) {
       this.identifier1 = identifier
       this.basketType = dataSource

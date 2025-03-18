@@ -23,23 +23,7 @@
             label="Cohort"
           />
 
-          <v-btn-toggle
-            v-model="allPatients"
-            color="primary"
-            mandatory
-            hide-details
-            dense
-            class="mt-4"
-          >
-            <v-btn value="cohort">
-              Full cohort
-            </v-btn>
-            <v-btn value="subcohort">
-              Subcohort
-            </v-btn>
-          </v-btn-toggle>
-          <sample-select
-            v-if="allPatients === 'subcohort'"
+          <subcohort-select
             :cohort-index="cohortIndex"
             :sample-ids="customGroup"
             @update-group="updateSampleGroup"
@@ -58,8 +42,8 @@
             dense
           />
           <v-text-field
-            class="mt-4"
             v-model="imputationRatio"
+            class="mt-4"
             label="Min. sample occurrence [%]"
             hint="Only use proteins/p-peptides occurring in >x% of total samples. The remaining missing values are imputed by PPCA."
             persistent-hint
@@ -67,7 +51,10 @@
           />
         </v-card-text>
       </v-card>
-      <v-card flat class="mt-4">
+      <v-card
+        flat
+        class="mt-4"
+      >
         <v-card-title
           tag="h1"
         >
@@ -99,9 +86,9 @@
             @change="loading=false"
           />
           <v-file-input
-            class="mt-4"
             v-show="geneSubsetActive"
             v-model="file"
+            class="mt-4"
             placeholder="Upload a txt file"
             accept="text/*,.txt"
             hint="one gene name/Psite per line"
@@ -128,7 +115,10 @@
           </v-btn>
         </v-card-text>
       </v-card>
-      <v-card flat class="mt-4">
+      <v-card
+        flat
+        class="mt-4"
+      >
         <v-card-title
           tag="h1"
         >
@@ -247,7 +237,7 @@ import silhouetteTable from '@/components/tables/silhouetteTable'
 import QcPlot from '@/components/plots/QCPlot.vue'
 import LolipopPlot from './plots/LolipopPlot.vue'
 import { DataType } from '@/constants'
-import SampleSelect from './partials/SampleSelect.vue'
+import SubcohortSelect from './partials/SubcohortSelect.vue'
 
 export default {
   name: 'QCComponent',
@@ -256,7 +246,7 @@ export default {
     QcPlot,
     LolipopPlot,
     silhouetteTable,
-    SampleSelect
+    SubcohortSelect
   },
   props: {
     minWidth: {
@@ -271,7 +261,6 @@ export default {
   data: () => ({
     qcData: [],
     silData: [],
-    allPatients: 'cohort',
     minNumPatients: 1,
     imputationRatio: 90,
     variance1: 0,
@@ -381,7 +370,7 @@ export default {
             console.log(response)
             this.allorSelectedgenes = 'selected' // running with selected genes
           }
-          const customGroup = this.allPatients === 'cohort' ? 'all' : this.customGroup
+          const customGroup = this.customGroup.length === 0 ? 'all' : this.customGroup
           const allOrselected = this.allorSelectedgenes
           const imputationRatio = this.imputationRatio / 100.0
           const response = await axios.get(`${process.env.VUE_APP_API_HOST}/qc/sil/all/${inputDataType}/${cohortIndex}/${dimReductionMethod}/${referenceChannel}/${replicate}/${this.activeMeta}/${numPatient}/${silInputType}/${allOrselected}/${customGroup}/${imputationRatio}`)
@@ -433,14 +422,14 @@ export default {
     },
 
     async getqcData () {
-      const customGroup = this.allPatients === 'cohort' ? 'all' : this.customGroup
+      const customGroup = this.customGroup.length === 0 ? 'all' : this.customGroup
       const inputDataType = this.inputDataType
       const dimReductionMethod = this.dimReductionMethod
       const referenceChannel = this.includeReferenceChannels ? 'ref' : 'noref'
       const allSelected = this.allorSelectedgenes
       const replicate = this.includeReplicates ? 'replicate' : 'noreplicate'
       const cohortIndex = this.all_diseases.indexOf(this.diseaseName)
-      const imputationRatio = this.imputationRatio
+      const imputationRatio = this.imputationRatio / 100.0
       try {
         this.isLoading = true
         const response = await axios.get(`${process.env.VUE_APP_API_HOST}/qc/${allSelected}/${inputDataType}/${cohortIndex}/${dimReductionMethod}/${referenceChannel}/${replicate}/${customGroup}/${imputationRatio}`)

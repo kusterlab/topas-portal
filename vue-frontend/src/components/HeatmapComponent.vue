@@ -12,21 +12,10 @@
           Heatmap
         </v-card-title>
         <v-card-text>
-          <v-combobox
-            v-model="diseaseName"
-            prepend-icon="mdi-database"
-            class="cohort"
-            dense
-            outlined
-            hide-details
-            :items="all_diseases"
-            label="Cohort"
+          <cohort-select
+            @select-cohort="updateCohort"
           />
-
-          <p class="mt-4 mb-2">
-            Sample selection
-          </p>
-          <sample-select
+          <subcohort-select
             :cohort-index="cohortIndex"
             :sample-ids="selectedSamples"
             @update-group="updateSampleGroup"
@@ -34,7 +23,7 @@
           />
           <v-select
             v-model="inputDataType"
-            class="input_data_type mb-2 mt-8"
+            class="input_data_type mb-2 mt-6"
             prepend-icon="mdi-filter"
             dense
             outlined
@@ -46,14 +35,14 @@
 
           <basket-select
             v-if="String(inputDataType).startsWith('tupac')"
-            :cohort-index="all_diseases.indexOf(diseaseName)"
+            :cohort-index="cohortIndex"
             :score-type="false"
             :multiple="true"
             @select-basket="updateIdentifier"
           />
           <protein-select
             v-if="!String(inputDataType).startsWith('tupac')"
-            :cohort-index="all_diseases.indexOf(diseaseName)"
+            :cohort-index="cohortIndex"
             :multiple="true"
             :data-layer="inputDataType"
             class="mt-4"
@@ -101,11 +90,10 @@
 </template>
 <script>
 import axios from 'axios'
-import { mapGetters, mapState } from 'vuex'
 import PatientTable from './tables/DifferentialmetaTable.vue'
 import BasketSelect from '@/components/partials/BasketSelect'
 import ProteinSelect from '@/components/partials/ProteinSelect'
-import SampleSelect from './partials/SampleSelect.vue'
+import SubcohortSelect from './partials/SubcohortSelect.vue'
 import { Plotly } from 'vue-plotly'
 import { DataType } from '@/constants'
 
@@ -116,7 +104,7 @@ export default {
     BasketSelect,
     ProteinSelect,
     Plotly,
-    SampleSelect
+    SubcohortSelect
   },
   props: {
     minWidth: {
@@ -133,11 +121,11 @@ export default {
     }
   },
   data: () => ({
+    cohortIndex: 0,
     heatmapData: [],
     selectedSamples: [],
     selectionMethod: 'metadata',
     componentKey: 0,
-    diseaseName: null,
     inputDataType: DataType.FULL_PROTEOME,
     identifier: null,
     showPlot: false,
@@ -207,17 +195,11 @@ export default {
   mounted () {
   },
   computed: {
-    ...mapState({
-      all_diseases: state => state.all_diseases
-    }),
-    ...mapGetters({
-      hasData: 'hasData'
-    }),
-    cohortIndex: function () {
-      return this.all_diseases.indexOf(this.diseaseName)
-    }
   },
   methods: {
+    updateCohort ({ dataSource, cohortIndex }) {
+      this.cohortIndex = cohortIndex
+    },
     updateIdentifier ({ dataSource, identifier }) {
       this.identifier = identifier
       this.updateHeatmap()

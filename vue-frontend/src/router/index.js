@@ -16,7 +16,7 @@ Vue.use(Router)
 export default new Router({
   mode: 'hash',
   base: process.env.NODE_ENV === 'production'
-    ? '/master_mtb_portal/'
+    ? '/master_topas-portal/'
     : '/',
   routes: [
     { path: '/', component: OverviewComponent },

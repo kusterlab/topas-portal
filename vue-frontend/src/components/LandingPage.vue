@@ -182,7 +182,6 @@ export default {
     metaData: [],
     minNumitems: 10,
     activeMeta: 'code_oncotree',
-    diseaseName: null,
     showPlot: false,
     layout: {
       title: 'plotlyoverview'
@@ -205,9 +204,6 @@ export default {
     ...mapGetters({
       hasData: 'hasData'
     }),
-    cohortIndex: function () {
-      return this.all_diseases.indexOf(this.diseaseName)
-    },
     cookieAccepted () {
       return this.$store.state.cookieAccepted
     }

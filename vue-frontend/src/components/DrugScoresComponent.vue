@@ -12,15 +12,8 @@
           Drug Scores
         </v-card-title>
         <v-card-text>
-          <v-select
-            v-model="diseaseName"
-            class="cohort"
-            dense
-            outlined
-            hide-details
-            :items="all_diseases"
-            label="Cohort"
-            @change="updatePatientDrugLists"
+          <cohort-select
+            @select-cohort="updateCohort"
           />
           <v-radio-group
             v-model="inputType"
@@ -137,10 +130,10 @@ export default {
     }
   },
   data: () => ({
+    cohortIndex: 0,
     drugidentifier: '',
     patientidentifier: '',
     titleIdentifier: '',
-    diseaseName: 'sarcoma',
     inputType: 'per_drug',
     entityIdentifier: null,
     swarmShow: false,
@@ -160,22 +153,18 @@ export default {
     this.swarmSelIds = []
   },
   computed: {
-    ...mapState({
-      all_diseases: state => state.all_diseases
-    }),
-    ...mapGetters({
-      hasData: 'hasData'
-    })
   },
   methods: {
+    updateCohort ({ dataSource, cohortIndex }) {
+      this.cohortIndex = cohortIndex
+    },
     updatePatientDrugLists () {
       this.getDrugsList()
       this.getPatientsList()
       this.getEntitiesList()
     },
     async getEntitiesList () {
-      const cohortIndex = this.all_diseases.indexOf(this.diseaseName)
-      const response = await axios.get(`${process.env.VUE_APP_API_HOST}/patients/${cohortIndex}/all_entities`)
+      const response = await axios.get(`${process.env.VUE_APP_API_HOST}/patients/${this.cohortIndex}/all_entities`)
       const entities = []
       response.data.forEach(element => {
         entities.push(element.Entity)
@@ -183,8 +172,7 @@ export default {
       this.allEntities = entities
     },
     async getPatientsList () {
-      const cohortIndex = this.all_diseases.indexOf(this.diseaseName)
-      const response = await axios.get(`${process.env.VUE_APP_API_HOST}/drugscore/${cohortIndex}/patients_list`)
+      const response = await axios.get(`${process.env.VUE_APP_API_HOST}/drugscore/${this.cohortIndex}/patients_list`)
       const patients = []
       response.data.forEach(element => {
         patients.push(element.patients)
@@ -192,8 +180,7 @@ export default {
       this.allPatients = patients
     },
     async getDrugsList () {
-      const cohortIndex = this.all_diseases.indexOf(this.diseaseName)
-      const response = await axios.get(`${process.env.VUE_APP_API_HOST}/drugscore/${cohortIndex}/drugs_list`)
+      const response = await axios.get(`${process.env.VUE_APP_API_HOST}/drugscore/${this.cohortIndex}/drugs_list`)
       const drugs = []
       response.data.forEach(element => {
         drugs.push(element.Drug)
@@ -224,8 +211,7 @@ export default {
         entities = 'all'
       }
 
-      const cohortIndex = this.all_diseases.indexOf(this.diseaseName)
-      const query = `${process.env.VUE_APP_API_HOST}/drugscore/${cohortIndex}/drug/${key}/${entities}`
+      const query = `${process.env.VUE_APP_API_HOST}/drugscore/${this.cohortIndex}/drug/${key}/${entities}`
       this.url = query
       const response = await axios.get(query)
       this.swarmShow = true
@@ -235,8 +221,7 @@ export default {
     async getDrugScoresForPatient (key) {
       this.drugidentifier = ''
       this.plotData = []
-      const cohortIndex = this.all_diseases.indexOf(this.diseaseName)
-      const query = `${process.env.VUE_APP_API_HOST}/drugscore/${cohortIndex}/patient/${key}`
+      const query = `${process.env.VUE_APP_API_HOST}/drugscore/${this.cohortIndex}/patient/${key}`
       this.url = query
       const response = await axios.get(query)
       this.swarmShow = true

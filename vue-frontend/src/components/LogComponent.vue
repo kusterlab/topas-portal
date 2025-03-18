@@ -118,7 +118,6 @@ export default {
     errorValue: [],
     configPath: '',
     integrationValue: [],
-    diseaseName: '',
     logtype: 'loading',
     reportDir: '',
     password: '',

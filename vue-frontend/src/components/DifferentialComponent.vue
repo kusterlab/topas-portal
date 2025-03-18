@@ -12,18 +12,48 @@
           Differential Expression
         </v-card-title>
         <v-card-text>
+          <cohort-select
+            @select-cohort="updateCohort"
+          />
+          <v-checkbox
+            v-model="applyMultipleTestingCorrection"
+            class="mt-4"
+            dense
+            hide-details
+            label="Multiple testing correction (BH)"
+          />
           <v-select
-            v-model="diseaseName"
-            class="cohort"
-            prepend-icon="mdi-database"
+            v-model="modality"
+            class="input_data_type mb-2 mt-4"
+            dense
+            outlined
+            prepend-icon="mdi-filter"
+            hide-details
+            :items="allInputDataTypes"
+            label="Input Data Type"
+            @change="updateHeatmap"
+          />
+          <v-select
+            v-model="proteinType"
+            class="input_data_type mb-2 mt-4"
+            prepend-icon="mdi-palette"
             dense
             outlined
             hide-details
-            :items="all_diseases"
-            label="Cohort"
+            :items="allProteinnTypes"
+            label="Highlight proteins"
+            @change="updateProteinType"
           />
-
-          <p class="mt-4 mb-2">
+        </v-card-text>
+      </v-card>
+      <v-card flat class="mt-4">
+        <v-card-title
+          tag="h1"
+        >
+          Select groups
+        </v-card-title>
+        <v-card-text>
+          <p class="mb-2">
             Group1
           </p>
           <sample-select
@@ -52,43 +82,6 @@
             @update-selection-method="updateSelectionMethodGroup2"
           />
 
-          <v-select
-            v-model="modality"
-            class="input_data_type mb-2 mt-4"
-            dense
-            outlined
-            prepend-icon="mdi-filter"
-            hide-details
-            :items="allInputDataTypes"
-            label="Input Data Type"
-            @change="updateHeatmap"
-          />
-          <v-select
-            v-model="proteinType"
-            class="input_data_type mb-2 mt-4"
-            prepend-icon="mdi-palette"
-            dense
-            outlined
-            hide-details
-            :items="allProtienTypes"
-            label="Category"
-            @change="updateProteinType"
-          />
-          <v-radio-group
-            v-model="yAxistype"
-          >
-            <v-radio
-              label="Multiple testing correction (BH)"
-              color="red"
-              value="fdr"
-            />
-            <v-radio
-              label="No Multiple testing correction"
-              color="blue"
-              value="p_values"
-            />
-          </v-radio-group>
-
           <v-btn
             class="ma-2"
             color="primary"
@@ -102,17 +95,17 @@
     </v-col>
     <v-col
       sm="12"
-      md="8"
-      lg="6"
+      md="9"
+      lg="10"
     >
-      <v-card flat>
+      <v-card flat v-show="selectionMethod1 === 'table' | selectionMethod2 === 'table'" class="mb-4">
         <v-card-text>
           <v-row>
             <v-col
               v-show="selectionMethod1 === 'table'"
-              sm="8"
+              sm="12"
               md="6"
-              lg="4"
+              lg="6"
             >
               <h2>Group1</h2>
               <patient-table
@@ -122,9 +115,9 @@
             </v-col>
             <v-col
               v-show="selectionMethod2 === 'table'"
-              sm="8"
+              sm="12"
               md="6"
-              lg="4"
+              lg="6"
             >
               <h2>Group2</h2>
               <patient-table
@@ -133,11 +126,15 @@
               />
             </v-col>
           </v-row>
+        </v-card-text>
+      </v-card>
+      <v-card flat>
+        <v-card-text>
           <v-row>
             <v-col
-              sm="8"
+              sm="12"
               md="6"
-              lg="4"
+              lg="6"
             >
               <statistic-table
                 :data-source="statisticData"
@@ -146,9 +143,9 @@
               />
             </v-col>
             <v-col
-              sm="4"
+              sm="12"
               md="6"
-              lg="4"
+              lg="6"
             >
               <scatter-plot
                 id="differentialPlot"
@@ -179,7 +176,6 @@
 
 <script>
 import axios from 'axios'
-import { mapGetters, mapState } from 'vuex'
 import PatientTable from './tables/DifferentialmetaTable.vue'
 import ScatterPlot from './plots/ScatterPlot.vue'
 import StatisticTable from './tables/StatisticsTable.vue'
@@ -206,15 +202,15 @@ export default {
     }
   },
   data: () => ({
-    diseaseName: '',
+    cohortIndex: 0,
     proteinsInterest: proteinTypes.PROTEINLIST,
-    allProtienTypes: proteinTypes.CATEGORY,
+    allProteinnTypes: proteinTypes.CATEGORY,
     proteinType: 'None',
     grp1Index: 'index',
     modality: DataType.TUPAC_SCORE_RTK,
     secondGroup: true,
     grp2Index: 'index',
-    yAxistype: 'fdr',
+    applyMultipleTestingCorrection: true,
     selectionMethod1: 'metadata',
     selectionMethod2: 'metadata',
     selectedPvalues: [],
@@ -259,20 +255,21 @@ export default {
     ]
   }),
   computed: {
-    ...mapState({
-      all_diseases: state => state.all_diseases
-    }),
-    ...mapGetters({
-      hasData: 'hasData'
-    }),
-    cohortIndex: function () {
-      return this.all_diseases.indexOf(this.diseaseName)
+    yAxistype: function () {
+      if (this.applyMultipleTestingCorrection) {
+        return 'fdr'
+      } else {
+        return 'p_values'
+      }
     }
   },
   watch: {
 
   },
   methods: {
+    updateCohort ({ dataSource, cohortIndex }) {
+      this.cohortIndex = cohortIndex
+    },
     async doTest () {
       try {
         this.statisticData = null
