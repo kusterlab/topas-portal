@@ -86,14 +86,6 @@ class CohortConfig:
         """ return path to the results folder"""
         return list(self.config["report_directory"].values())[int(cohort_index)]
 
-    def get_PP_directory(self, cohort_index) -> str:
-        """The path to the  MQ search folder for PP"""
-        return list(self.config["PP_directory"].values())[int(cohort_index)]
-
-    def get_FP_directory(self, cohort_index) -> str:
-        """The path to the  MQ search folder for FP"""
-        return list(self.config["FP_directory"].values())[int(cohort_index)]
-
     def get_patients_metadata_path(self, cohort_index) -> str:
         return list(self.config["patient_annotation_path"].values())[int(cohort_index)]
 

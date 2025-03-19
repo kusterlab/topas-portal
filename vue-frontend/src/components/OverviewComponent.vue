@@ -16,16 +16,18 @@
             @select-cohort="updateCohort"
           />
           <v-select
+            class="mt-4"
             v-model="activeMeta"
             dense
             outlined
             hide-details
             :items="metaData"
-            label="Color by Metadata"
+            label="Metadata column"
             prepend-icon="mdi-palette"
             @change="updateplotaData"
           />
           <v-text-field
+            class="mt-4"
             v-model="minNumitems"
             label="Min Items per Group"
             type="number"
@@ -72,60 +74,66 @@
       lg="10"
     >
       <v-row>
-        <v-col cols="12">
-          <v-card-title
-            v-if="entityData.data"
-            class="text-h6 font-weight-bold"
-          >
-            Entity Data
-          </v-card-title>
-          <v-card-text>
-            <v-skeleton-loader
-              :loading="loadingEntity"
-              height="200"
-              width="200"
-              type="image, list-item-two-line"
-            >
-              <v-responsive>
-                <Plotly
-                  v-if="entityData.data"
-                  :key="componentKey"
-                  :data="entityData.data"
-                  :layout="entityData.layout"
-                  :to-image-button-options="toImageButtonOptions"
-                />
-              </v-responsive>
-            </v-skeleton-loader>
-          </v-card-text>
+        <v-col
+          v-if="entityData.data"
+          sm="12"
+          md="5"
+          lg="5"
+        >
+          <v-card flat>
+            <v-card-title>
+              {{ activeMeta }}
+            </v-card-title>
+            <v-card-text>
+              <v-skeleton-loader
+                :loading="loadingEntity"
+                height="200"
+                width="200"
+                type="image, list-item-two-line"
+              >
+                <v-responsive>
+                  <Plotly
+                    v-if="entityData.data"
+                    :key="componentKey"
+                    :data="entityData.data"
+                    :layout="entityData.layout"
+                    :to-image-button-options="toImageButtonOptions"
+                  />
+                </v-responsive>
+              </v-skeleton-loader>
+            </v-card-text>
+          </v-card>
         </v-col>
-      </v-row>
-      <v-row>
-        <v-card flat>
-          <v-card-title
-            v-if="modificationData.data"
-            class="text-h6 font-weight-bold"
-          >
-            Modification Data
-          </v-card-title>
-          <v-card-text>
-            <v-skeleton-loader
-              :loading="loadingEntity"
-              height="200"
-              width="200"
-              type="image, list-item-two-line"
-            >
-              <v-responsive>
-                <Plotly
-                  v-if="modificationData.data"
-                  :key="componentKey"
-                  :data="modificationData.data"
-                  :layout="modificationData.layout"
-                  :to-image-button-options="toImageButtonOptions"
-                />
-              </v-responsive>
-            </v-skeleton-loader>
-          </v-card-text>
-        </v-card>
+        <v-col
+          v-if="modificationData.data"
+          sm="12"
+          md="5"
+          lg="5"
+        >
+          <v-card flat>
+            <v-card-title>
+              Modifications
+            </v-card-title>
+            <v-card-text>
+              <v-skeleton-loader
+                :loading="loadingEntity"
+                height="200"
+                width="200"
+                type="image, list-item-two-line"
+              >
+                <v-responsive>
+                  <Plotly
+                    v-if="modificationData.data"
+                    :key="componentKey"
+                    :data="modificationData.data"
+                    :layout="modificationData.layout"
+                    :to-image-button-options="toImageButtonOptions"
+                  />
+                </v-responsive>
+              </v-skeleton-loader>
+            </v-card-text>
+          </v-card>
+        </v-col>
       </v-row>
     </v-col>
   </v-row>
@@ -143,7 +151,7 @@ export default {
     Plotly
   },
   data: () => ({
-    cohortIndex: 0,
+    cohortIndex: -1,
     entityData: [],
     topasactivityPath: '/topasscores',
     kinasectivityPath: '/kinasescores',
@@ -171,6 +179,10 @@ export default {
     }
   },
   watch: {
+    cohortIndex () {
+      console.log('hello')
+      this.updateplotaDataphospho()
+    }
   },
   mounted () {
     this.metaComboUpdater()
@@ -181,10 +193,6 @@ export default {
     },
     acceptCookies () {
       this.$store.dispatch('acceptCookies')
-    },
-    allUpdate () {
-      this.updateplotaData()
-      this.updateplotaDataphospho()
     },
     async metaComboUpdater () { // retrieving different meta data to color patients from the backend
       const response = await axios.get(`${process.env.VUE_APP_API_HOST}/overview/meta_types`)
