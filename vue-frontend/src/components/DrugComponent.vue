@@ -113,13 +113,15 @@
                         hide-details
                       />
                     </template>
-                    <template v-slot:footer>
+                    <template #footer>
                       <v-pagination
                         v-model="tablePage"
                         class="hide-numbers float-right"
                         :length="Math.floor(barplotData.length / 10)+1"
-                      ></v-pagination>
-                      <div class="float-right mt-3 mr-1">page {{ tablePage }} /  {{ Math.floor(barplotData.length / 10)+1 }}</div>
+                      />
+                      <div class="float-right mt-3 mr-1">
+                        page {{ tablePage }} /  {{ Math.floor(barplotData.length / 10)+1 }}
+                      </div>
                     </template>
                   </v-data-table>
                 </v-col>

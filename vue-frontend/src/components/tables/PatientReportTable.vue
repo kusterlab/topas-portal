@@ -37,7 +37,7 @@
         :show-info="true"
         :show-navigation-buttons="true"
       />
-      <DxPaging :page-size="15" />
+      <DxPaging :page-size="10" />
     </DxDataGrid>
   </div>
 </template>
@@ -70,7 +70,7 @@ export default {
   },
   data () {
     return {
-      pageSizes: [15, 25, 50, 100],
+      pageSizes: [10, 25, 50, 100],
       dataGridRefName: 'dataGrid',
       tupacFields: [{
         dataField: 'Sample name',

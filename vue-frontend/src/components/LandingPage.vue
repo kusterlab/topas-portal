@@ -167,8 +167,6 @@
 </template>
 
 <script>
-import { mapGetters, mapState } from 'vuex'
-
 export default {
   name: 'LandingComponent',
   data: () => ({
@@ -192,21 +190,14 @@ export default {
       filename: 'piechart'
     }
   }),
-  watch: {
-  },
-  mounted () {
-    this.metaComboUpdater()
-  },
   computed: {
-    ...mapState({
-      all_diseases: state => state.all_diseases
-    }),
-    ...mapGetters({
-      hasData: 'hasData'
-    }),
     cookieAccepted () {
       return this.$store.state.cookieAccepted
     }
+  },
+  watch: {
+  },
+  mounted () {
   },
   methods: {
     acceptCookies () {

@@ -170,9 +170,9 @@ export default {
         .append('svg')
         .attr('width', width + margin.left + margin.right)
         .attr('height', height + margin.top + margin.bottom)
-        .call(d3.zoom().on('zoom', function (event) {
-          svg.attr('transform', event.transform)
-        }))
+        // .call(d3.zoom().on('zoom', function (event) {
+        //   svg.attr('transform', event.transform)
+        // }))
         .append('g')
         .attr('class', 'lollipopchart')
         .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
