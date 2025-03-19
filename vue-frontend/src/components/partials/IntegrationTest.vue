@@ -1,14 +1,27 @@
 <template>
-  <div>
+  <v-container fluid>
     <v-card
-      class="mt-2 mb-2"
       flat
     >
-      <v-textarea
-        label="Integration Logs"
-        style="width:100%;"
-        :value="logValue"
-      />
+      <v-row>
+        <v-col cols="11">
+          <v-textarea
+            label="Integration Logs"
+            style="width:100%;"
+            filled
+            :value="logValue"
+          />
+        </v-col><v-col cols="1">
+          <v-btn
+            color="primary"
+            @click="updateLog"
+          >
+            <v-icon dark>
+              mdi-refresh
+            </v-icon>
+          </v-btn>
+        </v-col>
+      </v-row>
       <v-card-title
         tag="h1"
       >
@@ -37,12 +50,6 @@
         >
           Validate all cohorts
         </v-btn>
-        <v-btn
-          class="mt-4 ml-2"
-          @click="updateLog"
-        >
-          update Log
-        </v-btn>
         <v-col>
           <v-row>
             <p class="mt-4">
@@ -66,12 +73,12 @@
         </v-col>
       </v-card-text>
     </v-card>
-  </div>
+  </v-container>
 </template>
 
 <script>
 import axios from 'axios'
-import { mapActions, mapGetters, mapState } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 export default {
   name: 'ConfigureUpdate',
   props: {
@@ -99,9 +106,6 @@ export default {
     this.updateLog()
   },
   methods: {
-    ...mapActions({
-      fetchAllDiseases: 'fetchAllDiseases'
-    }),
     async updateLog () {
       const response = await axios.get(`${process.env.VUE_APP_API_HOST}/integration/logs`)
       this.logValue = response.data.replace(/topas_separator/g, '\n')

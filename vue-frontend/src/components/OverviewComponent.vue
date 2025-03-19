@@ -16,8 +16,8 @@
             @select-cohort="updateCohort"
           />
           <v-select
-            class="mt-4"
             v-model="activeMeta"
+            class="mt-4"
             dense
             outlined
             hide-details
@@ -27,8 +27,8 @@
             @change="updateplotaData"
           />
           <v-text-field
-            class="mt-4"
             v-model="minNumitems"
+            class="mt-4"
             label="Min Items per Group"
             type="number"
             dense

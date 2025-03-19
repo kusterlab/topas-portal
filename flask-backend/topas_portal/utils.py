@@ -361,7 +361,7 @@ def check_all_config_file(configs):
     try:
         df = pd.DataFrame([final_dic])
         df = df.melt()
-        df.columns = ["path", "exists"]
+        df.columns = ["path", "path exists"]
         return df_to_json(df)
     except:
         return {}

@@ -17,9 +17,9 @@ entityscore_page = Blueprint(
 cohorts_db = db.cohorts_db
 
 # the list of parameters in the config file of the portal 
-FINAL_MODELS_PICKLE = cohorts_db.config.config['entity_models']
-PROTEINS_NORMALIZED_PICKLE = cohorts_db.config.config['entity_models_normalized']
-MODELS_LIST = cohorts_db.config.config['models_list']
+FINAL_MODELS_PICKLE = cohorts_db.config.config.get('entity_models', '')
+PROTEINS_NORMALIZED_PICKLE = cohorts_db.config.config.get('entity_models_normalized', '')
+MODELS_LIST = cohorts_db.config.config.get('models_list', [])
 
 
 
