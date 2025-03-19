@@ -18,7 +18,7 @@
       :allow-column-reordering="true"
       :allow-column-resizing="true"
       :row-alternation-enabled="true"
-      :selection="{ mode: 'single', allowSelectAll: false}"
+      :selection="{ mode: 'multiple', allowSelectAll: false}"
       :show-borders="true"
       column-resizing-mode="widget"
       :columns="tupacFields"

@@ -29,5 +29,6 @@ pnpm-debug.log*
 
 .ipynb_checkpoints/*
 flask-backend/record.log
+flask-backend/uploads
 .qodo
 config_mintest.json
