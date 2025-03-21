@@ -1,15 +1,5 @@
 <template>
   <div>
-    <v-btn
-      class="ma-2"
-      color="primary"
-      @click="clearSels"
-    >
-      <v-icon>
-        mdi-refresh
-      </v-icon>
-    </v-btn>
-
     <v-text-field
       label="Gene for genomics annotation"
       placeholder="EGFR"
@@ -64,6 +54,21 @@
         :show-navigation-buttons="true"
       />
       <DxPaging :page-size="10" />
+      <DxToolbar>
+        <DxItem
+          location="before"
+          locateInMenu="auto"
+          showText="always"
+          widget="dxButton"
+          :options="refreshButtonOptions"
+        />
+        <DxItem
+          name="exportButton"
+        />
+        <DxItem
+          name="columnChooserButton"
+        />
+      </DxToolbar>
     </DxDataGrid>
   </div>
 </template>
@@ -74,7 +79,9 @@ import {
   DxPager,
   DxExport,
   DxPaging,
-  DxFilterRow
+  DxFilterRow,
+  DxToolbar,
+  DxItem
 } from 'devextreme-vue/data-grid'
 import 'devextreme/dist/css/dx.light.css'
 import DxFilterBuilder from 'devextreme-vue/filter-builder'
@@ -87,7 +94,9 @@ export default {
     DxExport,
     DxPager,
     DxPaging,
-    DxFilterRow
+    DxFilterRow,
+    DxToolbar,
+    DxItem
   },
   props: {
     cohortIndex: {
@@ -131,6 +140,15 @@ export default {
         return
       }
       return `${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/patients/genomics_annotations/${this.genomicAlterationsGene}`
+    },
+    refreshButtonOptions () {
+      return {
+        icon: 'pulldown',
+        text: 'Reset table',
+        onClick: () => {
+          this.dataGrid.clearSelection()
+        }
+      }
     }
   },
   watch: {
@@ -153,10 +171,6 @@ export default {
         }
       })
       this.differentialFields = [...this.differentialFields, ...commonField]
-    },
-    clearSels () {
-      const dataGrid = this.$refs[this.dataGridRefName].instance
-      dataGrid.clearSelection()
     },
     updatePatientTable (genomicAlterationsGene) {
       // do not use v-model because that triggers rerendering while typing

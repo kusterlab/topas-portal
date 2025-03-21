@@ -1,14 +1,5 @@
 <template>
   <div>
-    <v-btn
-      class="ma-2"
-      color="primary"
-      @click="clearSels"
-    >
-      <v-icon dark>
-        mdi-refresh
-      </v-icon>
-    </v-btn>
     <DxDataGrid
       :ref="dataGridRefName"
       :data-source="dataSource"
@@ -23,7 +14,7 @@
       :columns="expressionFields"
       :allow-column-resizing="true"
       :allow-column-reordering="true"
-      :selection="{ mode: 'multiple', allowSelectAll: true }"
+      :selection="{ mode: 'multiple', allowSelectAll: false }"
       :show-borders="true"
       :scrolling="{ useNative: true }"
       :column-chooser="{ enabled: 'true', mode: 'select' }"
@@ -42,6 +33,21 @@
         :show-navigation-buttons="true"
       />
       <DxPaging :page-size="15" />
+      <DxToolbar>
+        <DxItem
+          location="before"
+          locateInMenu="auto"
+          showText="always"
+          widget="dxButton"
+          :options="refreshButtonOptions"
+        />
+        <DxItem
+          name="exportButton"
+        />
+        <DxItem
+          name="columnChooserButton"
+        />
+      </DxToolbar>
     </DxDataGrid>
   </div>
 </template>
@@ -51,17 +57,22 @@ import {
   DxPager,
   DxExport,
   DxPaging,
-  DxFilterRow
+  DxFilterRow,
+  DxToolbar,
+  DxItem
 } from 'devextreme-vue/data-grid'
 import 'devextreme/dist/css/dx.light.css'
 import axios from 'axios'
+
 export default {
   components: {
     DxDataGrid,
     DxExport,
     DxPager,
     DxPaging,
-    DxFilterRow
+    DxFilterRow,
+    DxToolbar,
+    DxItem
   },
   props: {
     dataSource: undefined,
@@ -83,6 +94,16 @@ export default {
     },
     cookieAccepted () {
       return this.$store.state.cookieAccepted
+    },
+    refreshButtonOptions () {
+      return {
+        icon: 'pulldown',
+        text: 'Reset table',
+        onClick: () => {
+          this.filterBySamplename(null)
+          this.dataGrid.clearSelection()
+        }
+      }
     }
   },
   watch: {
@@ -163,19 +184,13 @@ export default {
       }], ...commonField]
     },
     filterBySamplename (sample) {
-      const dataGrid = this.$refs[this.dataGridRefName].instance
       if (sample !== null) {
-        dataGrid.filter([
+        this.dataGrid.filter([
           ['Sample name', '=', sample]
         ])
       } else {
-        dataGrid.filter(null)
+        this.dataGrid.filter(null)
       }
-    },
-    clearSels () {
-      this.filterBySamplename(null)
-      const dataGrid = this.$refs[this.dataGridRefName].instance
-      dataGrid.clearSelection()
     },
     onSelectionChanged: function (e) {
       this.$emit('onRowSelect', e.selectedRowKeys, e.selectedRowsData)

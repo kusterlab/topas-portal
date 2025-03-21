@@ -176,6 +176,7 @@ def get_basket_data(
     basket_subset_df = gp._merge_data_with_genomics_alterations(
         cohorts_db, basket_subset_df, basket_names, annotation_type="oncoKB_annotations"
     )
+    basket_subset_df = basket_subset_df.sort_values(by='Z-score', ascending=False)
 
     return utils.df_to_json(basket_subset_df)
 

@@ -31,7 +31,6 @@
             hide-details
             :items="allInputDataTypes"
             label="Input Data Type"
-            @change="updateHeatmap"
           />
           <v-select
             v-model="proteinType"

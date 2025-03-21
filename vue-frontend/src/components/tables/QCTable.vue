@@ -1,14 +1,5 @@
 <template>
   <div>
-    <v-btn
-      class="ma-2"
-      color="primary"
-      @click="clearSels"
-    >
-      <v-icon dark>
-        mdi-refresh
-      </v-icon>
-    </v-btn>
     <DxDataGrid
       :ref="dataGridRefName"
       :data-source="dataSource"
@@ -37,6 +28,21 @@
         :show-navigation-buttons="true"
       />
       <DxPaging :page-size="17" />
+      <DxToolbar>
+        <DxItem
+          location="before"
+          locateInMenu="auto"
+          showText="always"
+          widget="dxButton"
+          :options="refreshButtonOptions"
+        />
+        <DxItem
+          name="exportButton"
+        />
+        <DxItem
+          name="columnChooserButton"
+        />
+      </DxToolbar>
     </DxDataGrid>
   </div>
 </template>
@@ -47,7 +53,9 @@ import {
   DxPager,
   DxExport,
   DxPaging,
-  DxFilterRow
+  DxFilterRow,
+  DxToolbar,
+  DxItem
 } from 'devextreme-vue/data-grid'
 
 import 'devextreme/dist/css/dx.light.css'
@@ -59,7 +67,9 @@ export default {
     DxExport,
     DxPager,
     DxPaging,
-    DxFilterRow
+    DxFilterRow,
+    DxToolbar,
+    DxItem
   },
   props: {
     dataSource: undefined,
@@ -81,18 +91,29 @@ export default {
         dataField: 'pc1',
         dataType: 'number',
         visibleIndex: 0,
-        width: '80'
+        format: { type: 'fixedPoint', precision: 2 },
+        width: '60'
       }, {
         dataField: 'pc2',
         dataType: 'number',
         visibleIndex: 0,
-        width: '80'
+        format: { type: 'fixedPoint', precision: 2 },
+        width: '60'
       }]
     }
   },
   computed: {
     dataGrid: function () {
       return this.$refs[this.dataGridRefName].instance
+    },
+    refreshButtonOptions () {
+      return {
+        icon: 'pulldown',
+        text: 'Reset table',
+        onClick: () => {
+          this.dataGrid.clearSelection()
+        }
+      }
     }
   },
   watch: {
@@ -109,10 +130,6 @@ export default {
     this.getCommonfield()
   },
   methods: {
-    clearSels () {
-      const dataGrid = this.$refs[this.dataGridRefName].instance
-      dataGrid.clearSelection()
-    },
     async getCommonfield () {
       const response = await axios.get(`${process.env.VUE_APP_API_HOST}/colnames`)
       const commonField = response.data
