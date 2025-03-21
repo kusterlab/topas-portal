@@ -58,19 +58,9 @@
             >
               <v-card flat>
                 <v-card-text>
-                  <v-btn
-                    class="ma-2"
-                    color="primary"
-                    @click="downloadReports"
-                  >
-                    <v-icon
-                      dark
-                    >
-                      mdi-cloud-download
-                    </v-icon>
-                  </v-btn>
-                  <patient-table
+                  <patient-report-table
                     :data-source="patientData"
+                    :patient-report-url="patientReportUrl"
                     @onRowSelect="updateSelectedRows"
                   />
                 </v-card-text>
@@ -374,7 +364,7 @@
 import axios from 'axios'
 import CohortSelect from './partials/CohortSelect.vue'
 import patientscoreTable from '@/components/tables/PatientscoreTable.vue'
-import PatientTable from '@/components/tables/PatientReportTable.vue'
+import PatientReportTable from '@/components/tables/PatientReportTable.vue'
 import LolipopPlot from '@/components/plots/LolipopPlot'
 import CircularbarPlot from '@/components/plots/CircularbarPlot'
 import histogram from '@/components/plots/GenericHistogram.vue'
@@ -384,7 +374,7 @@ export default {
   name: 'ReportComponent',
   components: {
     CohortSelect,
-    PatientTable,
+    PatientReportTable,
     LolipopPlot,
     histogram,
     CircularbarPlot,
@@ -489,6 +479,9 @@ export default {
     },
     displaylolipop () {
       return this.type === 'lolipop'
+    },
+    patientReportUrl () {
+      return `${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/patient_reports`
     }
   },
   watch: {
@@ -557,31 +550,6 @@ export default {
       const downloadmethod = this.openReport ? 'fromreport' : 'onfly'
       this.patientscoresDataurl = `${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/patient_report/${this.firstPatient}/${this.scoreType}/${downloadmethod}`
       // this.patientscoresData = response.data
-    },
-    forceFileDownload: function (response, title) {
-      const url = window.URL.createObjectURL(new Blob([response.data]))
-      const link = document.createElement('a')
-      link.href = url
-      link.setAttribute('download', title)
-      document.body.appendChild(link)
-      link.click()
-    },
-    downloadReports: function () {
-      const patientIdentifiers = this.selectedData.map(item => 'pat_' + item['Sample name'])
-      let outputFilename = ''
-      if (patientIdentifiers.length === 0) {
-        return
-      }
-      if (patientIdentifiers.length === 1) {
-        outputFilename = patientIdentifiers[0] + '_patient_report.xlsx'
-      } else {
-        outputFilename = 'patient_reports.zip'
-      }
-      axios.get(`${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/patient_reports/${patientIdentifiers.join(';')}`, { responseType: 'arraybuffer' })
-        .then((response) => {
-          this.forceFileDownload(response, outputFilename)
-        })
-        .catch(() => console.log('error occured'))
     },
     async updateSelectedRows (selectedIds, selectedData) {
       this.selectedData = selectedData

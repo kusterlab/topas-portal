@@ -36,6 +36,14 @@
           :options="refreshButtonOptions"
         />
         <DxItem
+          location="before"
+          locateInMenu="auto"
+          showText="always"
+          widget="dxButton"
+          :disabled="patientReportUrl.length === 0"
+          :options="downloadReportsButtonOptions"
+        />
+        <DxItem
           name="exportButton"
         />
         <DxItem
@@ -74,6 +82,10 @@ export default {
     selectedPatient: {
       type: String,
       default: null
+    },
+    patientReportUrl: {
+      type: String,
+      default: null
     }
   },
   data () {
@@ -97,8 +109,17 @@ export default {
         icon: 'pulldown',
         text: 'Reset table',
         onClick: () => {
-          this.filterBySamplename(null)
+          this.dataGrid.clearFilter()
           this.dataGrid.clearSelection()
+        }
+      }
+    },
+    downloadReportsButtonOptions () {
+      return {
+        icon: 'download',
+        text: 'Download report(s)',
+        onClick: () => {
+          this.downloadReports()
         }
       }
     }
@@ -133,6 +154,32 @@ export default {
     },
     onSelectionChanged: function (e) {
       this.$emit('onRowSelect', e.selectedRowKeys, e.selectedRowsData)
+    },
+    forceFileDownload: function (response, title) {
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', title)
+      document.body.appendChild(link)
+      link.click()
+    },
+    downloadReports: function () {
+      console.log(this.dataGrid.getSelectedRowsData())
+      const patientIdentifiers = this.dataGrid.getSelectedRowsData().map(item => 'pat_' + item['Sample name'])
+      let outputFilename = ''
+      if (patientIdentifiers.length === 0) {
+        return
+      }
+      if (patientIdentifiers.length === 1) {
+        outputFilename = patientIdentifiers[0] + '_patient_report.xlsx'
+      } else {
+        outputFilename = 'patient_reports.zip'
+      }
+      axios.get(`${this.patientReportUrl}/${patientIdentifiers.join(';')}`, { responseType: 'arraybuffer' })
+        .then((response) => {
+          this.forceFileDownload(response, outputFilename)
+        })
+        .catch(() => console.log('error occured'))
     }
   }
 }

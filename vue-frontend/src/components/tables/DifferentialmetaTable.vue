@@ -146,6 +146,7 @@ export default {
         icon: 'pulldown',
         text: 'Reset table',
         onClick: () => {
+          this.dataGrid.clearFilter()
           this.dataGrid.clearSelection()
         }
       }

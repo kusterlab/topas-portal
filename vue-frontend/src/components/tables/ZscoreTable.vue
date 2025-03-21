@@ -116,6 +116,7 @@ export default {
         text: 'Reset table',
         onClick: () => {
           this.filterBySamplename(null)
+          this.dataGrid.clearFilter()
           this.dataGrid.clearSelection()
         }
       }
