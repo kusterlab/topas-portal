@@ -192,6 +192,8 @@ def get_patient_reports_as_attachment(cohort_index: int, patients: str):
 
     if len(patients) == 1:
         path_to_patient_results = get_patient_report_path(patients[0])
+        if not os.path.exists(path_to_patient_results):
+            return f"Unable to download report for {patients[0]}", 400
         shutil.copy(path_to_patient_results, app.config["UPLOAD_FOLDER"])
         return send_from_directory(
             app.config["UPLOAD_FOLDER"],
@@ -199,12 +201,18 @@ def get_patient_reports_as_attachment(cohort_index: int, patients: str):
             as_attachment=True,
         )
     elif len(patients) > 1:
+        paths_to_patient_results = []
+        for patient in patients:
+            path_to_patient_results = get_patient_report_path(patient)
+            if not os.path.exists(path_to_patient_results):
+                return f"Unable to download report for {patient}", 400
+            paths_to_patient_results.append(path_to_patient_results)
+
         output_zipfile = os.path.join(
             app.config["UPLOAD_FOLDER"], "patient_reports.zip"
         )
         with zipfile.ZipFile(output_zipfile, "w") as zipFile:
-            for patient in patients:
-                path_to_patient_results = get_patient_report_path(patient)
+            for path_to_patient_results in paths_to_patient_results:
                 zipFile.write(
                     path_to_patient_results,
                     Path(path_to_patient_results).name,

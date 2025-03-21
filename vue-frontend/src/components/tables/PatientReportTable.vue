@@ -1,5 +1,8 @@
 <template>
   <div>
+    <v-snackbar v-model="snackbar" :timeout="3000" color="error">
+      {{ errorMessage }}
+    </v-snackbar>
     <DxDataGrid
       :ref="dataGridRefName"
       :data-source="dataSource"
@@ -97,7 +100,9 @@ export default {
         dataType: 'string',
         visibleIndex: 0,
         width: '170'
-      }]
+      }],
+      snackbar: false,
+      errorMessage: ''
     }
   },
   computed: {
@@ -164,10 +169,11 @@ export default {
       link.click()
     },
     downloadReports: function () {
-      console.log(this.dataGrid.getSelectedRowsData())
       const patientIdentifiers = this.dataGrid.getSelectedRowsData().map(item => 'pat_' + item['Sample name'])
       let outputFilename = ''
       if (patientIdentifiers.length === 0) {
+        this.errorMessage = 'Error: please select one or more patients'
+        this.snackbar = true
         return
       }
       if (patientIdentifiers.length === 1) {
@@ -179,7 +185,11 @@ export default {
         .then((response) => {
           this.forceFileDownload(response, outputFilename)
         })
-        .catch(() => console.log('error occured'))
+        .catch((e) => {
+          var enc = new TextDecoder()
+          this.errorMessage = 'Error: ' + enc.decode(e.response.data)
+          this.snackbar = true
+        })
     }
   }
 }
