@@ -10,7 +10,7 @@
       :allow-column-reordering="true"
       :allow-column-resizing="true"
       :row-alternation-enabled="true"
-      :selection="{ mode: 'multiple', allowSelectAll: false}"
+      :selection="{ mode: 'multiple', allowSelectAll: true }"
       :show-borders="true"
       column-resizing-mode="widget"
       :columns="tupacFields"

@@ -14,7 +14,7 @@
       :columns="expressionFields"
       :allow-column-resizing="true"
       :allow-column-reordering="true"
-      :selection="{ mode: 'multiple', allowSelectAll: false }"
+      :selection="{ mode: 'multiple', allowSelectAll: true }"
       :show-borders="true"
       :scrolling="{ useNative: true }"
       :column-chooser="{ enabled: 'true', mode: 'select' }"
