@@ -1,12 +1,5 @@
 <template>
   <div>
-    <v-snackbar
-      v-model="snackbar"
-      :timeout="3000"
-      color="error"
-    >
-      {{ errorMessage }}
-    </v-snackbar>
     <v-tabs
       show-arrows
     >
@@ -47,11 +40,10 @@
 
 <script>
 import axios from 'axios'
+import { mapMutations } from 'vuex'
 
 export default {
   data: () => ({
-    snackbar: false,
-    errorMessage: '',
     imagesrc: require('@/assets/topas_logo.png'),
     items: [
       { label: 'Topas Scores', path: '/topasscores' },
@@ -68,13 +60,18 @@ export default {
     this.getEntityscoresstatus()
   },
   methods: {
+    ...mapMutations({
+      addNotification: 'notifications/addNotification'
+    }),
     async getEntityscoresstatus () {
       try {
         const response = await axios.get(`${process.env.VUE_APP_API_HOST}/entityscore/status`)
         this.customitemsStatus = response.data === 1
       } catch (error) {
-        this.errorMessage = 'Error: No connection to backend'
-        this.snackbar = true
+        this.addNotification({
+          color: 'error',
+          message: 'Error: No connection to backend'
+        })
       }
     }
   }

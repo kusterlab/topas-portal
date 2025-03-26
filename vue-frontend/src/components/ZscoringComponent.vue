@@ -1,12 +1,5 @@
 <template>
   <v-app>
-    <v-snackbar
-      v-model="snackbar"
-      :timeout="3000"
-      color="error"
-    >
-      {{ errorMessage }}
-    </v-snackbar>
     <explorer-component />
     <v-row class="pa-4 grey lighten-3">
       <v-col
@@ -184,6 +177,8 @@
 
 <script>
 import axios from 'axios'
+import { mapMutations } from 'vuex'
+
 import CohortSelect from './partials/CohortSelect.vue'
 import SwarmPlot from '@/components/plots/SwarmPlot'
 import proteinSelect from './partials/ProteinSelect.vue'
@@ -218,8 +213,6 @@ export default {
   },
   data: () => ({
     cohortIndex: 0,
-    snackbar: false,
-    errorMessage: '',
     firstPatient: '',
     identifier: '',
     loading: false,
@@ -262,6 +255,9 @@ export default {
   watch: {
   },
   methods: {
+    ...mapMutations({
+      addNotification: 'notifications/addNotification'
+    }),
     updateCohort ({ dataSource, cohortIndex }) {
       this.cohortIndex = cohortIndex
     },
@@ -304,13 +300,17 @@ export default {
     async getData () {
       try {
         if (this.identifier.length === 0) {
-          this.errorMessage = 'Please select a protein/p-peptide in the left menu.'
-          this.snackbar = true
+          this.addNotification({
+            color: 'warning',
+            message: 'Please select a protein/p-peptide in the left menu.'
+          })
           return
         }
         if (this.customGroup.length === 0) {
-          this.errorMessage = 'Please select samples for your subcohort in the left menu.'
-          this.snackbar = true
+          this.addNotification({
+            color: 'warning',
+            message: 'Please select samples for your subcohort in the left menu.'
+          })
           return
         }
         this.loading = true
@@ -319,8 +319,10 @@ export default {
         this.componentKey = this.componentKey + 1
         this.swarmPlotData = response.data
       } catch (error) {
-        this.errorMessage = `Error while loading cohort data: ${error.response.data}`
-        this.snackbar = true
+        this.addNotification({
+          color: 'error',
+          message: `Error while loading cohort data: ${error.response.data}`
+        })
       }
       this.loading = false
     }

@@ -1,12 +1,5 @@
 <template>
   <v-row class="pa-4 grey lighten-3">
-    <v-snackbar
-      v-model="snackbar"
-      :timeout="3000"
-      color="error"
-    >
-      {{ errorMessage }}
-    </v-snackbar>
     <v-col
       sm="12"
       md="2"
@@ -190,6 +183,8 @@
 
 <script>
 import axios from 'axios'
+import { mapMutations } from 'vuex'
+
 import CohortSelect from './partials/CohortSelect.vue'
 import PatientSelectTable from './tables/DifferentialmetaTable.vue'
 import ScatterPlot from './plots/ScatterPlot.vue'
@@ -219,8 +214,6 @@ export default {
   },
   data: () => ({
     cohortIndex: 0,
-    snackbar: false,
-    errorMessage: '',
     proteinsInterest: proteinTypes.PROTEINLIST,
     allProteinnTypes: proteinTypes.CATEGORY,
     proteinType: 'None',
@@ -285,6 +278,9 @@ export default {
 
   },
   methods: {
+    ...mapMutations({
+      addNotification: 'notifications/addNotification'
+    }),
     updateCohort ({ dataSource, cohortIndex }) {
       this.cohortIndex = cohortIndex
     },
@@ -305,8 +301,10 @@ export default {
         this.statisticData = response.data
         this.loading = false
       } catch (error) {
-        this.errorMessage = `Error: in performing t-test ${error}`
-        this.snackbar = true
+        this.addNotification({
+          color: 'error',
+          message: `Error: in performing t-test ${error}`
+        })
         this.loading = false
       }
     },

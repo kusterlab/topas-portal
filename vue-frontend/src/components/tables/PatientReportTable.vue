@@ -1,12 +1,5 @@
 <template>
   <div>
-    <v-snackbar
-      v-model="snackbar"
-      :timeout="3000"
-      color="error"
-    >
-      {{ errorMessage }}
-    </v-snackbar>
     <DxDataGrid
       :ref="dataGridRefName"
       :data-source="dataSource"
@@ -60,8 +53,8 @@
     </DxDataGrid>
   </div>
 </template>
-<script>
 
+<script>
 import {
   DxDataGrid,
   DxPager,
@@ -74,6 +67,8 @@ import {
 
 import 'devextreme/dist/css/dx.light.css'
 import axios from 'axios'
+import { mapMutations } from 'vuex'
+
 export default {
   components: {
     DxDataGrid,
@@ -104,9 +99,7 @@ export default {
         dataType: 'string',
         visibleIndex: 0,
         width: '170'
-      }],
-      snackbar: false,
-      errorMessage: ''
+      }]
     }
   },
   computed: {
@@ -142,6 +135,9 @@ export default {
     this.getCommonfield()
   },
   methods: {
+    ...mapMutations({
+      addNotification: 'notifications/addNotification'
+    }),
     async getCommonfield () {
       const response = await axios.get(`${process.env.VUE_APP_API_HOST}/colnames`)
       const commonField = response.data
@@ -176,8 +172,10 @@ export default {
       const patientIdentifiers = this.dataGrid.getSelectedRowsData().map(item => 'pat_' + item['Sample name'])
       let outputFilename = ''
       if (patientIdentifiers.length === 0) {
-        this.errorMessage = 'Error: please select one or more patients'
-        this.snackbar = true
+        this.addNotification({
+          color: 'error',
+          message: 'Error: please select one or more patients'
+        })
         return
       }
       if (patientIdentifiers.length === 1) {
@@ -191,8 +189,10 @@ export default {
         })
         .catch((e) => {
           const enc = new TextDecoder()
-          this.errorMessage = 'Error: ' + enc.decode(e.response.data)
-          this.snackbar = true
+          this.addNotification({
+            color: 'error',
+            message: 'Error: ' + enc.decode(e.response.data)
+          })
         })
     }
   }
