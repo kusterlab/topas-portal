@@ -22,7 +22,7 @@
               :cohort-index="cohortIndex"
               :show-table-select="true"
               :sample-ids="customGroup"
-              @update-field="updateSampleGroup"
+              @update-group="updateSampleGroup"
               @update-selection-method="updateSelectionMethodGroup"
             />
           </v-card-text>
@@ -124,6 +124,7 @@
               >
                 <patient-select-table
                   :cohort-index="cohortIndex"
+                  @onRowSelect="updateSelectedSamples"
                 />
               </v-col>
             </v-row>
@@ -142,7 +143,7 @@
               <v-card-text>
                 <zscore-table
                   :ref="componentKey"
-                  :data-source="plotData"
+                  :data-source="zscoreTableUrl"
                   @onRowSelect="updateSelectedRows"
                 />
               </v-card-text>
@@ -153,7 +154,19 @@
               lg="6"
             >
               <v-card flat>
-                <multi-group-plot
+                <swarm-plot
+                  v-if="swarmPlotData.length>0"
+                  :swarm-data="swarmPlotData"
+                  swarm-id="singleGene"
+                  :swarm-sel-ids="swarmSelIds"
+                  :swarm-title="identifier"
+                  swarm-title-prefix="z-score"
+                  field-name="Sample name"
+                  :draw-box-plot="true"
+                  field-values="subcohort_zscore"
+                  @onDotClick="selectDot"
+                />
+                <!-- <multi-group-plot
                   i-d="zscorePlot"
                   field-x="data_type"
                   field-y="zscores"
@@ -161,7 +174,7 @@
                   :plot-data="plotData"
                   :selected-patients="multiGroupPlotSelectedPatients"
                   :selected-color="multiGroupPlotSelectedColor"
-                />
+                /> -->
               </v-card>
             </v-col>
           </v-row>
@@ -174,7 +187,8 @@
 <script>
 import axios from 'axios'
 import CohortSelect from './partials/CohortSelect.vue'
-import multiGroupPlot from '@/components/plots/MultiGroupPlot'
+// import multiGroupPlot from '@/components/plots/MultiGroupPlot'
+import SwarmPlot from '@/components/plots/SwarmPlot'
 import proteinSelect from './partials/ProteinSelect.vue'
 import SampleSelect from './partials/SampleSelect.vue'
 import ZscoreTable from './tables/ZscoreTable.vue'
@@ -186,7 +200,8 @@ import explorerComponent from './partials/scoresComponent.vue'
 export default {
   name: 'ZscoreComponent',
   components: {
-    multiGroupPlot,
+    // multiGroupPlot,
+    SwarmPlot,
     CohortSelect,
     ZscoreTable,
     PatientSelectTable,
@@ -214,10 +229,11 @@ export default {
     fixedDomain: false,
     customGroup: [],
     selectionMethod: '',
-    plotData: [],
+    zscoreTableUrl: '',
+    swarmPlotData: [],
+    swarmSelIds: [],
+    selectedDotsInPlot: [],
     componentKey: 0,
-    activeMeta: 'index',
-    multiGroupPlotSelectedPatients: [],
     multiGroupPlotSelectedColor: 'red',
     allInputDataTypes: [
       {
@@ -254,35 +270,46 @@ export default {
     updateProtein ({ dataSource, identifier }) {
       this.identifier = identifier
     },
-    updateSampleGroup (filedsInterest) {
-      this.customGroup = filedsInterest
-      console.log(this.customGroup)
+    updateSampleGroup (selectedPatients) {
+      this.customGroup = selectedPatients
     },
     updateBasket ({ dataSource, identifier }) {
       this.identifier = identifier
+    },
+    selectDot (value) {
+      this.selectedDotsInPlot = value
+    },
+    async updateSelectedSamples (selectedIds, selectedData) {
+      const selectedPatients = []
+      selectedData.forEach(element => {
+        selectedPatients.push(element['Sample name'])
+      })
+      this.customGroup = selectedPatients
+      this.getData()
     },
     updateSelectionMethodGroup (selectionMethod) {
       this.selectionMethod = selectionMethod
     },
     async updateSelectedRows (selectedIds, selectedData) {
-      const SelIds = []
-      this.multiGroupPlotSelectedPatients = []
+      const selIds = []
+      this.swarmSelIds = []
       if (selectedData.length > 0) {
         selectedData.forEach((rowData) => {
           this.multiGroupPlotSelectedColor = 'red'
-          SelIds.push(rowData['Sample name']) // selected indices on the swarm plot
+          selIds.push(rowData.index) // selected indices on the swarm plot
         })
       } else {
-        this.multiGroupPlotSelectedPatients = null
+        this.swarmSelIds = null
       }
-      this.multiGroupPlotSelectedPatients = SelIds
+      this.swarmSelIds = selIds
     },
     async getData () {
       try {
         this.loading = true
-        const response = await axios.get(`${process.env.VUE_APP_API_HOST}/zscore/${this.mode}/${this.cohortIndex}/${this.identifier}/${this.customGroup}/${this.activeMeta}`)
+        this.zscoreTableUrl = `${process.env.VUE_APP_API_HOST}/zscore/${this.mode}/${this.cohortIndex}/${this.identifier}/${this.customGroup}`
+        const response = await axios.get(this.zscoreTableUrl)
         this.componentKey = this.componentKey + 1
-        this.plotData = response.data
+        this.swarmPlotData = response.data
       } catch (error) {
         alert(`Error while loading cohort data: ${error.response.data}`)
       }

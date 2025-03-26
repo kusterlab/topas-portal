@@ -9,6 +9,7 @@
       :row-alternation-enabled="true"
       :selection="{ mode: 'multiple', allowSelectAll: true}"
       :show-borders="true"
+      :scrolling="{ useNative: true }"
       column-resizing-mode="widget"
       :columns="customFields"
       :column-chooser="{ enabled: 'true', mode: 'select' }"
@@ -30,8 +31,8 @@
       <DxToolbar>
         <DxItem
           location="before"
-          locateInMenu="auto"
-          showText="always"
+          locate-in-menu="auto"
+          show-text="always"
           widget="dxButton"
           :options="refreshButtonOptions"
         />
@@ -80,29 +81,23 @@ export default {
     return {
       pageSizes: [10, 25, 50, 100],
       dataGridRefName: 'dataGrid',
-      commonFields: undefined,
-      customFields: [{
-        dataField: 'Sample name',
-        dataType: 'string',
-        visibleIndex: 0,
-        width: '170'
-      }, {
-
-        dataField: 'zscores',
-        dataType: 'number',
-        format: { type: 'fixedPoint', precision: 2 },
-        width: '100'
-      }, {
-
-        dataField: 'data_type',
-        dataType: 'string',
-        width: '120'
-      }, {
-
-        dataField: 'meta_column',
-        dataType: 'string',
-        width: '120'
-      }
+      customFields: [
+        {
+          dataField: 'Sample name',
+          dataType: 'string',
+          visibleIndex: 0,
+          width: '170'
+        }, {
+          dataField: 'subcohort_zscore',
+          dataType: 'number',
+          format: { type: 'fixedPoint', precision: 2 },
+          width: '100'
+        }, {
+          dataField: 'full_cohort_zscore',
+          dataType: 'number',
+          format: { type: 'fixedPoint', precision: 2 },
+          width: '100'
+        }
       ]
     }
   },
@@ -139,6 +134,7 @@ export default {
           element.visible = false
         }
       })
+      this.customFields = [...this.customFields, ...commonField]
     },
     filterBySamplename (sample) {
       if (sample !== null) {
