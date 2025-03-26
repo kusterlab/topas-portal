@@ -188,7 +188,11 @@
           </v-row>
         </v-card-text>
       </v-card>
-      <v-card flat class="mt-4" v-if="silData.length > 0">
+      <v-card
+        v-if="silData.length > 0"
+        flat
+        class="mt-4"
+      >
         <v-card-text>
           <v-row>
             <v-col

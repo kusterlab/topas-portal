@@ -170,7 +170,7 @@ def get_patient_report_table(
 
 
 @cache.cached(timeout=50)
-@app.route("/<cohort_index>/patient_reports/<patients>")
+@app.route("/<int:cohort_index>/patient_reports/<patients>")
 # http://localhost:3832/0/patient_reports/I007-031-108742
 def get_patient_reports_as_attachment(cohort_index: int, patients: str):
     """Returns patient report excel files. For multiple reports, a zip file is returned.

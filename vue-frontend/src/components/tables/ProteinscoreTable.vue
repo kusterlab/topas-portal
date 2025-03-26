@@ -29,8 +29,8 @@
       <DxToolbar>
         <DxItem
           location="before"
-          locateInMenu="auto"
-          showText="always"
+          locate-in-menu="auto"
+          show-text="always"
           widget="dxButton"
           :options="refreshButtonOptions"
         />
@@ -99,9 +99,6 @@ export default {
       }]
     }
   },
-  created () {
-    this.getCommonfield()
-  },
   computed: {
     refreshButtonOptions () {
       return {
@@ -112,6 +109,9 @@ export default {
         }
       }
     }
+  },
+  created () {
+    this.getCommonfield()
   },
   methods: {
     async getCommonfield () {

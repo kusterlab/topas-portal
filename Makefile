@@ -25,7 +25,7 @@ serve:
 	cd vue-frontend && npm install && npm run serve
 
 lint:
-	cd vue-frontend && npx eslint "./**" --fix
+	cd vue-frontend && npx eslint "./**" --fix --ignore-pattern Dockerfile
 
 unittest:
 	python3 -m  pytest

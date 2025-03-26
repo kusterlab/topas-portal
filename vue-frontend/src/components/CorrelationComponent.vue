@@ -428,8 +428,6 @@ export default {
         response.data.forEach(element => { element.yValue = element[this.plotScoreType] })
         const expressions = response.data.filter(d => d['Z-score'] !== 'n.d.')
         if (identifierNumber === 1) {
-          console.log('writing the response data1')
-          console.log(response.data)
           this.expressionData1 = []
           this.expressionData1 = expressions
           this.expressionPlusMeta1 = response.data

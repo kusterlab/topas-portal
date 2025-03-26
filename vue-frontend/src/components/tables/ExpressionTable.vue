@@ -36,8 +36,8 @@
       <DxToolbar>
         <DxItem
           location="before"
-          locateInMenu="auto"
-          showText="always"
+          locate-in-menu="auto"
+          show-text="always"
           widget="dxButton"
           :options="refreshButtonOptions"
         />

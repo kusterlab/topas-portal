@@ -1,6 +1,10 @@
 <template>
   <div>
-    <v-snackbar v-model="snackbar" :timeout="3000" color="error">
+    <v-snackbar
+      v-model="snackbar"
+      :timeout="3000"
+      color="error"
+    >
       {{ errorMessage }}
     </v-snackbar>
     <DxDataGrid
@@ -33,15 +37,15 @@
       <DxToolbar>
         <DxItem
           location="before"
-          locateInMenu="auto"
-          showText="always"
+          locate-in-menu="auto"
+          show-text="always"
           widget="dxButton"
           :options="refreshButtonOptions"
         />
         <DxItem
           location="before"
-          locateInMenu="auto"
-          showText="always"
+          locate-in-menu="auto"
+          show-text="always"
           widget="dxButton"
           :disabled="patientReportUrl.length === 0"
           :options="downloadReportsButtonOptions"
@@ -186,7 +190,7 @@ export default {
           this.forceFileDownload(response, outputFilename)
         })
         .catch((e) => {
-          var enc = new TextDecoder()
+          const enc = new TextDecoder()
           this.errorMessage = 'Error: ' + enc.decode(e.response.data)
           this.snackbar = true
         })

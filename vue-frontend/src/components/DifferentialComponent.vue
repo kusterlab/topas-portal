@@ -290,8 +290,6 @@ export default {
         if (this.secondGroup) { // the second group will be all other patients
           grp2 = 'index'
         }
-        console.log(`This the first group: ${grp1}`)
-        console.log(`This is the second group: ${grp2}`)
 
         const modality = this.modality
         const response = await axios.get(`${process.env.VUE_APP_API_HOST}/differential/${this.cohortIndex}/${modality}/${grp1}/${grp2}/${yAxistype}`)
@@ -336,7 +334,6 @@ export default {
         selectedPvalues.push(element.sampleId)
       })
       this.selectedPvalues = selectedPvalues
-      console.log(this.selectedPvalues)
     },
 
     updatemetaSelectedRows1 (selectedIds, selectedData) {

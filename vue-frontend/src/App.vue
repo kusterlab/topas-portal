@@ -37,8 +37,7 @@ export default {
       fetchAllDiseases: 'fetchAllDiseases'
     }),
     async loaderChange () {
-      const response = await axios.get(`${process.env.VUE_APP_API_HOST}/reload`)
-      console.log(response)
+      await axios.get(`${process.env.VUE_APP_API_HOST}/reload`)
     }
   }
 }

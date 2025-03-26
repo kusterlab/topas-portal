@@ -180,7 +180,6 @@ export default {
   },
   watch: {
     cohortIndex () {
-      console.log('hello')
       this.updateplotaDataphospho()
     }
   },
