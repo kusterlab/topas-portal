@@ -1,5 +1,12 @@
 <template>
   <v-row class="pa-4 grey lighten-3">
+    <v-snackbar
+      v-model="snackbar"
+      :timeout="3000"
+      color="error"
+    >
+      {{ errorMessage }}
+    </v-snackbar>
     <v-col
       sm="12"
       md="2"
@@ -212,6 +219,8 @@ export default {
   },
   data: () => ({
     cohortIndex: 0,
+    snackbar: false,
+    errorMessage: '',
     proteinsInterest: proteinTypes.PROTEINLIST,
     allProteinnTypes: proteinTypes.CATEGORY,
     proteinType: 'None',
@@ -296,9 +305,9 @@ export default {
         this.statisticData = response.data
         this.loading = false
       } catch (error) {
-        alert(`Error: in Performing t_test,${error}`)
+        this.errorMessage = `Error: in performing t-test ${error}`
+        this.snackbar = true
         this.loading = false
-        console.error(error)
       }
     },
 

@@ -1,5 +1,12 @@
 <template>
   <v-app>
+    <v-snackbar
+      v-model="snackbar"
+      :timeout="3000"
+      color="error"
+    >
+      {{ errorMessage }}
+    </v-snackbar>
     <explorer-component />
     <v-row class="pa-4 grey lighten-3">
       <v-col
@@ -166,15 +173,6 @@
                   field-values="subcohort_zscore"
                   @onDotClick="selectDot"
                 />
-                <!-- <multi-group-plot
-                  i-d="zscorePlot"
-                  field-x="data_type"
-                  field-y="zscores"
-                  title="Sample name"
-                  :plot-data="plotData"
-                  :selected-patients="multiGroupPlotSelectedPatients"
-                  :selected-color="multiGroupPlotSelectedColor"
-                /> -->
               </v-card>
             </v-col>
           </v-row>
@@ -187,7 +185,6 @@
 <script>
 import axios from 'axios'
 import CohortSelect from './partials/CohortSelect.vue'
-// import multiGroupPlot from '@/components/plots/MultiGroupPlot'
 import SwarmPlot from '@/components/plots/SwarmPlot'
 import proteinSelect from './partials/ProteinSelect.vue'
 import SampleSelect from './partials/SampleSelect.vue'
@@ -200,7 +197,6 @@ import explorerComponent from './partials/scoresComponent.vue'
 export default {
   name: 'ZscoreComponent',
   components: {
-    // multiGroupPlot,
     SwarmPlot,
     CohortSelect,
     ZscoreTable,
@@ -222,6 +218,8 @@ export default {
   },
   data: () => ({
     cohortIndex: 0,
+    snackbar: false,
+    errorMessage: '',
     firstPatient: '',
     identifier: '',
     loading: false,
@@ -305,13 +303,24 @@ export default {
     },
     async getData () {
       try {
+        if (this.identifier.length === 0) {
+          this.errorMessage = 'Please select a protein/p-peptide in the left menu.'
+          this.snackbar = true
+          return
+        }
+        if (this.customGroup.length === 0) {
+          this.errorMessage = 'Please select samples for your subcohort in the left menu.'
+          this.snackbar = true
+          return
+        }
         this.loading = true
         this.zscoreTableUrl = `${process.env.VUE_APP_API_HOST}/zscore/${this.mode}/${this.cohortIndex}/${this.identifier}/${this.customGroup}`
         const response = await axios.get(this.zscoreTableUrl)
         this.componentKey = this.componentKey + 1
         this.swarmPlotData = response.data
       } catch (error) {
-        alert(`Error while loading cohort data: ${error.response.data}`)
+        this.errorMessage = `Error while loading cohort data: ${error.response.data}`
+        this.snackbar = true
       }
       this.loading = false
     }

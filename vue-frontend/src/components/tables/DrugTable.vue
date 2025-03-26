@@ -121,7 +121,6 @@ export default {
       const allBarData = {}
       allBarData.plotData = plotData
       allBarData.maximum = maxim
-      console.log(allBarData.plotData)
       this.$emit('getGenes', allBarData)
     },
 

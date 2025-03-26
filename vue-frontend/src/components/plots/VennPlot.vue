@@ -252,8 +252,6 @@ export default {
         .on('click', function (event, d) {
           venn.sortAreas(div, d)
           // highlight the current path
-          console.log(event)
-          // console.log(selGrp)
           const selection = d3.select(this).transition('tooltip').duration(400)
           that.selectedBatch = selection._groups[0][0].__data__.sets
           that.selectedProteins = []

@@ -93,7 +93,6 @@ export default {
         .attr('transform',
           'translate(' + margin.left + ',' + margin.top + ')')
       const data = this.plotData
-      console.log(data)
       // add the x Axis
       const x = d3.scaleLinear()
         .domain([-10, 15])

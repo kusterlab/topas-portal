@@ -141,6 +141,9 @@ export default {
       }
       return `${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/patients/genomics_annotations/${this.genomicAlterationsGene}`
     },
+    dataGrid: function () {
+      return this.$refs[this.dataGridRefName].instance
+    },
     refreshButtonOptions () {
       return {
         icon: 'pulldown',

@@ -154,14 +154,12 @@ export default {
     },
 
     changetheseSamplescolors () {
-      console.log(this.qcSelIds)
       if (this.qcSelIds.length > 0) {
         this.qcSelIds.forEach(element => {
           this.finalPlotData[element].colorCodes = this.colorCode.hex
           this.finalPlotData[element].MetaData = this.patientGroup
           this.finalPlotData[element].rSize = 50
         })
-        console.log(this.finalPlotData)
         // this.finalPlotData = this.finalPlotData.sort((p1, p2) => (p1.colorCodes=='lightgrey' & p2.colorCodes!='lightgrey') ? -1 : (p1.colorCodes!='lightgrey' & p2.colorCodes=='lightgrey') ? 1 : 0);
       }
       this.plotQc(false)

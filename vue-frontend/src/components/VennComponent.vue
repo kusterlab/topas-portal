@@ -194,7 +194,6 @@ export default {
     },
     async getvennData () {
       this.loading = true
-      console.log(this.activeBatches)
       let querY = this.activeBatches[0]
       for (let i = 1; i < this.activeBatches.length; i++) {
         querY = querY + ';' + this.activeBatches[i]
