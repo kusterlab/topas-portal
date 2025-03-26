@@ -233,6 +233,8 @@
 
 <script>
 import axios from 'axios'
+import { mapMutations } from 'vuex'
+
 import QcTable from '@/components/tables/QCTable'
 import silhouetteTable from '@/components/tables/silhouetteTable'
 import QcPlot from '@/components/plots/QCPlot.vue'
@@ -337,6 +339,9 @@ export default {
   },
 
   methods: {
+    ...mapMutations({
+      addNotification: 'notifications/addNotification'
+    }),
     updateCohort ({ dataSource, cohortIndex }) {
       this.cohortIndex = cohortIndex
     },
@@ -354,7 +359,10 @@ export default {
           const silInputType = this.silhouetteInputType
           this.allorSelectedgenes = 'all' // running with all genes
           if (this.geneSubsetActive && this.file !== null) {
-            console.log('Submitting file for upload...')
+            this.addNotification({
+              color: 'info',
+              message: 'Submitting file for upload...'
+            })
             const formData = new FormData()
             formData.append('file', this.file)
             const response = await axios.post(`${process.env.VUE_APP_API_HOST}/uploadGenes`, formData, {
@@ -363,7 +371,10 @@ export default {
               },
               timeout: 5000
             })
-            console.log(response)
+            this.addNotification({
+              color: 'info',
+              message: `${response}`
+            })
             this.allorSelectedgenes = 'selected' // running with selected genes
           }
           const customGroup = this.customGroup.length === 0 ? 'all' : this.customGroup
@@ -373,10 +384,16 @@ export default {
           this.silData = response.data
           this.silData.length > 0 ? this.showPlot = true : this.showPlot = false
         } else {
-          alert('"Sample" cannot be used as meta data type for silhouette scores.')
+          this.addNotification({
+            color: 'warning',
+            message: '"Sample" cannot be used as meta data type for silhouette scores.'
+          })
         }
       } catch (error) {
-        alert(error)
+        this.addNotification({
+          color: 'error',
+          message: `${error}`
+        })
       }
       this.loading = false
     },
@@ -392,7 +409,10 @@ export default {
     async updatePCA () {
       this.allorSelectedgenes = 'all' // running with all genes
       if (this.geneSubsetActive && this.file !== null) {
-        console.log('Submitting file for upload...')
+        this.addNotification({
+          color: 'info',
+          message: 'Submitting file for upload...'
+        })
         const formData = new FormData()
         formData.append('file', this.file)
         const response = await axios.post(`${process.env.VUE_APP_API_HOST}/uploadGenes`, formData, {
@@ -401,7 +421,10 @@ export default {
           },
           timeout: 5000
         })
-        console.log(response)
+        this.addNotification({
+          color: 'info',
+          message: `${response}`
+        })
         this.allorSelectedgenes = 'selected' // running with selected genes
       }
       this.getqcData()
@@ -432,7 +455,10 @@ export default {
         this.variance1 = response.data.pcVars[0]
         this.variance2 = response.data.pcVars[1]
       } catch (error) {
-        alert(`Error while calculating PCA: ${error.response.data}`)
+        this.addNotification({
+          color: 'error',
+          message: `Error while calculating PCA: ${error.response.data}`
+        })
       } finally {
         this.isLoading = false
       }

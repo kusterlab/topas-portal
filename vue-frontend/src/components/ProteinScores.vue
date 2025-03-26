@@ -108,6 +108,8 @@
 </template>
 <script>
 import axios from 'axios'
+import { mapMutations } from 'vuex'
+
 import CohortSelect from './partials/CohortSelect.vue'
 import proteinscoreTable from '@/components/tables/ProteinscoreTable.vue'
 import SwarmPlot from '@/components/plots/SwarmPlot'
@@ -153,6 +155,9 @@ export default {
     this.swarmSelIds = []
   },
   methods: {
+    ...mapMutations({
+      addNotification: 'notifications/addNotification'
+    }),
     updateCohort ({ dataSource, cohortIndex }) {
       this.cohortIndex = cohortIndex
       this.updateProtein()
@@ -162,7 +167,10 @@ export default {
         const response = await axios.get(`${process.env.VUE_APP_API_HOST}/proteinscore/${this.cohortIndex}/patients_list`)
         this.allPatients = response.data
       } catch (error) {
-        console.log('Error geting patients list for this cohort', error)
+        this.addNotification({
+          color: 'error',
+          message: `Error: unable to load patients list for this cohort ${error}`
+        })
         this.allPatients = []
       }
     },

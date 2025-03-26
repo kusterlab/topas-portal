@@ -335,7 +335,10 @@ export default {
     updatestatsSelectedRowsstats (selectedIds, selectedData) {
       const selectedPvalues = []
       if (selectedData.length > 1000) {
-        alert('you selected more than 1000 rows to color on plot; it takes time')
+        this.addNotification({
+          color: 'warning',
+          message: 'You selected more than 1000 rows to color on the plot, this may take some time'
+        })
       }
       selectedData.forEach(element => {
         selectedPvalues.push(element.sampleId)

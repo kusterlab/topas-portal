@@ -240,7 +240,10 @@ export default {
       fetchAllDiseases: 'fetchAllDiseases'
     }),
     async reloadCohort (allCohorts = false) {
-      alert('Loading cohort data, this can take some time')
+      this.addNotification({
+        color: 'info',
+        message: 'Loading cohort data, this can take some time'
+      })
       this.showUpdateCohorts = false
       let response = ''
       try {
@@ -248,16 +251,25 @@ export default {
           response = await axios.get(`${process.env.VUE_APP_API_HOST}/drugs/load`)
           response = await axios.get(`${process.env.VUE_APP_API_HOST}/reload`)
           this.showUpdateCohorts = true
-          alert(response.data)
+          this.addNotification({
+            color: 'info',
+            message: `${response.data}`
+          })
         } else {
           const cohort = this.updateMode ? this.diseaseName : this.cohortName
           response = await axios.get(`${process.env.VUE_APP_API_HOST}/reload/${cohort}`)
-          alert(response.data)
+          this.addNotification({
+            color: 'info',
+            message: `${response.data}`
+          })
           this.showUpdateCohorts = true
           this.checkValidity(cohort)
         }
       } catch (error) {
-        alert(`Error while loading cohort data: ${error.response.data}`)
+        this.addNotification({
+          color: 'error',
+          message: `Error while loading cohort data: ${error.response.data}`
+        })
       }
       this.fetchAllDiseases()
     },
@@ -284,14 +296,23 @@ export default {
       const pathCheck = await axios.get(`${process.env.VUE_APP_API_HOST}/path/check/${pathValue}`)
       if (pathCheck.data === 'True') {
         await axios.get(`${process.env.VUE_APP_API_HOST}/update/${key}/${diseaseName}/${pathValue}`)
-        alert(`Updated to ${annotation}`)
+        this.addNotification({
+          color: 'success',
+          message: `Updated to ${annotation}`
+        })
       } else {
-        alert('Wrong Path, Not Updated')
+        this.addNotification({
+          color: 'error',
+          message: 'Error: invalid path, update failed'
+        })
       }
     },
     async addCohort () {
       await axios.get(`${process.env.VUE_APP_API_HOST}/addcohort/${this.newCohortName}`)
-      alert('Added - You should update the path and upload the cohort')
+      this.addNotification({
+        color: 'success',
+        message: `New cohort ${this.newCohortName} added. Update the paths and load the cohort below.`
+      })
       this.addedcohortName = this.newCohortName
       this.dialog = false
       await this.showConfig()

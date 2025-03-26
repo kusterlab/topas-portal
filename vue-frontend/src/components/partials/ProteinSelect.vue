@@ -19,6 +19,7 @@
 
 <script>
 import axios from 'axios'
+import { mapMutations } from 'vuex'
 
 export default {
   name: 'ProteinSelect',
@@ -70,13 +71,19 @@ export default {
     this.loadProteins()
   },
   methods: {
+    ...mapMutations({
+      addNotification: 'notifications/addNotification'
+    }),
     async loadProteins () {
       if (this.cohortIndex < 0) return
       try {
         const response = await axios.get(`${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/${this.dataLayer}/list`)
         this.allProteins = response.data
       } catch (error) {
-        console.error('An error occurred while retrieving the list of proteins for this cohort:', error)
+        this.addNotification({
+          color: 'error',
+          message: `An error occurred while retrieving the list of proteins for this cohort: ${error}`
+        })
         this.allProteins = []
       }
     },

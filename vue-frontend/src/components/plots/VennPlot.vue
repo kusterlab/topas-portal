@@ -264,7 +264,6 @@ export default {
             const selGrp = that.selectedBatch.toString()
             for (let p = 0; p < uniquegroups.length; p++) {
               if (uniquegroups[p] !== selGrp) {
-                // console.log(uniquegroups[p])
                 currentDiff = memberships.getDifference(currentDiff, memberships.getProteinList(plotSet, uniquegroups[p]))
                 const uniqueIds = []
                 currentDiff.filter(element => {
@@ -281,8 +280,6 @@ export default {
             if (that.showListDiff) { that.uniqProteins = currentDiff }
           }
           that.uniqueSize = currentDiff.length
-          // console.log(memberships.getIntersection(currentDiff))
-          // alert(that.uniqueSize)
           that.selectedSize = selection._groups[0][0].__data__.size
           selection.select('path')
             .style('stroke-width', 3)
@@ -297,7 +294,6 @@ export default {
             .style('fill-opacity', 0.25)
             .style('stroke-opacity', 0)
         })
-      // console.log(test)
       */
     }
 

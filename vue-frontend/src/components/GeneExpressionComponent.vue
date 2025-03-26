@@ -388,11 +388,9 @@ export default {
       let response
       query = `${process.env.VUE_APP_API_HOST}/oncokb/api/cnv/${gene}/AMPLIFICATION`
       response = await axios.get(query)
-      // console.log(response.data)
       const cnv = response.data.mutationEffect.description
       query = `${process.env.VUE_APP_API_HOST}/oncokb/api/cnv/${gene}/DELETION`
       response = await axios.get(query)
-      // console.log(response.data)
       const deletion = response.data.mutationEffect.description
       this.cnvDescription = cnv + deletion
     },

@@ -78,7 +78,7 @@
 
 <script>
 import axios from 'axios'
-import { mapGetters, mapState } from 'vuex'
+import { mapGetters, mapState, mapMutations } from 'vuex'
 export default {
   name: 'ConfigureUpdate',
   props: {
@@ -106,6 +106,9 @@ export default {
     this.updateLog()
   },
   methods: {
+    ...mapMutations({
+      addNotification: 'notifications/addNotification'
+    }),
     async updateLog () {
       const response = await axios.get(`${process.env.VUE_APP_API_HOST}/integration/logs`)
       this.logValue = response.data.replace(/topas_separator/g, '\n')
@@ -116,7 +119,10 @@ export default {
       const cohort = this.diseaseName
       response = await axios.get(`${process.env.VUE_APP_API_HOST}/check/integrability/${cohort}`)
       this.showUpdateCohorts = true
-      alert(response.data)
+      this.addNotification({
+        color: 'info',
+        message: `${response.data}`
+      })
       this.updateLog()
     },
     async checkvalidityallCohorts () {
@@ -135,7 +141,10 @@ export default {
         await axios.get(`${process.env.VUE_APP_API_HOST}/check/validity_basket_score/${cohort}/${basketName}`)
         this.updateLog()
       } else {
-        alert('You should select a cohort name')
+        this.addNotification({
+          color: 'warning',
+          message: 'Select a cohort to perform the validity tests on'
+        })
       }
     }
   }

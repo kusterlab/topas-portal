@@ -362,6 +362,8 @@
 
 <script>
 import axios from 'axios'
+import { mapMutations } from 'vuex'
+
 import CohortSelect from './partials/CohortSelect.vue'
 import patientscoreTable from '@/components/tables/PatientscoreTable.vue'
 import PatientReportTable from '@/components/tables/PatientReportTable.vue'
@@ -490,6 +492,9 @@ export default {
     }
   },
   methods: {
+    ...mapMutations({
+      addNotification: 'notifications/addNotification'
+    }),
     updateCohort ({ dataSource, cohortIndex }) {
       this.cohortIndex = cohortIndex
     },
@@ -503,45 +508,65 @@ export default {
         response = await axios.get(`${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/metadata`)
         this.patientData = response.data
       } catch (error) {
-        alert('Error: Probably no meta data exists for this cohort')
-        console.error(error)
+        this.addNotification({
+          color: 'error',
+          message: 'Error: Probably no meta data exists for this cohort'
+        })
       }
       try {
         response = await axios.get(`${process.env.VUE_APP_API_HOST}/patientcenteric/proteincounts/${this.cohortIndex}/fp`)
         this.proteinSatitistics = response.data
       } catch (error) {
-        console.log('protein counts error')
+        this.addNotification({
+          color: 'error',
+          message: 'Error: could not load protein counts data'
+        })
       }
       try {
         response = await axios.get(`${process.env.VUE_APP_API_HOST}/patientcentric/ppintensity/${this.cohortIndex}/pp`)
         this.sumIntesitiespp = response.data
       } catch (error) {
-        console.log('phospho intensities error')
+        this.addNotification({
+          color: 'error',
+          message: 'Error: could not load phospho intensities data'
+        })
       }
       try {
         response = await axios.get(`${process.env.VUE_APP_API_HOST}/patientcentric/ppintensity/${this.cohortIndex}/fp`)
         this.sumIntesitiesfp = response.data
       } catch (error) {
-        console.log('Full proteome intensities error')
+        this.addNotification({
+          color: 'error',
+          message: 'Error: could not load full proteome intensities data'
+        })
       }
       try {
         response = await axios.get(`${process.env.VUE_APP_API_HOST}/patientcenteric/proteincounts/${this.cohortIndex}/pp`)
         this.peptideSatitistics = response.data
       } catch (error) {
-        console.log('phospho peptide counts error')
+        this.addNotification({
+          color: 'error',
+          message: 'Error: could not load phosphoproteome peptide counts data'
+        })
       }
       try {
         response = await axios.get(`${process.env.VUE_APP_API_HOST}/patientcenteric/proteincounts/${this.cohortIndex}/fppeptide`)
         this.peptidefpSatitistics = response.data
       } catch (error) {
-        console.log('FP peptide counts error')
+        this.addNotification({
+          color: 'error',
+          message: 'Error: could not load full proteome peptide counts data'
+        })
       }
       if (this.showCorrelation) {
         try {
           response = await axios.get(`${process.env.VUE_APP_API_HOST}/correlation/fpkmprotein/${this.cohortIndex}`)
           this.correlationStatistics = response.data
         } catch (error) {
-          console.log('Error: correlation statistics')
+          this.addNotification({
+            color: 'error',
+            message: 'Error: could not load FPKM-protein correlation statistics data'
+          })
         }
       }
     },

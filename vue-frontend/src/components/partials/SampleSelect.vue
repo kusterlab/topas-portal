@@ -65,6 +65,7 @@
 
 <script>
 import axios from 'axios'
+import { mapMutations } from 'vuex'
 
 export default {
   name: 'SampleSelect',
@@ -125,6 +126,9 @@ export default {
     this.updateMetadata()
   },
   methods: {
+    ...mapMutations({
+      addNotification: 'notifications/addNotification'
+    }),
     async updateMetadata () {
       if (this.cohortIndex === -1) {
         return
@@ -135,8 +139,10 @@ export default {
         this.metaDatatypes = response.data
         this.metaDataChanged()
       } catch (error) {
-        alert('Error: Probably no meta data exists for this cohort')
-        console.error(error)
+        this.addNotification({
+          color: 'error',
+          message: 'Error: Probably no meta data exists for this cohort'
+        })
       }
     },
     async metaDataChanged () {
@@ -147,8 +153,10 @@ export default {
         response = await axios.get(`${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/metadata/fields/${activeMeta}`)
         this.activemetaFields = response.data
       } catch (error) {
-        alert(`Error:${error}`)
-        console.error(`Error: ${error}`)
+        this.addNotification({
+          color: 'error',
+          message: `Error: ${error}`
+        })
       }
     },
     async fieldOfInterestChanged () {
@@ -161,8 +169,10 @@ export default {
         const response = await axios.get(`${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/metadata/fields/${this.activeMeta}/patients/${this.fieldOfInterest}`)
         this.updateSampleIds(response.data)
       } catch (error) {
-        alert(`Error:${error}`)
-        console.error(`Error: ${error}`)
+        this.addNotification({
+          color: 'error',
+          message: `Error: ${error}`
+        })
       }
     },
     updateSampleIdList (sampleIds) {

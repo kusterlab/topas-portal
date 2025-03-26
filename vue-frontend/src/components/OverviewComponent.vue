@@ -141,6 +141,8 @@
 
 <script>
 import axios from 'axios'
+import { mapMutations } from 'vuex'
+
 import CohortSelect from './partials/CohortSelect.vue'
 import { Plotly } from 'vue-plotly'
 
@@ -187,6 +189,9 @@ export default {
     this.metaComboUpdater()
   },
   methods: {
+    ...mapMutations({
+      addNotification: 'notifications/addNotification'
+    }),
     updateCohort ({ dataSource, cohortIndex }) {
       this.cohortIndex = cohortIndex
     },
@@ -210,7 +215,10 @@ export default {
         this.entityData = response.data
         // this.componentKey = this.componentKey + 1
       } catch (error) {
-        console.log(error)
+        this.addNotification({
+          color: 'error',
+          message: `Error: ${error}`
+        })
         this.entityData = []
       }
       this.loadingEntity = false

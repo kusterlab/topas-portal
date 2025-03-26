@@ -322,7 +322,6 @@ export default {
             .attr('opacity', 1)
         })
         .on('mouseout', function () {
-        // console.log(_.target.__data__[fieldOfTable])
           tooltip.style('opacity', 0)
           xLine.attr('opacity', 0)
         })

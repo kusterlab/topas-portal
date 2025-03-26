@@ -62,6 +62,7 @@
 
 <script>
 import axios from 'axios'
+import { mapMutations } from 'vuex'
 
 export default {
   name: 'BasketSelect',
@@ -105,6 +106,9 @@ export default {
     this.basketComboupdater()
   },
   methods: {
+    ...mapMutations({
+      addNotification: 'notifications/addNotification'
+    }),
     async basketComboupdater () { // retrieving different basket types RTK or main from the backend
       if (this.cohortIndex < 0) return
 
@@ -119,7 +123,10 @@ export default {
           }
         })
       } catch (error) {
-        console.error('An error occurred while processing response data:', error)
+        this.addNotification({
+          color: 'error',
+          message: `An error occurred while processing response data: ${error}`
+        })
       }
 
       this.allBaskets = baskets
