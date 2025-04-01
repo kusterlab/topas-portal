@@ -13,10 +13,11 @@ import topas_portal.settings as cn
 import topas_portal.plotly_preprocess as plotlyprepare
 from topas_portal.config_reader import *
 
+
 # remember to update the corresponding constant in vue-frontend/src/constants.js
 class DataType(str, Enum):
-    FP = 'fp'
-    PP = 'pp'
+    FP = "fp"
+    PP = "pp"
     FULL_PROTEOME = "protein"
     FULL_PROTEOME_ANNOTATED = "protein_annotated"
     PHOSPHO_PROTEOME = "psite"
@@ -44,11 +45,9 @@ class DataType(str, Enum):
     SAMPLE_ANNOTATION = "sample_annotation_df"
 
 
-
 class ColumnNames(str, Enum):
-    SAMPLE_NAME = 'Sample name'
-    GENE_NAME = 'Gene names'
-
+    SAMPLE_NAME = "Sample name"
+    GENE_NAME = "Gene names"
 
 
 def get_selection_list_data_type(level: DataType):
@@ -78,7 +77,11 @@ class ImputationMode(str, Enum):
     IMPUTE = "impute"
 
 
-def remove_prefix(df, from_col=True):
+def add_patient_prefix(patient_list: list[str]):
+    return [cn.PATIENT_PREFIX + x for x in patient_list]
+
+
+def remove_patient_prefix(df, from_col=True) -> pd.DataFrame:
     if from_col:
         try:
             df.columns = df.columns.str.replace(cn.PATIENT_PREFIX, "", regex=True)
@@ -215,13 +218,13 @@ def get_index_cols(data_type: str) -> List[str]:
     return index_cols
 
 
-def keep_only_sample_columns(df: pd.DataFrame,samples_list:list) -> pd.DataFrame:
-    """ Returns the columns which matches the samples Regex in the dataframe
+def keep_only_sample_columns(df: pd.DataFrame, samples_list: list) -> pd.DataFrame:
+    """Returns the columns which matches the samples Regex in the dataframe
     :df: pandas data frame
     :output : pandas data frame with filtered columns
     """
-    list_patients = intersection(df.columns,samples_list)
-    samplenames = [x for x in list_patients if not str(x).__contains__('ref-')]
+    list_patients = intersection(df.columns, samples_list)
+    samplenames = [x for x in list_patients if not str(x).__contains__("ref-")]
     return df[samplenames]
 
 
@@ -243,12 +246,12 @@ def post_process_for_front_end(df: pd.DataFrame, defaultcolor="grey", defaultsiz
         return df
 
     abundances_table = df.copy()
-    abundances_table[
-        "colorID"
-    ] = defaultcolor  # default value for the color on the frontend
-    abundances_table[
-        "sizeR"
-    ] = defaultsize  # default value for the point size on the frontend
+    abundances_table["colorID"] = (
+        defaultcolor  # default value for the color on the frontend
+    )
+    abundances_table["sizeR"] = (
+        defaultsize  # default value for the point size on the frontend
+    )
     abundances_table = abundances_table.reset_index(drop=True)
     abundances_table["index"] = abundances_table.index
     return abundances_table
@@ -329,9 +332,6 @@ def read_log(fileName):
     lines = f.readline()
     f.close()
     return lines
-
-
-
 
 
 def check_all_config_file(configs):

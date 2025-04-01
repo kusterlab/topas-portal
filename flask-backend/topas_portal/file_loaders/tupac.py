@@ -30,7 +30,7 @@ def load_basket_scores_df(basket_scores_path: str):
         basket_scores_path, delimiter="\t", index_col="Sample"
     )
 
-    basket_scores_df = utils.remove_prefix(basket_scores_df, from_col=False)
+    basket_scores_df = utils.remove_patient_prefix(basket_scores_df, from_col=False)
     basket_scores_df.index.name = "Sample name"
 
     basket_scores_df.index = basket_scores_df.index.str.strip()
@@ -72,7 +72,7 @@ def load_subbasket_table(
         subbasket_scores = subbasket_scores.drop(
             subbasket_scores.filter(regex="total_basket_score").columns, axis=1
         )
-        subbasket_scores = utils.remove_prefix(subbasket_scores, from_col=False)
+        subbasket_scores = utils.remove_patient_prefix(subbasket_scores, from_col=False)
         if return_wide:
 
             return subbasket_scores
@@ -91,6 +91,6 @@ def load_subbasket_table(
 
             subbasket_scores_long["color"] = "grey"
             subbasket_scores_long["sizeR"] = 0.5
-            subbasket_scores = utils.remove_prefix(subbasket_scores, from_col=False)
+            subbasket_scores = utils.remove_patient_prefix(subbasket_scores, from_col=False)
 
             return subbasket_scores_long

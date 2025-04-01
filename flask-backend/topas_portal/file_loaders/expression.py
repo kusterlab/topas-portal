@@ -54,7 +54,7 @@ def load_expression_data(report_directory: Path, key_col: str, modality: str):
                 lambda pat: f"p{pat.group(1)}",
                 regex=True,
             )
-        df_patient_expressions = ef.remove_prefix(df_patient_expressions)
+        df_patient_expressions = ef.remove_patient_prefix(df_patient_expressions)
         print("Expression data loaded")
         return df_patient_expressions
     else:
@@ -63,31 +63,27 @@ def load_expression_data(report_directory: Path, key_col: str, modality: str):
 
 @ef.check_path_exist
 def load_annotated_intensity_file(
-    annotated_intensity_file_path: os.PathLike,
+    annotated_intensity_file: os.PathLike,
     index_col: str,
-    patients_list,
+    patients_list: list[str],
     extra_columns=None,
 ):
     annot_df = pd.read_csv(
-        annotated_intensity_file_path, low_memory=False, index_col=index_col
+        annotated_intensity_file, low_memory=False, index_col=index_col
     )
-    if index_col == cn.PP_KEY:
-        annot_df.index = annot_df.index.str.replace(
-            re.compile(r"([STY])\(Phospho \(STY\)\)"),
-            lambda pat: f"p{pat.group(1)}",
-            regex=True,
-        )
-    patients_list_prefixed = [cn.PATIENT_PREFIX + x for x in patients_list]
-    patients_list = [*patients_list,*patients_list_prefixed]
-    final_list_patients = ef.intersection(patients_list,list(annot_df.columns))
+
+    patient_list_prefixed = ef.add_patient_prefix(patients_list)
+    intensity_df = annot_df.loc[:, annot_df.columns.intersection(patient_list_prefixed)]
+    intensity_df = ef.remove_patient_prefix(intensity_df)
+
     suffix = ef.INTENSITY_UNIT_SUFFIXES[ef.IntensityUnit.INTENSITY]
-    intensity_df = annot_df[final_list_patients].add_suffix(suffix)
+    intensity_df = intensity_df.add_suffix(suffix)
+
     if extra_columns:
         intensity_df = intensity_df.join(annot_df[extra_columns])
 
     # in some cases, replicates have the same column name, only keep the first one
-    intensity_df = intensity_df.loc[:, ~intensity_df.columns.duplicated()].copy()
-    intensity_df = ef.remove_prefix(intensity_df)
+    intensity_df = intensity_df.loc[:, ~intensity_df.columns.duplicated()]
     return intensity_df
 
 
@@ -104,7 +100,7 @@ def load_intensity_meta_data(instensitypath, key, regex=cn.REGEX_META):
     intensity_df.index = intensity_df[key]
     intensity_df = intensity_df.loc[:, ~intensity_df.columns.duplicated()]
     intensity_df = _post_process_meta_intensities(intensity_df)
-    intensity_df = ef.remove_prefix(intensity_df)
+    intensity_df = ef.remove_patient_prefix(intensity_df)
     return intensity_df
 
 

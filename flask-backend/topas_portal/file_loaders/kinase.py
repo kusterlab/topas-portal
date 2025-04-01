@@ -20,4 +20,4 @@ def load_kinase_scores_df(kinase_scores_path):
 
     kinase_scores_df = kinase_scores_df.add_suffix(" Z-score")
 
-    return utils.remove_prefix(kinase_scores_df)
+    return utils.remove_patient_prefix(kinase_scores_df)

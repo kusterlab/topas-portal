@@ -170,7 +170,7 @@ def load_pca_data(
         print(df)
         df.columns = df.columns.str.replace("ref_channel_", "ref-channel-")
         df.columns = df.columns.str.replace("_batch", "-batch")
-        df = utils.remove_prefix(df)
+        df = utils.remove_patient_prefix(df)
         df.columns = df.columns.str.strip()
         if plot_type in [
             utils.DataType.FULL_PROTEOME_ANNOTATED,
@@ -349,7 +349,7 @@ def create_ref_sample_annot(results_folder, sample_annot_df):
 
     df.columns = df.columns.str.replace("ref_channel_", "ref-channel-")
     df.columns = df.columns.str.replace("_batch", "-batch")
-    df = utils.remove_prefix(df)
+    df = utils.remove_patient_prefix(df)
     df = utils.keep_only_sample_columns(df,sample_annot_df['Sample name'].unique().tolist())
 
     for sample in df:
