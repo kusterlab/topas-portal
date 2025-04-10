@@ -1,6 +1,6 @@
 from . import utils
 
-BASKET_LEVEL_MAPPING = {
+TOPAS_LEVEL_MAPPING = {
     utils.DataType.TOPAS_KINASE_SCORE: {
         "data_level": utils.DataType.KINASE_SCORE,
         "scoring_rule_level": utils.DataType.KINASE_SCORE,
@@ -23,13 +23,13 @@ BASKET_LEVEL_MAPPING = {
     },
 }
 
-BASKET_SCORING_RULES = {
+TOPAS_SCORING_RULES = {
     utils.DataType.FULL_PROTEOME: "highest z-score",
     utils.DataType.PHOSPHO_SCORE: "highest protein phosphorylation score (2nd level z-score, FH)",
     utils.DataType.KINASE_SCORE: "highest kinase score (2nd level z-score, FH)",
 }
 
-BASKET_DIFFERENTIAL_INTENSITY_UNITS = {
+TOPAS_DIFFERENTIAL_INTENSITY_UNITS = {
     utils.DataType.TOPAS_SCORE: utils.IntensityUnit.SCORE,
     utils.DataType.KINASE_SCORE: utils.IntensityUnit.Z_SCORE,
     utils.DataType.PHOSPHO_SCORE: utils.IntensityUnit.Z_SCORE,
@@ -39,8 +39,8 @@ BASKET_DIFFERENTIAL_INTENSITY_UNITS = {
     utils.DataType.KINASE_SUBSTRATE: utils.IntensityUnit.INTENSITY,
 }
 
-# the following basket names should be changed as exception as below to aavoid problems in fronend
-BASKET_RENAMING = {
+# the following topas names should be changed as exception as below to aavoid problems in fronend
+TOPAS_RENAMING = {
     "CDK4_6 activity": "CDK4_6_activity",
     "Immune checkpoints": "Immune_checkpoints",
     "Infiltration/Inflammation": "Infiltration_Inflammation",
@@ -164,7 +164,7 @@ TOPAS_CATEGORIES = {
 
 
 TOPAS_EXPRESSION_MAPPING = {
-    #  the right side is the basket and left side protein
+    #  the right side is the topas and left side protein
     "ALK": "ALK",
     "AXL": "AXL",
     "DDR1": "DDR1",

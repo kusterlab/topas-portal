@@ -58,12 +58,12 @@
             @change="updateHeatmap"
           />
 
-          <basket-select
+          <topas-select
             v-if="String(inputDataType).startsWith('topas')"
             :cohort-index="cohortIndex"
             :score-type="false"
             :multiple="true"
-            @select-basket="updateIdentifier"
+            @select-topas="updateIdentifier"
           />
           <protein-select
             v-if="!String(inputDataType).startsWith('topas')"
@@ -115,7 +115,7 @@
 import axios from 'axios'
 import CohortSelect from './partials/CohortSelect.vue'
 import PatientSelectTable from './tables/DifferentialmetaTable.vue'
-import BasketSelect from '@/components/partials/BasketSelect'
+import TopasSelect from '@/components/partials/TopasSelect'
 import ProteinSelect from '@/components/partials/ProteinSelect'
 import SampleSelect from './partials/SampleSelect.vue'
 import { Plotly } from 'vue-plotly'
@@ -126,7 +126,7 @@ export default {
   components: {
     CohortSelect,
     PatientSelectTable,
-    BasketSelect,
+    TopasSelect,
     ProteinSelect,
     Plotly,
     SampleSelect

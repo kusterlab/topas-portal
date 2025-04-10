@@ -51,7 +51,7 @@ def import_expression_meta_data(
     cohorts_db: sql.SQLCohortDataAPI, cohort_name="all_cohorts"
 ):
     _importer(
-        cohorts_db.provider.load_all_to_db_to_db_fp_meta_expression,
+        cohorts_db.provider.load_all_to_db_fp_meta_expression,
         cohorts_db.provider.load_cohort_to_db_fp_meta_expression,
         cohort_name,
         "expression meta",
@@ -96,7 +96,7 @@ def import_PP_intensities(cohorts_db: sql.SQLCohortDataAPI, cohort_name="all_coh
 
 def import_TOPAS_scores(cohorts_db: sql.SQLCohortDataAPI, cohort_name="all_cohorts"):
     _importer(
-        cohorts_db.provider.load_all_to_db_to_db_to_db_topas_scores,
+        cohorts_db.provider.load_all_to_db_topas_scores,
         cohorts_db.provider.load_cohort_to_db_topas_scores,
         cohort_name,
         "TOPAS scores",
@@ -105,7 +105,7 @@ def import_TOPAS_scores(cohorts_db: sql.SQLCohortDataAPI, cohort_name="all_cohor
 
 def import_phospho_scores(cohorts_db: sql.SQLCohortDataAPI, cohort_name="all_cohorts"):
     _importer(
-        cohorts_db.provider.load_all_to_db_to_db_to_db_phosphoscores,
+        cohorts_db.provider.load_all_to_db_phosphoscores,
         cohorts_db.provider.load_cohort_to_db_phosphoscores,
         cohort_name,
         "Phospho scores",

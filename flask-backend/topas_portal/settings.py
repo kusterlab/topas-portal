@@ -31,7 +31,7 @@ REGEX_META = (
 )
 
 # normalized intensities with gene/p-site annotations from wp3 pipeline
-# includes basket (FP, PP) and PSP annotations (PP)
+# includes topas (FP, PP) and PSP annotations (PP)
 PREPROCESSED_FP_INTENSITY = "annot_fp.csv"
 PREPROCESSED_PP_INTENSITY = "annot_pp.csv"
 
@@ -50,9 +50,9 @@ KINASE_SCORES_FILE = "kinase_results/kinase_scores.tsv"
 KINASE_PEPTIDES_SCORES = "kinase_results/scored_peptides.tsv"
 
 #
-SUBBASKET_FILES_PREFIX = "subbasket_scores_"
-BASKET_SCORES_FILE = "basket_scores_4th_gen.tsv"
-BASKET_Z_SCORES_FILE = "basket_scores_4th_gen_zscored.tsv"
+SUBTOPAS_FILES_PREFIX = "subtopas_scores_"
+TOPAS_SCORES_FILE = "topas_scores_4th_gen.tsv"
+TOPAS_Z_SCORES_FILE = "topas_scores_4th_gen_zscored.tsv"
 
 # pp z_scores
 PHOSPHO_MEASURES = "phospho_measures_z.tsv"
@@ -96,7 +96,7 @@ PATIENT_TABLE_NAN_STRING = [
 
 ############## DIFFERENT TABS meta data ##########
 #  Topas scores tab
-BASKET_META_DATA = [
+TOPAS_META_DATA = [
     "Sample name",
     "Z-score",
     *COMMON_META_DATA,

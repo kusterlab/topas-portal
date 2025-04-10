@@ -194,7 +194,7 @@ import { DataType } from '@/constants'
 import { proteinTypes } from './plots/proteinTypes'
 
 export default {
-  name: 'BasketComponent',
+  name: 'TopasComponent',
   components: {
     CohortSelect,
     PatientSelectTable,

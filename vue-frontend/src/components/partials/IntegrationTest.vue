@@ -53,7 +53,7 @@
         <v-col>
           <v-row>
             <p class="mt-4">
-              Protein and basket for validity checks
+              Protein and topas for validity checks
             </p>
           </v-row>
           <v-row>
@@ -65,9 +65,9 @@
           </v-row>
           <v-row>
             <v-text-field
-              v-model="basketCheck"
+              v-model="topasCheck"
               style="width:100px"
-              label="Basket"
+              label="Topas"
             />
           </v-row>
         </v-col>
@@ -92,7 +92,7 @@ export default {
     showUpdateCohorts: true,
     logValue: '',
     proteinCheck: 'EGFR',
-    basketCheck: 'ABL1'
+    topasCheck: 'ABL1'
   }),
   computed: {
     ...mapState({
@@ -135,10 +135,10 @@ export default {
     async checkValidity (cohort = this.cohortName) {
       if (cohort) {
         const proteinName = this.proteinCheck
-        const basketName = this.basketCheck
-        // a sample validity test for the z_scores for one protein and basket
+        const topasName = this.topasCheck
+        // a sample validity test for the z_scores for one protein and topas
         await axios.get(`${process.env.VUE_APP_API_HOST}/check/validity_z_score/${cohort}/${proteinName}`)
-        await axios.get(`${process.env.VUE_APP_API_HOST}/check/validity_basket_score/${cohort}/${basketName}`)
+        await axios.get(`${process.env.VUE_APP_API_HOST}/check/validity_topas_score/${cohort}/${topasName}`)
         this.updateLog()
       } else {
         this.addNotification({

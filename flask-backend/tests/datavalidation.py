@@ -48,7 +48,7 @@ def check_integretability_cohort(cohort):
             len(all_data[ef.DataType.FULL_PROTEOME].filter(regex=cn.Z_SCORE_REGEX).columns)
         )
         final_msg.append(f"Number_patients_in_fp_df_patients:{num_patients}")
-    # needs more tests for   basket_df_z_scored
+    # needs more tests for   topas_df_z_scored
     except IOError as e:
         final_msg.append(e)
     return (" topas_separator ").join(final_msg)
@@ -106,33 +106,33 @@ def z_score_checker(PORTAL_CONFIG_FILE, LOCAL_HTTTP, cohort, protein_name="EGFR"
     return res_df
 
 
-def basket_score_checker(PORTAL_CONFIG_FILE, LOCAL_HTTTP, cohort, basket_name="ABL"):
+def topas_score_checker(PORTAL_CONFIG_FILE, LOCAL_HTTTP, cohort, topas_name="ABL"):
     """
-    Checks the validity of the basket-scores for a specific basket name
+    Checks the validity of the topas-scores for a specific topas name
     :cohort: the name of the cohort
-    :basket_name: basket name
+    :topas_name: topas name
     """
     print(PORTAL_CONFIG_FILE)
     config = ef.config_reader(PORTAL_CONFIG_FILE)
     report_dir = config["report_directory"][cohort]
     list_cohorts = list(config["report_directory"].keys())
     cohort_index = get_cohort_index(cohort, list_cohorts)
-    end_point = f"/basket/{cohort_index}/{basket_name}/basket_score"
-    basket_z_scores = endpoint_reader(LOCAL_HTTTP, endpoint=end_point)
-    random_index_patient = random.randint(0, len(basket_z_scores) - 1)
-    patient_sample_name = basket_z_scores[random_index_patient]["Sample name"]
+    end_point = f"/topas/{cohort_index}/{topas_name}/topas_score"
+    topas_z_scores = endpoint_reader(LOCAL_HTTTP, endpoint=end_point)
+    random_index_patient = random.randint(0, len(topas_z_scores) - 1)
+    patient_sample_name = topas_z_scores[random_index_patient]["Sample name"]
     patient_sample_name = f'{cn.PATIENT_PREFIX}{patient_sample_name}'
-    portal_z_score = basket_z_scores[random_index_patient]["Z-score"]
-    basket_scores = os.path.join(report_dir, cn.BASKET_SCORES_FILE)
-    basket_scores_df = pd.read_csv(basket_scores, sep="\t", index_col="Sample")
+    portal_z_score = topas_z_scores[random_index_patient]["Z-score"]
+    topas_scores = os.path.join(report_dir, cn.TOPAS_SCORES_FILE)
+    topas_scores_df = pd.read_csv(topas_scores, sep="\t", index_col="Sample")
     print("####")
-    pipeline_basket_score = basket_scores_df.loc[patient_sample_name, basket_name]
+    pipeline_topas_score = topas_scores_df.loc[patient_sample_name, topas_name]
     print(type(portal_z_score))
     print(portal_z_score)
     res_df = pd.DataFrame([portal_z_score], columns=["portal_z_score"])
     res_df["cohort"] = cohort
-    res_df["protein"] = basket_name
-    res_df["pipeline_z_score"] = pipeline_basket_score
+    res_df["protein"] = topas_name
+    res_df["pipeline_z_score"] = pipeline_topas_score
     print(res_df)
     return res_df
 

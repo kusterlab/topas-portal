@@ -46,11 +46,11 @@ def z_score_validity_check(cohort, protein_name):
     return ef.df_to_json(res)
 
 
-@integration_page.route("/check/validity_basket_score/<cohort>/<basket_name>")
-# http://localhost:3832/check/validity_basket_score/INFORM/ALK
-def basket_score_validity_check(cohort, basket_name):
-    res = icheck.basket_score_checker(
-        PORTAL_CONFIG_FILE, LOCAL_HTTTP, cohort, basket_name
+@integration_page.route("/check/validity_topas_score/<cohort>/<topas_name>")
+# http://localhost:3832/check/validity_topas_score/INFORM/ALK
+def topas_score_validity_check(cohort, topas_name):
+    res = icheck.topas_score_checker(
+        PORTAL_CONFIG_FILE, LOCAL_HTTTP, cohort, topas_name
     )
     integration_logger(res)
     return ef.df_to_json(res)

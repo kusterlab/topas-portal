@@ -554,7 +554,7 @@ def SVM_cross_validaition_with_t_test_Feature_selection(
     testset to predict entity scores
     :input_df: Dataframe with rows as patients and columns as features two extra column "Sample name" metadata
     :intensity_file: an indexed dataframe with patients as index and the features are the columns
-    :list_proteins: list of the proteins/peptides/kinases/baskets
+    :list_proteins: list of the proteins/peptides/kinases/topass
     """
     # selecting the features based on the
     Y = input_df[entity_subtypes].to_numpy()

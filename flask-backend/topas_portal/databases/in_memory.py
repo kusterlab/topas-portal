@@ -49,7 +49,7 @@ class InMemoryProvider:
     def __init__(self, logger: CohortLogger):
         self.logger = logger
         self.dict_all_data = DICT_ALL_DATA
-        self.basket_complete_df = None
+        self.topas_complete_df = None
         self.FPKM = None
         self.genomics_data = None
         self.oncoKB_data = None
@@ -82,7 +82,7 @@ class InMemoryProvider:
         self._load_FPKM(config.get_config())
         self._load_genomics(config.get_config())
         self._load_onkoKB_annotations(config.get_config())
-        self._load_basket_annotation_tables(config.get_config())
+        self._load_topas_annotation_tables(config.get_config())
 
     def load_single_cohort(
         self, cohort_name: str, cohort_index: int, config: CohortConfig
@@ -114,14 +114,14 @@ class InMemoryProvider:
             ]
             self.logger.log_message(f"{data_layer} of {cohort_name} was Updated ##")
 
-    def _load_basket_annotation_tables(self, config: Dict):
-        """Basket table is independent of cohorts and will be treated as a single global variable separately"""
-        self.logger.log_message("Loading basket tables")
+    def _load_topas_annotation_tables(self, config: Dict):
+        """Topas table is independent of cohorts and will be treated as a single global variable separately"""
+        self.logger.log_message("Loading topas tables")
         basket_annotation_path = Path(config["basket_annotation_path"])
-        self.basket_complete_df = topas_loader.load_basket_annotation_df(
+        self.topas_complete_df = topas_loader.load_topas_annotation_df(
             basket_annotation_path
         )
-        self.logger.log_message("Basket tables loaded")
+        self.logger.log_message("Topas tables loaded")
 
     def _load_FPKM(self, config: Dict):
         """FPKM table is independent of cohorts and will be treated as a single global variable separately"""
@@ -179,7 +179,7 @@ class InMemoryProvider:
 def _load_all_tables(cohort, config: Dict, do_return_place_holder: bool = False):
     """For a single cohort type makes a dictionary of dataframes"""
 
-    basket_df, pp_df_patients = [], []
+    topas_df, pp_df_patients = [], []
     sample_annotation_df, patients_df = [], []
     fp_df_patients, fp_intensity_meta = [], []
     kinase_score_df, phospho_score_df = [], []
@@ -187,15 +187,15 @@ def _load_all_tables(cohort, config: Dict, do_return_place_holder: bool = False)
     if not do_return_place_holder:
         cohort_report_dir = config["report_directory"][cohort]
         print(f"report dir #########{cohort_report_dir}")
-        basket_df = topas_loader.load_basket_scores_df(
-            Path(os.path.join(cohort_report_dir, cn.BASKET_SCORES_FILE))
+        topas_df = topas_loader.load_topas_scores_df(
+            Path(os.path.join(cohort_report_dir, cn.TOPAS_SCORES_FILE))
         )
-        if isinstance(basket_df, pd.DataFrame):
-            basket_df_z_scored = topas_loader.load_basket_scores_df(
-                Path(os.path.join(cohort_report_dir, cn.BASKET_Z_SCORES_FILE))
+        if isinstance(topas_df, pd.DataFrame):
+            topas_df_z_scored = topas_loader.load_topas_scores_df(
+                Path(os.path.join(cohort_report_dir, cn.TOPAS_Z_SCORES_FILE))
             )
-            basket_df = basket_df.join(
-                basket_df_z_scored,
+            topas_df = topas_df.join(
+                topas_df_z_scored,
                 lsuffix=utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.SCORE],
                 rsuffix=utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.Z_SCORE],
             )
@@ -249,7 +249,7 @@ def _load_all_tables(cohort, config: Dict, do_return_place_holder: bool = False)
         utils.DataType.SAMPLE_ANNOTATION: sample_annotation_df,  # meta data with replicates Sample name column refer to the patients, keeps replicates
         utils.DataType.PHOSPHO_PROTEOME: pp_df_patients,  # phospho sites Z-scores of normalized logged intensities
         utils.DataType.FULL_PROTEOME: fp_df_patients,  # full proteome Z-scores of normalized logged intensities
-        utils.DataType.TOPAS_SCORE: basket_df,  # topas scores not z_scored
+        utils.DataType.TOPAS_SCORE: topas_df,  # topas scores not z_scored
         utils.DataType.KINASE_SCORE: kinase_score_df,  # kinase scores Z-scores
         utils.DataType.PHOSPHO_SCORE: phospho_score_df,  # phospho scores Z-scores
         "fp_intensity_meta_df": fp_intensity_meta,  # number of peptides detected at full proteome

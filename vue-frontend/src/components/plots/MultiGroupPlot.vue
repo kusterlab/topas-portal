@@ -63,7 +63,7 @@ export default {
     scatterPoints: [],
     key: 0,
     width: 1500,
-    // fieldX: 'basket',
+    // fieldX: 'topas',
     // fieldY: 'score',
     // title: 'sample',
     height: 500,

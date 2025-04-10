@@ -38,10 +38,10 @@ def fetch_data_matrix(
     identifiers: list[str] | None,
     intensity_unit: ef.IntensityUnit = ef.IntensityUnit.Z_SCORE,
 ) -> pd.DataFrame:
-    if level in topass.BASKET_LEVEL_MAPPING:
-        basket_df = cohorts_db.get_basket_annotation_df()
+    if level in topass.TOPAS_LEVEL_MAPPING:
+        topas_df = cohorts_db.get_topas_annotation_df()
         level, identifiers = _update_level_and_identifiers(
-            basket_df, level, identifiers
+            topas_df, level, identifiers
         )
 
     if level == ef.DataType.FULL_PROTEOME:
@@ -69,7 +69,7 @@ def fetch_data_matrix(
             cohorts_db.get_psite_abundance_df(cohort_index), identifiers,
         )
     elif level == ef.DataType.TOPAS_SCORE:
-        z_scores_df = cohorts_db.get_basket_scores_df(
+        z_scores_df = cohorts_db.get_topas_scores_df(
             cohort_index, intensity_unit=intensity_unit
         )
     elif level == ef.DataType.TRANSCRIPTOMICS:
@@ -88,11 +88,11 @@ def fetch_data_matrix(
 
 
 def _update_level_and_identifiers(
-    basket_df: pd.DataFrame, level: ef.DataType, identifiers: list[str]
+    topas_df: pd.DataFrame, level: ef.DataType, identifiers: list[str]
 ):
-    scoring_rule_level = topass.BASKET_LEVEL_MAPPING[level]["scoring_rule_level"]
-    level = topass.BASKET_LEVEL_MAPPING[level]["data_level"]
-    identifiers = _get_basket_proteins(basket_df, identifiers, level=scoring_rule_level)
+    scoring_rule_level = topass.TOPAS_LEVEL_MAPPING[level]["scoring_rule_level"]
+    level = topass.TOPAS_LEVEL_MAPPING[level]["data_level"]
+    identifiers = _get_topas_proteins(topas_df, identifiers, level=scoring_rule_level)
     return level, identifiers
 
 
@@ -129,12 +129,12 @@ def _get_phosphorylation_psite_df(
     """At phospho level"""
     # we intentionally do not consider protein group matches as these are not
     # used for TOPAS scoring
-    basket_phosphoproteins_psites = z_scores_df.index[
+    topas_phosphoproteins_psites = z_scores_df.index[
         z_scores_df["Gene names"].isin(phosphoproteins)
     ].tolist()
     z_scores_df = z_scores_df.filter(like=" Z-score")
     z_scores_df.columns = z_scores_df.columns.str.removesuffix(" Z-score")
-    return z_scores_df, basket_phosphoproteins_psites
+    return z_scores_df, topas_phosphoproteins_psites
 
 
 def _merge_with_sample_annotation_df(
@@ -160,24 +160,24 @@ def _merge_with_sample_annotation_df(
     )
 
 
-def _get_basket_proteins(
-    basket_annotation_df: pd.DataFrame, basket_names: list[str], level: ef.DataType,
+def _get_topas_proteins(
+    topas_annotation_df: pd.DataFrame, topas_names: list[str], level: ef.DataType,
 ) -> list:
     """
     Gives the list of the protein based on the given criteria
     :level: the selected criteria to show the protesin : expression, phosphorylation, kinase
     """
-    if level in topass.BASKET_SCORING_RULES:
-        scoring_rule = topass.BASKET_SCORING_RULES[level]
+    if level in topass.TOPAS_SCORING_RULES:
+        scoring_rule = topass.TOPAS_SCORING_RULES[level]
     else:
         raise ValueError(f"Unknown scoring rule for TOPAS score: {level.value}.")
 
-    basket_proteins = basket_annotation_df[
-        basket_annotation_df["SUBBASKET"].isin(basket_names)
+    topas_proteins = topas_annotation_df[
+        topas_annotation_df["SUBTOPAS"].isin(topas_names)
     ]
-    basket_proteins = basket_proteins[basket_proteins["SCORING RULE"] == scoring_rule]
-    basket_proteins = basket_proteins["GENE NAME"].unique().tolist()
-    return basket_proteins
+    topas_proteins = topas_proteins[topas_proteins["SCORING RULE"] == scoring_rule]
+    topas_proteins = topas_proteins["GENE NAME"].unique().tolist()
+    return topas_proteins
 
 
 def _filter_sample_annotation_df(

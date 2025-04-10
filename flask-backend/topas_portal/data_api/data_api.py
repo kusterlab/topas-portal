@@ -43,14 +43,14 @@ class CohortDataAPI(Protocol):
     ) -> pd.DataFrame:
         """Z-scored p-site intensities per sample on phospho proteome level"""
 
-    def get_basket_scores_df(
+    def get_topas_scores_df(
         self,
         cohort_index: str,
         intensity_unit: Union[utils.IntensityUnit, None] = None,
         identifier: str = None,
         patient_name: str = None,
     ) -> pd.DataFrame:
-        """Basket scores per sample"""
+        """Topas scores per sample"""
 
     def get_phosphorylation_scores_df(
         self,
@@ -82,7 +82,7 @@ class CohortDataAPI(Protocol):
     def get_num_pep_fp(self, cohort_index: str) -> pd.DataFrame:
         """"""
 
-    def get_basket_annotation_df(self) -> pd.DataFrame:
+    def get_topas_annotation_df(self) -> pd.DataFrame:
         """"""
 
     def get_genomics(self) -> pd.DataFrame:

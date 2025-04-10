@@ -51,10 +51,10 @@
       :min-width="85"
     />
     <DxColumn
-      v-if="correlationInputType == 'basket_score'"
+      v-if="correlationInputType == 'topas_score'"
       data-field="weight"
       data-type="number"
-      caption="Basket weight"
+      caption="Topas weight"
       :min-width="50"
     />
     <DxColumn

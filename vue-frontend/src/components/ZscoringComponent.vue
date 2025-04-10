@@ -47,11 +47,11 @@
               :items="allInputDataTypes"
               label="Data Type"
             />
-            <basket-select
+            <topas-select
               v-if="mode=== 'topas'"
               :score-type="false"
               :cohort-index="cohortIndex"
-              @select-basket="updateBasket"
+              @select-topas="updateTopas"
             />
             <v-text-field
               v-if="mode === 'psite'"
@@ -186,7 +186,7 @@ import SampleSelect from './partials/SampleSelect.vue'
 import ZscoreTable from './tables/ZscoreTable.vue'
 import PatientSelectTable from './tables/DifferentialmetaTable.vue'
 import { DataType } from '@/constants'
-import BasketSelect from '@/components/partials/BasketSelect'
+import TopasSelect from '@/components/partials/TopasSelect'
 import explorerComponent from './partials/scoresComponent.vue'
 
 export default {
@@ -199,7 +199,7 @@ export default {
     SampleSelect,
     explorerComponent,
     proteinSelect,
-    BasketSelect
+    TopasSelect
   },
   props: {
     minWidth: {
@@ -267,7 +267,7 @@ export default {
     updateSampleGroup (selectedPatients) {
       this.customGroup = selectedPatients
     },
-    updateBasket ({ dataSource, identifier }) {
+    updateTopas ({ dataSource, identifier }) {
       this.identifier = identifier
     },
     selectDot (value) {

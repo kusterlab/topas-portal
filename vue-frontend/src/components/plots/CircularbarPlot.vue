@@ -149,7 +149,7 @@ export default {
         .style('opacity', 0)
       // tooltip mouseover event handler
       const tipMouseover = function (_, d) {
-        const html = 'Basket: ' + d.label + '  ' + 'Score: ' + d.new_value.toFixed(2)
+        const html = 'Topas: ' + d.label + '  ' + 'Score: ' + d.new_value.toFixed(2)
         tooltip.html(html)
           .transition()
           .duration(200) // ms

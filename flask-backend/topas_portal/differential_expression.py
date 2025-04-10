@@ -186,8 +186,8 @@ def _preparare_input_for_t_test(
     if level == ef.DataType.TOPAS_SCORE_RTK:
         level = ef.DataType.TOPAS_SCORE
         identifiers = [
-            basket
-            for basket, category in topass.TOPAS_CATEGORIES.items()
+            topas
+            for topas, category in topass.TOPAS_CATEGORIES.items()
             if category == "RTK"
         ]
 
@@ -196,7 +196,7 @@ def _preparare_input_for_t_test(
         cohort_index,
         level,
         identifiers=identifiers,
-        intensity_unit=topass.BASKET_DIFFERENTIAL_INTENSITY_UNITS[level],
+        intensity_unit=topass.TOPAS_DIFFERENTIAL_INTENSITY_UNITS[level],
     )
     protein_list = input_df.index.unique().tolist()
     overlapping_patients = ef.intersection(patients_list, input_df.columns.tolist())

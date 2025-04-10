@@ -137,7 +137,7 @@ def load_pca_data(
     cohort_index = cohorts_db.config.get_cohort_index_from_report_directory(results_folder)
 
     if plot_type == utils.DataType.TOPAS_SCORE:
-        df = cohorts_db.get_basket_scores_df(
+        df = cohorts_db.get_topas_scores_df(
             cohort_index, intensity_unit=IntensityUnit.Z_SCORE
         )
         df = df.T
@@ -176,14 +176,14 @@ def load_pca_data(
             utils.DataType.FULL_PROTEOME_ANNOTATED,
             utils.DataType.PHOSPHO_PROTEOME_ANNOTATED,
         ]:
-            # Subset remove where both basket and rtk is empty
+            # Subset remove where both topas and rtk is empty
             if "rtk" in df.columns:
-                df = df.dropna(subset=["basket", "rtk"], how="all")
-            elif "sub_basket" in df.columns:
-                df = df.dropna(subset=["basket", "sub_basket"], how="all")
+                df = df.dropna(subset=["topas", "rtk"], how="all")
+            elif "sub_topas" in df.columns:
+                df = df.dropna(subset=["topas", "sub_topas"], how="all")
             else:
                 print(
-                    "Error. Wrong basket scoring file. cannot find baskets of type basket & rtk or basket & sub_basket"
+                    "Error. Wrong topas scoring file. cannot find topass of type topas & rtk or topas & sub_topas"
                 )
 
 

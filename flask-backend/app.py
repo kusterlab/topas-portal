@@ -22,7 +22,7 @@ import topas_portal.transcripts_preprocess as transcript
 
 import topas_portal.settings as settings
 import topas_portal.prexp_preprocess as pp
-import topas_portal.basket_preprocess as bp
+import topas_portal.topas_preprocess as bp
 import topas_portal.correlations_preprocess as cp
 
 import topas_portal.fetch_data_matrix as hp
@@ -319,7 +319,7 @@ def reload_db_metadata():
 # http://localhost:3832/reloadfpintensity
 def reload_fp_intensity():
     cohorts_db.config.reload_config()
-    cohorts_db.provider.load_all_to_db_to_db_fp_meta_expression(cohorts_db.config)
+    cohorts_db.provider.load_all_to_db_fp_meta_expression(cohorts_db.config)
     return Response("Uploaded meta dat for the FP to db!")
 
 
@@ -335,7 +335,7 @@ def reload_mapping_protein_seq():
 # http://localhost:3832/reloadtopas
 def reload_topass():
     cohorts_db.config.reload_config()
-    cohorts_db.provider.load_all_to_db_to_db_to_db_topas_scores(cohorts_db.config)
+    cohorts_db.provider.load_all_to_db_topas_scores(cohorts_db.config)
     return Response("Uploaded TOPAS to db!")
 
 
@@ -355,11 +355,11 @@ def reload_insilico_digest():
     return Response("Uploaded digesetd peptide map to db!")
 
 
-@app.route("/reload/basketannotations")
-# http://localhost:3832/reload/basketannotations
-def reload_basket_annotations():
+@app.route("/reload/topasannotations")
+# http://localhost:3832/reload/topasannotations
+def reload_topas_annotations():
     cohorts_db.config.reload_config()
-    cohorts_db.provider._load_basket_annotation_tables(cohorts_db.config.get_config())
+    cohorts_db.provider._load_topas_annotation_tables(cohorts_db.config.get_config())
 
 
 @app.route("/digest/numpep")
@@ -478,24 +478,24 @@ def get_identifications_frequency(cohort_index, fp_pp):
     )
 
 
-@app.route("/basket/<cohort_index>/<basket_names>/<score_type>")
-# http://localhost:3832/basket/0/ALK/basket_score
-def basket(cohort_index, basket_names, score_type):
-    return bp.get_basket_data(cohorts_db, cohort_index, basket_names, score_type)
+@app.route("/topas/<cohort_index>/<topas_names>/<score_type>")
+# http://localhost:3832/topas/0/ALK/topas_score
+def topas(cohort_index, topas_names, score_type):
+    return bp.get_topas_data(cohorts_db, cohort_index, topas_names, score_type)
 
 
-@app.route("/basket/annotations")
-# http://localhost:3832/basket/annotations
-def basket_annotations():
-    return utils.df_to_json(cohorts_db.get_basket_annotation_df())
+@app.route("/topas/annotations")
+# http://localhost:3832/topas/annotations
+def topas_annotations():
+    return utils.df_to_json(cohorts_db.get_topas_annotation_df())
 
 
-@app.route("/basket/lolipopdata/<cohort_index>/<patient>")
-# http://localhost:3832/basket/lolipopdata/0/I002-025-226610
+@app.route("/topas/lolipopdata/<cohort_index>/<patient>")
+# http://localhost:3832/topas/lolipopdata/0/I002-025-226610
 def get_circular_barplot_data(cohort_index, patient):
     return utils.df_to_json(
         bp.get_circular_barplot_data_pathways(
-            cohorts_db.get_basket_scores_df(
+            cohorts_db.get_topas_scores_df(
                 cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
             ),
             patient,
@@ -503,8 +503,8 @@ def get_circular_barplot_data(cohort_index, patient):
     )
 
 
-@app.route("/basket/lolipopdata/<cohort_index>/<patient>/tumor_antigen")
-# http://localhost:3832/basket/lolipopdata/0/I002-025-226610/tumor_antigen
+@app.route("/topas/lolipopdata/<cohort_index>/<patient>/tumor_antigen")
+# http://localhost:3832/topas/lolipopdata/0/I002-025-226610/tumor_antigen
 def get_circular_barplot_data_tumor(cohort_index, patient):
     return utils.df_to_json(
         bp.get_circular_barplot_data_tumor_antigens(
@@ -517,18 +517,18 @@ def get_circular_barplot_data_tumor(cohort_index, patient):
 
 
 @app.route(
-    "/basket/lolipopdata/expression/<cohort_index>/<patient>/downstream_signaling"
+    "/topas/lolipopdata/expression/<cohort_index>/<patient>/downstream_signaling"
 )
-# http://localhost:3832/basket/lolipopdata/expression/0/I002-025-226610/downstream_signaling
+# http://localhost:3832/topas/lolipopdata/expression/0/I002-025-226610/downstream_signaling
 def get_lolipopexpression_down_stream(cohort_index, patient):
     return utils.df_to_json(
-        bp.getlolipop_expression_basket(
+        bp.getlolipop_expression_topas(
             cohorts_db.get_protein_abundance_df(
                 cohort_index,
                 intensity_unit=utils.IntensityUnit.Z_SCORE,
                 patient_name=patient,
             ),
-            cohorts_db.get_basket_scores_df(
+            cohorts_db.get_topas_scores_df(
                 cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
             ),
             patient,
@@ -553,17 +553,17 @@ def get_list_proteins(cohort_index, level):
     )
 
 
-@app.route("/basket/lolipopdata/expression/<cohort_index>/<patient>/rtk")
-# http://localhost:3832/basket/lolipopdata/expression/0/I002-025-226610/rtk
+@app.route("/topas/lolipopdata/expression/<cohort_index>/<patient>/rtk")
+# http://localhost:3832/topas/lolipopdata/expression/0/I002-025-226610/rtk
 def get_lolipopexpression_rtk(cohort_index, patient):
     return utils.df_to_json(
-        bp.getlolipop_expression_basket(
+        bp.getlolipop_expression_topas(
             cohorts_db.get_protein_abundance_df(
                 cohort_index,
                 intensity_unit=utils.IntensityUnit.Z_SCORE,
                 patient_name=patient,
             ),
-            cohorts_db.get_basket_scores_df(
+            cohorts_db.get_topas_scores_df(
                 cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
             ),
             patient,
@@ -572,18 +572,18 @@ def get_lolipopexpression_rtk(cohort_index, patient):
     )
 
 
-@app.route("/basket/<cohort_index>/basketids/<categories>")
-# http://localhost:3832/basket/0/basketids
-def basket_unique(cohort_index, categories):
-    return bp.get_basket_unique(
-        cohorts_db.get_basket_scores_df(cohort_index), categories
+@app.route("/topas/<cohort_index>/topasids/<categories>")
+# http://localhost:3832/topas/0/topasids
+def topas_unique(cohort_index, categories):
+    return bp.get_topas_unique(
+        cohorts_db.get_topas_scores_df(cohort_index), categories
     )
 
 
-@app.route("/basket/subbasket/<cohort_index>/<basketname>")
-# http://localhost:3832/basket/subbasket/0/ABL
-def basket_subtype(cohort_index, basketname):
-    return bp.get_subbasket_data(cohorts_db, cohort_index, basketname)
+@app.route("/topas/subtopas/<cohort_index>/<topasname>")
+# http://localhost:3832/topas/subtopas/0/ABL
+def topas_subtype(cohort_index, topasname):
+    return bp.get_subtopas_data(cohorts_db, cohort_index, topasname)
 
 
 @app.route("/<cohort_index>/sampleanot")
@@ -704,7 +704,7 @@ def density_calc_protein(cohort_index, identifier, intensity_unit):
 @app.route("/<cohort_index>/important_phospho/<identifier>")
 # http://localhost:3832/0/important_phospho/EGFR
 def get_important_phospho(cohort_index, identifier):
-    return bp.get_subbasket_data_per_type(
+    return bp.get_subtopas_data_per_type(
         cohorts_db.get_report_dir(cohort_index),
         identifier,
         sub_type="important phosphorylation",
@@ -733,7 +733,7 @@ def abundance(cohort_index, level, identifier, imputation):
     "/<cohort_index>/<level>/correlation/<level_2>/<identifier>/<intensity_unit>/<patients_list>"
 )
 @cache.cached(timeout=50)
-# http://localhost:3832/0/basket_score/correlation/protein/EGFR/z_scored
+# http://localhost:3832/0/topas_score/correlation/protein/EGFR/z_scored
 # http://localhost:3832/0/phospho_score/correlation/protein/EGFR/intensity
 # http://localhost:3832/0/fpkm/correlation/protein/EGFR/z_scored
 # http://localhost:3832/0/important_phosphorylation/correlation/protein/EGFR/z_scored
@@ -772,7 +772,7 @@ def batch_effect(
 @app.route("/differential/<cohort_index>/<level>/<grp1_ind>/<grp2_ind>/<y_axis_type>")
 # http://localhost:3832/differential/0/intensity/index_346_286_463/index_444_514_592
 # http://localhost:3832/differential/0/phosphopeptides/index_346_286_463/index
-# http://localhost:3832/differential/0/basketscores/index_346_286_463/index_444_514_592
+# http://localhost:3832/differential/0/topasscores/index_346_286_463/index_444_514_592
 def get_t_test_json(cohort_index, grp1_ind, grp2_ind, level, y_axis_type):
     return utils.df_to_json(
         differential_test.get_data_for_t_test(

@@ -17,17 +17,17 @@
             <cohort-select
               @select-cohort="updateCohort"
             />
-            <basket-select
+            <topas-select
               class="mt-4"
               :cohort-index="activeCohortIndex"
-              @select-basket="updateBasket"
+              @select-topas="updateTopas"
             />
             <v-checkbox
-              v-model="ShowSubBaskets"
+              v-model="ShowSubTopass"
               label="Show TOPAS subscore plots"
               dense
               hide-details
-              @change="getbasketData"
+              @change="gettopasData"
             />
           </v-card-text>
         </v-card>
@@ -72,13 +72,13 @@
                 md="7"
                 lg="7"
               >
-                <basket-table
-                  :data-source="basketData"
+                <topas-table
+                  :data-source="topasData"
                   :selected-patient="selectedDotsInPlot"
                   @onRowSelect="updateSelectedRows"
                 >
                   >
-                </basket-table>
+                </topas-table>
               </v-col>
               <v-col
                 sm="12"
@@ -93,11 +93,11 @@
                 >
                   <v-responsive>
                     <swarm-plot
-                      v-if="basketName"
+                      v-if="topasName"
                       :swarm-data="swarmPLotData"
                       :swarm-sel-ids="swarmSelIds"
-                      swarm-id="singleBasket"
-                      :swarm-title="basketName"
+                      swarm-id="singleTopas"
+                      :swarm-title="topasName"
                       :swarm-title-prefix="swarmPrefix"
                       field-name="Sample name"
                       :draw-box-plot="true"
@@ -112,17 +112,17 @@
           </v-card-text>
         </v-card>
         <v-card
-          v-show="ShowSubBaskets"
+          v-show="ShowSubTopass"
           flat
           class="mt-4"
         >
           <v-card-text>
             <multi-group-plot
-              i-d="basketPlot"
-              field-x="basket"
+              i-d="topasPlot"
+              field-x="topas"
               field-y="score"
               title="sample"
-              :plot-data="subbasketData"
+              :plot-data="subtopasData"
               :selected-patients="multiGroupPlotSelectedPatients"
               :selected-color="multiGroupPlotSelectedColor"
             />
@@ -137,19 +137,19 @@
 import axios from 'axios'
 import CohortSelect from './partials/CohortSelect.vue'
 import SwarmPlot from '@/components/plots/SwarmPlot'
-import BasketTable from '@/components/tables/BasketTable'
-import BasketSelect from '@/components/partials/BasketSelect'
+import TopasTable from '@/components/tables/TopasTable'
+import TopasSelect from '@/components/partials/TopasSelect'
 import multiGroupPlot from '@/components/plots/MultiGroupPlot'
 import ExplorerComponent from '@/components/partials/scoresComponent.vue'
 
 export default {
-  name: 'BasketComponent',
+  name: 'TopasComponent',
   components: {
-    BasketTable,
+    TopasTable,
     SwarmPlot,
     CohortSelect,
     ExplorerComponent,
-    BasketSelect,
+    TopasSelect,
     multiGroupPlot
   },
   props: {
@@ -164,17 +164,17 @@ export default {
   },
 
   data: () => ({
-    basketName: '',
+    topasName: '',
     cohortIndex: 0,
     firstPatient: '',
     selectedDotsInPlot: '',
-    basketType: '',
+    topasType: '',
     fixedDomain: false,
-    basketData: [],
-    allBaskets: [],
+    topasData: [],
+    allTopass: [],
     swarmPLotData: [],
-    subbasketData: [],
-    ShowSubBaskets: false,
+    subtopasData: [],
+    ShowSubTopass: false,
     swarmSelIds: [],
     loading: false,
     multiGroupPlotSelectedPatients: [],
@@ -183,18 +183,18 @@ export default {
   }),
   computed: {
     swarmPrefix () {
-      return this.basketType === 'basket_score' ? 'TOPAS score' : 'TOPAS Z-score'
+      return this.topasType === 'topas_score' ? 'TOPAS score' : 'TOPAS Z-score'
     },
     activeCohortIndex () {
       return this.cohortIndex
     }
   },
   watch: {
-    basketType: function () {
-      this.getbasketData()
+    topasType: function () {
+      this.gettopasData()
     },
     activeCohortIndex: function () {
-      this.getbasketData()
+      this.gettopasData()
     }
   },
   methods: {
@@ -204,7 +204,7 @@ export default {
     getSelectedCells (value) {
       const selectedPatients = []
       value.selectedPatiens.forEach(element => {
-        selectedPatients.push(this.basketData[element]['Sample name'])
+        selectedPatients.push(this.topasData[element]['Sample name'])
       })
       this.multiGroupPlotSelectedPatients = selectedPatients
       this.multiGroupPlotSelectedColor = value.colorCode
@@ -212,18 +212,18 @@ export default {
     updateCohort ({ dataSource, cohortIndex }) {
       this.cohortIndex = cohortIndex
     },
-    async getbasketData () {
-      if (this.basketName.length === 0) return
+    async gettopasData () {
+      if (this.topasName.length === 0) return
       this.loading = true
       this.swarmPLotData = []
       this.swarmSelIds = []
-      this.basketData = []
-      const bskid = this.basketName
-      const bsktyp = this.basketType
+      this.topasData = []
+      const bskid = this.topasName
+      const bsktyp = this.topasType
       const cohortIndex = this.cohortIndex
-      let response = await axios.get(`${process.env.VUE_APP_API_HOST}/basket/${cohortIndex}/${bskid}/${bsktyp}`)
+      let response = await axios.get(`${process.env.VUE_APP_API_HOST}/topas/${cohortIndex}/${bskid}/${bsktyp}`)
       if (response.data.length > 0) {
-        this.basketData = response.data
+        this.topasData = response.data
         this.swarmPLotData = response.data
         this.loading = false
         this.swarmField = 'Z-score'
@@ -232,9 +232,9 @@ export default {
           this.swarmPLotData[i].sizeR = 2
         }
       }
-      if (this.ShowSubBaskets) {
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/basket/subbasket/${cohortIndex}/${bskid}`)
-        this.subbasketData = response.data
+      if (this.ShowSubTopass) {
+        response = await axios.get(`${process.env.VUE_APP_API_HOST}/topas/subtopas/${cohortIndex}/${bskid}`)
+        this.subtopasData = response.data
         this.multiGroupPlotSelectedPatients = []
       }
     },
@@ -246,11 +246,11 @@ export default {
         })
       }
     },
-    updateBasket ({ dataSource, identifier }) {
-      this.basketType = dataSource
-      this.basketName = identifier
+    updateTopas ({ dataSource, identifier }) {
+      this.topasType = dataSource
+      this.topasName = identifier
       this.swarmField = dataSource
-      this.getbasketData()
+      this.gettopasData()
     }
 
   }

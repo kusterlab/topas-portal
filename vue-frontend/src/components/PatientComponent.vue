@@ -53,7 +53,7 @@ export default {
   methods: {
     tabChange () {
       //  To Avoid data leakge between different d3 objects, SVGs remove during tab changes
-      //  if (this.items[this.tabs] === 'Protein Expression' || this.items[this.tabs] === 'Basket Scores' || this.items[this.tabs] === 'Drug Scores' || this.items[this.tabs] === 'Phosphorylation Scores') {
+      //  if (this.items[this.tabs] === 'Protein Expression' || this.items[this.tabs] === 'Topas Scores' || this.items[this.tabs] === 'Drug Scores' || this.items[this.tabs] === 'Phosphorylation Scores') {
       d3.selectAll('svg').remove()
       d3.selectAll('.names').remove()
       d3.selectAll('dot').remove()

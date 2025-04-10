@@ -66,11 +66,11 @@
             class="mt-4"
             :placeholder="placeholder"
           />
-          <basket-select
+          <topas-select
             v-if="correlationInputType === 'topas'"
             class="mt-4"
             :cohort-index="cohortIndex"
-            @select-basket="updateIdentifier"
+            @select-topas="updateIdentifier"
           />
           <protein-select
             v-if="correlationInputType !== 'psite' && correlationInputType !== 'topas'"
@@ -238,7 +238,7 @@ import CohortSelect from './partials/CohortSelect.vue'
 import SubcohortSelect from './partials/SubcohortSelect.vue'
 import sampleTable from '@/components/tables/CorrelationTableSamples'
 import scatterPlot from '@/components/plots/ScatterPlot'
-import basketSelect from '@/components/partials/BasketSelect'
+import topasSelect from '@/components/partials/TopasSelect'
 import ProteinSelect from '@/components/partials/ProteinSelect'
 import densityPlot from '@/components/plots/BarhistPlot'
 import { DataType } from '@/constants'
@@ -250,7 +250,7 @@ export default {
     sampleTable,
     densityPlot,
     scatterPlot,
-    basketSelect,
+    topasSelect,
     ProteinSelect,
     CohortSelect,
     SubcohortSelect
@@ -283,7 +283,7 @@ export default {
     loading: false,
     allPatients: 'cohort',
     histPlottitleVariables: [],
-    allBaskets: [],
+    allTopass: [],
     expressionPlusMeta1: [],
     expressionPlusMeta2: [],
     densityData: [],
@@ -292,7 +292,7 @@ export default {
     identifier2: '',
     correlationInputType: DataType.FULL_PROTEOME,
     correlationType: DataType.FULL_PROTEOME,
-    basketType: 'basket_score',
+    topasType: 'topas_score',
     expressionData2: [],
     chartData: [],
     jsonUrl: '',
@@ -366,7 +366,7 @@ export default {
     },
     updateIdentifier ({ dataSource, identifier }) {
       this.identifier1 = identifier
-      this.basketType = dataSource
+      this.topasType = dataSource
     },
     loadCorrelation () {
       this.loading = true
@@ -417,8 +417,8 @@ export default {
         this.yaxisTable = 'TOPAS Scores'
         this.labelX = ''
         this.labelY = ''
-        identifierNumber === 1 ? this.labelX = this.basketType : this.labelY = this.basketType
-        url = `${process.env.VUE_APP_API_HOST}/basket/${this.cohortIndex}/${key}/${this.basketType}`
+        identifierNumber === 1 ? this.labelX = this.topasType : this.labelY = this.topasType
+        url = `${process.env.VUE_APP_API_HOST}/topas/${this.cohortIndex}/${key}/${this.topasType}`
       } else {
         const imputeString = this.doImpute ? 'impute' : 'noimpute'
         url = `${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/${modality}/abundance/${key}/${imputeString}`

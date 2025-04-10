@@ -394,7 +394,7 @@ export default {
   },
   data: () => ({
     cohortIndex: -1,
-    basketName: '',
+    topasName: '',
     isCollapsed: true,
     fixedDomain: false,
     sumIntesitiespp: [],
@@ -445,7 +445,7 @@ export default {
         value: DataType.PHOSPHO_SCORE
       },
       {
-        text: 'TOPAS subbasket',
+        text: 'TOPAS subtopas',
         value: DataType.TOPAS_SUBSCORE
       },
       {
@@ -585,13 +585,13 @@ export default {
       if (selectedData.length > 0) {
         const firstPatient = selectedData[0]['Sample name']
         this.firstPatient = firstPatient
-        let response = await axios.get(`${process.env.VUE_APP_API_HOST}/basket/lolipopdata/${this.cohortIndex}/${firstPatient}`)
+        let response = await axios.get(`${process.env.VUE_APP_API_HOST}/topas/lolipopdata/${this.cohortIndex}/${firstPatient}`)
         this.lolipopData = response.data
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/basket/lolipopdata/${this.cohortIndex}/${firstPatient}/tumor_antigen`)
+        response = await axios.get(`${process.env.VUE_APP_API_HOST}/topas/lolipopdata/${this.cohortIndex}/${firstPatient}/tumor_antigen`)
         this.lolipopDataTumor = response.data
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/basket/lolipopdata/expression/${this.cohortIndex}/${firstPatient}/rtk`)
+        response = await axios.get(`${process.env.VUE_APP_API_HOST}/topas/lolipopdata/expression/${this.cohortIndex}/${firstPatient}/rtk`)
         this.expressionDataRTK = response.data
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/basket/lolipopdata/expression/${this.cohortIndex}/${firstPatient}/downstream_signaling`)
+        response = await axios.get(`${process.env.VUE_APP_API_HOST}/topas/lolipopdata/expression/${this.cohortIndex}/${firstPatient}/downstream_signaling`)
         this.expressionDataDownstream = response.data
         this.getscoresTable()
         this.selectedFPLines = [] // for full proteome

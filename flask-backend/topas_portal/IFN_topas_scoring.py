@@ -9,7 +9,7 @@ def calculate_TOPAS_scores(
     z_scores_df: pd.DataFrame,
     patients_df: pd.DataFrame,
     signatures_proteins: list = topass.IFN_proteins,
-    score_type="basket_score",
+    score_type="topas_score",
 ) -> pd.DataFrame:
 
     alpha_signatures_df = z_scores_df[z_scores_df.index.isin(signatures_proteins)]
@@ -20,7 +20,7 @@ def calculate_TOPAS_scores(
     z_scores_df = final.T
 
     # adding LOO z_scores
-    if score_type != "basket_score":
+    if score_type != "topas_score":
         df = pd.DataFrame(z_scores_df["sum"].copy())
         df.columns = ["sum"]
         new_z_scors = calculate_z_scores(df, col_name="sum")
@@ -37,7 +37,7 @@ def _post_process_z_scores_df(z_scores_df, score_type):
     z_scores_df["Sample name"] = z_scores_df.index
     z_scores_df["Sample name"] = z_scores_df["Sample name"].str.replace(" Z-score", "")
 
-    if score_type != "basket_score":
+    if score_type != "topas_score":
         final_df = z_scores_df[["Sample name", "z_scores_sum_LOO"]]
     else:
         final_df = z_scores_df[["Sample name", "sum"]]

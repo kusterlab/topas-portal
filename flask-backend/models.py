@@ -125,7 +125,7 @@ class Topasscoresraw(BaseModel):
     """
 
     patient_name = CharField()
-    basket_name = TextField()
+    topas_name = TextField()
     value = FloatField()
     cohort_id = IntegerField()
 
@@ -136,7 +136,7 @@ class Topaszscores(BaseModel):
     """
 
     patient_name = CharField()
-    basket_name = TextField()
+    topas_name = TextField()
     value = FloatField()
     cohort_id = IntegerField()
 

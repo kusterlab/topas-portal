@@ -1,20 +1,20 @@
 <template>
   <div>
     <v-autocomplete
-      v-model="basketName"
-      class="basket mt-1"
+      v-model="topasName"
+      class="topas mt-1"
       dense
       outlined
       hide-details
       prepend-icon="mdi-filter"
       auto-select-first
-      :items="allBaskets"
+      :items="allTopass"
       :multiple="multiple"
       :clearable="multiple"
       :small-chips="multiple"
       :deletable-chips="multiple"
       label="Select kinase"
-      @change="updateBasket"
+      @change="updateTopas"
     >
       <template #prepend-item>
         <v-list-item
@@ -54,7 +54,7 @@
       />
       <v-radio
         label="TOPAS raw scores"
-        value="basket_score"
+        value="topas_score"
       />
     </v-radio-group>
   </div>
@@ -65,7 +65,7 @@ import axios from 'axios'
 import { mapMutations } from 'vuex'
 
 export default {
-  name: 'BasketSelect',
+  name: 'TopasSelect',
   props: {
     scoreType: {
       type: Boolean,
@@ -81,45 +81,45 @@ export default {
     }
   },
   data: () => ({
-    basketName: null,
-    allBaskets: [],
+    topasName: null,
+    allTopass: [],
     dataSource: 'z_score',
     showTopasRtkOnly: true
   }),
   computed: {
     allSelected: function () {
-      return this.basketName && this.allBaskets.length === this.basketName.length
+      return this.topasName && this.allTopass.length === this.topasName.length
     }
   },
   watch: {
     cohortIndex: function () {
-      this.basketComboupdater()
+      this.topasComboupdater()
     },
     showTopasRtkOnly: function () {
-      this.basketComboupdater()
+      this.topasComboupdater()
     },
     dataSource: function () {
-      this.updateBasket()
+      this.updateTopas()
     }
   },
   mounted () {
-    this.basketComboupdater()
+    this.topasComboupdater()
   },
   methods: {
     ...mapMutations({
       addNotification: 'notifications/addNotification'
     }),
-    async basketComboupdater () { // retrieving different basket types RTK or main from the backend
+    async topasComboupdater () { // retrieving different topas types RTK or main from the backend
       if (this.cohortIndex < 0) return
 
       const categories = this.showTopasRtkOnly ? 'RTK' : 'all'
-      const baskets = []
+      const topass = []
       try {
-        const response = await axios.get(`${process.env.VUE_APP_API_HOST}/basket/${this.cohortIndex}/basketids/${categories}`)
+        const response = await axios.get(`${process.env.VUE_APP_API_HOST}/topas/${this.cohortIndex}/topasids/${categories}`)
 
         response.data.forEach(element => {
           if (element.ids !== 'num_identified' && element.ids !== 'num_annotated') {
-            baskets.push(element.ids)
+            topass.push(element.ids)
           }
         })
       } catch (error) {
@@ -129,19 +129,19 @@ export default {
         })
       }
 
-      this.allBaskets = baskets
+      this.allTopass = topass
     },
-    updateBasket () {
-      if (!this.basketName || this.basketName.length === 0) return
-      this.$emit('select-basket', { dataSource: this.dataSource, identifier: this.basketName })
+    updateTopas () {
+      if (!this.topasName || this.topasName.length === 0) return
+      this.$emit('select-topas', { dataSource: this.dataSource, identifier: this.topasName })
     },
     selectAll () {
       if (this.allSelected) {
-        this.basketName = null
+        this.topasName = null
       } else {
-        this.basketName = this.allBaskets
+        this.topasName = this.allTopass
       }
-      this.updateBasket()
+      this.updateTopas()
     }
   }
 }
