@@ -27,18 +27,18 @@ class DataType(str, Enum):
     PHOSPHO_SCORE_PSITE = "phospho_psite"
     KINASE_SCORE = "kinase"
     KINASE_SUBSTRATE = "kinase_substrate"
-    TUPAC_KINASE_SCORE = "tupac_kinase"
-    TUPAC_KINASE_SUBSTRATE = "tupac_kinase_substrate"
-    TUPAC_IMPORTANT_PHOSPHO = "important_phosphorylation"
-    TUPAC_PHOSPHO_SCORE = "tupac_phospho"
-    TUPAC_PHOSPHO_SCORE_PSITE = (
-        "tupac_phospho_psite"  # p-sites making up a phosphoprotein score
+    TOPAS_KINASE_SCORE = "topas_kinase"
+    TOPAS_KINASE_SUBSTRATE = "topas_kinase_substrate"
+    TOPAS_IMPORTANT_PHOSPHO = "important_phosphorylation"
+    TOPAS_PHOSPHO_SCORE = "topas_phospho"
+    TOPAS_PHOSPHO_SCORE_PSITE = (
+        "topas_phospho_psite"  # p-sites making up a phosphoprotein score
     )
-    TUPAC_PROTEIN = "tupac_expression"
-    TUPAC_SCORE = "tupac"
-    TUPAC_SCORE_RTK = "tupac_rtk"
+    TOPAS_PROTEIN = "topas_expression"
+    TOPAS_SCORE = "topas"
+    TOPAS_SCORE_RTK = "topas_rtk"
     TRANSCRIPTOMICS = "fpkm"
-    TUPAC_SUBSCORE = "tupac_subscore"
+    TOPAS_SUBSCORE = "topas_subscore"
     BIOMARKER = "biomarker"
 
     PATIENT_METADATA = "patients_df"

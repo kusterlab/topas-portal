@@ -193,7 +193,7 @@
 
 <script>
 import axios from 'axios'
-import { mapActions, mapGetters, mapState } from 'vuex'
+import { mapActions, mapGetters, mapState, mapMutations } from 'vuex'
 export default {
   name: 'ConfigureUpdate',
   props: {
@@ -238,6 +238,9 @@ export default {
   methods: {
     ...mapActions({
       fetchAllDiseases: 'fetchAllDiseases'
+    }),
+    ...mapMutations({
+      addNotification: 'notifications/addNotification'
     }),
     async reloadCohort (allCohorts = false) {
       this.addNotification({

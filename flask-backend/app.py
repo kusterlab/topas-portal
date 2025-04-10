@@ -331,12 +331,12 @@ def reload_mapping_protein_seq():
     return Response("Uploaded meta data to db!")
 
 
-@app.route("/reloadtupacs")
-# http://localhost:3832/reloadtupac
-def reload_tupacs():
+@app.route("/reloadtopass")
+# http://localhost:3832/reloadtopas
+def reload_topass():
     cohorts_db.config.reload_config()
-    cohorts_db.provider.load_all_to_db_to_db_to_db_tupac_scores(cohorts_db.config)
-    return Response("Uploaded TUPAC to db!")
+    cohorts_db.provider.load_all_to_db_to_db_to_db_topas_scores(cohorts_db.config)
+    return Response("Uploaded TOPAS to db!")
 
 
 @app.route("/reload/transcripts")

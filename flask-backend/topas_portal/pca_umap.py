@@ -9,7 +9,7 @@ import numpy as np
 
 import topas_portal.settings as settings
 from . import utils
-from .file_loaders import tupac
+from .file_loaders import topas
 from .dimensionality_reduction import get_dimensionality_reduction_method
 import db
 from topas_portal.utils import IntensityUnit
@@ -32,7 +32,7 @@ def do_pca(
     Args:
         selected_proteins (List[str]): _description_
         results_folder (str): _description_
-        plot_types (List[str]): Available plot types are: proteins, p-peptides, annot-proteins, annot-p-peptides, p-proteins, kinases, tupac.
+        plot_types (List[str]): Available plot types are: proteins, p-peptides, annot-proteins, annot-p-peptides, p-proteins, kinases, topas.
         sample_annot_df (pd.DataFrame): _description_
         meta_annot_df (pd.DataFrame): _description_
         min_sample_occurrence_ratio (float, optional): _description_. Defaults to 0.5.
@@ -130,13 +130,13 @@ def do_pca(
 def load_pca_data(
     results_folder,
     samples,
-    plot_type: utils.DataType = utils.DataType.TUPAC_SCORE,
+    plot_type: utils.DataType = utils.DataType.TOPAS_SCORE,
     include_reference_channels: bool = False,
 ):
     print(plot_type)
     cohort_index = cohorts_db.config.get_cohort_index_from_report_directory(results_folder)
 
-    if plot_type == utils.DataType.TUPAC_SCORE:
+    if plot_type == utils.DataType.TOPAS_SCORE:
         df = cohorts_db.get_basket_scores_df(
             cohort_index, intensity_unit=IntensityUnit.Z_SCORE
         )
@@ -193,7 +193,7 @@ def load_pca_data(
 
     # prepare data
     if plot_type in [
-        utils.DataType.TUPAC_SCORE,
+        utils.DataType.TOPAS_SCORE,
         utils.DataType.KINASE_SCORE,
         utils.DataType.PHOSPHO_SCORE,
     ]:  

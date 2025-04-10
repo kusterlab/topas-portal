@@ -9,7 +9,7 @@ import topas_portal.utils as ef
 import topas_portal.genomics_preprocess as genomics_prep
 import topas_portal.settings as cn
 import topas_portal.psite_annotation as ps
-import topas_portal.basket_preprocess as tupac_loader
+import topas_portal.basket_preprocess as topas_loader
 
 if TYPE_CHECKING:
     import topas_portal.data_api.data_api as data_api
@@ -468,13 +468,13 @@ def _get_sheetname_from_level(level: ef.DataType):
         return "Phospho proteome"
     elif level == ef.DataType.FULL_PROTEOME:
         return "Global proteome"
-    elif level == ef.DataType.TUPAC_SCORE:
+    elif level == ef.DataType.TOPAS_SCORE:
         return "Basket"
     elif level == ef.DataType.PHOSPHO_SCORE:
         return "Protein phosphorylation"
     elif level == ef.DataType.KINASE_SCORE:
         return "Kinase"
-    elif level == ef.DataType.TUPAC_SUBSCORE:
+    elif level == ef.DataType.TOPAS_SUBSCORE:
         return "subasket"
     elif level == ef.DataType.BIOMARKER:
         return "Biomarkers"
@@ -500,11 +500,11 @@ def _get_reports_per_patient_on_the_fly(
         sub_df["Gene names"] = sub_df.index
         final_df = sub_df.dropna()
 
-    elif level == ef.DataType.TUPAC_SCORE:
+    elif level == ef.DataType.TOPAS_SCORE:
         sub_df = cohorts_db.get_basket_scores_df(
             cohort_index, intensity_unit=ef.IntensityUnit.Z_SCORE
         )
-        sub_df = tupac_loader.get_basket_scores_long_format(sub_df)
+        sub_df = topas_loader.get_basket_scores_long_format(sub_df)
         sub_df = sub_df[sub_df["Sample name"] == patient]
         final_df = sub_df[["Basket_id", "Z-score"]]
         final_df = final_df.dropna()

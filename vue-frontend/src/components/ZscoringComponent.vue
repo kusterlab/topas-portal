@@ -48,7 +48,7 @@
               label="Data Type"
             />
             <basket-select
-              v-if="mode=== 'tupac'"
+              v-if="mode=== 'topas'"
               :score-type="false"
               :cohort-index="cohortIndex"
               @select-basket="updateBasket"
@@ -229,7 +229,7 @@ export default {
     allInputDataTypes: [
       {
         text: 'TOPAS Scores',
-        value: DataType.TUPAC_SCORE
+        value: DataType.TOPAS_SCORE
       },
       {
         text: 'Full proteome',

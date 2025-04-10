@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 import pandas as pd
 
 import topas_portal.utils as ef
-import topas_portal.tupacs_scores_meta as tupacs
+import topas_portal.topas_scores_meta as topass
 
 if TYPE_CHECKING:
     from .data_api import data_api
@@ -38,7 +38,7 @@ def fetch_data_matrix(
     identifiers: list[str] | None,
     intensity_unit: ef.IntensityUnit = ef.IntensityUnit.Z_SCORE,
 ) -> pd.DataFrame:
-    if level in tupacs.BASKET_LEVEL_MAPPING:
+    if level in topass.BASKET_LEVEL_MAPPING:
         basket_df = cohorts_db.get_basket_annotation_df()
         level, identifiers = _update_level_and_identifiers(
             basket_df, level, identifiers
@@ -68,7 +68,7 @@ def fetch_data_matrix(
         z_scores_df, identifiers = _get_kinase_substrates_df(
             cohorts_db.get_psite_abundance_df(cohort_index), identifiers,
         )
-    elif level == ef.DataType.TUPAC_SCORE:
+    elif level == ef.DataType.TOPAS_SCORE:
         z_scores_df = cohorts_db.get_basket_scores_df(
             cohort_index, intensity_unit=intensity_unit
         )
@@ -90,8 +90,8 @@ def fetch_data_matrix(
 def _update_level_and_identifiers(
     basket_df: pd.DataFrame, level: ef.DataType, identifiers: list[str]
 ):
-    scoring_rule_level = tupacs.BASKET_LEVEL_MAPPING[level]["scoring_rule_level"]
-    level = tupacs.BASKET_LEVEL_MAPPING[level]["data_level"]
+    scoring_rule_level = topass.BASKET_LEVEL_MAPPING[level]["scoring_rule_level"]
+    level = topass.BASKET_LEVEL_MAPPING[level]["data_level"]
     identifiers = _get_basket_proteins(basket_df, identifiers, level=scoring_rule_level)
     return level, identifiers
 
@@ -128,7 +128,7 @@ def _get_phosphorylation_psite_df(
 ) -> pd.DataFrame:
     """At phospho level"""
     # we intentionally do not consider protein group matches as these are not
-    # used for TUPAC scoring
+    # used for TOPAS scoring
     basket_phosphoproteins_psites = z_scores_df.index[
         z_scores_df["Gene names"].isin(phosphoproteins)
     ].tolist()
@@ -143,7 +143,7 @@ def _merge_with_sample_annotation_df(
     """Merges data matrix with sample annotations dataframe.
 
     Args:
-        data_matrix_df (pd.DataFrame): dataframe with gene/p-site/TUPAC identifiers as rows and samples as columns.
+        data_matrix_df (pd.DataFrame): dataframe with gene/p-site/TOPAS identifiers as rows and samples as columns.
         sample_df (pd.DataFrame): dataframe with samples to filter for.
         drop_nans (bool): drop samples with only NaNs.
 
@@ -167,10 +167,10 @@ def _get_basket_proteins(
     Gives the list of the protein based on the given criteria
     :level: the selected criteria to show the protesin : expression, phosphorylation, kinase
     """
-    if level in tupacs.BASKET_SCORING_RULES:
-        scoring_rule = tupacs.BASKET_SCORING_RULES[level]
+    if level in topass.BASKET_SCORING_RULES:
+        scoring_rule = topass.BASKET_SCORING_RULES[level]
     else:
-        raise ValueError(f"Unknown scoring rule for TUPAC score: {level.value}.")
+        raise ValueError(f"Unknown scoring rule for TOPAS score: {level.value}.")
 
     basket_proteins = basket_annotation_df[
         basket_annotation_df["SUBBASKET"].isin(basket_names)

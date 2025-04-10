@@ -1,14 +1,14 @@
 import pandas as pd
 import topas_portal.utils as utility
 
-import topas_portal.tupacs_scores_meta as tupacs
+import topas_portal.topas_scores_meta as topass
 from topas_portal.utils import calculate_z_scores
 
 
-def calculate_TUPAC_scores(
+def calculate_TOPAS_scores(
     z_scores_df: pd.DataFrame,
     patients_df: pd.DataFrame,
-    signatures_proteins: list = tupacs.IFN_proteins,
+    signatures_proteins: list = topass.IFN_proteins,
     score_type="basket_score",
 ) -> pd.DataFrame:
 

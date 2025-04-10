@@ -9,7 +9,7 @@ from pathlib import Path
 
 import topas_portal.settings as cn
 import topas_portal.utils as utils
-import topas_portal.tupacs_scores_meta as tupacs
+import topas_portal.topas_scores_meta as topass
 
 
 
@@ -52,9 +52,9 @@ def load_subbasket_table(
 ) -> pd.DataFrame:
 
     SUBBASKET_PREFIX = cn.SUBBASKET_FILES_PREFIX
-    for key in tupacs.BASKET_RENAMING.keys():
+    for key in topass.BASKET_RENAMING.keys():
         if main_basket == key:
-            main_basket = tupacs.BASKET_RENAMING[key]
+            main_basket = topass.BASKET_RENAMING[key]
     file_name = f"{report_dir}/{SUBBASKET_PREFIX}{main_basket}.tsv"
     subbasket_scores_long = pd.DataFrame()
     if os.path.exists(file_name):

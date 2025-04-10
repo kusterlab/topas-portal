@@ -27,7 +27,7 @@ def compute_correlation_df(
     or phospho-proteins vs total proteome.
 
     This function handles the retrieval of data for different modalities and computes the correlation 
-    between them. It can work with different levels such as `TUPAC_IMPORTANT_PHOSPHO`, `TUPAC_SCORE`, 
+    between them. It can work with different levels such as `TOPAS_IMPORTANT_PHOSPHO`, `TOPAS_SCORE`, 
     `PHOSPHO_PROTEOME`, etc. It also handles merging additional annotations like basket weights or psite abundances.
 
     Args:
@@ -37,7 +37,7 @@ def compute_correlation_df(
         level (ef.DataType): The first data type to correlate (e.g., protein, FPKM).
         level_2 (ef.DataType): The second data type to correlate (e.g., phospho-proteins, total proteome).
         intensity_unit (ef.IntensityUnit): The intensity unit to use for the data (e.g., SCORE, Z_SCORE).
-        subbasket_type (str, optional): The type of sub-basket data to use if level is `TUPAC_IMPORTANT_PHOSPHO`. 
+        subbasket_type (str, optional): The type of sub-basket data to use if level is `TOPAS_IMPORTANT_PHOSPHO`. 
                                         Defaults to "important phosphorylation".
         patients_list (list, optional): List of patients to consider for correlation computation. Defaults to None.
 
@@ -54,7 +54,7 @@ def compute_correlation_df(
             cohorts_db=cohorts_db,
             cohort_index=1,
             identifier="ProteinA",
-            level=ef.DataType.TUPAC_SCORE,
+            level=ef.DataType.TOPAS_SCORE,
             level_2=ef.DataType.PHOSPHO_PROTEOME,
             intensity_unit=ef.IntensityUnit.SCORE,
             patients_list=["Patient1", "Patient2"]
@@ -63,7 +63,7 @@ def compute_correlation_df(
     if not cohorts_db.provider:
         return "", "500 Cohort data not loaded"
 
-    if level == ef.DataType.TUPAC_IMPORTANT_PHOSPHO:
+    if level == ef.DataType.TOPAS_IMPORTANT_PHOSPHO:
         report_dir = cohorts_db.get_report_dir(cohort_index)
         abundances = basket_utils.get_subbasket_data_per_type(
             report_dir, identifier, sub_type=subbasket_type
@@ -91,7 +91,7 @@ def compute_correlation_df(
         all_abundances, abundances, patients_list=patients_list
     )
 
-    if level == ef.DataType.TUPAC_SCORE:
+    if level == ef.DataType.TOPAS_SCORE:
         # add "Basket weight column" to correlation table
         basket_complete_df = cohorts_db.get_basket_annotation_df()
         basket_annotation_df = basket_utils.get_basket_weights(basket_complete_df)

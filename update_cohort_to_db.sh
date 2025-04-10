@@ -11,4 +11,4 @@ sudo docker exec -it $CONTAINER_ID python  ./importer.py  protein_to_seq  $1
 sudo docker exec -it $CONTAINER_ID python  ./importer.py  patient_meta_data  $1
 sudo docker exec -it $CONTAINER_ID python  ./importer.py  sample_annotation_data $1
 sudo docker exec -it $CONTAINER_ID python  ./importer.py  expression_meta_data  $1
-sudo docker exec -it $CONTAINER_ID python  ./importer.py  tupac_scores $1
+sudo docker exec -it $CONTAINER_ID python  ./importer.py  topas_scores $1

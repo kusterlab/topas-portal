@@ -10,7 +10,7 @@
       :selection="{ mode: 'multiple', allowSelectAll: true }"
       :show-borders="true"
       column-resizing-mode="widget"
-      :columns="tupacFields"
+      :columns="topasFields"
       :column-chooser="{ enabled: 'true', mode: 'select' }"
       @selection-changed="onSelectionChanged"
     >
@@ -94,7 +94,7 @@ export default {
     return {
       pageSizes: [10, 25, 50, 100],
       dataGridRefName: 'dataGrid',
-      tupacFields: [{
+      topasFields: [{
         dataField: 'Sample name',
         dataType: 'string',
         visibleIndex: 0,
@@ -146,7 +146,7 @@ export default {
           element.visible = false
         }
       })
-      this.tupacFields = [...this.tupacFields, ...commonField]
+      this.topasFields = [...this.topasFields, ...commonField]
     },
     filterBySamplename (sample) {
       if (sample !== null) {

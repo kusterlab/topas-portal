@@ -67,13 +67,13 @@
             :placeholder="placeholder"
           />
           <basket-select
-            v-if="correlationInputType === 'tupac'"
+            v-if="correlationInputType === 'topas'"
             class="mt-4"
             :cohort-index="cohortIndex"
             @select-basket="updateIdentifier"
           />
           <protein-select
-            v-if="correlationInputType !== 'psite' && correlationInputType !== 'tupac'"
+            v-if="correlationInputType !== 'psite' && correlationInputType !== 'topas'"
             :cohort-index="cohortIndex"
             :data-layer="correlationInputType"
             class="mt-4"
@@ -163,8 +163,8 @@
                 add-trendlinte="true"
                 :identifier2="identifier2"
                 :remove-owncolor="false"
-                :omics-type-x="correlationInputType.replace('tupac','TOPAS score')"
-                :omics-type-y="correlationType.replace('tupac','TOPAS score')"
+                :omics-type-x="correlationInputType.replace('topas','TOPAS score')"
+                :omics-type-y="correlationType.replace('topas','TOPAS score')"
                 :expressions1="expressionData1"
                 :expressions2="expressionData2"
                 :sel-ids="selectedSamples"
@@ -316,7 +316,7 @@ export default {
       },
       {
         text: 'TOPAS scores',
-        value: DataType.TUPAC_SCORE
+        value: DataType.TOPAS_SCORE
       },
       // {
       //  text: 'Important Phosphorylation',
@@ -409,10 +409,10 @@ export default {
       this.labelY = this.plotScoreType
       const modality = (identifierNumber === 1) ? this.correlationInputType : this.correlationType
       let url = ''
-      if (modality === DataType.TUPAC_IMPORTANT_PHOSPHO) {
+      if (modality === DataType.TOPAS_IMPORTANT_PHOSPHO) {
         url = `${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/important_phospho/${key}`
         this.yaxisTable = 'ImportantPhosphorylation'
-      } else if (modality === DataType.TUPAC_SCORE) {
+      } else if (modality === DataType.TOPAS_SCORE) {
         this.xaxisTable = 'TOPAS Scores'
         this.yaxisTable = 'TOPAS Scores'
         this.labelX = ''

@@ -254,7 +254,7 @@
                       <Lolipop-plot
                         v-if="lolipopData && displayrtkBar"
                         :width="800"
-                        lollipop-id="tupac2Lolipop"
+                        lollipop-id="topas2Lolipop"
                         loli-title="TOPAS Z-scores"
                         :fixed-domain="fixedDomain"
                         :vline="2"
@@ -285,7 +285,7 @@
                       <Lolipop-plot
                         v-if="lolipopDataTumor && displayTumorbar"
                         :width="800"
-                        lollipop-id="tupac2LolipopTumorantigen"
+                        lollipop-id="topas2LolipopTumorantigen"
                         loli-title="Expression Z-scores"
                         :fixed-domain="fixedDomain"
                         :vline="2"
@@ -322,7 +322,7 @@
                         loli-mode="true"
                         loliradian="4"
                         loli-title="Topas Z-scores | EXPRESSION Z-scores"
-                        lollipop-id="tupac2ExpressionplotRTk"
+                        lollipop-id="topas2ExpressionplotRTk"
                         :plot-data="expressionDataRTK"
                         overlapping-y="true"
                         show-legends="true"
@@ -343,7 +343,7 @@
                         loli-mode="true"
                         loliradian="2"
                         loli-title="TOPAS Z-scores | EXPRESSION Z-scores"
-                        lollipop-id="tupac2ExpressionplotDownSignaling"
+                        lollipop-id="topas2ExpressionplotDownSignaling"
                         :plot-data="expressionDataDownstream"
                         overlapping-y="true"
                         show-legends="true"
@@ -402,7 +402,7 @@ export default {
     patientData: [],
     selectedLineppintensity: [],
     selectedLinefpintensity: [],
-    scoreType: DataType.TUPAC_SCORE,
+    scoreType: DataType.TOPAS_SCORE,
     Showcircular: true,
     lolipopData: false,
     showCorrelation: false,
@@ -426,7 +426,7 @@ export default {
     allInputDataTypes: [
       {
         text: 'TOPAS score',
-        value: DataType.TUPAC_SCORE
+        value: DataType.TOPAS_SCORE
       },
       {
         text: 'Full proteome',
@@ -445,8 +445,8 @@ export default {
         value: DataType.PHOSPHO_SCORE
       },
       {
-        text: 'TUPAC subbasket',
-        value: DataType.TUPAC_SUBSCORE
+        text: 'TOPAS subbasket',
+        value: DataType.TOPAS_SUBSCORE
       },
       {
         text: 'Biomarker',

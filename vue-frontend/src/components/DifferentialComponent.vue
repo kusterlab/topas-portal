@@ -218,7 +218,7 @@ export default {
     allProteinnTypes: proteinTypes.CATEGORY,
     proteinType: 'None',
     grp1Index: 'index',
-    modality: DataType.TUPAC_SCORE_RTK,
+    modality: DataType.TOPAS_SCORE_RTK,
     secondGroup: true,
     grp2Index: 'index',
     applyMultipleTestingCorrection: true,
@@ -233,11 +233,11 @@ export default {
     allInputDataTypes: [
       {
         text: 'TOPAS scores (RTK)',
-        value: DataType.TUPAC_SCORE_RTK
+        value: DataType.TOPAS_SCORE_RTK
       },
       {
         text: 'TOPAS scores',
-        value: DataType.TUPAC_SCORE
+        value: DataType.TOPAS_SCORE
       },
       {
         text: 'Full proteome',

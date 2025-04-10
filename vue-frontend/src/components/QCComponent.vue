@@ -307,7 +307,7 @@ export default {
       },
       {
         text: 'TOPAS scores',
-        value: DataType.TUPAC_SCORE
+        value: DataType.TOPAS_SCORE
       },
       {
         text: 'Custom gene/psite list',

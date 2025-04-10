@@ -18,7 +18,7 @@ from topas_portal.data_api.exceptions import (
 )
 import topas_portal.settings as cn
 import topas_portal.utils as utils
-import topas_portal.file_loaders.tupac as tupac_loader
+import topas_portal.file_loaders.topas as topas_loader
 import topas_portal.file_loaders.transcriptomics as tp
 import topas_portal.file_loaders.genomics as genomics_preprocess
 import topas_portal.file_loaders.kinase as kinase_loader
@@ -38,7 +38,7 @@ DICT_ALL_DATA = {
     utils.DataType.SAMPLE_ANNOTATION: [],
     utils.DataType.PHOSPHO_PROTEOME: [],
     utils.DataType.FULL_PROTEOME: [],
-    utils.DataType.TUPAC_SCORE: [],
+    utils.DataType.TOPAS_SCORE: [],
     utils.DataType.KINASE_SCORE: [],
     utils.DataType.PHOSPHO_SCORE: [],
     "fp_intensity_meta_df": [],
@@ -118,7 +118,7 @@ class InMemoryProvider:
         """Basket table is independent of cohorts and will be treated as a single global variable separately"""
         self.logger.log_message("Loading basket tables")
         basket_annotation_path = Path(config["basket_annotation_path"])
-        self.basket_complete_df = tupac_loader.load_basket_annotation_df(
+        self.basket_complete_df = topas_loader.load_basket_annotation_df(
             basket_annotation_path
         )
         self.logger.log_message("Basket tables loaded")
@@ -187,11 +187,11 @@ def _load_all_tables(cohort, config: Dict, do_return_place_holder: bool = False)
     if not do_return_place_holder:
         cohort_report_dir = config["report_directory"][cohort]
         print(f"report dir #########{cohort_report_dir}")
-        basket_df = tupac_loader.load_basket_scores_df(
+        basket_df = topas_loader.load_basket_scores_df(
             Path(os.path.join(cohort_report_dir, cn.BASKET_SCORES_FILE))
         )
         if isinstance(basket_df, pd.DataFrame):
-            basket_df_z_scored = tupac_loader.load_basket_scores_df(
+            basket_df_z_scored = topas_loader.load_basket_scores_df(
                 Path(os.path.join(cohort_report_dir, cn.BASKET_Z_SCORES_FILE))
             )
             basket_df = basket_df.join(
@@ -249,7 +249,7 @@ def _load_all_tables(cohort, config: Dict, do_return_place_holder: bool = False)
         utils.DataType.SAMPLE_ANNOTATION: sample_annotation_df,  # meta data with replicates Sample name column refer to the patients, keeps replicates
         utils.DataType.PHOSPHO_PROTEOME: pp_df_patients,  # phospho sites Z-scores of normalized logged intensities
         utils.DataType.FULL_PROTEOME: fp_df_patients,  # full proteome Z-scores of normalized logged intensities
-        utils.DataType.TUPAC_SCORE: basket_df,  # tupac scores not z_scored
+        utils.DataType.TOPAS_SCORE: basket_df,  # topas scores not z_scored
         utils.DataType.KINASE_SCORE: kinase_score_df,  # kinase scores Z-scores
         utils.DataType.PHOSPHO_SCORE: phospho_score_df,  # phospho scores Z-scores
         "fp_intensity_meta_df": fp_intensity_meta,  # number of peptides detected at full proteome

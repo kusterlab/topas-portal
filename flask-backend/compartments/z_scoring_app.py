@@ -106,7 +106,7 @@ def get_subcohort_zscores(cohort_index: int, identifier: str, patient_identifier
         identifier (str): The identifier (e.g., gene or protein) for which z-scores are calculated.
         patient_identifiers (str): A comma-separated string of possible categories in the metadata column.
         meta_col (str): The metadata column used to group the data for z-score calculations.
-        level (str): The data type level (e.g., TUPAC_SCORE, KINASE_SCORE, PHOSPHO_SCORE) to determine the intensity unit.
+        level (str): The data type level (e.g., TOPAS_SCORE, KINASE_SCORE, PHOSPHO_SCORE) to determine the intensity unit.
 
     Returns:
         pd.DataFrame: A DataFrame containing the processed z-scores, returned by the `main` function.
@@ -130,7 +130,7 @@ def get_subcohort_zscores(cohort_index: int, identifier: str, patient_identifier
     level = DataType(level)
 
     # Data modalities for the z scoring 
-    if level == DataType.TUPAC_SCORE:
+    if level == DataType.TOPAS_SCORE:
         unit = IntensityUnit.SCORE
     elif level == DataType.KINASE_SCORE or level == DataType.PHOSPHO_SCORE:
         unit = IntensityUnit.Z_SCORE
@@ -149,7 +149,7 @@ def get_subcohort_zscores(cohort_index: int, identifier: str, patient_identifier
 
     input_df = raw_df.T  # we transpose dataframe 
 
-    if level == DataType.TUPAC_SCORE:
+    if level == DataType.TOPAS_SCORE:
         input_df = input_df.reset_index()
     else: 
         input_df['Sample name'] = input_df.index

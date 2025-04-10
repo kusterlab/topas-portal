@@ -11,7 +11,7 @@
       :show-borders="true"
       :scrolling="{ useNative: true }"
       column-resizing-mode="widget"
-      :columns="tupacFields"
+      :columns="topasFields"
       :column-chooser="{ enabled: 'true', mode: 'select' }"
       @selection-changed="onSelectionChanged"
     >
@@ -82,7 +82,7 @@ export default {
       pageSizes: [15, 25, 50, 100],
       dataGridRefName: 'dataGrid',
       commonFields: undefined,
-      tupacFields: undefined,
+      topasFields: undefined,
       customFields: [
         {
           dataField: 'Sample name',
@@ -142,7 +142,7 @@ export default {
           element.visible = false
         }
       })
-      this.tupacFields = [...this.customFields, ...commonField]
+      this.topasFields = [...this.customFields, ...commonField]
     },
     filterBySamplename (sample) {
       if (sample !== null) {

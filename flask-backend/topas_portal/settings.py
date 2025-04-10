@@ -95,7 +95,7 @@ PATIENT_TABLE_NAN_STRING = [
 
 
 ############## DIFFERENT TABS meta data ##########
-#  Tupac scores tab
+#  Topas scores tab
 BASKET_META_DATA = [
     "Sample name",
     "Z-score",

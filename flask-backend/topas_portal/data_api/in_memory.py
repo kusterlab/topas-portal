@@ -105,7 +105,7 @@ class InMemoryCohortDataAPI:
         identifier: str = None,
         patient_name: str = None,
     ) -> pd.DataFrame:
-        df = self.provider.get_dataframe(cohort_index, utils.DataType.TUPAC_SCORE)
+        df = self.provider.get_dataframe(cohort_index, utils.DataType.TOPAS_SCORE)
         return self._filter_expression_df(df, intensity_unit, identifier, patient_name)
 
     def get_report_dir(self, cohort_index: str) -> str:

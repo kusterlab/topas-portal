@@ -59,14 +59,14 @@
           />
 
           <basket-select
-            v-if="String(inputDataType).startsWith('tupac')"
+            v-if="String(inputDataType).startsWith('topas')"
             :cohort-index="cohortIndex"
             :score-type="false"
             :multiple="true"
             @select-basket="updateIdentifier"
           />
           <protein-select
-            v-if="!String(inputDataType).startsWith('tupac')"
+            v-if="!String(inputDataType).startsWith('topas')"
             :cohort-index="cohortIndex"
             :multiple="true"
             :data-layer="inputDataType"
@@ -184,27 +184,27 @@ export default {
       },
       {
         text: 'TOPAS scores',
-        value: DataType.TUPAC_SCORE
+        value: DataType.TOPAS_SCORE
       },
       {
         text: 'TOPAS subscores (protein expression)',
-        value: DataType.TUPAC_PROTEIN
+        value: DataType.TOPAS_PROTEIN
       },
       {
         text: 'TOPAS subscores (kinase activity)',
-        value: DataType.TUPAC_KINASE_SCORE
+        value: DataType.TOPAS_KINASE_SCORE
       },
       {
         text: 'TOPAS subscores (kinsase substrate)',
-        value: DataType.TUPAC_KINASE_SUBSTRATE
+        value: DataType.TOPAS_KINASE_SUBSTRATE
       },
       {
         text: 'TOPAS subscores (protein phosphorylation scores)',
-        value: DataType.TUPAC_PHOSPHO_SCORE
+        value: DataType.TOPAS_PHOSPHO_SCORE
       },
       {
         text: 'TOPAS subscores  (p-sites)',
-        value: DataType.TUPAC_PHOSPHO_SCORE_PSITE
+        value: DataType.TOPAS_PHOSPHO_SCORE_PSITE
       }
     ],
     toImageButtonOptions: {

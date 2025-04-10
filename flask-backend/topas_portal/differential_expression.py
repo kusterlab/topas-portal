@@ -8,7 +8,7 @@ from pathlib import Path
 import topas_portal.utils as ef
 from topas_portal.signature_function import one_vs_all_t_test
 import topas_portal.fetch_data_matrix as data
-import topas_portal.tupacs_scores_meta as tupacs
+import topas_portal.topas_scores_meta as topass
 import topas_portal.file_loaders.expression as expression_loader
 
 import topas_portal.settings as cn  # conifgurations
@@ -166,7 +166,7 @@ def _preparare_input_for_t_test(
         cohorts_db (data_api.CohortDataAPI): The database interface for retrieving cohort data.
         cohort_index (str): The identifier of the cohort to fetch data from.
         patients_list (list[str]): A list of patient identifiers to be included in the analysis.
-        level (ef.DataType): The data type (e.g., proteome, transcriptome, TUPAC score, etc.) 
+        level (ef.DataType): The data type (e.g., proteome, transcriptome, TOPAS score, etc.) 
                              used to determine which dataset to retrieve.
 
     Returns:
@@ -175,7 +175,7 @@ def _preparare_input_for_t_test(
             - pd.DataFrame: A transposed data matrix containing only the selected patients.
 
     Notes:
-        - If `level` is `TUPAC_SCORE_RTK`, it is replaced with `TUPAC_SCORE`, and only RTK-related 
+        - If `level` is `TOPAS_SCORE_RTK`, it is replaced with `TOPAS_SCORE`, and only RTK-related 
           identifiers are retrieved.
         - The function fetches the relevant data matrix from `cohorts_db` using the specified 
           intensity unit.
@@ -183,11 +183,11 @@ def _preparare_input_for_t_test(
           are retained.
     """
     identifiers = None
-    if level == ef.DataType.TUPAC_SCORE_RTK:
-        level = ef.DataType.TUPAC_SCORE
+    if level == ef.DataType.TOPAS_SCORE_RTK:
+        level = ef.DataType.TOPAS_SCORE
         identifiers = [
             basket
-            for basket, category in tupacs.TUPAC_CATEGORIES.items()
+            for basket, category in topass.TOPAS_CATEGORIES.items()
             if category == "RTK"
         ]
 
@@ -196,7 +196,7 @@ def _preparare_input_for_t_test(
         cohort_index,
         level,
         identifiers=identifiers,
-        intensity_unit=tupacs.BASKET_DIFFERENTIAL_INTENSITY_UNITS[level],
+        intensity_unit=topass.BASKET_DIFFERENTIAL_INTENSITY_UNITS[level],
     )
     protein_list = input_df.index.unique().tolist()
     overlapping_patients = ef.intersection(patients_list, input_df.columns.tolist())

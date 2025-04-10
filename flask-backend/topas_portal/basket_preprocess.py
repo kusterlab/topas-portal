@@ -8,9 +8,9 @@ import pandas as pd
 import topas_portal.genomics_preprocess as gp
 import topas_portal.settings as cn
 import topas_portal.utils as utils
-import topas_portal.tupacs_scores_meta as tupacs
-import topas_portal.IFN_tupac_scoring as tupac_scoring
-import topas_portal.file_loaders.tupac as tupac_loader
+import topas_portal.topas_scores_meta as topass
+import topas_portal.IFN_topas_scoring as topas_scoring
+import topas_portal.file_loaders.topas as topas_loader
 
 if TYPE_CHECKING:
     import topas_portal.data_api.data_api as data_api
@@ -88,7 +88,7 @@ def get_subbasket_data(
         subbasket_data = get_subbasket_data(cohorts_db, "1", "basket_name")
     """
     report_dir = cohorts_db.config.get_report_directory(cohort_index)
-    basket_sub_df = tupac_loader.load_subbasket_table(report_dir, basketname)
+    basket_sub_df = topas_loader.load_subbasket_table(report_dir, basketname)
     basket_sub_df["basket"].str.replace("\t", "")
     basket_sub_df["basket"].str.strip()
     return utils.df_to_json(basket_sub_df)
@@ -109,7 +109,7 @@ def get_basket_unique(basket_df: pd.DataFrame, categories: str):
     Notes:
         - The function retrieves unique basket names from the index of `basket_df`.
         - Appends a predefined value, "IFN_sig", to the list of basket names.
-        - If `categories` is not "all", it filters the basket names based on the category mappings defined in `tupacs.TUPAC_CATEGORIES`.
+        - If `categories` is not "all", it filters the basket names based on the category mappings defined in `topass.TOPAS_CATEGORIES`.
     
     Example:
         basket_names = get_basket_unique(basket_df, "category1,category2")
@@ -119,9 +119,9 @@ def get_basket_unique(basket_df: pd.DataFrame, categories: str):
     ids.append("IFN_sig")
     if categories != "all":
         ids = [
-            tupac_id
-            for tupac_id in ids
-            if tupacs.TUPAC_CATEGORIES.get(tupac_id, None) in categories.split(",")
+            topas_id
+            for topas_id in ids
+            if topass.TOPAS_CATEGORIES.get(topas_id, None) in categories.split(",")
         ]
     ids = pd.DataFrame(ids, columns=["ids"])
     return utils.df_to_json(ids)
@@ -225,7 +225,7 @@ def get_basket_subset_df(
 ) -> pd.DataFrame:
     """
     Retrieves a subset of basket scores for a specific cohort, either using pre-calculated basket scores 
-    or by calculating TUPAC scores for a specified basket.
+    or by calculating TOPAS scores for a specified basket.
 
     Args:
         cohorts_db (data_api.CohortDataAPI): The CohortDataAPI instance for accessing cohort data.
@@ -237,7 +237,7 @@ def get_basket_subset_df(
         pd.DataFrame: A DataFrame containing the subset of basket scores for the specified cohort and basket names.
 
     Notes:
-        - If the basket name is "IFN_sig", TUPAC scores are calculated using protein abundance data.
+        - If the basket name is "IFN_sig", TOPAS scores are calculated using protein abundance data.
         - Otherwise, the function filters the basket scores DataFrame based on the provided basket names.
         - The basket scores are returned in long format using `get_basket_scores_long_format`.
     
@@ -254,15 +254,15 @@ def get_basket_subset_df(
 
     if basket_names == "IFN_sig":
 
-        tupac_df = tupac_scoring.calculate_TUPAC_scores(
+        topas_df = topas_scoring.calculate_TOPAS_scores(
             cohorts_db.get_protein_abundance_df(
                 cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
             ),
             cohorts_db.get_patient_metadata_df(cohort_index),
             score_type=score_type,
         )
-        print(tupac_df)
-        basket_subset_df = tupac_df
+        print(topas_df)
+        basket_subset_df = topas_df
     else:
         basket_subset_df = basket_df[
             basket_df["Basket_id"].isin(basket_names.split(","))
@@ -298,14 +298,14 @@ def get_circular_barplot_data_pathways(basket_df: pd.DataFrame, patient: str):
         circular_barplot_data = get_circular_barplot_data_pathways(basket_df, "Patient_123")
     """
     basket_df = get_basket_scores_long_format(basket_df)
-    interested_baskets = list(set(tupacs.TUPAC_CATEGORIES.keys()))
+    interested_baskets = list(set(topass.TOPAS_CATEGORIES.keys()))
     df = basket_df[basket_df["Sample name"] == str(patient)].set_index("Sample name")
     df = df[df.Basket_id.isin(interested_baskets)]
     df = df[["Basket_id", "Z-score"]]
     df = df.fillna(0)
     df.columns = ["label", "value"]
-    df["type"] = df.label.map(tupacs.TUPAC_CATEGORIES)
-    df["color"] = df.type.map(tupacs.TUPAC_COLORING_RULE)
+    df["type"] = df.label.map(topass.TOPAS_CATEGORIES)
+    df["color"] = df.type.map(topass.TOPAS_COLORING_RULE)
     df = df.sort_values(by=["type", "value"], ascending=[False, False])
     return df
 
@@ -340,7 +340,7 @@ def get_circular_barplot_data_tumor_antigens(
         tumor_antigen_data = get_circular_barplot_data_tumor_antigens(expression_z_scores_df, "Patient_123")
     """
     df = pd.DataFrame.from_dict(
-        tupacs.TUPAC_CATEGORIES, orient="index", columns=["type"]
+        topass.TOPAS_CATEGORIES, orient="index", columns=["type"]
     )
     interested_proteins = df.index[df.type == "Tumor_Antigen"].tolist()
     expression_df = expression_z_scores_df[
@@ -350,8 +350,8 @@ def get_circular_barplot_data_tumor_antigens(
     expression_df.columns = ["value"]
     expression_df = expression_df.dropna()
     expression_df["label"] = expression_df.index
-    expression_df["type"] = expression_df.label.map(tupacs.TUPAC_CATEGORIES)
-    expression_df["color"] = expression_df.type.map(tupacs.TUPAC_COLORING_RULE)
+    expression_df["type"] = expression_df.label.map(topass.TOPAS_CATEGORIES)
+    expression_df["color"] = expression_df.type.map(topass.TOPAS_COLORING_RULE)
     expression_df = expression_df.sort_values(
         by=["type", "value"], ascending=[False, False]
     )
@@ -369,7 +369,7 @@ def getlolipop_expression_basket(
     preparing the data for a lollipop plot to visualize the relationship between expression scores
     and basket scores for different protein groups.
 
-    This function filters the expression scores for proteins mapped in `TUPAC_EXPRESSION_MAPPING` 
+    This function filters the expression scores for proteins mapped in `TOPAS_EXPRESSION_MAPPING` 
     and the basket scores for a specified patient. It processes the data, ensuring that expression 
     and basket scores are merged in a way that allows for easy visualization in a lollipop plot. 
     Negative scores are converted to zero, and basket scores are inverted to show them as downward 
@@ -390,10 +390,10 @@ def getlolipop_expression_basket(
             - 'expression_score': The expression Z-score for the protein.
             - 'basket_score': The inverted basket Z-score for the corresponding basket.
             - 'type2': The category of the basket.
-            - 'color': The color assigned to the category based on `TUPAC_COLORING_RULE`.
+            - 'color': The color assigned to the category based on `TOPAS_COLORING_RULE`.
 
     Notes:
-        - The data is filtered to include only the proteins specified in `TUPAC_EXPRESSION_MAPPING`.
+        - The data is filtered to include only the proteins specified in `TOPAS_EXPRESSION_MAPPING`.
         - Expression scores are set to zero if they are negative.
         - Basket scores are also set to zero if they are negative, and are inverted to show downward bars.
         - The output DataFrame is filtered by `type_to_filter` to show only the specified category (e.g., "RTK").
@@ -405,7 +405,7 @@ def getlolipop_expression_basket(
     # patient_col = patient  + ' Z-score'
     protein_keys = [
         x
-        for x in tupacs.TUPAC_EXPRESSION_MAPPING.keys()
+        for x in topass.TOPAS_EXPRESSION_MAPPING.keys()
         if x in expression_z_scores_df.index
     ]
 
@@ -421,7 +421,7 @@ def getlolipop_expression_basket(
         (
             basket_z_scores_df["Sample name"].isin([patient])
             & basket_z_scores_df["Basket_id"].isin(
-                tupacs.TUPAC_EXPRESSION_MAPPING.values()
+                topass.TOPAS_EXPRESSION_MAPPING.values()
             )
         )
     ].set_index("Basket_id")[["Z-score"]]
@@ -433,7 +433,7 @@ def getlolipop_expression_basket(
     basket_df["basket_score"] = (
         -1 * basket_df["basket_score"]
     )  # to show them downward of the lolipop plot
-    expression_df["type"] = expression_df["label"].map(tupacs.TUPAC_EXPRESSION_MAPPING)
+    expression_df["type"] = expression_df["label"].map(topass.TOPAS_EXPRESSION_MAPPING)
 
     merged_df = expression_df.merge(basket_df, on="type", how="outer")
     merged_df["expression_score"] = merged_df["expression_score"].fillna(0)
@@ -446,8 +446,8 @@ def getlolipop_expression_basket(
         value_vars=["expression_score", "basket_score"],
         id_vars=["label", "type"],
     )
-    final_df["type2"] = final_df["type"].map(tupacs.TUPAC_CATEGORIES)
-    final_df["color"] = final_df.type2.map(tupacs.TUPAC_COLORING_RULE)
+    final_df["type2"] = final_df["type"].map(topass.TOPAS_CATEGORIES)
+    final_df["color"] = final_df.type2.map(topass.TOPAS_COLORING_RULE)
     final_df["type"] = final_df.type2
     return final_df[final_df.type == type_to_filter]
 
@@ -488,7 +488,7 @@ def get_subbasket_data_per_type(
         json_data = get_subbasket_data_per_type(report_dir="path/to/reports", basket_name="Basket1", return_json=True)
     """
     try:
-        df = tupac_loader.load_subbasket_table(
+        df = topas_loader.load_subbasket_table(
             report_dir, basket_name, return_wide=True
         )
         df = df.set_index("Sample name")

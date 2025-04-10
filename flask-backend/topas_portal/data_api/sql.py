@@ -207,15 +207,15 @@ class SQLCohortDataAPI:
     ) -> pd.DataFrame:
         if intensity_unit == utils.IntensityUnit.SCORE:
             return self._general_basket_query_obtainer(
-                cohort_index, "tupacscoresraw", models.Tupacscoresraw
+                cohort_index, "topasscoresraw", models.Topasscoresraw
             )
         elif intensity_unit == utils.IntensityUnit.Z_SCORE:
             return self._general_basket_query_obtainer(
-                cohort_index, "tupaczscores", models.Tupaczscores
+                cohort_index, "topaszscores", models.Topaszscores
             )
         else:
             raise ValueError(
-                f"Cannot return tupac scores for intensity unit {intensity_unit}"
+                f"Cannot return topas scores for intensity unit {intensity_unit}"
             )
 
     def get_report_dir(self, cohort_index: str) -> str:

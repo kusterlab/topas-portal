@@ -39,7 +39,7 @@ db:
 frontend:
 	sh dockerize-dev-frontend.sh
 
-database_import: zscores_FP_to_db zscores_PP_to_db intensity_FP_to_db intensity_PP_to_db protein_seq_to_db meta_data_to_db sample_annotation_to_db expression_meta_to_db tupac_scores_to_db phospho_scores_to_db
+database_import: zscores_FP_to_db zscores_PP_to_db intensity_FP_to_db intensity_PP_to_db protein_seq_to_db meta_data_to_db sample_annotation_to_db expression_meta_to_db topas_scores_to_db phospho_scores_to_db
 
 zscores_FP_to_db:
 	sudo docker exec -it $(CONTAINER_ID) python  ./importer.py  FP_z  all_cohorts
@@ -65,8 +65,8 @@ sample_annotation_to_db:
 expression_meta_to_db:
 	sudo docker exec -it $(CONTAINER_ID) python  ./importer.py  expression_meta_data  all_cohorts
 
-tupac_scores_to_db:
-	sudo docker exec -it $(CONTAINER_ID) python  ./importer.py tupac_scores all_cohorts
+topas_scores_to_db:
+	sudo docker exec -it $(CONTAINER_ID) python  ./importer.py topas_scores all_cohorts
 
 phospho_scores_to_db:
 	sudo docker exec -it $(CONTAINER_ID) python  ./importer.py phospho_scores all_cohorts
