@@ -580,10 +580,10 @@ def topas_unique(cohort_index, categories):
     )
 
 
-@app.route("/topas/subtopas/<cohort_index>/<topasname>")
-# http://localhost:3832/topas/subtopas/0/ABL
+@app.route("/topas/subscore/<cohort_index>/<topasname>")
+# http://localhost:3832/topas/subscore/0/ABL
 def topas_subtype(cohort_index, topasname):
-    return bp.get_subtopas_data(cohorts_db, cohort_index, topasname)
+    return bp.get_topas_subscore_data(cohorts_db, cohort_index, topasname)
 
 
 @app.route("/<cohort_index>/sampleanot")
@@ -704,7 +704,7 @@ def density_calc_protein(cohort_index, identifier, intensity_unit):
 @app.route("/<cohort_index>/important_phospho/<identifier>")
 # http://localhost:3832/0/important_phospho/EGFR
 def get_important_phospho(cohort_index, identifier):
-    return bp.get_subtopas_data_per_type(
+    return bp.get_topas_subscore_data_per_type(
         cohorts_db.get_report_dir(cohort_index),
         identifier,
         sub_type="important phosphorylation",

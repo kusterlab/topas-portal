@@ -173,7 +173,7 @@ def _get_topas_proteins(
         raise ValueError(f"Unknown scoring rule for TOPAS score: {level.value}.")
 
     topas_proteins = topas_annotation_df[
-        topas_annotation_df["SUBTOPAS"].isin(topas_names)
+        topas_annotation_df["TOPAS_SUBSCORE"].isin(topas_names)
     ]
     topas_proteins = topas_proteins[topas_proteins["SCORING RULE"] == scoring_rule]
     topas_proteins = topas_proteins["GENE NAME"].unique().tolist()

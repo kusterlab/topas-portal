@@ -445,7 +445,7 @@ export default {
         value: DataType.PHOSPHO_SCORE
       },
       {
-        text: 'TOPAS subtopas',
+        text: 'TOPAS subscore',
         value: DataType.TOPAS_SUBSCORE
       },
       {

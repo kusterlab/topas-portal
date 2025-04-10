@@ -23,7 +23,7 @@
               @select-topas="updateTopas"
             />
             <v-checkbox
-              v-model="ShowSubTopass"
+              v-model="showTopasSubscore"
               label="Show TOPAS subscore plots"
               dense
               hide-details
@@ -112,7 +112,7 @@
           </v-card-text>
         </v-card>
         <v-card
-          v-show="ShowSubTopass"
+          v-show="showTopasSubscore"
           flat
           class="mt-4"
         >
@@ -122,7 +122,7 @@
               field-x="topas"
               field-y="score"
               title="sample"
-              :plot-data="subtopasData"
+              :plot-data="topasSubscoreData"
               :selected-patients="multiGroupPlotSelectedPatients"
               :selected-color="multiGroupPlotSelectedColor"
             />
@@ -173,8 +173,8 @@ export default {
     topasData: [],
     allTopass: [],
     swarmPLotData: [],
-    subtopasData: [],
-    ShowSubTopass: false,
+    topasSubscoreData: [],
+    showTopasSubscore: false,
     swarmSelIds: [],
     loading: false,
     multiGroupPlotSelectedPatients: [],
@@ -232,9 +232,9 @@ export default {
           this.swarmPLotData[i].sizeR = 2
         }
       }
-      if (this.ShowSubTopass) {
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/topas/subtopas/${cohortIndex}/${bskid}`)
-        this.subtopasData = response.data
+      if (this.showTopasSubscore) {
+        response = await axios.get(`${process.env.VUE_APP_API_HOST}/topas/subscore/${cohortIndex}/${bskid}`)
+        this.topasSubscoreData = response.data
         this.multiGroupPlotSelectedPatients = []
       }
     },

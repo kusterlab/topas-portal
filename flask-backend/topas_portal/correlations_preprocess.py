@@ -19,7 +19,7 @@ def compute_correlation_df(
     level: ef.DataType,
     level_2: ef.DataType,
     intensity_unit: ef.IntensityUnit,
-    subtopas_type: str = "important phosphorylation",
+    topas_subscore_type: str = "important phosphorylation",
     patients_list=None,
 ):
     """
@@ -37,7 +37,7 @@ def compute_correlation_df(
         level (ef.DataType): The first data type to correlate (e.g., protein, FPKM).
         level_2 (ef.DataType): The second data type to correlate (e.g., phospho-proteins, total proteome).
         intensity_unit (ef.IntensityUnit): The intensity unit to use for the data (e.g., SCORE, Z_SCORE).
-        subtopas_type (str, optional): The type of sub-topas data to use if level is `TOPAS_IMPORTANT_PHOSPHO`. 
+        topas_subscore_type (str, optional): The type of topas subscore data to use if level is `TOPAS_IMPORTANT_PHOSPHO`. 
                                         Defaults to "important phosphorylation".
         patients_list (list, optional): List of patients to consider for correlation computation. Defaults to None.
 
@@ -65,8 +65,8 @@ def compute_correlation_df(
 
     if level == ef.DataType.TOPAS_IMPORTANT_PHOSPHO:
         report_dir = cohorts_db.get_report_dir(cohort_index)
-        abundances = topas_utils.get_subtopas_data_per_type(
-            report_dir, identifier, sub_type=subtopas_type
+        abundances = topas_utils.get_topas_subscore_data_per_type(
+            report_dir, identifier, sub_type=topas_subscore_type
         )
     else:
         abundances = data.fetch_data_matrix(

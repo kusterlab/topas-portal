@@ -2,7 +2,7 @@ import os
 from topas_portal.config_reader import *
 
 
-DATABASE_MODE = False  # rue means using Postgres False means in-memory
+DATABASE_MODE = False  # True means using Postgres, False means in-memory
 DEBUG_MODE = False 
 
 PASSWORD = os.getenv("DB_PASSWORD")  # this should be either in the environmental variables or in CI/CD or docker compose file
@@ -50,9 +50,9 @@ KINASE_SCORES_FILE = "kinase_results/kinase_scores.tsv"
 KINASE_PEPTIDES_SCORES = "kinase_results/scored_peptides.tsv"
 
 #
-SUBTOPAS_FILES_PREFIX = "subtopas_scores_"
-TOPAS_SCORES_FILE = "topas_scores_4th_gen.tsv"
-TOPAS_Z_SCORES_FILE = "topas_scores_4th_gen_zscored.tsv"
+TOPAS_SUBSCORE_FILES_PREFIX = "subbasket_scores_"
+TOPAS_SCORES_FILE = "basket_scores_4th_gen.tsv"
+TOPAS_Z_SCORES_FILE = "basket_scores_4th_gen_zscored.tsv"
 
 # pp z_scores
 PHOSPHO_MEASURES = "phospho_measures_z.tsv"

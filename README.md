@@ -50,8 +50,8 @@ The `CONFIG_FILE_PATH` is a `json` file with the following format:
 - `basket_annotation_path`: path to an Excel file with the following columns:
     ```
     'GROUP'        : '(R)TK', 'SIGNALING', 'OTHER'
-    'TOPAS'       : e.g. 'KIT', 'PDGFRA', 'PDGFRB', 'FGFR1', 'FGFR4', 'FGFR2', 'FGFR3'
-    'SUBTOPAS'    : e.g. 'KIT', 'PDGFRA', 'PDGFRB', 'Ligand', 'FGFR1', 'FGFR4', 'FGFR2'
+    'TOPAS_SCORE'  : e.g. 'KIT', 'PDGFRA', 'PDGFRB', 'FGFR1', 'FGFR4', 'FGFR2', 'FGFR3'
+    'TOPAS_SUBSCORE'    : e.g. 'KIT', 'PDGFRA', 'PDGFRB', 'Ligand', 'FGFR1', 'FGFR4', 'FGFR2'
     'LEVEL'        : 'phosphorylation', 'expression', 'kinase activity'
     'SCORING RULE' : 'highest protein phosphorylation score ,  'highest z-score', 'highest kinase score'highest z-score'
     'WEIGHT'       : e.g.  2. ,  nan,  0.5,  3. , -1. , -0.5,  0. 

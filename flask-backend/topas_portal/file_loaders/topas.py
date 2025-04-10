@@ -47,50 +47,48 @@ def load_topas_scores_df(topas_scores_path: str):
     return topas_scores_df.T
 
 
-def load_subtopas_table(
+def load_topas_subscore_table(
     report_dir: str, main_topas: str, return_wide=False
 ) -> pd.DataFrame:
-
-    SUBTOPAS_PREFIX = cn.SUBTOPAS_FILES_PREFIX
     for key in topass.TOPAS_RENAMING.keys():
         if main_topas == key:
             main_topas = topass.TOPAS_RENAMING[key]
-    file_name = f"{report_dir}/{SUBTOPAS_PREFIX}{main_topas}.tsv"
-    subtopas_scores_long = pd.DataFrame()
+    file_name = f"{report_dir}/{cn.TOPAS_SUBSCORE_FILES_PREFIX}{main_topas}.tsv"
+    topas_subscores_long = pd.DataFrame()
     if os.path.exists(file_name):
-        subtopas_scores = pd.read_csv(os.path.join(report_dir, file_name), sep="\t")
+        topas_subscores = pd.read_csv(os.path.join(report_dir, file_name), sep="\t")
 
         # TODO: check if mean and stdev columns are still in here
-        subtopas_scores = subtopas_scores[
-            ~subtopas_scores["Sample name"].str.contains("targets_")
+        topas_subscores = topas_subscores[
+            ~topas_subscores["Sample name"].str.contains("targets_")
         ]
-        subtopas_scores["Sample name"] = subtopas_scores["index"]
-        list_del = subtopas_scores.filter(regex=r"topas_name").columns.to_list()
+        topas_subscores["Sample name"] = topas_subscores["index"]
+        list_del = topas_subscores.filter(regex=r"topas_name").columns.to_list()
         list_del = [*list_del, *["index", "Sarcoma Subtype", "Histologic subtype"]]
-        columns_to_del = [s for s in list_del if s in subtopas_scores.columns]
-        subtopas_scores = subtopas_scores.drop(columns_to_del, axis=1)
-        subtopas_scores = subtopas_scores.drop(
-            subtopas_scores.filter(regex="total_topas_score").columns, axis=1
+        columns_to_del = [s for s in list_del if s in topas_subscores.columns]
+        topas_subscores = topas_subscores.drop(columns_to_del, axis=1)
+        topas_subscores = topas_subscores.drop(
+            topas_subscores.filter(regex="total_topas_score").columns, axis=1
         )
-        subtopas_scores = utils.remove_patient_prefix(subtopas_scores, from_col=False)
+        topas_subscores = utils.remove_patient_prefix(topas_subscores, from_col=False)
         if return_wide:
 
-            return subtopas_scores
+            return topas_subscores
         else:
-            topas_names = subtopas_scores.columns[
-                subtopas_scores.columns != "Sample name"
+            topas_names = topas_subscores.columns[
+                topas_subscores.columns != "Sample name"
             ].values.tolist()
-            subtopas_scores_long = pd.melt(
-                subtopas_scores.reset_index(),
+            topas_subscores_long = pd.melt(
+                topas_subscores.reset_index(),
                 id_vars="Sample name",
                 value_vars=topas_names,
                 value_name="Z-score",
             )
-            subtopas_scores_long = subtopas_scores_long.dropna()
-            subtopas_scores_long.columns = ["sample", "topas", "score"]
+            topas_subscores_long = topas_subscores_long.dropna()
+            topas_subscores_long.columns = ["sample", "topas", "score"]
 
-            subtopas_scores_long["color"] = "grey"
-            subtopas_scores_long["sizeR"] = 0.5
-            subtopas_scores = utils.remove_patient_prefix(subtopas_scores, from_col=False)
+            topas_subscores_long["color"] = "grey"
+            topas_subscores_long["sizeR"] = 0.5
+            topas_subscores = utils.remove_patient_prefix(topas_subscores, from_col=False)
 
-            return subtopas_scores_long
+            return topas_subscores_long

@@ -24,7 +24,7 @@ def get_topas_weights(topas_annotations_df: pd.DataFrame) -> pd.DataFrame:
     returns:
         pd.DataFrame[gene, weight, topas]
     """
-    selected_columns = {"GENE NAME": "gene", "WEIGHT": "weight", "SUBTOPAS": "topas"}
+    selected_columns = {"GENE NAME": "gene", "WEIGHT": "weight", "TOPAS_SUBSCORE": "topas"}
     weights_df = topas_annotations_df[selected_columns.keys()]
     weights_df = weights_df.rename(columns=selected_columns, errors="raise")
 
@@ -65,7 +65,7 @@ def _merge_topass_with_metadata(
     return topas_df
 
 
-def get_subtopas_data(
+def get_topas_subscore_data(
     cohorts_db: data_api.CohortDataAPI, cohort_index: str, topasname: str
 ):
     """
@@ -85,10 +85,10 @@ def get_subtopas_data(
         - Strips leading/trailing whitespace and removes tab characters from the "topas" column.
     
     Example:
-        subtopas_data = get_subtopas_data(cohorts_db, "1", "topas_name")
+        topas_subscore_data = get_topas_subscore_data(cohorts_db, "1", "topas_name")
     """
     report_dir = cohorts_db.config.get_report_directory(cohort_index)
-    topas_sub_df = topas_loader.load_subtopas_table(report_dir, topasname)
+    topas_sub_df = topas_loader.load_topas_subscore_table(report_dir, topasname)
     topas_sub_df["topas"].str.replace("\t", "")
     topas_sub_df["topas"].str.strip()
     return utils.df_to_json(topas_sub_df)
@@ -452,7 +452,7 @@ def getlolipop_expression_topas(
     return final_df[final_df.type == type_to_filter]
 
 
-def get_subtopas_data_per_type(
+def get_topas_subscore_data_per_type(
     report_dir: str,
     topas_name: str,
     sub_type: str = "important phosphorylation",
@@ -482,13 +482,13 @@ def get_subtopas_data_per_type(
 
     Example:
         # To get sub-topas data as a DataFrame for the topas "Topas1" and sub-type "important phosphorylation"
-        df = get_subtopas_data_per_type(report_dir="path/to/reports", topas_name="Topas1")
+        df = get_topas_subscore_data_per_type(report_dir="path/to/reports", topas_name="Topas1")
         
         # To get the same data in JSON format
-        json_data = get_subtopas_data_per_type(report_dir="path/to/reports", topas_name="Topas1", return_json=True)
+        json_data = get_topas_subscore_data_per_type(report_dir="path/to/reports", topas_name="Topas1", return_json=True)
     """
     try:
-        df = topas_loader.load_subtopas_table(
+        df = topas_loader.load_topas_subscore_table(
             report_dir, topas_name, return_wide=True
         )
         df = df.set_index("Sample name")
@@ -502,5 +502,5 @@ def get_subtopas_data_per_type(
         df = df.T
         df.columns = df.columns + " Z-score"
     except:
-        raise ValueError(f"no data found for the subtopas {topas_name}")
+        raise ValueError(f"no data found for the TOPAS subscore {topas_name}")
     return df
