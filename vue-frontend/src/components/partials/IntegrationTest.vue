@@ -29,16 +29,16 @@
       </v-card-title>
       <v-card-text>
         <v-select
-          v-model="diseaseName"
+          v-model="cohortName"
           class="cohort"
           dense
           outlined
-          :items="all_diseases"
+          :items="all_cohorts"
           label="Cohort"
         />
         <v-btn
           class="mt-4"
-          :disabled="!showUpdateCohorts || diseaseName === ''"
+          :disabled="!showUpdateCohorts || cohortName === ''"
           @click="checkCohort"
         >
           Validate current cohort
@@ -88,7 +88,7 @@ export default {
     }
   },
   data: () => ({
-    diseaseName: '',
+    cohortName: '',
     showUpdateCohorts: true,
     logValue: '',
     proteinCheck: 'EGFR',
@@ -96,7 +96,7 @@ export default {
   }),
   computed: {
     ...mapState({
-      all_diseases: state => state.all_diseases
+      all_cohorts: state => state.all_cohorts
     }),
     ...mapGetters({
       hasData: 'hasData'
@@ -116,7 +116,7 @@ export default {
     async checkCohort () {
       this.showUpdateCohorts = false
       let response = ''
-      const cohort = this.diseaseName
+      const cohort = this.cohortName
       response = await axios.get(`${process.env.VUE_APP_API_HOST}/check/integrability/${cohort}`)
       this.showUpdateCohorts = true
       this.addNotification({
@@ -127,12 +127,12 @@ export default {
     },
     async checkvalidityallCohorts () {
       await axios.get(`${process.env.VUE_APP_API_HOST}/integration/clearlogs`)
-      for (let i = 0; i < this.all_diseases.length; i++) {
-        this.checkValidity(this.all_diseases[i])
+      for (let i = 0; i < this.all_cohorts.length; i++) {
+        this.checkValidity(this.all_cohorts[i])
       }
       this.updateLog()
     },
-    async checkValidity (cohort = this.diseaseName) {
+    async checkValidity (cohort = this.cohortName) {
       if (cohort) {
         const proteinName = this.proteinCheck
         const basketName = this.basketCheck

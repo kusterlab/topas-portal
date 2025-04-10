@@ -30,13 +30,13 @@ export default {
     }
   },
   created () {
-    this.fetchAllDiseases()
+    this.fetchAllCohorts()
     window.addEventListener('keydown', this.escapeListener)
   },
 
   methods: {
     ...mapActions({
-      fetchAllDiseases: 'fetchAllDiseases'
+      fetchAllCohorts: 'fetchAllCohorts'
     }),
     async loaderChange () {
       await axios.get(`${process.env.VUE_APP_API_HOST}/reload`)

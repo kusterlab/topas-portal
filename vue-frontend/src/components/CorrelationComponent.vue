@@ -335,7 +335,7 @@ export default {
   }),
   computed: {
     ...mapState({
-      all_diseases: state => state.all_diseases
+      all_cohorts: state => state.all_cohorts
     }),
     ...mapGetters({
       hasData: 'hasData'

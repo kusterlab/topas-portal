@@ -327,7 +327,7 @@ def cross_validation_for_one_vs_all_t_test(
         )
         primary_signatures_proteins = list(primary_signatures["Gene Names"])
 
-        # test: calculation of the disease_score
+        # test: calculation of the cohort_score
         test_set = inputDF.iloc[test_index, :]
         test_patients = intersection(intensity_file.columns, test_set["Sample name"])
         sub_intensity = intensity_file[

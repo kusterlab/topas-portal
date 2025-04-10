@@ -41,11 +41,11 @@
         <v-col cols="3">
           <v-select
             v-if="updateMode"
-            v-model="diseaseName"
+            v-model="cohortName"
             dense
             outlined
             hide-details
-            :items="all_diseases"
+            :items="all_cohorts"
             label="Cohort"
             @change="getcohortPath"
           />
@@ -182,7 +182,7 @@
       <v-btn
         class="mt-4 primary"
         :loading="!showUpdateCohorts"
-        :disabled="diseaseName.length === 0"
+        :disabled="cohortName.length === 0"
         @click="reloadCohort(allCohorts=false)"
       >
         Reload selected cohort data
@@ -195,12 +195,8 @@
 import axios from 'axios'
 import { mapActions, mapGetters, mapState, mapMutations } from 'vuex'
 export default {
-  name: 'ConfigureUpdate',
+  name: 'ConfigUpdate',
   props: {
-    cohortName: {
-      type: String,
-      default: ''
-    },
     updateMode: {
       type: Boolean,
       default: true
@@ -208,7 +204,7 @@ export default {
   },
   data: () => ({
     configPath: '',
-    diseaseName: '',
+    cohortName: '',
     patientAnnot: '',
     sampleAnnot: '',
     showUpdateCohorts: true,
@@ -220,7 +216,7 @@ export default {
   }),
   computed: {
     ...mapState({
-      all_diseases: state => state.all_diseases
+      all_cohorts: state => state.all_cohorts
     }),
     ...mapGetters({
       hasData: 'hasData'
@@ -237,7 +233,7 @@ export default {
   },
   methods: {
     ...mapActions({
-      fetchAllDiseases: 'fetchAllDiseases'
+      fetchAllCohorts: 'fetchAllCohorts'
     }),
     ...mapMutations({
       addNotification: 'notifications/addNotification'
@@ -259,7 +255,7 @@ export default {
             message: `${response.data}`
           })
         } else {
-          const cohort = this.updateMode ? this.diseaseName : this.cohortName
+          const cohort = this.updateMode ? this.cohortName : this.cohortName
           response = await axios.get(`${process.env.VUE_APP_API_HOST}/reload/${cohort}`)
           this.addNotification({
             color: 'info',
@@ -274,14 +270,14 @@ export default {
           message: `Error while loading cohort data: ${error.response.data}`
         })
       }
-      this.fetchAllDiseases()
+      this.fetchAllCohorts()
     },
     async getcohortPath () {
-      const diseaseName = this.updateMode ? this.diseaseName : this.cohortName
+      const cohortName = this.updateMode ? this.cohortName : this.cohortName
       const response = await axios.get(`${process.env.VUE_APP_API_HOST}/config`)
-      this.patientAnnot = response.data.patient_annotation_path[diseaseName]
-      this.reportDir = response.data.report_directory[diseaseName]
-      this.sampleAnnot = response.data.sample_annotation_path[diseaseName]
+      this.patientAnnot = response.data.patient_annotation_path[cohortName]
+      this.reportDir = response.data.report_directory[cohortName]
+      this.sampleAnnot = response.data.sample_annotation_path[cohortName]
     },
     async patientAnnotationUpdater () {
       await this.generalUpdatePath('patient_annotation_path', this.patientAnnot)
@@ -294,11 +290,11 @@ export default {
       this.generalUpdatePath('report_directory', this.reportDir)
     },
     async generalUpdatePath (key, annotation) {
-      const diseaseName = this.updateMode ? this.diseaseName : this.cohortName
+      const cohortName = this.updateMode ? this.cohortName : this.cohortName
       const pathValue = annotation.replace(/[/]/g, 'topas_slash')
       const pathCheck = await axios.get(`${process.env.VUE_APP_API_HOST}/path/check/${pathValue}`)
       if (pathCheck.data === 'True') {
-        await axios.get(`${process.env.VUE_APP_API_HOST}/update/${key}/${diseaseName}/${pathValue}`)
+        await axios.get(`${process.env.VUE_APP_API_HOST}/update/${key}/${cohortName}/${pathValue}`)
         this.addNotification({
           color: 'success',
           message: `Updated to ${annotation}`

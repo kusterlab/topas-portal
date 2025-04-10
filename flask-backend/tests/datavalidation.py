@@ -137,12 +137,12 @@ def basket_score_checker(PORTAL_CONFIG_FILE, LOCAL_HTTTP, cohort, basket_name="A
     return res_df
 
 
-def get_cohort_index(cohort: str, all_diseases: list):
+def get_cohort_index(cohort: str, all_cohorts: list):
     """
     Gets the index for the current cohort from a list of the cohorts
     """
     ind = 100  # the index for the cohort supposed to be updated
-    for j, diseaseName in enumerate(all_diseases):
-        if cohort == diseaseName:
+    for j, cohortName in enumerate(all_cohorts):
+        if cohort == cohortName:
             ind = j
     return ind

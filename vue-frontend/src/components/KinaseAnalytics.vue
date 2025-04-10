@@ -15,13 +15,13 @@
           </v-card-title>
           <v-card-text>
             <v-select
-              v-model="diseaseName"
+              v-model="cohortName"
               prepend-icon="mdi-database"
               class="cohort"
               dense
               outlined
               hide-details
-              :items="all_diseases"
+              :items="all_cohorts"
               label="Cohort"
             />
             <v-radio-group
@@ -249,7 +249,7 @@ export default {
   },
   data: () => ({
     heatmapData: [],
-    diseaseName: '',
+    cohortName: '',
     selectedData: [],
     showLegends: true,
     oneVsAll: false,
@@ -271,13 +271,13 @@ export default {
   }),
   computed: {
     ...mapState({
-      all_diseases: state => state.all_diseases
+      all_cohorts: state => state.all_cohorts
     }),
     ...mapGetters({
       hasData: 'hasData'
     }),
     cohortIndex () {
-      return this.all_diseases.indexOf(this.diseaseName)
+      return this.all_cohorts.indexOf(this.cohortName)
     }
   },
   methods: {

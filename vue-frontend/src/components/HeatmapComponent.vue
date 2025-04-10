@@ -136,7 +136,7 @@ export default {
       type: Number,
       default: 400
     },
-    diseaseChange: {
+    cohortChange: {
       type: Boolean,
       default: false
     },
@@ -215,7 +215,7 @@ export default {
   computed: {
   },
   watch: {
-    diseaseChange: function () {
+    cohortChange: function () {
       this.getPatientsData()
     }
   },

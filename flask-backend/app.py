@@ -369,22 +369,22 @@ def get_the_insilico_peptide_digested():
 
 
 # http://localhost:3832/reload/PAN_CANCER
-@app.route("/reload/<disease>")
-def reload_current_cohort(disease):
+@app.route("/reload/<cohort>")
+def reload_current_cohort(cohort):
     cohorts_db.config.reload_config()
-    cohorts_db.provider.load_tables(cohorts_db.config, cohort_names=[disease])
+    cohorts_db.provider.load_tables(cohorts_db.config, cohort_names=[cohort])
     return Response("Updated!")
 
 
 # http://localhost:3832/update/FP/INFORM/0
-@app.route("/update/<key>/<disease>/<value>")
-def config_updater(key, disease, value):
+@app.route("/update/<key>/<cohort>/<value>")
+def config_updater(key, cohort, value):
     """
-    Updates the configuration settings for a given key and disease, then checks if the provided value exists as a file or directory.
+    Updates the configuration settings for a given key and cohort, then checks if the provided value exists as a file or directory.
 
     Args:
         key (str): The configuration key to update.
-        disease (str): The disease-specific context for the configuration update.
+        cohort (str): The cohort-specific context for the configuration update.
         value (str): The new value to be assigned to the configuration key.
 
     Returns:
@@ -395,15 +395,15 @@ def config_updater(key, disease, value):
         - Uses `os.path.exists(value)` to check if the new value corresponds to an existing file or directory.
         - Returns a Flask `Response` object with a string representation of the existence check result.
     """
-    cohorts_db.config.update_config_values(key, disease, value)
+    cohorts_db.config.update_config_values(key, cohort, value)
     return Response(str(os.path.exists(value)))
 
 
 # http://localhost:3832/addcohort/new_cohort
-@app.route("/addcohort/<disease>")
-def add_cohort(disease):
-    cohorts_db.config.add_new_cohort_placeholder(disease)
-    cohorts_db.provider.load_single_cohort_with_empty_data(disease)
+@app.route("/addcohort/<cohort>")
+def add_cohort(cohort):
+    cohorts_db.config.add_new_cohort_placeholder(cohort)
+    cohorts_db.provider.load_single_cohort_with_empty_data(cohort)
     return {"done": True}
 
 

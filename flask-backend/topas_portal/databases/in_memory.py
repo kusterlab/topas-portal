@@ -92,8 +92,8 @@ class InMemoryProvider:
         We pass both the cohort_name and cohort_index to check for consistency.
         """
         self.logger.log_message(f"loading ############ {cohort_name}")
-        disease_data = _load_all_tables(cohort_name, config.get_config())
-        for data_layer in disease_data.keys():
+        cohort_data = _load_all_tables(cohort_name, config.get_config())
+        for data_layer in cohort_data.keys():
             data_layer_cohort_name = self.dict_all_data[data_layer][cohort_index][
                 "name"
             ]
@@ -103,13 +103,13 @@ class InMemoryProvider:
                 )
                 continue
 
-            if not isinstance(disease_data[data_layer], pd.DataFrame):
+            if not isinstance(cohort_data[data_layer], pd.DataFrame):
                 self.logger.log_message(
-                    f"{data_layer} of {cohort_name} was not loaded {disease_data[data_layer]}"
+                    f"{data_layer} of {cohort_name} was not loaded {cohort_data[data_layer]}"
                 )
                 continue
 
-            self.dict_all_data[data_layer][cohort_index]["data_frame"] = disease_data[
+            self.dict_all_data[data_layer][cohort_index]["data_frame"] = cohort_data[
                 data_layer
             ]
             self.logger.log_message(f"{data_layer} of {cohort_name} was Updated ##")
