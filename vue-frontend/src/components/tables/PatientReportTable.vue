@@ -183,7 +183,11 @@ export default {
       } else {
         outputFilename = 'patient_reports.zip'
       }
-      axios.get(`${this.patientReportUrl}/${patientIdentifiers.join(';')}`, { responseType: 'arraybuffer' })
+      this.addNotification({
+        color: 'info',
+        message: 'Downloading patient reports, this may take a while.'
+      })
+      axios.get(this.patientReportUrl.replace(':patients', patientIdentifiers.join(';')), { responseType: 'arraybuffer' })
         .then((response) => {
           this.forceFileDownload(response, outputFilename)
         })

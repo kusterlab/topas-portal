@@ -484,7 +484,7 @@ export default {
       return this.type === 'lolipop'
     },
     patientReportUrl () {
-      return `${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/patient_reports`
+      return api.PATIENT_REPORT_TABLE_XLSX({ cohort_index: this.cohortIndex, patients: ':patients' })
     }
   },
   watch: {
