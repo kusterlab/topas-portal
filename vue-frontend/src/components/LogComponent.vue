@@ -92,6 +92,8 @@ import IntegrationTest from './partials/IntegrationTest.vue'
 import ErrorLog from './partials/ErrorLog.vue'
 import configTable from '@/components/tables/configTable.vue'
 import axios from 'axios'
+import { api } from '@/routes.ts'
+
 export default {
   name: 'LogComponent',
   components: {
@@ -110,7 +112,7 @@ export default {
     password: '',
     passwordIsValid: false,
     file: null,
-    PathvalidationUrl: `${process.env.VUE_APP_API_HOST}/config/checkall`,
+    PathvalidationUrl: api.CONFIG_CHECKALL(),
     checkPath: ''
   }),
   mounted () {
@@ -118,7 +120,7 @@ export default {
   methods: {
     async checkPassValidity () {
       const pass = this.password
-      const response = await axios.get(`${process.env.VUE_APP_API_HOST}/password/${pass}`)
+      const response = await axios.get(api.PASSWORD_CHECK({ password: pass }))
       if (response.data.pass === 'valid') {
         this.passwordIsValid = true
       }

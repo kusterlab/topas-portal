@@ -21,7 +21,10 @@ flask:
 test_flask:
 	cd flask-backend && poetry run python3 app.py test
 
-serve:
+export_flask_routes:
+	cd flask-backend && poetry run python3 routes.py
+
+serve: export_flask_routes
 	cd vue-frontend && npm install && npm run serve
 
 lint:

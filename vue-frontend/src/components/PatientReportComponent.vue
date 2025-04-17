@@ -371,6 +371,7 @@ import LolipopPlot from '@/components/plots/LolipopPlot'
 import CircularbarPlot from '@/components/plots/CircularbarPlot'
 import histogram from '@/components/plots/GenericHistogram.vue'
 import { DataType } from '@/constants'
+import { api } from '@/routes.ts'
 
 export default {
   name: 'ReportComponent',
@@ -505,7 +506,7 @@ export default {
       this.patientData = null
       let response = []
       try {
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/metadata`)
+        response = await axios.get(api.PATIENTS_METADATA({ cohort_index: this.cohortIndex }))
         this.patientData = response.data
       } catch (error) {
         this.addNotification({
@@ -514,7 +515,7 @@ export default {
         })
       }
       try {
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/patientcenteric/proteincounts/${this.cohortIndex}/fp`)
+        response = await axios.get(api.PATIENT_CENTRIC_PROTEIN_COUNTS({ cohort_index: this.cohortIndex, fp_pp: 'fp' }))
         this.proteinSatitistics = response.data
       } catch (error) {
         this.addNotification({
@@ -523,7 +524,7 @@ export default {
         })
       }
       try {
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/patientcentric/ppintensity/${this.cohortIndex}/pp`)
+        response = await axios.get(api.PATIENT_CENTRIC_PP_INTENSITY({ cohort_index: this.cohortIndex, dtype: 'pp' }))
         this.sumIntesitiespp = response.data
       } catch (error) {
         this.addNotification({
@@ -532,7 +533,7 @@ export default {
         })
       }
       try {
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/patientcentric/ppintensity/${this.cohortIndex}/fp`)
+        response = await axios.get(api.PATIENT_CENTRIC_PP_INTENSITY({ cohort_index: this.cohortIndex, dtype: 'fp' }))
         this.sumIntesitiesfp = response.data
       } catch (error) {
         this.addNotification({
@@ -541,7 +542,7 @@ export default {
         })
       }
       try {
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/patientcenteric/proteincounts/${this.cohortIndex}/pp`)
+        response = await axios.get(api.PATIENT_CENTRIC_PROTEIN_COUNTS({ cohort_index: this.cohortIndex, fp_pp: 'pp' }))
         this.peptideSatitistics = response.data
       } catch (error) {
         this.addNotification({
@@ -550,7 +551,7 @@ export default {
         })
       }
       try {
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/patientcenteric/proteincounts/${this.cohortIndex}/fppeptide`)
+        response = await axios.get(api.PATIENT_CENTRIC_PROTEIN_COUNTS({ cohort_index: this.cohortIndex, fp_pp: 'fppeptide' }))
         this.peptidefpSatitistics = response.data
       } catch (error) {
         this.addNotification({
@@ -560,7 +561,7 @@ export default {
       }
       if (this.showCorrelation) {
         try {
-          response = await axios.get(`${process.env.VUE_APP_API_HOST}/correlation/fpkmprotein/${this.cohortIndex}`)
+          response = await axios.get(api.CORRELATION_FPKM_PROTEIN({ cohort_index: this.cohortIndex }))
           this.correlationStatistics = response.data
         } catch (error) {
           this.addNotification({
@@ -571,9 +572,12 @@ export default {
       }
     },
     getscoresTable () {
-      this.patientscoresDataurl = ''
-      const downloadmethod = this.openReport ? 'fromreport' : 'onfly'
-      this.patientscoresDataurl = `${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/patient_report/${this.firstPatient}/${this.scoreType}/${downloadmethod}`
+      this.patientscoresDataurl = api.PATIENT_REPORT_TABLE({
+        cohort_index: this.cohortIndex,
+        patient: this.firstPatient,
+        level: this.scoreType,
+        downloadmethod: this.openReport ? 'fromreport' : 'onfly'
+      })
       // this.patientscoresData = response.data
     },
     async updateSelectedRows (selectedIds, selectedData) {
@@ -585,13 +589,13 @@ export default {
       if (selectedData.length > 0) {
         const firstPatient = selectedData[0]['Sample name']
         this.firstPatient = firstPatient
-        let response = await axios.get(`${process.env.VUE_APP_API_HOST}/topas/lolipopdata/${this.cohortIndex}/${firstPatient}`)
+        let response = await axios.get(api.TOPAS_LOLLIPOP({ cohort_index: this.cohortIndex, patient: firstPatient }))
         this.lolipopData = response.data
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/topas/lolipopdata/${this.cohortIndex}/${firstPatient}/tumor_antigen`)
+        response = await axios.get(api.TOPAS_LOLLIPOP_TUMOR({ cohort_index: this.cohortIndex, patient: firstPatient }))
         this.lolipopDataTumor = response.data
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/topas/lolipopdata/expression/${this.cohortIndex}/${firstPatient}/rtk`)
+        response = await axios.get(api.TOPAS_EXPRESSION_DOWNSTREAM({ cohort_index: this.cohortIndex, patient: firstPatient }))
         this.expressionDataRTK = response.data
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/topas/lolipopdata/expression/${this.cohortIndex}/${firstPatient}/downstream_signaling`)
+        response = await axios.get(api.TOPAS_EXPRESSION_RTK({ cohort_index: this.cohortIndex, patient: firstPatient }))
         this.expressionDataDownstream = response.data
         this.getscoresTable()
         this.selectedFPLines = [] // for full proteome

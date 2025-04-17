@@ -90,3 +90,9 @@ class CohortDataAPI(Protocol):
 
     def get_oncoKB_annotations(self) -> pd.DataFrame:
         """"""
+
+    def get_report_dir(self, cohort_index: str) -> str:
+        """"""
+
+    def get_patients_entities_df(self, cohort_index: str) -> pd.DataFrame:
+        """"""

@@ -366,7 +366,7 @@ def get_patients_proteins_as_json(
 
 
 def get_list_by_selected_modality_per_cohort(
-    cohorts_db: data_api.CohortDataAPI, cohort_index, modality
+    cohorts_db: data_api.CohortDataAPI, cohort_index: int, modality: str
 ):
     """Gets all items of the modality = batches or patients from the annotation file"""
     sample_annotation = cohorts_db.get_sample_annotation_df(cohort_index)

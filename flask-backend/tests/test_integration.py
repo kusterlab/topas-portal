@@ -6,6 +6,8 @@ import json
 import os
 import pandas as pd
 
+from routes import ApiRoutes
+
 
 def test_portal_main_config_exist():
 
@@ -30,7 +32,7 @@ def test_config_cohorts():
     Checking all items in the config path
 
     """
-    response = app.test_client().get("/config")
+    response = app.test_client().get(ApiRoutes.CONFIG)
     assert response.status_code == 200
 
     for config_key_dictionaries in [
@@ -61,7 +63,7 @@ def _check_colnames_between_config_and_setting(
     key=cn.PATIENTS_META_DATA, file_to_check="patient_annotation_path"
 ):
     """check to see all columns refering to patients meta data are in the files of the related cohorts"""
-    response = app.test_client().get("/config")
+    response = app.test_client().get(ApiRoutes.CONFIG)
     config_file_path_keys = json.loads(response.data.decode("utf-8")).get(file_to_check)
     for k in config_file_path_keys.keys():
         meta_data_file = pd.read_excel(config_file_path_keys[k])
