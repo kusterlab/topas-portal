@@ -25,7 +25,7 @@ export default {
   props: {
     savePlot: {
       type: Boolean,
-      default: false
+      default: true
     },
     id: {
       type: String,
@@ -253,7 +253,6 @@ export default {
         YaxisData.push(Element[1].expression2)
       })
       */
-      console.log(this.selIds)
       this.expressionsCommon.forEach(element => {
         XaxisData.push(element.expression1)
         YaxisData.push(element.expression2)

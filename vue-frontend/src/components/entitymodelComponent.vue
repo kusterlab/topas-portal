@@ -14,8 +14,8 @@
             Entity scores
           </v-card-title>
           <cohort-select
-              @select-cohort="updateCohort"
-            />
+            @select-cohort="updateCohort"
+          />
           <v-btn
             class="ma-2"
             color="primary"

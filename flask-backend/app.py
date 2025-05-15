@@ -2,6 +2,9 @@ import traceback
 import sys
 import os
 import logging
+import shutil
+from pathlib import Path
+import zipfile
 
 from flask import Flask, render_template, Response, jsonify, send_from_directory
 from flask_cors import CORS
@@ -19,7 +22,7 @@ import topas_portal.transcripts_preprocess as transcript
 
 import topas_portal.settings as settings
 import topas_portal.prexp_preprocess as pp
-import topas_portal.basket_preprocess as bp
+import topas_portal.topas_preprocess as bp
 import topas_portal.correlations_preprocess as cp
 
 import topas_portal.fetch_data_matrix as hp
@@ -31,6 +34,9 @@ config = {
     "CACHE_TYPE": "SimpleCache",  # Flask-Caching related configs
     "CACHE_DEFAULT_TIMEOUT": 300,
 }
+UPLOAD_FOLDER = "./uploads"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
 error_log = []
 
 cohorts_db = db.cohorts_db
@@ -39,13 +45,15 @@ app = Flask(__name__, static_folder="../dist/static", template_folder="../dist")
 app.config.from_mapping(config)
 app.config["config_file"] = cohorts_db.config.get_config_path()
 app.config["LOCAL_HTTTP"] = cohorts_db.config.get_local_http()
-app.config['integration_http'] = cohorts_db.config.get_integration_test_http()
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+app.config["integration_http"] = cohorts_db.config.get_integration_test_http()
 cache = Cache(app)
 Compress(app)
 
 with app.app_context():
     from compartments.qc_app import qc_page
     from compartments.drug_app import drug_page
+
     # from compartments.drugscore_app import drugscore_page # under development
     from compartments.proteinscore_app import proteinscore_page
     from compartments.kinasescores_app import kinasescore_page
@@ -87,6 +95,7 @@ def configuration_checks():
     cohorts_db.config.reload_config()
     return utils.check_all_config_file(cohorts_db.config.get_config())
 
+
 @app.route("/password/<password>")
 # http://localhost:3832/password/topaswp3
 def password_check(password):
@@ -97,19 +106,18 @@ def password_check(password):
         password (str): The input password to be checked.
 
     Returns:
-        dict: A dictionary with a key 'pass' and a value of 'valid' if the password matches 
+        dict: A dictionary with a key 'pass' and a value of 'valid' if the password matches
               the system password, otherwise 'invalid'.
     """
     if str(password) == settings.PASSWORD:
-       return {'pass': 'valid'}
+        return {"pass": "valid"}
     else:
-        return {'pass': 'invalid'}
+        return {"pass": "invalid"}
 
 
 @app.route("/config/config_path")
 def config_path():
-    return {'path': str(cohorts_db.config.config_path)}
-
+    return {"path": str(cohorts_db.config.config_path)}
 
 
 @app.route("/cohort_names")
@@ -131,7 +139,6 @@ def favicon():
         "favicon.ico",
         mimetype="image/vnd.microsoft.icon",
     )
-
 
 
 @cache.cached(timeout=50)
@@ -162,15 +169,67 @@ def get_patient_report_table(
     )
 
 
+@cache.cached(timeout=50)
+@app.route("/<int:cohort_index>/patient_reports/<patients>")
+# http://localhost:3832/0/patient_reports/I007-031-108742
+def get_patient_reports_as_attachment(cohort_index: int, patients: str):
+    """Returns patient report excel files. For multiple reports, a zip file is returned.
+
+    Args:
+        cohort_index (int): cohort index
+        patient (str): patient identifiers separated by semicolons
+
+    Returns:
+        Response: excel or zip file with patient report(s)
+    """
+    reports_dir = cohorts_db.get_report_dir(cohort_index)
+    patients = patients.split(";")
+
+    def get_patient_report_path(patient_identifier: str):
+        return (
+            reports_dir + "/Reports/" + patient_identifier + "_proteomics_results.xlsx"
+        )
+
+    if len(patients) == 1:
+        path_to_patient_results = get_patient_report_path(patients[0])
+        if not os.path.exists(path_to_patient_results):
+            return f"Unable to download report for {patients[0]}", 400
+        shutil.copy(path_to_patient_results, app.config["UPLOAD_FOLDER"])
+        return send_from_directory(
+            app.config["UPLOAD_FOLDER"],
+            Path(path_to_patient_results).name,
+            as_attachment=True,
+        )
+    elif len(patients) > 1:
+        paths_to_patient_results = []
+        for patient in patients:
+            path_to_patient_results = get_patient_report_path(patient)
+            if not os.path.exists(path_to_patient_results):
+                return f"Unable to download report for {patient}", 400
+            paths_to_patient_results.append(path_to_patient_results)
+
+        output_zipfile = os.path.join(
+            app.config["UPLOAD_FOLDER"], "patient_reports.zip"
+        )
+        with zipfile.ZipFile(output_zipfile, "w") as zipFile:
+            for path_to_patient_results in paths_to_patient_results:
+                zipFile.write(
+                    path_to_patient_results,
+                    Path(path_to_patient_results).name,
+                    compress_type=zipfile.ZIP_STORED,
+                )  # no compression, because Excel files are already binary
+        return send_from_directory(
+            app.config["UPLOAD_FOLDER"], Path(output_zipfile).name, as_attachment=True
+        )
+
 
 # http://localhost:3832//entityscore/status
 @app.route("/entityscore/status")
 def entity_models_status():
     try:
-        return jsonify(cohorts_db.config.config['use_entity_model'])
+        return jsonify(cohorts_db.config.config["use_entity_model"])
     except:
         return jsonify(0)
-
 
 
 # http://localhost:3832/correlation/fpkmprotein/0
@@ -183,9 +242,9 @@ def get_protein_fpkm_correlation(cohort_index):
         cohort_index (int): The index of the cohort for which the correlation is computed.
 
     Returns:
-        str: A JSON-formatted string containing the correlation data between protein abundance 
+        str: A JSON-formatted string containing the correlation data between protein abundance
              and transcript expression across patients.
-    
+
     Notes:
         - Retrieves transcript expression (FPKM) data.
         - Fetches protein abundance data for the specified cohort.
@@ -198,7 +257,6 @@ def get_protein_fpkm_correlation(cohort_index):
         protein_intensity_df, transcript_df
     )
     return utils.df_to_json(correlation_df)
-
 
 
 # http://localhost:3832/oncokb/api/cnv/EGFR/AMPLIFICATION
@@ -220,7 +278,6 @@ def get_oncokb_cnv_annotation(identifier, cnv_type):
         - The returned data structure is dependent on the OncoKB API response format.
     """
     return genomics_process.get_cnv_from_the_ONKOKB_api(identifier, cnv_type=cnv_type)
-
 
 
 ##################### Cohorts Loading and UPDATING
@@ -262,7 +319,7 @@ def reload_db_metadata():
 # http://localhost:3832/reloadfpintensity
 def reload_fp_intensity():
     cohorts_db.config.reload_config()
-    cohorts_db.provider.load_all_to_db_to_db_fp_meta_expression(cohorts_db.config)
+    cohorts_db.provider.load_all_to_db_fp_meta_expression(cohorts_db.config)
     return Response("Uploaded meta dat for the FP to db!")
 
 
@@ -274,12 +331,12 @@ def reload_mapping_protein_seq():
     return Response("Uploaded meta data to db!")
 
 
-@app.route("/reloadtupacs")
-# http://localhost:3832/reloadtupac
-def reload_tupacs():
+@app.route("/reloadtopass")
+# http://localhost:3832/reloadtopas
+def reload_topass():
     cohorts_db.config.reload_config()
-    cohorts_db.provider.load_all_to_db_to_db_to_db_tupac_scores(cohorts_db.config)
-    return Response("Uploaded TUPAC to db!")
+    cohorts_db.provider.load_all_to_db_topas_scores(cohorts_db.config)
+    return Response("Uploaded TOPAS to db!")
 
 
 @app.route("/reload/transcripts")
@@ -298,54 +355,56 @@ def reload_insilico_digest():
     return Response("Uploaded digesetd peptide map to db!")
 
 
-@app.route("/reload/basketannotations")
-# http://localhost:3832/reload/basketannotations
-def reload_basket_annotations():
+@app.route("/reload/topasannotations")
+# http://localhost:3832/reload/topasannotations
+def reload_topas_annotations():
     cohorts_db.config.reload_config()
-    cohorts_db.provider._load_basket_annotation_tables(cohorts_db.config.get_config())
+    cohorts_db.provider._load_topas_annotation_tables(cohorts_db.config.get_config())
+
 
 @app.route("/digest/numpep")
-# this function is not used at the moment; it can be used to calculate iBAQ in case needed 
+# this function is not used at the moment; it can be used to calculate iBAQ in case needed
 def get_the_insilico_peptide_digested():
     return utils.df_to_json(cohorts_db.get_digestes_peptides_maps())
 
 
 # http://localhost:3832/reload/PAN_CANCER
-@app.route("/reload/<disease>")
-def reload_current_cohort(disease):
+@app.route("/reload/<cohort>")
+def reload_current_cohort(cohort):
     cohorts_db.config.reload_config()
-    cohorts_db.provider.load_tables(cohorts_db.config, cohort_names=[disease])
+    cohorts_db.provider.load_tables(cohorts_db.config, cohort_names=[cohort])
     return Response("Updated!")
 
 
 # http://localhost:3832/update/FP/INFORM/0
-@app.route("/update/<key>/<disease>/<value>")
-def config_updater(key, disease, value):
+@app.route("/update/<key>/<cohort>/<value>")
+def config_updater(key, cohort, value):
     """
-    Updates the configuration settings for a given key and disease, then checks if the provided value exists as a file or directory.
+    Updates the configuration settings for a given key and cohort, then checks if the provided value exists as a file or directory.
 
     Args:
         key (str): The configuration key to update.
-        disease (str): The disease-specific context for the configuration update.
+        cohort (str): The cohort-specific context for the configuration update.
         value (str): The new value to be assigned to the configuration key.
 
     Returns:
         Response: An HTTP response indicating whether the provided value exists as a file or directory.
-    
+
     Notes:
         - Calls `cohorts_db.config.update_config_values()` to update the configuration.
         - Uses `os.path.exists(value)` to check if the new value corresponds to an existing file or directory.
         - Returns a Flask `Response` object with a string representation of the existence check result.
     """
-    cohorts_db.config.update_config_values(key, disease, value)
+    cohorts_db.config.update_config_values(key, cohort, value)
     return Response(str(os.path.exists(value)))
 
+
 # http://localhost:3832/addcohort/new_cohort
-@app.route("/addcohort/<disease>")
-def add_cohort(disease):   
-    cohorts_db.config.add_new_cohort_placeholder(disease)
-    cohorts_db.provider.load_single_cohort_with_empty_data(disease)
-    return {'done':True}
+@app.route("/addcohort/<cohort>")
+def add_cohort(cohort):
+    cohorts_db.config.add_new_cohort_placeholder(cohort)
+    cohorts_db.provider.load_single_cohort_with_empty_data(cohort)
+    return {"done": True}
 
 
 @app.route("/path/check/<path>")
@@ -398,12 +457,12 @@ def errorlog():
 @app.route("/patientcentric/ppintensity/<cohort_index>/<dtype>")
 # http://localhost:3832/patientcentric/ppintensity/0/fp
 # http://localhost:3832/patientcentric/ppintensity/0/pp
-def get_sum_intensities_pp_level(cohort_index,dtype):
+def get_sum_intensities_pp_level(cohort_index, dtype):
     if settings.DATABASE_MODE:
         return {}  # this query is too slow in the database
 
     return utils.df_to_json(
-        pp.sum_intensities_across_all_patients(cohorts_db, cohort_index,dtype=dtype)
+        pp.sum_intensities_across_all_patients(cohorts_db, cohort_index, dtype=dtype)
     )
 
 
@@ -419,24 +478,24 @@ def get_identifications_frequency(cohort_index, fp_pp):
     )
 
 
-@app.route("/basket/<cohort_index>/<basket_names>/<score_type>")
-# http://localhost:3832/basket/0/ALK/basket_score
-def basket(cohort_index, basket_names, score_type):
-    return bp.get_basket_data(cohorts_db, cohort_index, basket_names, score_type)
+@app.route("/topas/<cohort_index>/<topas_names>/<score_type>")
+# http://localhost:3832/topas/0/ALK/topas_score
+def topas(cohort_index, topas_names, score_type):
+    return bp.get_topas_data(cohorts_db, cohort_index, topas_names, score_type)
 
 
-@app.route("/basket/annotations")
-# http://localhost:3832/basket/annotations
-def basket_annotations():
-    return utils.df_to_json(cohorts_db.get_basket_annotation_df())
+@app.route("/topas/annotations")
+# http://localhost:3832/topas/annotations
+def topas_annotations():
+    return utils.df_to_json(cohorts_db.get_topas_annotation_df())
 
 
-@app.route("/basket/lolipopdata/<cohort_index>/<patient>")
-# http://localhost:3832/basket/lolipopdata/0/I002-025-226610
+@app.route("/topas/lolipopdata/<cohort_index>/<patient>")
+# http://localhost:3832/topas/lolipopdata/0/I002-025-226610
 def get_circular_barplot_data(cohort_index, patient):
     return utils.df_to_json(
         bp.get_circular_barplot_data_pathways(
-            cohorts_db.get_basket_scores_df(
+            cohorts_db.get_topas_scores_df(
                 cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
             ),
             patient,
@@ -444,8 +503,8 @@ def get_circular_barplot_data(cohort_index, patient):
     )
 
 
-@app.route("/basket/lolipopdata/<cohort_index>/<patient>/tumor_antigen")
-# http://localhost:3832/basket/lolipopdata/0/I002-025-226610/tumor_antigen
+@app.route("/topas/lolipopdata/<cohort_index>/<patient>/tumor_antigen")
+# http://localhost:3832/topas/lolipopdata/0/I002-025-226610/tumor_antigen
 def get_circular_barplot_data_tumor(cohort_index, patient):
     return utils.df_to_json(
         bp.get_circular_barplot_data_tumor_antigens(
@@ -458,18 +517,18 @@ def get_circular_barplot_data_tumor(cohort_index, patient):
 
 
 @app.route(
-    "/basket/lolipopdata/expression/<cohort_index>/<patient>/downstream_signaling"
+    "/topas/lolipopdata/expression/<cohort_index>/<patient>/downstream_signaling"
 )
-# http://localhost:3832/basket/lolipopdata/expression/0/I002-025-226610/downstream_signaling
+# http://localhost:3832/topas/lolipopdata/expression/0/I002-025-226610/downstream_signaling
 def get_lolipopexpression_down_stream(cohort_index, patient):
     return utils.df_to_json(
-        bp.getlolipop_expression_basket(
+        bp.getlolipop_expression_topas(
             cohorts_db.get_protein_abundance_df(
                 cohort_index,
                 intensity_unit=utils.IntensityUnit.Z_SCORE,
                 patient_name=patient,
             ),
-            cohorts_db.get_basket_scores_df(
+            cohorts_db.get_topas_scores_df(
                 cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
             ),
             patient,
@@ -494,17 +553,17 @@ def get_list_proteins(cohort_index, level):
     )
 
 
-@app.route("/basket/lolipopdata/expression/<cohort_index>/<patient>/rtk")
-# http://localhost:3832/basket/lolipopdata/expression/0/I002-025-226610/rtk
+@app.route("/topas/lolipopdata/expression/<cohort_index>/<patient>/rtk")
+# http://localhost:3832/topas/lolipopdata/expression/0/I002-025-226610/rtk
 def get_lolipopexpression_rtk(cohort_index, patient):
     return utils.df_to_json(
-        bp.getlolipop_expression_basket(
+        bp.getlolipop_expression_topas(
             cohorts_db.get_protein_abundance_df(
                 cohort_index,
                 intensity_unit=utils.IntensityUnit.Z_SCORE,
                 patient_name=patient,
             ),
-            cohorts_db.get_basket_scores_df(
+            cohorts_db.get_topas_scores_df(
                 cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
             ),
             patient,
@@ -513,18 +572,18 @@ def get_lolipopexpression_rtk(cohort_index, patient):
     )
 
 
-@app.route("/basket/<cohort_index>/basketids/<categories>")
-# http://localhost:3832/basket/0/basketids
-def basket_unique(cohort_index, categories):
-    return bp.get_basket_unique(
-        cohorts_db.get_basket_scores_df(cohort_index), categories
+@app.route("/topas/<cohort_index>/topasids/<categories>")
+# http://localhost:3832/topas/0/topasids
+def topas_unique(cohort_index, categories):
+    return bp.get_topas_unique(
+        cohorts_db.get_topas_scores_df(cohort_index), categories
     )
 
 
-@app.route("/basket/subbasket/<cohort_index>/<basketname>")
-# http://localhost:3832/basket/subbasket/0/ABL
-def basket_subtype(cohort_index, basketname):
-    return bp.get_subbasket_data(cohorts_db, cohort_index, basketname)
+@app.route("/topas/subscore/<cohort_index>/<topasname>")
+# http://localhost:3832/topas/subscore/0/ABL
+def topas_subtype(cohort_index, topasname):
+    return bp.get_topas_subscore_data(cohorts_db, cohort_index, topasname)
 
 
 @app.route("/<cohort_index>/sampleanot")
@@ -576,13 +635,14 @@ def patients_meta_fields(cohort_index):
 @app.route("/<cohort_index>/metadata/fields/<fieldname>")
 # http://localhost:3832/0/metadata/fields/code_oncotree
 def unique_field_intereset(cohort_index, fieldname):
-    unique_items =  cohorts_db.get_patient_metadata_df(cohort_index)[fieldname].dropna().unique().tolist()
-    unique_list = [str(x) for x in unique_items]
-    return jsonify(
-        sorted(
-            unique_list
-        )
+    unique_items = (
+        cohorts_db.get_patient_metadata_df(cohort_index)[fieldname]
+        .dropna()
+        .unique()
+        .tolist()
     )
+    unique_list = [str(x) for x in unique_items]
+    return jsonify(sorted(unique_list))
 
 
 @app.route("/<cohort_index>/metadata/fields/<fieldname>/patients/<field_interest>")
@@ -594,7 +654,9 @@ def get_patientslist_by_fieldname(cohort_index, fieldname, field_interest):
         field_interest = [str(x) for x in field_interest]
         df[fieldname] = df[fieldname].astype(str)
 
-    return jsonify(df[utils.ColumnNames.SAMPLE_NAME][df[fieldname].isin(field_interest)].tolist())
+    return jsonify(
+        df[utils.ColumnNames.SAMPLE_NAME][df[fieldname].isin(field_interest)].tolist()
+    )
 
 
 @app.route("/patients/<cohort_index>/all_entities")
@@ -642,7 +704,7 @@ def density_calc_protein(cohort_index, identifier, intensity_unit):
 @app.route("/<cohort_index>/important_phospho/<identifier>")
 # http://localhost:3832/0/important_phospho/EGFR
 def get_important_phospho(cohort_index, identifier):
-    return bp.get_subbasket_data_per_type(
+    return bp.get_topas_subscore_data_per_type(
         cohorts_db.get_report_dir(cohort_index),
         identifier,
         sub_type="important phosphorylation",
@@ -671,12 +733,14 @@ def abundance(cohort_index, level, identifier, imputation):
     "/<cohort_index>/<level>/correlation/<level_2>/<identifier>/<intensity_unit>/<patients_list>"
 )
 @cache.cached(timeout=50)
-# http://localhost:3832/0/basket_score/correlation/protein/EGFR/z_scored
+# http://localhost:3832/0/topas_score/correlation/protein/EGFR/z_scored
 # http://localhost:3832/0/phospho_score/correlation/protein/EGFR/intensity
 # http://localhost:3832/0/fpkm/correlation/protein/EGFR/z_scored
 # http://localhost:3832/0/important_phosphorylation/correlation/protein/EGFR/z_scored
-def correlation(cohort_index, level, identifier, level_2, intensity_unit, patients_list=None):
-    patients_list = None if patients_list=='all' else patients_list.split(',')
+def correlation(
+    cohort_index, level, identifier, level_2, intensity_unit, patients_list=None
+):
+    patients_list = None if patients_list == "all" else patients_list.split(",")
     return cp.compute_correlation_df(
         cohorts_db,
         cohort_index,
@@ -684,7 +748,7 @@ def correlation(cohort_index, level, identifier, level_2, intensity_unit, patien
         utils.DataType(level),
         utils.DataType(level_2),
         utils.IntensityUnit(intensity_unit),
-        patients_list=patients_list
+        patients_list=patients_list,
     )
 
 
@@ -708,11 +772,16 @@ def batch_effect(
 @app.route("/differential/<cohort_index>/<level>/<grp1_ind>/<grp2_ind>/<y_axis_type>")
 # http://localhost:3832/differential/0/intensity/index_346_286_463/index_444_514_592
 # http://localhost:3832/differential/0/phosphopeptides/index_346_286_463/index
-# http://localhost:3832/differential/0/basketscores/index_346_286_463/index_444_514_592
+# http://localhost:3832/differential/0/topasscores/index_346_286_463/index_444_514_592
 def get_t_test_json(cohort_index, grp1_ind, grp2_ind, level, y_axis_type):
     return utils.df_to_json(
         differential_test.get_data_for_t_test(
-            cohorts_db, cohort_index, grp1_ind, grp2_ind, utils.DataType(level), y_axis_type
+            cohorts_db,
+            cohort_index,
+            grp1_ind,
+            grp2_ind,
+            utils.DataType(level),
+            y_axis_type,
         )
     )
 

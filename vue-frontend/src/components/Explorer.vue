@@ -5,18 +5,8 @@
         color="primary"
         dark
       >
-        <v-avatar
-          height="30"
-          class="avatar-spacing"
-        >
-          <!-- Custom class added -->
-          <img
-            :src="imagesrc"
-          >
-        </v-avatar>
-        <v-spacer /> <!-- Spacer added here -->
         <!-- Left-aligned Tabs with Icons -->
-        <v-tabs class="tabs-spacing">
+        <v-tabs show-arrows>
           <v-tab
             v-for="item in items"
             :key="item.path"
@@ -50,6 +40,15 @@
             {{ item.label }}
           </v-tab>
         </v-tabs>
+        <v-spacer />
+        <v-avatar
+          height="30"
+          class="avatar-spacing"
+        >
+          <img
+            :src="imagesrc"
+          >
+        </v-avatar>
       </v-toolbar>
 
       <router-view />
@@ -83,11 +82,11 @@ export default {
   font-size: 16px;
 }
 .avatar-spacing {
-  margin-right: 18px; /* Adjust this value to your desired space */
+  margin-right: 0px;
 }
 
 .protein-icon {
-        fill: rgba(190, 227, 234, 0.54);
-    }
+  fill: rgba(190, 227, 234, 0.54);
+}
 
 </style>
