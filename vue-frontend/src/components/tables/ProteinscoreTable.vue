@@ -1,16 +1,5 @@
 <template>
   <div>
-    <v-btn
-      class="ma-2"
-      color="primary"
-      @click="clearSels"
-    >
-      <v-icon
-        dark
-      >
-        mdi-refresh
-      </v-icon>
-    </v-btn>
     <DxDataGrid
       :ref="dataGridRefName"
       :data-source="dataSource"
@@ -37,6 +26,21 @@
         :show-navigation-buttons="true"
       />
       <DxPaging :page-size="10" />
+      <DxToolbar>
+        <DxItem
+          location="before"
+          locate-in-menu="auto"
+          show-text="always"
+          widget="dxButton"
+          :options="refreshButtonOptions"
+        />
+        <DxItem
+          name="exportButton"
+        />
+        <DxItem
+          name="columnChooserButton"
+        />
+      </DxToolbar>
     </DxDataGrid>
   </div>
 </template>
@@ -47,7 +51,9 @@ import {
   DxPager,
   DxExport,
   DxPaging,
-  DxFilterRow
+  DxFilterRow,
+  DxToolbar,
+  DxItem
 } from 'devextreme-vue/data-grid'
 import 'devextreme/dist/css/dx.light.css'
 import axios from 'axios'
@@ -57,7 +63,9 @@ export default {
     DxExport,
     DxPager,
     DxPaging,
-    DxFilterRow
+    DxFilterRow,
+    DxToolbar,
+    DxItem
   },
   props: {
     dataSource: undefined
@@ -91,6 +99,17 @@ export default {
       }]
     }
   },
+  computed: {
+    refreshButtonOptions () {
+      return {
+        icon: 'pulldown',
+        text: 'Reset table',
+        onClick: () => {
+          this.$refs[this.dataGridRefName].instance.clearSelection()
+        }
+      }
+    }
+  },
   created () {
     this.getCommonfield()
   },
@@ -104,10 +123,6 @@ export default {
         }
       })
       this.phosphorylationFields = [...this.phosphorylationFields, ...commonField]
-    },
-    clearSels () {
-      const dataGrid = this.$refs[this.dataGridRefName].instance
-      dataGrid.clearSelection()
     },
     onSelectionChanged: function (e) {
       this.$emit('onRowSelect', e.selectedRowKeys, e.selectedRowsData)

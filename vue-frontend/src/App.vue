@@ -1,12 +1,14 @@
 <template>
   <v-app>
     <v-main>
+      <TheNotificationSnackbars />
       <explorer />
     </v-main>
   </v-app>
 </template>
 
 <script>
+import TheNotificationSnackbars from './components/partials/TheNotificationSnackbars'
 
 import axios from 'axios'
 import { mapActions } from 'vuex'
@@ -15,11 +17,11 @@ import Explorer from './components/Explorer'
 export default {
   name: 'App',
   components: {
+    TheNotificationSnackbars,
     Explorer
   },
   data: () => ({
     imagesrc: require('@/assets/topas_logo.png')
-
   }),
 
   watch: {
@@ -28,17 +30,16 @@ export default {
     }
   },
   created () {
-    this.fetchAllDiseases()
+    this.fetchAllCohorts()
     window.addEventListener('keydown', this.escapeListener)
   },
 
   methods: {
     ...mapActions({
-      fetchAllDiseases: 'fetchAllDiseases'
+      fetchAllCohorts: 'fetchAllCohorts'
     }),
     async loaderChange () {
-      const response = await axios.get(`${process.env.VUE_APP_API_HOST}/reload`)
-      console.log(response)
+      await axios.get(`${process.env.VUE_APP_API_HOST}/reload`)
     }
   }
 }

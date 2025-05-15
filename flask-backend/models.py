@@ -119,24 +119,24 @@ class Expressionfpmeta(BaseModel):
     value = IntegerField()
 
 
-class Tupacscoresraw(BaseModel):
+class Topasscoresraw(BaseModel):
     """
-    Tupac/Bakset scores of wp3 pipeline
+    Topas scores of wp3 pipeline
     """
 
     patient_name = CharField()
-    basket_name = TextField()
+    topas_name = TextField()
     value = FloatField()
     cohort_id = IntegerField()
 
 
-class Tupaczscores(BaseModel):
+class Topaszscores(BaseModel):
     """
-    Tupac/Bakset scores of wp3 pipeline
+    Topas scores of wp3 pipeline
     """
 
     patient_name = CharField()
-    basket_name = TextField()
+    topas_name = TextField()
     value = FloatField()
     cohort_id = IntegerField()
 
@@ -164,8 +164,8 @@ tables = {
     "expressionppzscores": Expressionppzscores,
     "expressionppintensity": Expressionppintensity,
     "phosphoscores": Phosphoscores,
-    "tupacscoresraw": Tupacscoresraw,
-    "tupaczscores": Tupaczscores,
+    "topasscoresraw": Topasscoresraw,
+    "topaszscores": Topaszscores,
 }
 
 

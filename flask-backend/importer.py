@@ -51,7 +51,7 @@ def import_expression_meta_data(
     cohorts_db: sql.SQLCohortDataAPI, cohort_name="all_cohorts"
 ):
     _importer(
-        cohorts_db.provider.load_all_to_db_to_db_fp_meta_expression,
+        cohorts_db.provider.load_all_to_db_fp_meta_expression,
         cohorts_db.provider.load_cohort_to_db_fp_meta_expression,
         cohort_name,
         "expression meta",
@@ -94,18 +94,18 @@ def import_PP_intensities(cohorts_db: sql.SQLCohortDataAPI, cohort_name="all_coh
     )
 
 
-def import_TUPAC_scores(cohorts_db: sql.SQLCohortDataAPI, cohort_name="all_cohorts"):
+def import_TOPAS_scores(cohorts_db: sql.SQLCohortDataAPI, cohort_name="all_cohorts"):
     _importer(
-        cohorts_db.provider.load_all_to_db_to_db_to_db_tupac_scores,
-        cohorts_db.provider.load_cohort_to_db_tupac_scores,
+        cohorts_db.provider.load_all_to_db_topas_scores,
+        cohorts_db.provider.load_cohort_to_db_topas_scores,
         cohort_name,
-        "TUPAC scores",
+        "TOPAS scores",
     )
 
 
 def import_phospho_scores(cohorts_db: sql.SQLCohortDataAPI, cohort_name="all_cohorts"):
     _importer(
-        cohorts_db.provider.load_all_to_db_to_db_to_db_phosphoscores,
+        cohorts_db.provider.load_all_to_db_phosphoscores,
         cohorts_db.provider.load_cohort_to_db_phosphoscores,
         cohort_name,
         "Phospho scores",
@@ -150,8 +150,8 @@ if __name__ == "__main__":
     elif function_to_call == "expression_meta_data":
         import_expression_meta_data(cohorts_db, cohort_name=cohort_name)
 
-    elif function_to_call == "tupac_scores":
-        import_TUPAC_scores(cohorts_db, cohort_name=cohort_name)
+    elif function_to_call == "topas_scores":
+        import_TOPAS_scores(cohorts_db, cohort_name=cohort_name)
 
     elif function_to_call == "phospho_scores":
         import_phospho_scores(cohorts_db, cohort_name=cohort_name)

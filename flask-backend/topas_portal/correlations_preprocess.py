@@ -6,7 +6,7 @@ import numpy as np
 from scipy.stats import t
 
 import topas_portal.utils as ef
-import topas_portal.basket_preprocess as basket_utils
+import topas_portal.topas_preprocess as topas_utils
 import topas_portal.settings as cn
 import topas_portal.fetch_data_matrix as data
 import topas_portal.data_api.data_api as data_api
@@ -19,7 +19,7 @@ def compute_correlation_df(
     level: ef.DataType,
     level_2: ef.DataType,
     intensity_unit: ef.IntensityUnit,
-    subbasket_type: str = "important phosphorylation",
+    topas_subscore_type: str = "important phosphorylation",
     patients_list=None,
 ):
     """
@@ -27,17 +27,17 @@ def compute_correlation_df(
     or phospho-proteins vs total proteome.
 
     This function handles the retrieval of data for different modalities and computes the correlation 
-    between them. It can work with different levels such as `TUPAC_IMPORTANT_PHOSPHO`, `TUPAC_SCORE`, 
-    `PHOSPHO_PROTEOME`, etc. It also handles merging additional annotations like basket weights or psite abundances.
+    between them. It can work with different levels such as `TOPAS_IMPORTANT_PHOSPHO`, `TOPAS_SCORE`, 
+    `PHOSPHO_PROTEOME`, etc. It also handles merging additional annotations like topas weights or psite abundances.
 
     Args:
         cohorts_db (data_api.CohortDataAPI): The cohort data API object used to access cohort data.
         cohort_index (int): The index of the cohort to analyze.
-        identifier (str): The identifier for the specific protein or basket for correlation.
+        identifier (str): The identifier for the specific protein or topas for correlation.
         level (ef.DataType): The first data type to correlate (e.g., protein, FPKM).
         level_2 (ef.DataType): The second data type to correlate (e.g., phospho-proteins, total proteome).
         intensity_unit (ef.IntensityUnit): The intensity unit to use for the data (e.g., SCORE, Z_SCORE).
-        subbasket_type (str, optional): The type of sub-basket data to use if level is `TUPAC_IMPORTANT_PHOSPHO`. 
+        topas_subscore_type (str, optional): The type of topas subscore data to use if level is `TOPAS_IMPORTANT_PHOSPHO`. 
                                         Defaults to "important phosphorylation".
         patients_list (list, optional): List of patients to consider for correlation computation. Defaults to None.
 
@@ -54,7 +54,7 @@ def compute_correlation_df(
             cohorts_db=cohorts_db,
             cohort_index=1,
             identifier="ProteinA",
-            level=ef.DataType.TUPAC_SCORE,
+            level=ef.DataType.TOPAS_SCORE,
             level_2=ef.DataType.PHOSPHO_PROTEOME,
             intensity_unit=ef.IntensityUnit.SCORE,
             patients_list=["Patient1", "Patient2"]
@@ -63,10 +63,10 @@ def compute_correlation_df(
     if not cohorts_db.provider:
         return "", "500 Cohort data not loaded"
 
-    if level == ef.DataType.TUPAC_IMPORTANT_PHOSPHO:
+    if level == ef.DataType.TOPAS_IMPORTANT_PHOSPHO:
         report_dir = cohorts_db.get_report_dir(cohort_index)
-        abundances = basket_utils.get_subbasket_data_per_type(
-            report_dir, identifier, sub_type=subbasket_type
+        abundances = topas_utils.get_topas_subscore_data_per_type(
+            report_dir, identifier, sub_type=topas_subscore_type
         )
     else:
         abundances = data.fetch_data_matrix(
@@ -91,15 +91,15 @@ def compute_correlation_df(
         all_abundances, abundances, patients_list=patients_list
     )
 
-    if level == ef.DataType.TUPAC_SCORE:
-        # add "Basket weight column" to correlation table
-        basket_complete_df = cohorts_db.get_basket_annotation_df()
-        basket_annotation_df = basket_utils.get_basket_weights(basket_complete_df)
-        basket_annotation_df = basket_annotation_df[
-            basket_annotation_df["basket"] == identifier
+    if level == ef.DataType.TOPAS_SCORE:
+        # add "Topas weight column" to correlation table
+        topas_complete_df = cohorts_db.get_topas_annotation_df()
+        topas_annotation_df = topas_utils.get_topas_weights(topas_complete_df)
+        topas_annotation_df = topas_annotation_df[
+            topas_annotation_df["topas"] == identifier
         ]
         correlation_df = correlation_df.merge(
-            basket_annotation_df, left_on="index", right_on="gene", how="left"
+            topas_annotation_df, left_on="index", right_on="gene", how="left"
         )
         correlation_df = correlation_df.fillna("")
 

@@ -1,16 +1,5 @@
 <template>
   <div>
-    <v-btn
-      class="ma-2"
-      color="primary"
-      @click="clearSels"
-    >
-      <v-icon
-        dark
-      >
-        mdi-refresh
-      </v-icon>
-    </v-btn>
     <DxDataGrid
       :ref="dataGridRefName"
       :data-source="dataSource"
@@ -20,8 +9,9 @@
       :row-alternation-enabled="true"
       :selection="{ mode: 'multiple', allowSelectAll: true}"
       :show-borders="true"
+      :scrolling="{ useNative: true }"
       column-resizing-mode="widget"
-      :columns="tupacFields"
+      :columns="topasFields"
       :column-chooser="{ enabled: 'true', mode: 'select' }"
       @selection-changed="onSelectionChanged"
     >
@@ -38,6 +28,21 @@
         :show-navigation-buttons="true"
       />
       <DxPaging :page-size="15" />
+      <DxToolbar>
+        <DxItem
+          location="before"
+          locate-in-menu="auto"
+          show-text="always"
+          widget="dxButton"
+          :options="refreshButtonOptions"
+        />
+        <DxItem
+          name="exportButton"
+        />
+        <DxItem
+          name="columnChooserButton"
+        />
+      </DxToolbar>
     </DxDataGrid>
   </div>
 </template>
@@ -48,7 +53,9 @@ import {
   DxPager,
   DxExport,
   DxPaging,
-  DxFilterRow
+  DxFilterRow,
+  DxToolbar,
+  DxItem
 } from 'devextreme-vue/data-grid'
 
 import 'devextreme/dist/css/dx.light.css'
@@ -59,7 +66,9 @@ export default {
     DxExport,
     DxPager,
     DxPaging,
-    DxFilterRow
+    DxFilterRow,
+    DxToolbar,
+    DxItem
   },
   props: {
     dataSource: undefined,
@@ -73,34 +82,47 @@ export default {
       pageSizes: [15, 25, 50, 100],
       dataGridRefName: 'dataGrid',
       commonFields: undefined,
-      tupacFields: undefined,
-      customFields: [{
-        dataField: 'Sample name',
-        dataType: 'string',
-        visibleIndex: 0,
-        width: '170'
-      }, {
+      topasFields: undefined,
+      customFields: [
+        {
+          dataField: 'Sample name',
+          dataType: 'string',
+          visibleIndex: 0,
+          width: '170'
+        }, {
 
-        dataField: 'Z-score',
-        dataType: 'number',
-        width: '100'
-      }, {
+          dataField: 'Z-score',
+          dataType: 'number',
+          format: { type: 'fixedPoint', precision: 2 },
+          width: '70'
+        }, {
 
-        dataField: 'genomics_annotations',
-        dataType: 'string',
-        width: '120'
-      }, {
+          dataField: 'genomics_annotations',
+          dataType: 'string',
+          width: '120'
+        }, {
 
-        dataField: 'oncoKB_annotations',
-        dataType: 'string',
-        width: '120'
-      }
+          dataField: 'oncoKB_annotations',
+          dataType: 'string',
+          width: '120'
+        }
       ]
     }
   },
   computed: {
     dataGrid: function () {
       return this.$refs[this.dataGridRefName].instance
+    },
+    refreshButtonOptions () {
+      return {
+        icon: 'pulldown',
+        text: 'Reset table',
+        onClick: () => {
+          this.filterBySamplename(null)
+          this.dataGrid.clearFilter()
+          this.dataGrid.clearSelection()
+        }
+      }
     }
   },
   watch: {
@@ -120,22 +142,16 @@ export default {
           element.visible = false
         }
       })
-      this.tupacFields = [...this.customFields, ...commonField]
+      this.topasFields = [...this.customFields, ...commonField]
     },
     filterBySamplename (sample) {
-      const dataGrid = this.$refs[this.dataGridRefName].instance
       if (sample !== null) {
-        dataGrid.filter([
+        this.dataGrid.filter([
           ['Sample name', '=', sample]
         ])
       } else {
-        dataGrid.filter(null)
+        this.dataGrid.filter(null)
       }
-    },
-    clearSels () {
-      this.filterBySamplename(null)
-      const dataGrid = this.$refs[this.dataGridRefName].instance
-      dataGrid.clearSelection()
     },
     onSelectionChanged: function (e) {
       this.$emit('onRowSelect', e.selectedRowKeys, e.selectedRowsData)

@@ -28,7 +28,7 @@ def main(
     dimensionality_reduction_method: str,
     use_ref: str,
     use_replicate: str,
-    basket_genes: Optional[List[str]] = None,
+    topas_genes: Optional[List[str]] = None,
     meta_col_silhoutte: str = "Paper Entity",
     do_only_silhouette: bool = False,
     min_num_patients: int = 4,
@@ -46,7 +46,7 @@ def main(
         dimensionality_reduction_method (str): The method used for dimensionality reduction (e.g., PCA, UMAP).
         use_ref (str): Whether to include reference channels in the analysis ("ref" for True).
         use_replicate (str): Whether to include replicates in the analysis ("replicate" for True).
-        basket_genes (Optional[List[str]]): A list of selected genes for analysis. Defaults to None.
+        topas_genes (Optional[List[str]]): A list of selected genes for analysis. Defaults to None.
         meta_col_silhoutte (str): Metadata column used for silhouette score calculation. Defaults to "Paper Entity".
         do_only_silhouette (bool): If True, only calculates silhouette scores. Defaults to False.
         min_num_patients (int): Minimum number of patients required for silhouette calculation. Defaults to 4.
@@ -73,9 +73,9 @@ def main(
 
     use_ref = use_ref == "ref"
     use_replicate = use_replicate == "replicate"
-    if basket_genes is None:
+    if topas_genes is None:
         print('No custom set of genes are selelcted')
-        basket_genes = []
+        topas_genes = []
 
     
     # the column names of the two pc vectors
@@ -94,7 +94,7 @@ def main(
             patients_df = patients_df[patients_df['Sample name'].isin(custom_list_patients)]
         all_principal_dfs, all_principal_variances, imputed_data, metadata_df = (
             qc_meta.do_pca(
-                basket_genes,
+                topas_genes,
                 reports_dir,
                 [input_data_type],
                 sample_annotation_df,
@@ -271,7 +271,7 @@ def quality_control_all_genes(
         dimensionality_reduction_method,
         use_ref,
         use_replicate,
-        basket_genes=selected_genes,
+        topas_genes=selected_genes,
         custom_list_patients = custom_patients,
         min_sample_occurrence_ratio=imputation_ratio
     )
@@ -286,8 +286,8 @@ def useruploadGenes():
     if os.path.exists(selected_proteins_file):
         os.remove(selected_proteins_file)
     try:
-        basket_file = request.files["file"]
-        lines = basket_file.read().decode("UTF-8")
+        topas_file = request.files["file"]
+        lines = topas_file.read().decode("UTF-8")
         lines = lines.splitlines()
         lines = list(filter(None, lines))
         df_proteins = pd.DataFrame(lines)
@@ -324,10 +324,10 @@ def quality_control_selected_genes(
 ):
     """
     get the list of the selected proteins and perform PCA or UMAP with the selected list of Proteins
-    bk_genes = basket_annotation_dfs.values()
-    basket_genes = []
+    bk_genes = topas_annotation_dfs.values()
+    topas_genes = []
     for genes in bk_genes:
-        basket_genes = [*basket_genes,*genes.gene]
+        topas_genes = [*topas_genes,*genes.gene]
     """
     selected_genes = _get_selected_genes()
     imputation_ratio = float(imputation_ratio)
@@ -338,7 +338,7 @@ def quality_control_selected_genes(
         dimensionality_reduction_method,
         use_ref,
         use_replicate,
-        basket_genes=selected_genes,
+        topas_genes=selected_genes,
         custom_list_patients = custom_patients,
         min_sample_occurrence_ratio = imputation_ratio
     )
@@ -379,7 +379,7 @@ def sil_df_all_genes(
         dimensionality_reduction_method,
         use_ref,
         use_replicate,
-        basket_genes=selected_genes,
+        topas_genes=selected_genes,
         do_only_silhouette=True,
         meta_col_silhoutte=meta_col,
         min_num_patients=min_num,

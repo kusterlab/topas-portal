@@ -98,14 +98,14 @@ class InMemoryCohortDataAPI:
         df = self.provider.get_dataframe(cohort_index, utils.DataType.PHOSPHO_PROTEOME)
         return self._filter_expression_df(df, intensity_unit, identifier, patient_name)
 
-    def get_basket_scores_df(
+    def get_topas_scores_df(
         self,
         cohort_index: str,
         intensity_unit: Union[utils.IntensityUnit, None] = None,
         identifier: str = None,
         patient_name: str = None,
     ) -> pd.DataFrame:
-        df = self.provider.get_dataframe(cohort_index, utils.DataType.TUPAC_SCORE)
+        df = self.provider.get_dataframe(cohort_index, utils.DataType.TOPAS_SCORE)
         return self._filter_expression_df(df, intensity_unit, identifier, patient_name)
 
     def get_report_dir(self, cohort_index: str) -> str:
@@ -134,8 +134,8 @@ class InMemoryCohortDataAPI:
         df = self.provider.get_dataframe(cohort_index, utils.DataType.KINASE_SCORE)
         return self._filter_expression_df(df, intensity_unit, identifier, patient_name)
 
-    def get_basket_annotation_df(self) -> pd.DataFrame:
-        return self.provider.basket_complete_df
+    def get_topas_annotation_df(self) -> pd.DataFrame:
+        return self.provider.topas_complete_df
 
     def get_fpkm_df(
         self,
