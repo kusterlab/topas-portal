@@ -2,8 +2,8 @@
   <v-row class="pa-4 grey lighten-3">
     <v-col
       sm="12"
-      md="3"
-      lg="2"
+      md="5"
+      lg="5"
     >
       <v-card flat>
         <v-card-title
@@ -12,73 +12,67 @@
           Protein/p-site overlap
         </v-card-title>
         <v-card-text>
-          <cohort-select
-            @select-cohort="updateCohort"
-          />
-          <v-btn-toggle
-            v-model="phospho"
-            class="mt-4"
+          <v-select
+            v-model="diseaseName"
+            prepend-icon="mdi-database"
+            class="cohort"
             dense
-            @change="getvennData"
-          >
-            <v-btn
-              value="fp"
-            >
-              Proteins
-            </v-btn>
-            <v-btn
-              value="pp"
-            >
-              P-peptides
-            </v-btn>
-          </v-btn-toggle>
-          <v-btn-toggle
-            v-model="modalityType"
-            dense
-            hide-details
+            outlined
+            :items="all_diseases"
+            label="Cohort / Cell Type"
             @change="getBatchlist"
-          >
-            <v-btn
-              value="batchcompare"
-            >
-              Batches
-            </v-btn>
-            <v-btn
-              value="patientcompare"
-            >
-              Patients
-            </v-btn>
-          </v-btn-toggle>
+          />
           <v-select
             v-model="activeBatches"
             :items="allPossibleBatches"
-            outlined
-            small-chips
-            dense
-            hide-details
-            clearable
+            attach
+            chips
             label="Batches/Patients"
             multiple
             @change="loading=false"
           />
+          <v-radio-group v-model="phospho">
+            <v-radio
+              label="Full Proteome"
+              color="red"
+              value="fp"
+            />
+            <v-radio
+              label="Phospho Proteome"
+              color="blue"
+              value="pp"
+            />
+          </v-radio-group>
+          <v-radio-group
+            v-model="modalityType"
+            @change="getBatchlist"
+          >
+            <v-radio
+              label="Batch comparison"
+              color="red"
+              value="batchcompare"
+            />
+            <v-radio
+              label="Patient comparison"
+              color="blue"
+              value="patientcompare"
+            />
+          </v-radio-group>
           <v-btn
-            class="mt-2 mb-0"
+            class="ma-2"
             color="primary"
             :loading="loading"
             @click="getvennData"
           >
-            Plot venn diagram
+            Compare
           </v-btn>
         </v-card-text>
       </v-card>
-      <v-card
-        flat
-        class="mt-4"
-      >
+      <v-card flat>
         <v-card-title
           tag="h1"
         >
-          Custom input
+          File Upload
         </v-card-title>
         <v-card-text>
           <v-tooltip top>
@@ -92,13 +86,12 @@
               >
             </template>
             <span>Upload a comma delimited file with two columns<br>
-              - a header row with column names: 'item' and 'group'<br>
               - the first column is protein/peptides <br>
-              - the second columns is the group they belong to <br>
-              - If a protein belongs to multiple groups it should be in separate rows, e.g.: <br>
+              - the second columns is the groups they belong to <br>
+              - If a protein belongs to multi groups it should be in separate rows as bellow <br>
               EGFR, GroupA <br>
               EGFR, GroupB <br>
-            </span>
+              - the columns should have headers with any names</span>
           </v-tooltip>
         </v-card-text>
       </v-card>
@@ -106,13 +99,21 @@
     <v-col
       sm="12"
       md="9"
-      lg="10"
+      lg="7"
     >
       <v-card flat>
         <v-card-text>
-          <venn-plot
-            :vennplot-data="vennData"
-          />
+          <v-row>
+            <v-col
+              sm="12"
+              md="7"
+              lg="7"
+            >
+              <venn-plot
+                :vennplot-data="vennData"
+              />
+            </v-col>
+          </v-row>
         </v-card-text>
       </v-card>
     </v-col>
@@ -121,13 +122,12 @@
 
 <script>
 import axios from 'axios'
-import CohortSelect from './partials/CohortSelect.vue'
+import { mapGetters, mapState } from 'vuex'
 import VennPlot from '@/components/plots/VennPlot.vue'
 
 export default {
   name: 'VennComponent',
   components: {
-    CohortSelect,
     VennPlot
   },
   props: {
@@ -141,9 +141,9 @@ export default {
     }
   },
   data: () => ({
-    cohortIndex: 0,
     vennData: [],
     phospho: 'fp',
+    diseaseName: '',
     allPossibleBatches: [],
     activeBatches: [],
     modalityType: 'batchcompare',
@@ -151,16 +151,14 @@ export default {
 
   }),
   computed: {
-  },
-  watch: {
-  },
-  mounted () {
-    this.getBatchlist()
+    ...mapState({
+      all_diseases: state => state.all_diseases
+    }),
+    ...mapGetters({
+      hasData: 'hasData'
+    })
   },
   methods: {
-    updateCohort ({ dataSource, cohortIndex }) {
-      this.cohortIndex = cohortIndex
-    },
     async readFile () {
       // parsing a csv file for d3
       this.file = this.$refs.docreader.files[0]
@@ -180,11 +178,12 @@ export default {
     },
     async getBatchlist () {
       this.activeBatches = ''
+      const cohortIndex = this.all_diseases.indexOf(this.diseaseName)
       let response = null
       if (this.modalityType === 'batchcompare') {
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/annotation/${this.cohortIndex}/allbatch`)
+        response = await axios.get(`${process.env.VUE_APP_API_HOST}/annotation/${cohortIndex}/allbatch`)
       } else {
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/annotation/${this.cohortIndex}/allpatients`)
+        response = await axios.get(`${process.env.VUE_APP_API_HOST}/annotation/${cohortIndex}/allpatients`)
       }
       const allPossibleBatches = []
       response.data.forEach(element => {
@@ -194,12 +193,17 @@ export default {
     },
     async getvennData () {
       this.loading = true
+      console.log(this.activeBatches)
       let querY = this.activeBatches[0]
       for (let i = 1; i < this.activeBatches.length; i++) {
-        querY = querY + ';' + this.activeBatches[i]
+        querY = querY + '_' + this.activeBatches[i]
       }
+
+      const phospho = this.phospho
+      const cohortIndex = this.all_diseases.indexOf(this.diseaseName)
+      const modalityType = this.modalityType
       try {
-        const response = await axios.get(`${process.env.VUE_APP_API_HOST}/venn/${this.cohortIndex}/${this.modalityType}/${this.phospho}/${querY}`)
+        const response = await axios.get(`${process.env.VUE_APP_API_HOST}/venn/${cohortIndex}/${modalityType}/${phospho}/${querY}`)
         this.vennData = response.data
         this.loading = false
       } catch (error) {

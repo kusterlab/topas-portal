@@ -12,48 +12,23 @@
           Correlations
         </v-card-title>
         <v-card-text>
-          <cohort-select
-            @select-cohort="updateCohort"
-          />
-          <subcohort-select
-            class="mt-4"
-            :cohort-index="cohortIndex"
-            :sample-ids="customGroup"
-            @update-group="updateSampleGroup"
-            @update-selection-method="updateSelectionMethodGroup"
-          />
-          <v-radio-group
-            v-model="intensityUnit"
-            class="mt-4"
-            label="Intensity unit"
+          <v-select
+            v-model="diseaseName"
+            class="cohort mb-2"
+            dense
+            outlined
+            prepend-icon="mdi-database"
             hide-details
-          >
-            <v-radio
-              label="Z-scores"
-              value="z_scored"
-            />
-            <v-radio
-              label="Intensity"
-              value="intensity"
-            />
-          </v-radio-group>
-        </v-card-text>
-      </v-card>
-      <v-card
-        flat
-        class="mt-4"
-      >
-        <v-card-title
-          tag="h1"
-        >
-          Select correlation inputs
-        </v-card-title>
-        <v-card-text>
+            :items="all_diseases"
+            label="Cohort / Cell Type"
+          />
+
           <v-select
             v-model="correlationInputType"
             prepend-icon="mdi-filter"
             :items="dataTypes"
             label="Input type"
+            class="mt-8"
             hide-details
             outlined
             dense
@@ -66,14 +41,14 @@
             class="mt-4"
             :placeholder="placeholder"
           />
-          <topas-select
-            v-if="correlationInputType === 'topas'"
+          <basket-select
+            v-if="correlationInputType === 'tupac'"
             class="mt-4"
             :cohort-index="cohortIndex"
-            @select-topas="updateIdentifier"
+            @select-basket="updateIdentifier"
           />
           <protein-select
-            v-if="correlationInputType !== 'psite' && correlationInputType !== 'topas'"
+            v-if="correlationInputType !== 'psite' && correlationInputType !== 'tupac'"
             :cohort-index="cohortIndex"
             :data-layer="correlationInputType"
             class="mt-4"
@@ -92,8 +67,34 @@
             @change="jsonUrl = ''"
           />
 
+          <v-radio-group
+            v-model="intensityUnit"
+            class="mb-2"
+            label="Intensity unit"
+            hide-details
+          >
+            <v-radio
+              label="Z_scores"
+              value="z_scored"
+            />
+            <v-radio
+              label="Intensity"
+              value="intensity"
+            />
+          </v-radio-group>
+          <sample-select
+            v-if="!allPatients"
+            :cohort-index="cohortIndex"
+            :sample-ids="customGroup"
+            @update-group="updateSampleGroup"
+            @update-selection-method="updateSelectionMethodGroup"
+          />
+          <v-checkbox
+            v-model="allPatients"
+            label="All Patients"
+          />
           <v-btn
-            class="mt-4"
+            class="ma-2"
             color="primary"
             :loading="loading"
             @click="loadCorrelation"
@@ -103,30 +104,21 @@
         </v-card-text>
       </v-card>
       <v-card
-        flat
-        class="mt-4"
+        elevation="2"
+        class="pa-4 mt-4"
       >
-        <v-card-title>Help</v-card-title>
-        <v-card-text>
-          <v-expansion-panels>
-            <v-expansion-panel>
-              <v-expansion-panel-header class="mb-0">
-                Tab info
-              </v-expansion-panel-header>
-              <v-expansion-panel-content>
-                In this tab you can visualize correlations between proteins, phosphopeptides, mRNA-transcripts, TOPAS scores, protein phosphorylation scores and substrate phosphorylation scores.
-              </v-expansion-panel-content>
-            </v-expansion-panel>
-            <v-expansion-panel>
-              <v-expansion-panel-header class="mb-0">
-                How to use
-              </v-expansion-panel-header>
-              <v-expansion-panel-content>
-                To visualize the correlation for specific correlation partners, select one item in the upper table. In the lower table you can select specific samples to highlight them in the correlation plot. You can also click on individual data points in the correlation plot to display the corresponding sample. To remove samples where one correlation partner has not been detected/scored, uncheck the "Impute NA on plot" and click "Run analysis" again. You can also show a density distribution by checking the box next to "Show Density Distribution" and clicking on "Run analysis" again. To export plots, click the export button on the right handside above the plot.
-              </v-expansion-panel-content>
-            </v-expansion-panel>
-          </v-expansion-panels>
-        </v-card-text>
+        <v-expansion-panels>
+          <v-expansion-panel>
+            <v-expansion-panel-header>
+              More info?
+            </v-expansion-panel-header>
+            <v-expansion-panel-content>
+              <p class="text-body-2">
+                In this tab you can visualize correlations between proteins, phosphopeptides, mRNA-transcripts, TOPAS scores, protein phosphorylation scores and substrate phosphorylation scores. To visualize the correlation for specific correlation partners, select one item in the upper list. In the lower list you can select specific samples to highlight them in the correlation plot. To remove samples where one correlation partner has not been annotated, uncheck the "Impute NA on plot" and click on "Run analysis" again. You can also show a density distribution by checking the box next to "Show Density Distribution" and clicking on "Run analysis" again. To export plots, click the export button on the right handside above the plot.
+              </p>
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+        </v-expansion-panels>
       </v-card>
     </v-col>
 
@@ -163,8 +155,8 @@
                 add-trendlinte="true"
                 :identifier2="identifier2"
                 :remove-owncolor="false"
-                :omics-type-x="correlationInputType.replace('topas','TOPAS score')"
-                :omics-type-y="correlationType.replace('topas','TOPAS score')"
+                :omics-type-x="correlationInputType.replace('tupac','TOPAS score')"
+                :omics-type-y="correlationType.replace('tupac','TOPAS score')"
                 :expressions1="expressionData1"
                 :expressions2="expressionData2"
                 :sel-ids="selectedSamples"
@@ -184,13 +176,7 @@
               />
             </v-col>
           </v-row>
-        </v-card-text>
-      </v-card>
-      <v-card
-        class="mt-4"
-        flat
-      >
-        <v-card-text>
+          <v-divider class="mb-2 mt-2" />
           <v-row>
             <v-col
               sm="12"
@@ -234,11 +220,10 @@
 import axios from 'axios'
 import { mapGetters, mapState } from 'vuex'
 import correlationTable from '@/components/tables/CorrelationTable'
-import CohortSelect from './partials/CohortSelect.vue'
-import SubcohortSelect from './partials/SubcohortSelect.vue'
+import SampleSelect from './partials/SampleSelect.vue'
 import sampleTable from '@/components/tables/CorrelationTableSamples'
 import scatterPlot from '@/components/plots/ScatterPlot'
-import topasSelect from '@/components/partials/TopasSelect'
+import basketSelect from '@/components/partials/BasketSelect'
 import ProteinSelect from '@/components/partials/ProteinSelect'
 import densityPlot from '@/components/plots/BarhistPlot'
 import { DataType } from '@/constants'
@@ -250,10 +235,9 @@ export default {
     sampleTable,
     densityPlot,
     scatterPlot,
-    topasSelect,
+    basketSelect,
     ProteinSelect,
-    CohortSelect,
-    SubcohortSelect
+    SampleSelect
   },
   props: {
     minWidth: {
@@ -267,12 +251,13 @@ export default {
     }
   },
   data: () => ({
-    cohortIndex: 0,
     identifier1: '',
+    savePlot: false,
     expressionData1: [],
     xaxisTable: 'Scores1',
     yaxisTable: 'Scores2',
     intensityUnit: 'z_scored',
+    diseaseName: 'sarcoma',
     phospho: 'FP',
     labelX: '',
     labelY: '',
@@ -281,9 +266,9 @@ export default {
     customGroup: [],
     selectionMethod: [],
     loading: false,
-    allPatients: 'cohort',
+    allPatients: true,
     histPlottitleVariables: [],
-    allTopass: [],
+    allBaskets: [],
     expressionPlusMeta1: [],
     expressionPlusMeta2: [],
     densityData: [],
@@ -292,7 +277,7 @@ export default {
     identifier2: '',
     correlationInputType: DataType.FULL_PROTEOME,
     correlationType: DataType.FULL_PROTEOME,
-    topasType: 'topas_score',
+    basketType: 'basket_score',
     expressionData2: [],
     chartData: [],
     jsonUrl: '',
@@ -316,7 +301,7 @@ export default {
       },
       {
         text: 'TOPAS scores',
-        value: DataType.TOPAS_SCORE
+        value: DataType.TUPAC_SCORE
       },
       // {
       //  text: 'Important Phosphorylation',
@@ -335,7 +320,7 @@ export default {
   }),
   computed: {
     ...mapState({
-      all_cohorts: state => state.all_cohorts
+      all_diseases: state => state.all_diseases
     }),
     ...mapGetters({
       hasData: 'hasData'
@@ -353,6 +338,9 @@ export default {
       } else {
         return 'EGFR'
       }
+    },
+    cohortIndex () {
+      return this.all_diseases.indexOf(this.diseaseName)
     }
   },
   watch: {
@@ -361,12 +349,9 @@ export default {
     }
   },
   methods: {
-    updateCohort ({ dataSource, cohortIndex }) {
-      this.cohortIndex = cohortIndex
-    },
     updateIdentifier ({ dataSource, identifier }) {
       this.identifier1 = identifier
-      this.topasType = dataSource
+      this.basketType = dataSource
     },
     loadCorrelation () {
       this.loading = true
@@ -409,16 +394,16 @@ export default {
       this.labelY = this.plotScoreType
       const modality = (identifierNumber === 1) ? this.correlationInputType : this.correlationType
       let url = ''
-      if (modality === DataType.TOPAS_IMPORTANT_PHOSPHO) {
+      if (modality === DataType.TUPAC_IMPORTANT_PHOSPHO) {
         url = `${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/important_phospho/${key}`
         this.yaxisTable = 'ImportantPhosphorylation'
-      } else if (modality === DataType.TOPAS_SCORE) {
+      } else if (modality === DataType.TUPAC_SCORE) {
         this.xaxisTable = 'TOPAS Scores'
         this.yaxisTable = 'TOPAS Scores'
         this.labelX = ''
         this.labelY = ''
-        identifierNumber === 1 ? this.labelX = this.topasType : this.labelY = this.topasType
-        url = `${process.env.VUE_APP_API_HOST}/topas/${this.cohortIndex}/${key}/${this.topasType}`
+        identifierNumber === 1 ? this.labelX = this.basketType : this.labelY = this.basketType
+        url = `${process.env.VUE_APP_API_HOST}/basket/${this.cohortIndex}/${key}/${this.basketType}`
       } else {
         const imputeString = this.doImpute ? 'impute' : 'noimpute'
         url = `${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/${modality}/abundance/${key}/${imputeString}`
@@ -428,10 +413,12 @@ export default {
         response.data.forEach(element => { element.yValue = element[this.plotScoreType] })
         const expressions = response.data.filter(d => d['Z-score'] !== 'n.d.')
         if (identifierNumber === 1) {
+          console.log('writing the response data1')
+          console.log(response.data)
           this.expressionData1 = []
           this.expressionData1 = expressions
           this.expressionPlusMeta1 = response.data
-          if (this.allPatients === 'subcohort') {
+          if (!this.allPatients) {
             this.expressionData1 = this.makeLimited(expressions, this.customGroup)
             this.expressionPlusMeta1 = this.makeLimited(response.data, this.customGroup)
           }
@@ -439,7 +426,7 @@ export default {
           this.expressionData2 = []
           this.expressionData2 = expressions
           this.expressionPlusMeta2 = response.data
-          if (this.allPatients === 'subcohort') {
+          if (!this.allPatients) {
             this.expressionData2 = this.makeLimited(expressions, this.customGroup)
             this.expressionPlusMeta2 = this.makeLimited(response.data, this.customGroup)
           }
@@ -461,9 +448,12 @@ export default {
 
     getCorrelation (level, inputLevel, key) {
       if (this.cohortIndex >= 0) {
-        const customGroup = this.allPatients === 'cohort' ? 'all' : this.customGroup
+        const customGroup = this.allPatients ? 'all' : this.customGroup
         this.jsonUrl = `${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/${inputLevel}/correlation/${level}/${key}/${this.intensityUnit}/${customGroup}`
       }
+    },
+    changePlotSavestaus ({ status }) {
+      this.savePlot = status
     },
     updateSelectedRowsSample (selectedIds, selectedData) {
       const selectedPatients = []

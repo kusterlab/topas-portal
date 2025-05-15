@@ -11,7 +11,7 @@
       :multiple="multiple"
       :clearable="multiple"
       :small-chips="multiple"
-      :label="label_or_datalayer"
+      :label="label"
       @change="updateProteins"
     />
   </div>
@@ -19,7 +19,6 @@
 
 <script>
 import axios from 'axios'
-import { mapMutations } from 'vuex'
 
 export default {
   name: 'ProteinSelect',
@@ -27,10 +26,6 @@ export default {
     cohortIndex: {
       type: Number,
       default: -1
-    },
-    label: {
-      type: String,
-      default: ''
     },
     dataLayer: {
       type: String,
@@ -46,15 +41,11 @@ export default {
     allProteins: []
   }),
   computed: {
-    label_or_datalayer () {
-      let label = this.dataLayer
-      if (this.label.length > 0) {
-        label = this.label
-      }
+    label () {
       if (this.multiple) {
-        return `Select ${label}s`
+        return `Select ${this.dataLayer}s`
       } else {
-        return `Select ${label}`
+        return `Select ${this.dataLayer}`
       }
     }
   },
@@ -71,19 +62,13 @@ export default {
     this.loadProteins()
   },
   methods: {
-    ...mapMutations({
-      addNotification: 'notifications/addNotification'
-    }),
     async loadProteins () {
       if (this.cohortIndex < 0) return
       try {
         const response = await axios.get(`${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/${this.dataLayer}/list`)
         this.allProteins = response.data
       } catch (error) {
-        this.addNotification({
-          color: 'error',
-          message: `An error occurred while retrieving the list of proteins for this cohort: ${error}`
-        })
+        console.error('An error occurred while retrieving the list of proteins for this cohort:', error)
         this.allProteins = []
       }
     },

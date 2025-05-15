@@ -13,11 +13,10 @@ import topas_portal.settings as cn
 import topas_portal.plotly_preprocess as plotlyprepare
 from topas_portal.config_reader import *
 
-
 # remember to update the corresponding constant in vue-frontend/src/constants.js
 class DataType(str, Enum):
-    FP = "fp"
-    PP = "pp"
+    FP = 'fp'
+    PP = 'pp'
     FULL_PROTEOME = "protein"
     FULL_PROTEOME_ANNOTATED = "protein_annotated"
     PHOSPHO_PROTEOME = "psite"
@@ -27,27 +26,29 @@ class DataType(str, Enum):
     PHOSPHO_SCORE_PSITE = "phospho_psite"
     KINASE_SCORE = "kinase"
     KINASE_SUBSTRATE = "kinase_substrate"
-    TOPAS_KINASE_SCORE = "topas_kinase"
-    TOPAS_KINASE_SUBSTRATE = "topas_kinase_substrate"
-    TOPAS_IMPORTANT_PHOSPHO = "important_phosphorylation"
-    TOPAS_PHOSPHO_SCORE = "topas_phospho"
-    TOPAS_PHOSPHO_SCORE_PSITE = (
-        "topas_phospho_psite"  # p-sites making up a phosphoprotein score
+    TUPAC_KINASE_SCORE = "tupac_kinase"
+    TUPAC_KINASE_SUBSTRATE = "tupac_kinase_substrate"
+    TUPAC_IMPORTANT_PHOSPHO = "important_phosphorylation"
+    TUPAC_PHOSPHO_SCORE = "tupac_phospho"
+    TUPAC_PHOSPHO_SCORE_PSITE = (
+        "tupac_phospho_psite"  # p-sites making up a phosphoprotein score
     )
-    TOPAS_PROTEIN = "topas_expression"
-    TOPAS_SCORE = "topas"
-    TOPAS_SCORE_RTK = "topas_rtk"
+    TUPAC_PROTEIN = "tupac_expression"
+    TUPAC_SCORE = "tupac"
+    TUPAC_SCORE_RTK = "tupac_rtk"
     TRANSCRIPTOMICS = "fpkm"
-    TOPAS_SUBSCORE = "topas_subscore"
+    TUPAC_SUBSCORE = "tupac_subscore"
     BIOMARKER = "biomarker"
 
     PATIENT_METADATA = "patients_df"
     SAMPLE_ANNOTATION = "sample_annotation_df"
 
 
+
 class ColumnNames(str, Enum):
-    SAMPLE_NAME = "Sample name"
-    GENE_NAME = "Gene names"
+    SAMPLE_NAME = 'Sample name'
+    GENE_NAME = 'Gene names'
+
 
 
 def get_selection_list_data_type(level: DataType):
@@ -77,11 +78,7 @@ class ImputationMode(str, Enum):
     IMPUTE = "impute"
 
 
-def add_patient_prefix(patient_list: list[str]):
-    return [cn.PATIENT_PREFIX + x for x in patient_list]
-
-
-def remove_patient_prefix(df, from_col=True) -> pd.DataFrame:
+def remove_prefix(df, from_col=True):
     if from_col:
         try:
             df.columns = df.columns.str.replace(cn.PATIENT_PREFIX, "", regex=True)
@@ -218,16 +215,14 @@ def get_index_cols(data_type: str) -> List[str]:
     return index_cols
 
 
-def keep_only_sample_columns(df: pd.DataFrame, samples_list: list, keep_ref_channels: bool = False) -> pd.DataFrame:
-    """Returns the columns which matches the samples Regex in the dataframe
+def keep_only_sample_columns(df: pd.DataFrame,samples_list:list) -> pd.DataFrame:
+    """ Returns the columns which matches the samples Regex in the dataframe
     :df: pandas data frame
     :output : pandas data frame with filtered columns
     """
-    list_patients = intersection(df.columns, samples_list)
-    if not keep_ref_channels:
-        return df[[x for x in list_patients if not str(x).__contains__("ref-")]]
-    else:
-        return df[list_patients]
+    list_patients = intersection(df.columns,samples_list)
+    samplenames = [x for x in list_patients if not str(x).__contains__('ref-')]
+    return df[samplenames]
 
 
 def calculate_confidence_score(df: pd.DataFrame) -> pd.DataFrame:
@@ -248,12 +243,12 @@ def post_process_for_front_end(df: pd.DataFrame, defaultcolor="grey", defaultsiz
         return df
 
     abundances_table = df.copy()
-    abundances_table["colorID"] = (
-        defaultcolor  # default value for the color on the frontend
-    )
-    abundances_table["sizeR"] = (
-        defaultsize  # default value for the point size on the frontend
-    )
+    abundances_table[
+        "colorID"
+    ] = defaultcolor  # default value for the color on the frontend
+    abundances_table[
+        "sizeR"
+    ] = defaultsize  # default value for the point size on the frontend
     abundances_table = abundances_table.reset_index(drop=True)
     abundances_table["index"] = abundances_table.index
     return abundances_table
@@ -336,6 +331,9 @@ def read_log(fileName):
     return lines
 
 
+
+
+
 def check_all_config_file(configs):
     import os
 
@@ -363,7 +361,7 @@ def check_all_config_file(configs):
     try:
         df = pd.DataFrame([final_dic])
         df = df.melt()
-        df.columns = ["path", "path exists"]
+        df.columns = ["path", "exists"]
         return df_to_json(df)
     except:
         return {}

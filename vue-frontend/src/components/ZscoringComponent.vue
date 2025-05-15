@@ -11,47 +11,28 @@
           <v-card-title
             tag="h1"
           >
-            Subcohort z-scores
+            z-scores
           </v-card-title>
           <v-card-text>
             <cohort-select
               @select-cohort="updateCohort"
             />
-            <sample-select
-              class="mt-4"
-              :cohort-index="cohortIndex"
-              :show-table-select="true"
-              :sample-ids="customGroup"
-              @update-group="updateSampleGroup"
-              @update-selection-method="updateSelectionMethodGroup"
-            />
-          </v-card-text>
-        </v-card>
-        <v-card
-          flat
-          class="mt-4"
-        >
-          <v-card-title
-            tag="h1"
-          >
-            Select protein/p-peptide
-          </v-card-title>
-          <v-card-text>
             <v-select
               v-model="mode"
-              class="input_data_type mb-2"
+              class="input_data_type mb-2 mt-4"
               dense
               prepend-icon="mdi-filter"
               outlined
               hide-details
               :items="allInputDataTypes"
-              label="Data Type"
+              label="Input Data Type"
+              @change="updateHeatmap"
             />
-            <topas-select
-              v-if="mode=== 'topas'"
+            <basket-select
+              v-if="mode=== 'tupac'"
               :score-type="false"
-              :cohort-index="cohortIndex"
-              @select-topas="updateTopas"
+              :cohort-index="all_diseases.indexOf(diseaseName)"
+              @select-basket="updateBasket"
             />
             <v-text-field
               v-if="mode === 'psite'"
@@ -67,42 +48,40 @@
               :data-layer="mode"
               @select-protein="updateProtein"
             />
+            <sample-select
+              :show-toggle="false"
+              :cohort-index="cohortIndex"
+              :sample-ids="customGroup"
+              @update-field="updateSampleGroup"
+              @update-meta="updateSelectionMethodGroup"
+            />
             <v-btn
               :loading="loading"
-              class="mt-4"
+              class="ma-2"
               color="primary"
               @click="getData"
             >
-              Compute z-scores
+              calculate
             </v-btn>
           </v-card-text>
         </v-card>
         <!-- Collapsible Help Box -->
         <v-card
-          flat
-          class="mt-4"
+          elevation="2"
+          class="pa-4 mt-4"
         >
-          <v-card-title>Help</v-card-title>
-          <v-card-text>
-            <v-expansion-panels>
-              <v-expansion-panel>
-                <v-expansion-panel-header class="mb-0">
-                  Tab info
-                </v-expansion-panel-header>
-                <v-expansion-panel-content>
-                  In this tab you can calculate the z-scores for each group of patients based on the metadata and compare it with the z-scores across all patients.
-                </v-expansion-panel-content>
-              </v-expansion-panel>
-              <v-expansion-panel>
-                <v-expansion-panel-header class="mb-0">
-                  How to use
-                </v-expansion-panel-header>
-                <v-expansion-panel-content>
-                  Select a group of patients based on one of the metadata columns. Then select a protein or phosphopeptide of interest and press the "Compute z-scores" button compute the z-scores within that subcohort.
-                </v-expansion-panel-content>
-              </v-expansion-panel>
-            </v-expansion-panels>
-          </v-card-text>
+          <v-expansion-panels>
+            <v-expansion-panel>
+              <v-expansion-panel-header>
+                More info?
+              </v-expansion-panel-header>
+              <v-expansion-panel-content>
+                <p class="text-body-2">
+                  In this tab you can recalculate the z-scores for each group of patients based on the metadata and compare it with the precalculated z-scores across all patients.
+                </p>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
+          </v-expansion-panels>
         </v-card>
       </v-col>
       <v-col
@@ -111,60 +90,39 @@
         lg="10"
       >
         <v-card
-          v-show="selectionMethod === 'table'"
-          flat
-          class="mb-4"
-        >
-          <v-card-text>
-            <v-row>
-              <v-col
-                sm="12"
-                md="12"
-                lg="12"
-              >
-                <patient-select-table
-                  :cohort-index="cohortIndex"
-                  @onRowSelect="updateSelectedSamples"
-                />
-              </v-col>
-            </v-row>
-          </v-card-text>
-        </v-card>
-        <v-card
           plain
           outlined
         >
           <v-row>
             <v-col
               sm="12"
-              md="6"
-              lg="6"
+              md="3"
+              lg="3"
             >
               <v-card-text>
                 <zscore-table
                   :ref="componentKey"
-                  :data-source="zscoreTableUrl"
+                  :data-source="plotData"
                   @onRowSelect="updateSelectedRows"
-                />
+                >
+                  >
+                </zscore-table>
               </v-card-text>
             </v-col>
             <v-col
               sm="12"
-              md="6"
-              lg="6"
+              md="9"
+              lg="9"
             >
               <v-card flat>
-                <swarm-plot
-                  v-if="swarmPlotData.length>0"
-                  :swarm-data="swarmPlotData"
-                  swarm-id="singleGene"
-                  :swarm-sel-ids="swarmSelIds"
-                  :swarm-title="identifier"
-                  swarm-title-prefix="z-score"
-                  field-name="Sample name"
-                  :draw-box-plot="true"
-                  field-values="subcohort_zscore"
-                  @onDotClick="selectDot"
+                <multi-group-plot
+                  i-d="zscorePlot"
+                  field-x="data_type"
+                  field-y="zscores"
+                  title="Sample name"
+                  :plot-data="plotData"
+                  :selected-patients="multiGroupPlotSelectedPatients"
+                  :selected-color="multiGroupPlotSelectedColor"
                 />
               </v-card>
             </v-col>
@@ -177,29 +135,25 @@
 
 <script>
 import axios from 'axios'
-import { mapMutations } from 'vuex'
-
 import CohortSelect from './partials/CohortSelect.vue'
-import SwarmPlot from '@/components/plots/SwarmPlot'
+import multiGroupPlot from '@/components/plots/MultiGroupPlot'
 import proteinSelect from './partials/ProteinSelect.vue'
 import SampleSelect from './partials/SampleSelect.vue'
 import ZscoreTable from './tables/ZscoreTable.vue'
-import PatientSelectTable from './tables/DifferentialmetaTable.vue'
 import { DataType } from '@/constants'
-import TopasSelect from '@/components/partials/TopasSelect'
+import BasketSelect from '@/components/partials/BasketSelect'
 import explorerComponent from './partials/scoresComponent.vue'
 
 export default {
   name: 'ZscoreComponent',
   components: {
-    SwarmPlot,
+    multiGroupPlot,
     CohortSelect,
     ZscoreTable,
-    PatientSelectTable,
     SampleSelect,
     explorerComponent,
     proteinSelect,
-    TopasSelect
+    BasketSelect
   },
   props: {
     minWidth: {
@@ -213,23 +167,23 @@ export default {
   },
   data: () => ({
     cohortIndex: 0,
+    savePlot: false,
     firstPatient: '',
     identifier: '',
     loading: false,
     mode: DataType.FULL_PROTEOME,
     fixedDomain: false,
     customGroup: [],
-    selectionMethod: '',
-    zscoreTableUrl: '',
-    swarmPlotData: [],
-    swarmSelIds: [],
-    selectedDotsInPlot: [],
+    selectionMethod: [],
+    plotData: [],
     componentKey: 0,
+    activeMeta: 'code_oncotree',
+    multiGroupPlotSelectedPatients: [],
     multiGroupPlotSelectedColor: 'red',
     allInputDataTypes: [
       {
         text: 'TOPAS Scores',
-        value: DataType.TOPAS_SCORE
+        value: DataType.TUPAC_SCORE
       },
       {
         text: 'Full proteome',
@@ -251,78 +205,57 @@ export default {
 
   }),
   computed: {
+    activeCohortIndex () {
+      return this.cohortIndex
+    }
   },
   watch: {
   },
   methods: {
-    ...mapMutations({
-      addNotification: 'notifications/addNotification'
-    }),
     updateCohort ({ dataSource, cohortIndex }) {
       this.cohortIndex = cohortIndex
     },
     updateProtein ({ dataSource, identifier }) {
       this.identifier = identifier
     },
-    updateSampleGroup (selectedPatients) {
-      this.customGroup = selectedPatients
+    changePlotSavestaus ({ status }) {
+      this.savePlot = status
     },
-    updateTopas ({ dataSource, identifier }) {
+    updateSampleGroup (filedsInterest) {
+      this.customGroup = filedsInterest
+      console.log(this.customGroup)
+    },
+    updateBasket ({ dataSource, identifier }) {
       this.identifier = identifier
     },
-    selectDot (value) {
-      this.selectedDotsInPlot = value
-    },
-    async updateSelectedSamples (selectedIds, selectedData) {
-      const selectedPatients = []
-      selectedData.forEach(element => {
-        selectedPatients.push(element['Sample name'])
-      })
-      this.customGroup = selectedPatients
-      this.getData()
-    },
-    updateSelectionMethodGroup (selectionMethod) {
-      this.selectionMethod = selectionMethod
+    updateSelectionMethodGroup (activeMeta) {
+      this.activeMeta = activeMeta
     },
     async updateSelectedRows (selectedIds, selectedData) {
-      const selIds = []
-      this.swarmSelIds = []
+      const SelIds = []
+      this.multiGroupPlotSelectedPatients = []
       if (selectedData.length > 0) {
         selectedData.forEach((rowData) => {
           this.multiGroupPlotSelectedColor = 'red'
-          selIds.push(rowData.index) // selected indices on the swarm plot
+          SelIds.push(rowData['Sample name']) // selected indices on the swarm plot
         })
       } else {
-        this.swarmSelIds = null
+        this.multiGroupPlotSelectedPatients = null
       }
-      this.swarmSelIds = selIds
+      this.multiGroupPlotSelectedPatients = SelIds
     },
     async getData () {
+      const customGroup = this.customGroup
+      const activeMeta = this.activeMeta
+      const identifier = this.identifier
+      const mode = this.mode
       try {
-        if (this.identifier.length === 0) {
-          this.addNotification({
-            color: 'warning',
-            message: 'Please select a protein/p-peptide in the left menu.'
-          })
-          return
-        }
-        if (this.customGroup.length === 0) {
-          this.addNotification({
-            color: 'warning',
-            message: 'Please select samples for your subcohort in the left menu.'
-          })
-          return
-        }
         this.loading = true
-        this.zscoreTableUrl = `${process.env.VUE_APP_API_HOST}/zscore/${this.mode}/${this.cohortIndex}/${this.identifier}/${this.customGroup}`
-        const response = await axios.get(this.zscoreTableUrl)
+        const response = await axios.get(`${process.env.VUE_APP_API_HOST}/zscore/${mode}/${this.cohortIndex}/${identifier}/${customGroup}/${activeMeta}`)
         this.componentKey = this.componentKey + 1
-        this.swarmPlotData = response.data
+        this.plotData = response.data
       } catch (error) {
-        this.addNotification({
-          color: 'error',
-          message: `Error while loading cohort data: ${error.response.data}`
-        })
+        alert(`Error while loading cohort data: ${error.response.data}`)
       }
       this.loading = false
     }

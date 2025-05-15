@@ -1,27 +1,14 @@
 <template>
-  <v-container fluid>
+  <div>
     <v-card
+      class="mt-2 mb-2"
       flat
     >
-      <v-row>
-        <v-col cols="11">
-          <v-textarea
-            label="Integration Logs"
-            style="width:100%;"
-            filled
-            :value="logValue"
-          />
-        </v-col><v-col cols="1">
-          <v-btn
-            color="primary"
-            @click="updateLog"
-          >
-            <v-icon dark>
-              mdi-refresh
-            </v-icon>
-          </v-btn>
-        </v-col>
-      </v-row>
+      <v-textarea
+        label="Integration Logs"
+        style="width:100%;"
+        :value="logValue"
+      />
       <v-card-title
         tag="h1"
       >
@@ -29,16 +16,16 @@
       </v-card-title>
       <v-card-text>
         <v-select
-          v-model="cohortName"
+          v-model="diseaseName"
           class="cohort"
           dense
           outlined
-          :items="all_cohorts"
+          :items="all_diseases"
           label="Cohort"
         />
         <v-btn
           class="mt-4"
-          :disabled="!showUpdateCohorts || cohortName === ''"
+          :disabled="!showUpdateCohorts || diseaseName === ''"
           @click="checkCohort"
         >
           Validate current cohort
@@ -50,10 +37,16 @@
         >
           Validate all cohorts
         </v-btn>
+        <v-btn
+          class="mt-4 ml-2"
+          @click="updateLog"
+        >
+          update Log
+        </v-btn>
         <v-col>
           <v-row>
             <p class="mt-4">
-              Protein and topas for validity checks
+              Protein and basket for validity checks
             </p>
           </v-row>
           <v-row>
@@ -65,20 +58,20 @@
           </v-row>
           <v-row>
             <v-text-field
-              v-model="topasCheck"
+              v-model="basketCheck"
               style="width:100px"
-              label="Topas"
+              label="Basket"
             />
           </v-row>
         </v-col>
       </v-card-text>
     </v-card>
-  </v-container>
+  </div>
 </template>
 
 <script>
 import axios from 'axios'
-import { mapGetters, mapState, mapMutations } from 'vuex'
+import { mapActions, mapGetters, mapState } from 'vuex'
 export default {
   name: 'ConfigureUpdate',
   props: {
@@ -88,15 +81,15 @@ export default {
     }
   },
   data: () => ({
-    cohortName: '',
+    diseaseName: '',
     showUpdateCohorts: true,
     logValue: '',
     proteinCheck: 'EGFR',
-    topasCheck: 'ABL1'
+    basketCheck: 'ABL1'
   }),
   computed: {
     ...mapState({
-      all_cohorts: state => state.all_cohorts
+      all_diseases: state => state.all_diseases
     }),
     ...mapGetters({
       hasData: 'hasData'
@@ -106,8 +99,8 @@ export default {
     this.updateLog()
   },
   methods: {
-    ...mapMutations({
-      addNotification: 'notifications/addNotification'
+    ...mapActions({
+      fetchAllDiseases: 'fetchAllDiseases'
     }),
     async updateLog () {
       const response = await axios.get(`${process.env.VUE_APP_API_HOST}/integration/logs`)
@@ -116,35 +109,29 @@ export default {
     async checkCohort () {
       this.showUpdateCohorts = false
       let response = ''
-      const cohort = this.cohortName
+      const cohort = this.diseaseName
       response = await axios.get(`${process.env.VUE_APP_API_HOST}/check/integrability/${cohort}`)
       this.showUpdateCohorts = true
-      this.addNotification({
-        color: 'info',
-        message: `${response.data}`
-      })
+      alert(response.data)
       this.updateLog()
     },
     async checkvalidityallCohorts () {
       await axios.get(`${process.env.VUE_APP_API_HOST}/integration/clearlogs`)
-      for (let i = 0; i < this.all_cohorts.length; i++) {
-        this.checkValidity(this.all_cohorts[i])
+      for (let i = 0; i < this.all_diseases.length; i++) {
+        this.checkValidity(this.all_diseases[i])
       }
       this.updateLog()
     },
-    async checkValidity (cohort = this.cohortName) {
+    async checkValidity (cohort = this.diseaseName) {
       if (cohort) {
         const proteinName = this.proteinCheck
-        const topasName = this.topasCheck
-        // a sample validity test for the z_scores for one protein and topas
+        const basketName = this.basketCheck
+        // a sample validity test for the z_scores for one protein and basket
         await axios.get(`${process.env.VUE_APP_API_HOST}/check/validity_z_score/${cohort}/${proteinName}`)
-        await axios.get(`${process.env.VUE_APP_API_HOST}/check/validity_topas_score/${cohort}/${topasName}`)
+        await axios.get(`${process.env.VUE_APP_API_HOST}/check/validity_basket_score/${cohort}/${basketName}`)
         this.updateLog()
       } else {
-        this.addNotification({
-          color: 'warning',
-          message: 'Select a cohort to perform the validity tests on'
-        })
+        alert('You should select a cohort name')
       }
     }
   }
