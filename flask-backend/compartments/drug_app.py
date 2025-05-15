@@ -19,8 +19,10 @@ drug_df = []
 
 
 def get_drug_kinobeads(drug_df, sortfunc, gene_input):
-    genes_lst = gene_input.split("_")
-    p_filter = gene_input.replace("_", "|")
+    if gene_input[-1] == ";":
+        gene_input = gene_input[:-1]
+    genes_lst = gene_input.split(";")
+    p_filter = gene_input.replace(";", "|")
     drug_g_df = drug_df[
         drug_df["Kinobeads_TargetGenes"].astype("str").str.contains(p_filter)
     ]  # primary filtering to speed up
@@ -65,7 +67,17 @@ def get_drug_kinobeads(drug_df, sortfunc, gene_input):
 
     indices = np.argsort(row_means)  # re-indexes after sorting
     drug_g_df = drug_g_df.iloc[indices]
+
     return drug_g_df
+
+
+def get_drug_table_as_json(drug_df_for_json: pd.DataFrame):
+    drug_g_df = drug_df_for_json.copy()  # make sure not to overwrite drug_df
+    drug_g_df["Kinobeads_TargetGenes"] = drug_g_df["Kinobeads_TargetGenes"].str.replace(
+        r"\|([0-9]+)", r" (\1)", regex=True
+    )
+    drug_g_df = drug_g_df.fillna("-")
+    return ef.df_to_json(drug_g_df)
 
 
 def load_drug_db(drug_annotation_path):
@@ -100,7 +112,7 @@ def load_drug_db(drug_annotation_path):
     drug_df["Kinobeads_TargetGenes"] = drug_df["Kinobeads_TargetGenes"].str.replace(
         r"\//", ",", regex=True
     )
-    drug_df = drug_df.fillna(-1)
+    drug_df = drug_df.fillna("-")
     return drug_df
 
 
@@ -127,9 +139,9 @@ def load_drug_table():
 @drug_page.route("/drug_genes/<sortfunc>/<gene_input>")
 def drug_to_KB(sortfunc, gene_input):
     drug_g_df = get_drug_kinobeads(drug_df, sortfunc, gene_input)
-    return ef.df_to_json(drug_g_df)
+    return get_drug_table_as_json(drug_g_df)
 
 
 @drug_page.route("/drugs")
 def drugs():
-    return ef.df_to_json(drug_df)
+    return get_drug_table_as_json(drug_df)

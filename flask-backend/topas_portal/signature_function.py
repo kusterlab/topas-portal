@@ -327,7 +327,7 @@ def cross_validation_for_one_vs_all_t_test(
         )
         primary_signatures_proteins = list(primary_signatures["Gene Names"])
 
-        # test: calculation of the disease_score
+        # test: calculation of the cohort_score
         test_set = inputDF.iloc[test_index, :]
         test_patients = intersection(intensity_file.columns, test_set["Sample name"])
         sub_intensity = intensity_file[
@@ -554,7 +554,7 @@ def SVM_cross_validaition_with_t_test_Feature_selection(
     testset to predict entity scores
     :input_df: Dataframe with rows as patients and columns as features two extra column "Sample name" metadata
     :intensity_file: an indexed dataframe with patients as index and the features are the columns
-    :list_proteins: list of the proteins/peptides/kinases/baskets
+    :list_proteins: list of the proteins/peptides/kinases/topass
     """
     # selecting the features based on the
     Y = input_df[entity_subtypes].to_numpy()

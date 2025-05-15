@@ -1,11 +1,11 @@
 <template>
   <v-container fluid>
-    <v-row class="pa-4 grey lighten-3">
+    <v-row class="grey lighten-3">
       <!-- Sidebar Section -->
       <v-col
         sm="12"
         md="3"
-        lg="3"
+        lg="2"
       >
         <v-card
           flat
@@ -26,16 +26,10 @@
               @change="updateId"
             >
               <v-radio
-                label="Protein"
-                value="protein"
-              />
-              <v-radio
-                label="Phosphopeptide"
-                value="psite"
-              />
-              <v-radio
-                label="mRNA (FPKM)"
-                value="fpkm"
+                v-for="(label, value) in radioOptions"
+                :key="value"
+                :label="label"
+                :value="value"
               />
             </v-radio-group>
             <v-radio-group
@@ -59,7 +53,7 @@
 
         <v-card flat>
           <v-card-title tag="h1">
-            Select gene/p-site
+            Select {{ radioOptions[mode] }}
           </v-card-title>
           <v-card-text>
             <v-text-field
@@ -82,39 +76,44 @@
               v-model="showOncokbcnv"
               dense
               hide-details
-              label="OncoKB CNV info"
+              label="Load OncoKB annotations"
             />
             <v-textarea
               v-if="showOncokbcnv"
               v-model="cnvDescription"
-              clear-icon="mdi-close-circle"
               :readonly="true"
               outlined
               hide-details
               height="120"
             />
-            <plot-save-vue
-              @status="changePlotSavestaus"
-            />
           </v-card-text>
         </v-card>
         <!-- Collapsible Help Box -->
         <v-card
-          elevation="2"
-          class="pa-4 mt-4"
+          flat
+          class="mt-4"
         >
-          <v-expansion-panels>
-            <v-expansion-panel>
-              <v-expansion-panel-header>
-                More info?
-              </v-expansion-panel-header>
-              <v-expansion-panel-content>
-                <p class="text-body-2">
-                  In this tab you can visualize the normalized intensity and z-score of proteins and phosphopeptides. Use the dropdown menu to select a cohort, then apply filters as required to stratify samples. To visualize specific samples in the swarm plot, select samples in the list, pick a name in the field "Group" above the plot, adjust the color and click the blue edit button. Click the circled arrow to come back to default. To export the plot, click the export button on the right handside above the plot.
-                </p>
-              </v-expansion-panel-content>
-            </v-expansion-panel>
-          </v-expansion-panels>
+          <v-card-title>Help</v-card-title>
+          <v-card-text>
+            <v-expansion-panels>
+              <v-expansion-panel>
+                <v-expansion-panel-header class="mb-0">
+                  Tab info
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  In this tab you can visualize the normalized intensity and z-score of proteins and phosphopeptides.
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+              <v-expansion-panel>
+                <v-expansion-panel-header class="mb-0">
+                  How to use
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  Use the dropdown menu to select a cohort, then apply filters as required to stratify samples. To visualize specific samples in the swarm plot, select samples in the list, pick a name in the field "Group" above the plot, adjust the color and click the blue edit button. Click the circled arrow to come back to default. To export the plot, click the export button on the right handside above the plot.
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+            </v-expansion-panels>
+          </v-card-text>
         </v-card>
       </v-col>
 
@@ -122,7 +121,7 @@
       <v-col
         sm="12"
         md="9"
-        lg="9"
+        lg="10"
       >
         <v-card flat>
           <v-card-text>
@@ -157,7 +156,6 @@
                     </v-btn>
                     <swarm-plot
                       v-if="swarmPlotData.length>0"
-                      :save-plot="savePlot"
                       :swarm-data="swarmPlotData"
                       swarm-id="singleGene"
                       :swarm-sel-ids="swarmSelIds"
@@ -180,7 +178,6 @@
                 <histogram
                   id="numPep"
                   ref="histogram"
-                  :save-plot="savePlot"
                   :full-chart-data="numPep"
                   :plot-histogram="true"
                   :plot-k-d-e="true"
@@ -202,7 +199,6 @@
                 <histogram
                   id="ec50Histogram"
                   ref="histogram"
-                  :save-plot="savePlot"
                   :full-chart-data="chartData"
                   :plot-histogram="true"
                   :plot-k-d-e="false"
@@ -224,7 +220,6 @@
                 <histogram
                   id="confidence"
                   ref="histogram"
-                  :save-plot="savePlot"
                   :full-chart-data="confidenceScore"
                   :plot-histogram="true"
                   :plot-k-d-e="false"
@@ -256,13 +251,11 @@ import SwarmPlot from '@/components/plots/SwarmPlot'
 import ProteinSelect from '@/components/partials/ProteinSelect.vue'
 import CohortSelect from './partials/CohortSelect.vue'
 import { DataType } from '@/constants'
-import PlotSaveVue from './partials/PlotSave.vue'
 
 export default {
   name: 'GeneComponent',
   components: {
     expressionTable,
-    PlotSaveVue,
     histogram,
     CohortSelect,
     SwarmPlot,
@@ -282,10 +275,14 @@ export default {
   data: () => ({
     identifier: '',
     cohortIndex: 0,
-    savePlot: false,
     mode: DataType.FULL_PROTEOME,
     showOncokbcnv: false,
     swarmShow: false,
+    radioOptions: {
+      protein: 'Protein',
+      psite: 'Phosphopeptide',
+      fpkm: 'mRNA (FPKM)'
+    },
     intensityUnit: 'Z-score',
     selectedDotsInPlot: '',
     cnvDescription: '',
@@ -360,9 +357,6 @@ export default {
     updateCohort ({ dataSource, cohortIndex }) {
       this.cohortIndex = cohortIndex
     },
-    changePlotSavestaus ({ status }) {
-      this.savePlot = status
-    },
     updateId () {
       this.swarmShow = false
       if (this.identifier.length > 0) { // gene mode
@@ -394,11 +388,9 @@ export default {
       let response
       query = `${process.env.VUE_APP_API_HOST}/oncokb/api/cnv/${gene}/AMPLIFICATION`
       response = await axios.get(query)
-      // console.log(response.data)
       const cnv = response.data.mutationEffect.description
       query = `${process.env.VUE_APP_API_HOST}/oncokb/api/cnv/${gene}/DELETION`
       response = await axios.get(query)
-      // console.log(response.data)
       const deletion = response.data.mutationEffect.description
       this.cnvDescription = cnv + deletion
     },

@@ -1,22 +1,68 @@
 <template>
-  <div>
+  <v-container
+    fluid
+    class="pa-0"
+  >
+    <v-card flat>
+      <v-card-title>Data loading logs</v-card-title>
+      <v-card-text>
+        <v-row>
+          <v-col cols="11">
+            <v-textarea
+              label="Loading Logs"
+              style="width:100%;"
+              filled
+              hide-details
+              :value="infoLogs"
+            />
+          </v-col>
+          <v-col cols="1">
+            <v-btn
+              color="primary"
+              @click="updateInfoLogs"
+            >
+              <v-icon
+                dark
+              >
+                mdi-refresh
+              </v-icon>
+            </v-btn>
+          </v-col>
+        </v-row>
+      </v-card-text>
+    </v-card>
     <v-card
-      class="mt-2 mb-2"
+      class="mt-4"
       flat
     >
-      <v-textarea
-        label="Error Logs"
-        style="width:100%;"
-        :value="logValue"
-      />
-      <v-btn
-        class="mt-4 ml-2"
-        @click="updateLog"
-      >
-        update Log
-      </v-btn>
+      <v-card-title>Error logs</v-card-title>
+      <v-card-text>
+        <v-row>
+          <v-col cols="11">
+            <v-textarea
+              label="Error Logs"
+              style="width:100%;"
+              filled
+              hide-details
+              :value="errorLogs"
+            />
+          </v-col>
+          <v-col cols="1">
+            <v-btn
+              color="primary"
+              @click="updateErrorLogs"
+            >
+              <v-icon
+                dark
+              >
+                mdi-refresh
+              </v-icon>
+            </v-btn>
+          </v-col>
+        </v-row>
+      </v-card-text>
     </v-card>
-  </div>
+  </v-container>
 </template>
 
 <script>
@@ -24,15 +70,21 @@ import axios from 'axios'
 export default {
   name: 'ErrorLog',
   data: () => ({
-    logValue: ''
+    errorLogs: '',
+    infoLogs: ''
   }),
   mounted () {
-    this.updateLog()
+    this.updateInfoLogs()
+    this.updateErrorLogs()
   },
   methods: {
-    async updateLog () {
+    async updateInfoLogs () {
+      const response = await axios.get(`${process.env.VUE_APP_API_HOST}/update/logs`)
+      this.infoLogs = response.data.replace(/topas_separator/g, '\n')
+    },
+    async updateErrorLogs () {
       const response = await axios.get(`${process.env.VUE_APP_API_HOST}/error/logs`)
-      this.logValue = response.data.replace(/topas_separator/g, '\n')
+      this.errorLogs = response.data.replace(/topas_separator/g, '\n')
     }
   }
 }

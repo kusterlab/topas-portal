@@ -51,10 +51,10 @@
       :min-width="85"
     />
     <DxColumn
-      v-if="correlationInputType == 'basket_score'"
+      v-if="correlationInputType == 'topas_score'"
       data-field="weight"
       data-type="number"
-      caption="Basket weight"
+      caption="Topas weight"
       :min-width="50"
     />
     <DxColumn
@@ -126,7 +126,6 @@ export default {
   methods: {
     onSelectionChanged: function (e) {
       this.$emit('onRowSelect', e.selectedRowKeys, e.selectedRowsData)
-      console.log(this.correlationType)
     },
     formatThreeSignificant: function (value) {
       if (Math.abs(value) < 1e-3) {

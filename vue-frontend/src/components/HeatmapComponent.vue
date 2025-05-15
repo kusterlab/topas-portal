@@ -2,8 +2,8 @@
   <v-row class="pa-4 grey lighten-3">
     <v-col
       sm="12"
-      md="9"
-      lg="8"
+      md="3"
+      lg="2"
     >
       <v-card flat>
         <v-card-title
@@ -12,29 +12,43 @@
           Heatmap
         </v-card-title>
         <v-card-text>
-          <v-combobox
-            v-model="diseaseName"
-            prepend-icon="mdi-database"
-            class="cohort"
-            dense
-            outlined
-            hide-details
-            :items="all_diseases"
-            label="Cohort / Cell Type"
+          <cohort-select
+            @select-cohort="updateCohort"
           />
-
-          <p class="mt-4 mb-2">
-            Sample selection
-          </p>
+        </v-card-text>
+      </v-card>
+      <v-card
+        flat
+        class="mt-4"
+      >
+        <v-card-title
+          tag="h1"
+        >
+          Select samples
+        </v-card-title>
+        <v-card-text>
           <sample-select
             :cohort-index="cohortIndex"
+            :show-table-select="true"
             :sample-ids="selectedSamples"
             @update-group="updateSampleGroup"
             @update-selection-method="updateSelectionMethod"
           />
+        </v-card-text>
+      </v-card>
+      <v-card
+        flat
+        class="mt-4"
+      >
+        <v-card-title
+          tag="h1"
+        >
+          Select data
+        </v-card-title>
+        <v-card-text>
           <v-select
             v-model="inputDataType"
-            class="input_data_type mb-2 mt-8"
+            class="input_data_type mb-2"
             prepend-icon="mdi-filter"
             dense
             outlined
@@ -44,16 +58,16 @@
             @change="updateHeatmap"
           />
 
-          <basket-select
-            v-if="String(inputDataType).startsWith('tupac')"
-            :cohort-index="all_diseases.indexOf(diseaseName)"
+          <topas-select
+            v-if="String(inputDataType).startsWith('topas')"
+            :cohort-index="cohortIndex"
             :score-type="false"
             :multiple="true"
-            @select-basket="updateIdentifier"
+            @select-topas="updateIdentifier"
           />
           <protein-select
-            v-if="!String(inputDataType).startsWith('tupac')"
-            :cohort-index="all_diseases.indexOf(diseaseName)"
+            v-if="!String(inputDataType).startsWith('topas')"
+            :cohort-index="cohortIndex"
             :multiple="true"
             :data-layer="inputDataType"
             class="mt-4"
@@ -63,37 +77,35 @@
       </v-card>
     </v-col>
     <v-col
+      v-show="selectionMethod === 'table'"
       sm="12"
-      md="9"
-      lg="8"
+      md="4"
+      lg="4"
     >
       <v-card flat>
         <v-card-text>
-          <v-row>
-            <v-col
-              v-show="selectionMethod === 'table'"
-              sm="12"
-              md="5"
-              lg="5"
-            >
-              <patient-table
-                :cohort-index="cohortIndex"
-                @onRowSelect="updateSelectedSamples"
-              />
-            </v-col>
-            <v-col
-              sm="12"
-              md="7"
-              lg="7"
-            >
-              <Plotly
-                v-if="heatmapData.data"
-                :data="heatmapData.data"
-                :layout="heatmapData.layout"
-                :to-image-button-options="toImageButtonOptions"
-              />
-            </v-col>
-          </v-row>
+          <patient-select-table
+            :cohort-index="cohortIndex"
+            @onRowSelect="updateSelectedSamples"
+          />
+        </v-card-text>
+      </v-card>
+    </v-col>
+    <v-col
+      sm="12"
+      md="5"
+      lg="6"
+    >
+      <v-card
+        v-if="heatmapData.data"
+        flat
+      >
+        <v-card-text>
+          <Plotly
+            :data="heatmapData.data"
+            :layout="heatmapData.layout"
+            :to-image-button-options="toImageButtonOptions"
+          />
         </v-card-text>
       </v-card>
     </v-col>
@@ -101,9 +113,9 @@
 </template>
 <script>
 import axios from 'axios'
-import { mapGetters, mapState } from 'vuex'
-import PatientTable from './tables/DifferentialmetaTable.vue'
-import BasketSelect from '@/components/partials/BasketSelect'
+import CohortSelect from './partials/CohortSelect.vue'
+import PatientSelectTable from './tables/DifferentialmetaTable.vue'
+import TopasSelect from '@/components/partials/TopasSelect'
 import ProteinSelect from '@/components/partials/ProteinSelect'
 import SampleSelect from './partials/SampleSelect.vue'
 import { Plotly } from 'vue-plotly'
@@ -112,8 +124,9 @@ import { DataType } from '@/constants'
 export default {
   name: 'HeatmapComponent',
   components: {
-    PatientTable,
-    BasketSelect,
+    CohortSelect,
+    PatientSelectTable,
+    TopasSelect,
     ProteinSelect,
     Plotly,
     SampleSelect
@@ -123,7 +136,7 @@ export default {
       type: Number,
       default: 400
     },
-    diseaseChange: {
+    cohortChange: {
       type: Boolean,
       default: false
     },
@@ -133,11 +146,11 @@ export default {
     }
   },
   data: () => ({
+    cohortIndex: 0,
     heatmapData: [],
     selectedSamples: [],
     selectionMethod: 'metadata',
     componentKey: 0,
-    diseaseName: null,
     inputDataType: DataType.FULL_PROTEOME,
     identifier: null,
     showPlot: false,
@@ -171,27 +184,27 @@ export default {
       },
       {
         text: 'TOPAS scores',
-        value: DataType.TUPAC_SCORE
+        value: DataType.TOPAS_SCORE
       },
       {
         text: 'TOPAS subscores (protein expression)',
-        value: DataType.TUPAC_PROTEIN
+        value: DataType.TOPAS_PROTEIN
       },
       {
         text: 'TOPAS subscores (kinase activity)',
-        value: DataType.TUPAC_KINASE_SCORE
+        value: DataType.TOPAS_KINASE_SCORE
       },
       {
         text: 'TOPAS subscores (kinsase substrate)',
-        value: DataType.TUPAC_KINASE_SUBSTRATE
+        value: DataType.TOPAS_KINASE_SUBSTRATE
       },
       {
         text: 'TOPAS subscores (protein phosphorylation scores)',
-        value: DataType.TUPAC_PHOSPHO_SCORE
+        value: DataType.TOPAS_PHOSPHO_SCORE
       },
       {
         text: 'TOPAS subscores  (p-sites)',
-        value: DataType.TUPAC_PHOSPHO_SCORE_PSITE
+        value: DataType.TOPAS_PHOSPHO_SCORE_PSITE
       }
     ],
     toImageButtonOptions: {
@@ -199,25 +212,19 @@ export default {
       filename: 'heatmap'
     }
   }),
+  computed: {
+  },
   watch: {
-    diseaseChange: function () {
+    cohortChange: function () {
       this.getPatientsData()
     }
   },
   mounted () {
   },
-  computed: {
-    ...mapState({
-      all_diseases: state => state.all_diseases
-    }),
-    ...mapGetters({
-      hasData: 'hasData'
-    }),
-    cohortIndex: function () {
-      return this.all_diseases.indexOf(this.diseaseName)
-    }
-  },
   methods: {
+    updateCohort ({ dataSource, cohortIndex }) {
+      this.cohortIndex = cohortIndex
+    },
     updateIdentifier ({ dataSource, identifier }) {
       this.identifier = identifier
       this.updateHeatmap()
@@ -239,7 +246,7 @@ export default {
       this.updateHeatmap()
     },
     async updateHeatmap () {
-      if (this.cohortIndex >= 0 && this.identifier !== null && this.selectedSamples !== null) {
+      if (this.cohortIndex >= 0 && this.identifier !== null && this.selectedSamples !== null && this.selectedSamples.length > 0) {
         const response = await axios.get(`${process.env.VUE_APP_API_HOST}/batcheffect/${this.inputDataType}/${this.cohortIndex}/${this.identifier}/${this.selectedSamples}/plot`)
         this.showPlot = true
         this.heatmapData = response.data

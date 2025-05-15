@@ -1,36 +1,36 @@
 from . import utils
 
-BASKET_LEVEL_MAPPING = {
-    utils.DataType.TUPAC_KINASE_SCORE: {
+TOPAS_LEVEL_MAPPING = {
+    utils.DataType.TOPAS_KINASE_SCORE: {
         "data_level": utils.DataType.KINASE_SCORE,
         "scoring_rule_level": utils.DataType.KINASE_SCORE,
     },
-    utils.DataType.TUPAC_KINASE_SUBSTRATE: {
+    utils.DataType.TOPAS_KINASE_SUBSTRATE: {
         "data_level": utils.DataType.KINASE_SUBSTRATE,
         "scoring_rule_level": utils.DataType.KINASE_SCORE,
     },
-    utils.DataType.TUPAC_PHOSPHO_SCORE: {
+    utils.DataType.TOPAS_PHOSPHO_SCORE: {
         "data_level": utils.DataType.PHOSPHO_SCORE,
         "scoring_rule_level": utils.DataType.PHOSPHO_SCORE,
     },
-    utils.DataType.TUPAC_PHOSPHO_SCORE_PSITE: {
+    utils.DataType.TOPAS_PHOSPHO_SCORE_PSITE: {
         "data_level": utils.DataType.PHOSPHO_SCORE_PSITE,
         "scoring_rule_level": utils.DataType.PHOSPHO_SCORE,
     },
-    utils.DataType.TUPAC_PROTEIN: {
+    utils.DataType.TOPAS_PROTEIN: {
         "data_level": utils.DataType.FULL_PROTEOME,
         "scoring_rule_level": utils.DataType.FULL_PROTEOME,
     },
 }
 
-BASKET_SCORING_RULES = {
+TOPAS_SCORING_RULES = {
     utils.DataType.FULL_PROTEOME: "highest z-score",
     utils.DataType.PHOSPHO_SCORE: "highest protein phosphorylation score (2nd level z-score, FH)",
     utils.DataType.KINASE_SCORE: "highest kinase score (2nd level z-score, FH)",
 }
 
-BASKET_DIFFERENTIAL_INTENSITY_UNITS = {
-    utils.DataType.TUPAC_SCORE: utils.IntensityUnit.SCORE,
+TOPAS_DIFFERENTIAL_INTENSITY_UNITS = {
+    utils.DataType.TOPAS_SCORE: utils.IntensityUnit.SCORE,
     utils.DataType.KINASE_SCORE: utils.IntensityUnit.Z_SCORE,
     utils.DataType.PHOSPHO_SCORE: utils.IntensityUnit.Z_SCORE,
     utils.DataType.FULL_PROTEOME: utils.IntensityUnit.INTENSITY,
@@ -39,8 +39,8 @@ BASKET_DIFFERENTIAL_INTENSITY_UNITS = {
     utils.DataType.KINASE_SUBSTRATE: utils.IntensityUnit.INTENSITY,
 }
 
-# the following basket names should be changed as exception as below to aavoid problems in fronend
-BASKET_RENAMING = {
+# the following topas names should be changed as exception as below to aavoid problems in fronend
+TOPAS_RENAMING = {
     "CDK4_6 activity": "CDK4_6_activity",
     "Immune checkpoints": "Immune_checkpoints",
     "Infiltration/Inflammation": "Infiltration_Inflammation",
@@ -50,7 +50,7 @@ BASKET_RENAMING = {
 
 
 IFN_proteins = [
-    # this list will be used for on the fly calculation of the TUPAC scores by summing the z_scores
+    # this list will be used for on the fly calculation of the TOPAS scores by summing the z_scores
     "MX1",
     "ISG20",
     "ISG15",
@@ -97,7 +97,7 @@ IFN_proteins = [
 ]
 
 
-TUPAC_COLORING_RULE = {
+TOPAS_COLORING_RULE = {
     "RTK": "red",
     "TK": "blue",
     "downstream signaling": "green",
@@ -107,8 +107,8 @@ TUPAC_COLORING_RULE = {
 }
 
 
-# TUPAC scores to show on the lolipop plot and the circular plot of the frontside
-TUPAC_CATEGORIES = {
+# TOPAS scores to show on the lolipop plot and the circular plot of the frontside
+TOPAS_CATEGORIES = {
     # the rules for the 5th generation
     "ALK": "RTK",
     "AXL": "RTK",
@@ -163,8 +163,8 @@ TUPAC_CATEGORIES = {
 }
 
 
-TUPAC_EXPRESSION_MAPPING = {
-    #  the right side is the basket and left side protein
+TOPAS_EXPRESSION_MAPPING = {
+    #  the right side is the topas and left side protein
     "ALK": "ALK",
     "AXL": "AXL",
     "DDR1": "DDR1",
