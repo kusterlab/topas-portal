@@ -6,7 +6,7 @@
   >
     <v-btn
       v-if="savePlot"
-      class="ma-2 float-left"
+      class="ma-2"
       color="primary"
       @click="downloadSVG"
     >
@@ -32,7 +32,7 @@ export default {
     },
     savePlot: {
       type: Boolean,
-      default: true
+      default: false
     },
     patientName: {
       type: String,
@@ -128,9 +128,9 @@ export default {
         .append('svg')
         .attr('width', width + margin.left + margin.right)
         .attr('height', height + margin.top + margin.bottom)
-        // .call(d3.zoom().on('zoom', function (event) {
-        //   svg.attr('transform', event.transform)
-        // }))
+        .call(d3.zoom().on('zoom', function (event) {
+          svg.attr('transform', event.transform)
+        }))
         .append('g')
         .attr('transform', 'translate(' + (width / 2 + margin.left) + ',' + (height / 2 + margin.top) + ')')
 
@@ -149,7 +149,7 @@ export default {
         .style('opacity', 0)
       // tooltip mouseover event handler
       const tipMouseover = function (_, d) {
-        const html = 'Topas: ' + d.label + '  ' + 'Score: ' + d.new_value.toFixed(2)
+        const html = 'Basket: ' + d.label + '  ' + 'Score: ' + d.new_value.toFixed(2)
         tooltip.html(html)
           .transition()
           .duration(200) // ms

@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 
 class DataProvider(Protocol):
-    topas_complete_df: pd.DataFrame
+    basket_complete_df: pd.DataFrame
     FPKM: pd.DataFrame
 
     def initialize_cohorts(self, cohort_names: List[str]):

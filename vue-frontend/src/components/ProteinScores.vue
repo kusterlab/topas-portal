@@ -11,47 +11,63 @@
           <v-card-title
             tag="h1"
           >
-            Protein Phosph. Scores
+            Protein Phosphorylation Scores
           </v-card-title>
           <v-card-text>
             <cohort-select
               @select-cohort="updateCohort"
             />
+            <v-radio-group
+              v-model="inputType"
+              label="Input type"
+              hide-details
+              @change="updateId"
+            >
+              <v-radio
+                label="Compare patients (per phosphoprotein)"
+                value="per_protein"
+              />
+              <v-radio
+                label="Compare phosphoproteins (per patient)"
+                value="per_patient"
+              />
+            </v-radio-group>
             <protein-select
+              v-if="inputType == 'per_protein'"
               :cohort-index="cohortIndex"
-              label-override="Phosphoprotein"
               data-layer="phospho_score"
               class="mt-4"
               @select-protein="updateProtein"
+            />
+            <v-autocomplete
+              v-if="inputType == 'per_patient'"
+              v-model="patientidentifier"
+              :items="allPatients"
+              outlined
+              dense
+              label="Select Patient"
+              class="mt-4"
+              @change="updateId('patient')"
             />
           </v-card-text>
         </v-card>
         <!-- Collapsible Help Box -->
         <v-card
-          flat
-          class="mt-4"
+          elevation="2"
+          class="pa-4 mt-4"
         >
-          <v-card-title>Help</v-card-title>
-          <v-card-text>
-            <v-expansion-panels>
-              <v-expansion-panel>
-                <v-expansion-panel-header class="mb-0">
-                  Tab info
-                </v-expansion-panel-header>
-                <v-expansion-panel-content>
-                  In this tab you can visualize the protein phosphorylation scores to interrogate the relative phosphorylation of proteins based on the abundance of all protein phosphorylation sites.
-                </v-expansion-panel-content>
-              </v-expansion-panel>
-              <v-expansion-panel>
-                <v-expansion-panel-header class="mb-0">
-                  How to use
-                </v-expansion-panel-header>
-                <v-expansion-panel-content>
-                  You can select a protein- or sample-centric view. Use the dropdown menu to select a cohort, then apply filters as required to stratify samples. To visualize specific samples in the swarm plot, select samples in the list, pick a name in the field "Group" above the plot, adjust the color and click the blue edit button. Click the circled arrow to come back to default. To export the plot, click the export button on the right handside above the plot.
-                </v-expansion-panel-content>
-              </v-expansion-panel>
-            </v-expansion-panels>
-          </v-card-text>
+          <v-expansion-panels>
+            <v-expansion-panel>
+              <v-expansion-panel-header>
+                More info?
+              </v-expansion-panel-header>
+              <v-expansion-panel-content>
+                <p class="text-body-2">
+                  In this tab you can visualize the protein phosphorylation scores to interrogate the relative phosphorylation of proteins based on the abundance of all protein phosphorylation sites. You can select a protein- or sample-centric view. Use the dropdown menu to select a cohort, then apply filters as required to stratify samples. To visualize specific samples in the swarm plot, select samples in the list, pick a name in the field "Group" above the plot, adjust the color and click the blue edit button. Click the circled arrow to come back to default. To export the plot, click the export button on the right handside above the plot.
+                </p>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
+          </v-expansion-panels>
         </v-card>
       </v-col>
       <v-col
@@ -108,8 +124,6 @@
 </template>
 <script>
 import axios from 'axios'
-import { mapMutations } from 'vuex'
-
 import CohortSelect from './partials/CohortSelect.vue'
 import proteinscoreTable from '@/components/tables/ProteinscoreTable.vue'
 import SwarmPlot from '@/components/plots/SwarmPlot'
@@ -123,6 +137,17 @@ export default {
     CohortSelect,
     explorerComponent,
     ProteinSelect
+  },
+  props: {
+    minWidth: {
+      type: Number,
+      default: 400
+    },
+
+    minHeight: {
+      type: Number,
+      default: 300
+    }
   },
   data: () => ({
     proteinidentifier: '',
@@ -155,9 +180,6 @@ export default {
     this.swarmSelIds = []
   },
   methods: {
-    ...mapMutations({
-      addNotification: 'notifications/addNotification'
-    }),
     updateCohort ({ dataSource, cohortIndex }) {
       this.cohortIndex = cohortIndex
       this.updateProtein()
@@ -167,10 +189,7 @@ export default {
         const response = await axios.get(`${process.env.VUE_APP_API_HOST}/proteinscore/${this.cohortIndex}/patients_list`)
         this.allPatients = response.data
       } catch (error) {
-        this.addNotification({
-          color: 'error',
-          message: `Error: unable to load patients list for this cohort ${error}`
-        })
+        console.log('Error geting patients list for this cohort', error)
         this.allPatients = []
       }
     },
@@ -182,8 +201,13 @@ export default {
       this.swarmShow = false
       this.plotData = []
       this.plotSelIds = []
-      if (this.proteinidentifier.length > 0) {
+      if (type === 'protein' && this.proteinidentifier.length > 0) {
         this.getProteindata(this.proteinidentifier)
+        this.getPatientslist()
+      }
+
+      if (type === 'patient' && this.patientidentifier.length > 0) {
+        this.getpatientdata(this.patientidentifier)
       }
     },
     async getProteindata (key) {
@@ -197,6 +221,14 @@ export default {
       this.plotData = response.data
       this.loading = false
     },
+
+    async getpatientdata (key) {
+      this.proteinidentifier = ''
+      this.plotData = []
+      const query = `${process.env.VUE_APP_API_HOST}/proteinscore/${this.cohortIndex}/patient/${key}`
+      this.url = query
+    },
+
     updateSelectedRows (selectedIds, selectedData) {
       this.plotSelIds = []
       selectedData.forEach((rowData) => {

@@ -26,7 +26,6 @@
       </v-btn>
 
       <v-btn
-        v-if="savePlot"
         class="ma-2"
         color="primary"
         @click="downloadSVG"
@@ -91,7 +90,7 @@ export default {
      },
     savePlot: {
       type: Boolean,
-      default: true
+      default: false
     },
     swarmSelIds: {
       type: Array,
@@ -322,6 +321,7 @@ export default {
             .attr('opacity', 1)
         })
         .on('mouseout', function () {
+        // console.log(_.target.__data__[fieldOfTable])
           tooltip.style('opacity', 0)
           xLine.attr('opacity', 0)
         })

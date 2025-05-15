@@ -2,7 +2,7 @@ import os
 from topas_portal.config_reader import *
 
 
-DATABASE_MODE = False  # True means using Postgres, False means in-memory
+DATABASE_MODE = False  # rue means using Postgres False means in-memory
 DEBUG_MODE = False 
 
 PASSWORD = os.getenv("DB_PASSWORD")  # this should be either in the environmental variables or in CI/CD or docker compose file
@@ -31,7 +31,7 @@ REGEX_META = (
 )
 
 # normalized intensities with gene/p-site annotations from wp3 pipeline
-# includes topas (FP, PP) and PSP annotations (PP)
+# includes basket (FP, PP) and PSP annotations (PP)
 PREPROCESSED_FP_INTENSITY = "annot_fp.csv"
 PREPROCESSED_PP_INTENSITY = "annot_pp.csv"
 
@@ -50,9 +50,9 @@ KINASE_SCORES_FILE = "kinase_results/kinase_scores.tsv"
 KINASE_PEPTIDES_SCORES = "kinase_results/scored_peptides.tsv"
 
 #
-TOPAS_SUBSCORE_FILES_PREFIX = "subbasket_scores_"
-TOPAS_SCORES_FILE = "basket_scores_4th_gen.tsv"
-TOPAS_Z_SCORES_FILE = "basket_scores_4th_gen_zscored.tsv"
+SUBBASKET_FILES_PREFIX = "subbasket_scores_"
+BASKET_SCORES_FILE = "basket_scores_4th_gen.tsv"
+BASKET_Z_SCORES_FILE = "basket_scores_4th_gen_zscored.tsv"
 
 # pp z_scores
 PHOSPHO_MEASURES = "phospho_measures_z.tsv"
@@ -95,8 +95,8 @@ PATIENT_TABLE_NAN_STRING = [
 
 
 ############## DIFFERENT TABS meta data ##########
-#  Topas scores tab
-TOPAS_META_DATA = [
+#  Tupac scores tab
+BASKET_META_DATA = [
     "Sample name",
     "Z-score",
     *COMMON_META_DATA,

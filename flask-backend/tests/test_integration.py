@@ -84,4 +84,4 @@ def test_check_patients_meta_data():
 # phospho_measures_fc.tsv
 # preprocessed_fp.csv
 # preprocessed_pp.csv
-# topas_scores_4th_gen
+# basket_scores_4th_gen

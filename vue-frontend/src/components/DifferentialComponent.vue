@@ -12,56 +12,24 @@
           Differential Expression
         </v-card-title>
         <v-card-text>
-          <cohort-select
-            @select-cohort="updateCohort"
-          />
-          <v-checkbox
-            v-model="applyMultipleTestingCorrection"
-            class="mt-4"
-            dense
-            hide-details
-            label="Multiple testing correction (Benjamini-Hochberg)"
-          />
           <v-select
-            v-model="modality"
-            class="input_data_type mb-2 mt-4"
-            dense
-            outlined
-            prepend-icon="mdi-filter"
-            hide-details
-            :items="allInputDataTypes"
-            label="Input Data Type"
-          />
-          <v-select
-            v-model="proteinType"
-            class="input_data_type mb-2 mt-4"
-            prepend-icon="mdi-palette"
+            v-model="diseaseName"
+            class="cohort"
+            prepend-icon="mdi-database"
             dense
             outlined
             hide-details
-            :items="allProteinnTypes"
-            label="Highlight proteins"
-            @change="updateProteinType"
+            :items="all_diseases"
+            label="Cohort / Cell Type"
           />
-        </v-card-text>
-      </v-card>
-      <v-card
-        flat
-        class="mt-4"
-      >
-        <v-card-title
-          tag="h1"
-        >
-          Select groups
-        </v-card-title>
-        <v-card-text>
-          <p class="mb-2">
+
+          <p class="mt-4 mb-2">
             Group1
           </p>
           <sample-select
             :cohort-index="cohortIndex"
+            prepend-icon="mdi-account"
             :sample-ids="customGroup1"
-            :show-table-select="true"
             @update-group="updateSampleGroup1"
             @update-selection-method="updateSelectionMethodGroup1"
           />
@@ -80,10 +48,46 @@
             v-if="!secondGroup"
             :cohort-index="cohortIndex"
             :sample-ids="customGroup2"
-            :show-table-select="true"
             @update-group="updateSampleGroup2"
             @update-selection-method="updateSelectionMethodGroup2"
           />
+
+          <v-select
+            v-model="modality"
+            class="input_data_type mb-2 mt-4"
+            dense
+            outlined
+            prepend-icon="mdi-filter"
+            hide-details
+            :items="allInputDataTypes"
+            label="Input Data Type"
+            @change="updateHeatmap"
+          />
+          <v-select
+            v-model="proteinType"
+            class="input_data_type mb-2 mt-4"
+            prepend-icon="mdi-palette"
+            dense
+            outlined
+            hide-details
+            :items="allProtienTypes"
+            label="Category"
+            @change="updateProteinType"
+          />
+          <v-radio-group
+            v-model="yAxistype"
+          >
+            <v-radio
+              label="Multiple testing correction (BH)"
+              color="red"
+              value="fdr"
+            />
+            <v-radio
+              label="No Multiple testing correction"
+              color="blue"
+              value="p_values"
+            />
+          </v-radio-group>
 
           <v-btn
             class="ma-2"
@@ -98,50 +102,42 @@
     </v-col>
     <v-col
       sm="12"
-      md="9"
-      lg="10"
+      md="8"
+      lg="6"
     >
-      <v-card
-        v-show="selectionMethod1 === 'table' | selectionMethod2 === 'table'"
-        flat
-        class="mb-4"
-      >
+      <v-card flat>
         <v-card-text>
           <v-row>
             <v-col
               v-show="selectionMethod1 === 'table'"
-              sm="12"
+              sm="8"
               md="6"
-              lg="6"
+              lg="4"
             >
               <h2>Group1</h2>
-              <patient-select-table
+              <patient-table
                 :cohort-index="cohortIndex"
                 @onRowSelect="updatemetaSelectedRows1"
               />
             </v-col>
             <v-col
               v-show="selectionMethod2 === 'table'"
-              sm="12"
+              sm="8"
               md="6"
-              lg="6"
+              lg="4"
             >
               <h2>Group2</h2>
-              <patient-select-table
+              <patient-table
                 :cohort-index="cohortIndex"
                 @onRowSelect="updatemetaSelectedRows2"
               />
             </v-col>
           </v-row>
-        </v-card-text>
-      </v-card>
-      <v-card flat>
-        <v-card-text>
           <v-row>
             <v-col
-              sm="12"
+              sm="8"
               md="6"
-              lg="6"
+              lg="4"
             >
               <statistic-table
                 :data-source="statisticData"
@@ -150,9 +146,9 @@
               />
             </v-col>
             <v-col
-              sm="12"
+              sm="4"
               md="6"
-              lg="6"
+              lg="4"
             >
               <scatter-plot
                 id="differentialPlot"
@@ -183,10 +179,8 @@
 
 <script>
 import axios from 'axios'
-import { mapMutations } from 'vuex'
-
-import CohortSelect from './partials/CohortSelect.vue'
-import PatientSelectTable from './tables/DifferentialmetaTable.vue'
+import { mapGetters, mapState } from 'vuex'
+import PatientTable from './tables/DifferentialmetaTable.vue'
 import ScatterPlot from './plots/ScatterPlot.vue'
 import StatisticTable from './tables/StatisticsTable.vue'
 import SampleSelect from './partials/SampleSelect.vue'
@@ -194,10 +188,9 @@ import { DataType } from '@/constants'
 import { proteinTypes } from './plots/proteinTypes'
 
 export default {
-  name: 'TopasComponent',
+  name: 'BasketComponent',
   components: {
-    CohortSelect,
-    PatientSelectTable,
+    PatientTable,
     StatisticTable,
     ScatterPlot,
     SampleSelect
@@ -213,15 +206,15 @@ export default {
     }
   },
   data: () => ({
-    cohortIndex: 0,
+    diseaseName: '',
     proteinsInterest: proteinTypes.PROTEINLIST,
-    allProteinnTypes: proteinTypes.CATEGORY,
+    allProtienTypes: proteinTypes.CATEGORY,
     proteinType: 'None',
     grp1Index: 'index',
-    modality: DataType.TOPAS_SCORE_RTK,
+    modality: DataType.TUPAC_SCORE_RTK,
     secondGroup: true,
     grp2Index: 'index',
-    applyMultipleTestingCorrection: true,
+    yAxistype: 'fdr',
     selectionMethod1: 'metadata',
     selectionMethod2: 'metadata',
     selectedPvalues: [],
@@ -233,11 +226,11 @@ export default {
     allInputDataTypes: [
       {
         text: 'TOPAS scores (RTK)',
-        value: DataType.TOPAS_SCORE_RTK
+        value: DataType.TUPAC_SCORE_RTK
       },
       {
         text: 'TOPAS scores',
-        value: DataType.TOPAS_SCORE
+        value: DataType.TUPAC_SCORE
       },
       {
         text: 'Full proteome',
@@ -266,24 +259,20 @@ export default {
     ]
   }),
   computed: {
-    yAxistype: function () {
-      if (this.applyMultipleTestingCorrection) {
-        return 'fdr'
-      } else {
-        return 'p_values'
-      }
+    ...mapState({
+      all_diseases: state => state.all_diseases
+    }),
+    ...mapGetters({
+      hasData: 'hasData'
+    }),
+    cohortIndex: function () {
+      return this.all_diseases.indexOf(this.diseaseName)
     }
   },
   watch: {
 
   },
   methods: {
-    ...mapMutations({
-      addNotification: 'notifications/addNotification'
-    }),
-    updateCohort ({ dataSource, cohortIndex }) {
-      this.cohortIndex = cohortIndex
-    },
     async doTest () {
       try {
         this.statisticData = null
@@ -295,22 +284,25 @@ export default {
         if (this.secondGroup) { // the second group will be all other patients
           grp2 = 'index'
         }
+        console.log(`This the first group: ${grp1}`)
+        console.log(`This is the second group: ${grp2}`)
 
         const modality = this.modality
         const response = await axios.get(`${process.env.VUE_APP_API_HOST}/differential/${this.cohortIndex}/${modality}/${grp1}/${grp2}/${yAxistype}`)
         this.statisticData = response.data
         this.loading = false
       } catch (error) {
-        this.addNotification({
-          color: 'error',
-          message: `Error: in performing t-test ${error}`
-        })
+        alert(`Error: in Performing t_test,${error}`)
         this.loading = false
+        console.error(error)
       }
     },
 
     selectDot (selectedDot) {
       this.selectedDotsInPlot = selectedDot
+    },
+    changePlotSavestaus ({ status }) {
+      this.savePlot = status
     },
     updateSampleGroup1 (sampleIdList) {
       this.customGroup1 = sampleIdList
@@ -335,15 +327,13 @@ export default {
     updatestatsSelectedRowsstats (selectedIds, selectedData) {
       const selectedPvalues = []
       if (selectedData.length > 1000) {
-        this.addNotification({
-          color: 'warning',
-          message: 'You selected more than 1000 rows to color on the plot, this may take some time'
-        })
+        alert('you selected more than 1000 rows to color on plot; it takes time')
       }
       selectedData.forEach(element => {
         selectedPvalues.push(element.sampleId)
       })
       this.selectedPvalues = selectedPvalues
+      console.log(this.selectedPvalues)
     },
 
     updatemetaSelectedRows1 (selectedIds, selectedData) {
