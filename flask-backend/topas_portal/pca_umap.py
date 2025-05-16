@@ -189,7 +189,7 @@ def load_pca_data(
 
         samples_df = cohorts_db.get_sample_annotation_df(cohort_index)
         samplenames = samples_df['Sample name'].unique().tolist()
-        df = utils.keep_only_sample_columns(df,samplenames)
+        df = utils.keep_only_sample_columns(df,samplenames,keep_ref_channels=include_reference_channels)
 
     # prepare data
     if plot_type in [
