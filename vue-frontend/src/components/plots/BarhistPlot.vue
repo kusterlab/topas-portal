@@ -35,7 +35,7 @@ export default {
     },
     savePlot: {
       type: Boolean,
-      default: true
+      default: false
     },
     titleVariables: {
       type: Array,

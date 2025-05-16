@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid>
+  <div id="container">
     <v-row>
       <v-col
         sm="12"
@@ -32,72 +32,80 @@
       </v-col>
       <v-col
         sm="12"
-        md="5"
-        lg="5"
+        md="3"
+        lg="3"
       >
-        <v-btn
-          class="ma-2 float-right"
-          color="primary"
-          @click="downloadSVG"
-        >
-          SVG
-          <v-icon
-            dark
-          >
-            mdi-cloud-download
-          </v-icon>
-        </v-btn>
-        <div id="venn" />
-      </v-col>
-      <v-col
-        sm="12"
-        md="5"
-        lg="5"
-      >
-        <v-checkbox
-          v-model="showProteinTable"
-          label="Show table of proteins in selected group"
-          dense
-          hide-details
-        />
-        <v-btn-toggle
-          v-if="showProteinTable"
-          v-model="tableCriteria"
-          class="mt-4"
-          dense
-        >
-          <v-btn
-            value="all"
-          >
-            all
-          </v-btn>
-          <v-btn
-            value="uniq"
-          >
-            unique
-          </v-btn>
-        </v-btn-toggle>
-        <v-data-table
-          v-if="showProteinTable"
-          :headers="tableHeaders"
-          :items="filteredItems"
-          :items-per-page="10"
-          :search="search"
-          dense
-        >
-          <template #top>
-            <v-text-field
-              v-model="search"
-              label="Search protein/p-peptide"
-              prepend-icon="mdi-magnify"
-              class="mb-2"
-              hide-details
-            />
-          </template>
-        </v-data-table>
+        <div>
+          <div id="venn" />
+        </div>
       </v-col>
     </v-row>
-  </v-container>
+    <v-row>
+      <v-radio-group
+        v-model="tableCriteria"
+      >
+        <v-radio
+          label="Show None"
+          color="red"
+          value="none"
+        />
+        <v-radio
+          label="Show all items in the selected area"
+          color="blue"
+          value="all"
+        />
+        <v-radio
+          label="Show unique items in the selected area"
+          color="green"
+          value="uniq"
+        />
+      </v-radio-group>
+    </v-row>
+    <v-row>
+      <v-btn
+        class="ma-2"
+        color="primary"
+        @click="downloadSVG"
+      >
+        SVG
+        <v-icon
+          dark
+        >
+          mdi-cloud-download
+        </v-icon>
+      </v-btn>
+    </v-row>
+    <v-row>
+      <v-col
+        sm="12"
+        md="7"
+        lg="7"
+      >
+        <v-table theme="dark">
+          <thead>
+            <tr>
+              <th class="text-left">
+                Search:       <input
+                  v-model="search"
+                  type="text"
+                  label="search"
+                  class="search-txt"
+                >
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="item in filteredItems"
+              :key="item"
+            >
+              <td>{{ item }}</td>
+            </tr>
+          </tbody>
+        </v-table>
+      </v-col>
+    </v-row>
+  </div>
 </template>
 
 <script>
@@ -114,7 +122,7 @@ export default {
   },
   props: {
     vennplotData: {
-      // The data should be structured as below
+      // The data should be structured as bellow
       /*
       const plotSet = [
         { sample: 'gene1', group: 'A' },
@@ -140,7 +148,6 @@ export default {
         key: 'sample'
       }
     ],
-    tableHeaders: [{ text: 'Protein/p-peptide', value: 'name' }],
     finalPlotData: [{ sample: 'gene1', group: 'A' }],
     selectedBatch: '',
     selectedProteins: [],
@@ -148,8 +155,7 @@ export default {
     selectedSize: 0,
     uniqueSize: 0,
     search: '',
-    tableCriteria: 'all',
-    showProteinTable: false,
+    tableCriteria: 'none',
     showListIntersect: true,
     showListDiff: true
   }),
@@ -157,12 +163,9 @@ export default {
     filteredItems () {
       let tempFiltered = this.tableCriteria === 'uniq' ? this.uniqProteins : this.selectedProteins
       tempFiltered = this.tableCriteria === 'none' ? [] : tempFiltered
-      const items = tempFiltered.filter(item => {
+      return tempFiltered.filter(item => {
         return item.toLowerCase().indexOf(this.search.toLowerCase()) > -1
-      }).map(item => {
-        return { name: item }
       })
-      return items
     }
   },
   watch: {
@@ -252,6 +255,8 @@ export default {
         .on('click', function (event, d) {
           venn.sortAreas(div, d)
           // highlight the current path
+          console.log(event)
+          // console.log(selGrp)
           const selection = d3.select(this).transition('tooltip').duration(400)
           that.selectedBatch = selection._groups[0][0].__data__.sets
           that.selectedProteins = []
@@ -264,6 +269,7 @@ export default {
             const selGrp = that.selectedBatch.toString()
             for (let p = 0; p < uniquegroups.length; p++) {
               if (uniquegroups[p] !== selGrp) {
+                // console.log(uniquegroups[p])
                 currentDiff = memberships.getDifference(currentDiff, memberships.getProteinList(plotSet, uniquegroups[p]))
                 const uniqueIds = []
                 currentDiff.filter(element => {
@@ -280,6 +286,8 @@ export default {
             if (that.showListDiff) { that.uniqProteins = currentDiff }
           }
           that.uniqueSize = currentDiff.length
+          // console.log(memberships.getIntersection(currentDiff))
+          // alert(that.uniqueSize)
           that.selectedSize = selection._groups[0][0].__data__.size
           selection.select('path')
             .style('stroke-width', 3)
@@ -294,6 +302,7 @@ export default {
             .style('fill-opacity', 0.25)
             .style('stroke-opacity', 0)
         })
+      // console.log(test)
       */
     }
 

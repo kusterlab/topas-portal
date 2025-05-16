@@ -1,7 +1,24 @@
 <template>
   <div>
+    <v-btn
+      class="ma-2"
+      color="primary"
+      @click="clearSels"
+    >
+      <v-icon
+        dark
+      >
+        mdi-refresh
+      </v-icon>
+    </v-btn>
     <DxDataGrid
       :ref="dataGridRefName"
+      :state-storing="{
+        enabled: true,
+        type: 'custom',
+        customLoad: loadGridState,
+        customSave: saveGridState
+      }"
       :data-source="dataSource"
       :remote-operations="false"
       :allow-column-resizing="true"
@@ -25,21 +42,6 @@
         :show-navigation-buttons="true"
       />
       <DxPaging :page-size="10" />
-      <DxToolbar>
-        <DxItem
-          location="before"
-          locate-in-menu="auto"
-          show-text="always"
-          widget="dxButton"
-          :options="refreshButtonOptions"
-        />
-        <DxItem
-          name="exportButton"
-        />
-        <DxItem
-          name="columnChooserButton"
-        />
-      </DxToolbar>
     </DxDataGrid>
   </div>
 </template>
@@ -50,9 +52,7 @@ import {
   DxPager,
   DxExport,
   DxPaging,
-  DxFilterRow,
-  DxToolbar,
-  DxItem
+  DxFilterRow
 } from 'devextreme-vue/data-grid'
 import 'devextreme/dist/css/dx.light.css'
 import axios from 'axios'
@@ -62,9 +62,7 @@ export default {
     DxExport,
     DxPager,
     DxPaging,
-    DxFilterRow,
-    DxToolbar,
-    DxItem
+    DxFilterRow
   },
   props: {
     dataSource: undefined
@@ -84,7 +82,7 @@ export default {
         dataType: 'number',
         caption: 'Kinase_score',
         format: { type: 'fixedPoint', precision: 2 },
-        width: '70'
+        width: '80'
       }, {
 
         dataField: 'genomics_annotations',
@@ -101,15 +99,6 @@ export default {
   computed: {
     cookieAccepted () {
       return this.$store.state.cookieAccepted
-    },
-    refreshButtonOptions () {
-      return {
-        icon: 'pulldown',
-        text: 'Reset table',
-        onClick: () => {
-          this.$refs[this.dataGridRefName].instance.clearSelection()
-        }
-      }
     }
   },
   created () {
@@ -126,7 +115,6 @@ export default {
         const savedState = localStorage.getItem('gridStateKinase')
         return savedState ? JSON.parse(savedState) : null
       }
-      return null
     },
     async getCommonfield () {
       const response = await axios.get(`${process.env.VUE_APP_API_HOST}/colnames`)
@@ -137,6 +125,10 @@ export default {
         }
       })
       this.kinaseFields = [...this.kinaseFields, ...commonField]
+    },
+    clearSels () {
+      const dataGrid = this.$refs[this.dataGridRefName].instance
+      dataGrid.clearSelection()
     },
     onSelectionChanged: function (e) {
       this.$emit('onRowSelect', e.selectedRowKeys, e.selectedRowsData)

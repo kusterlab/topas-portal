@@ -1,159 +1,170 @@
 <template>
-  <v-row class="pa-4 grey lighten-3">
+  <div>
     <v-col
       sm="12"
-      md="3"
-      lg="2"
+      md="12"
+      lg="12"
     >
-      <v-card flat>
-        <v-card-title
-          tag="h1"
-        >
-          Cohort statistics
-        </v-card-title>
-        <v-card-text>
-          <cohort-select
-            @select-cohort="updateCohort"
-          />
-          <v-select
-            v-model="activeMeta"
-            class="mt-4"
-            dense
-            outlined
-            hide-details
-            :items="metaData"
-            label="Metadata column"
-            prepend-icon="mdi-palette"
-            @change="updateplotaData"
-          />
-          <v-text-field
-            v-model="minNumitems"
-            class="mt-4"
-            label="Min Items per Group"
-            type="number"
-            dense
-            outlined
-            prepend-icon="mdi-counter"
-            hide-details
-            @change="updateplotaData"
-          />
-        </v-card-text>
-      </v-card>
-      <v-card
-        flat
-        class="mt-4"
-      >
-        <v-card-title>Help</v-card-title>
-        <v-card-text>
-          <v-expansion-panels>
-            <v-expansion-panel>
-              <v-expansion-panel-header class="mb-0">
-                Tab info
-              </v-expansion-panel-header>
-              <v-expansion-panel-content>
-                In this tab you can visualize meta dtata and number of detected modifications per type for each cohort.
-              </v-expansion-panel-content>
-            </v-expansion-panel>
-            <v-expansion-panel>
-              <v-expansion-panel-header class="mb-0">
-                How to use
-              </v-expansion-panel-header>
-              <v-expansion-panel-content>
-                Use the dropdown menus to select a cohort and metadata for visualization. Adjust the minimum items per group to filter the data accordingly.
-              </v-expansion-panel-content>
-            </v-expansion-panel>
-          </v-expansion-panels>
-        </v-card-text>
-      </v-card>
-    </v-col>
-
-    <!-- Data Visualization Section -->
-    <v-col
-      sm="12"
-      md="9"
-      lg="10"
-    >
-      <v-row>
+      <v-row class="pa-4">
         <v-col
-          v-if="entityData.data"
           sm="12"
-          md="5"
-          lg="5"
+          md="6"
+          lg="6"
         >
-          <v-card flat>
-            <v-card-title>
-              {{ activeMeta }}
+          <v-card
+            elevation="2"
+            class="pa-4"
+          >
+            <v-card-title
+              tag="h2"
+              class="text-h6 font-weight-bold mb-3"
+            >
+              Options
             </v-card-title>
             <v-card-text>
-              <v-skeleton-loader
-                :loading="loadingEntity"
-                height="200"
-                width="200"
-                type="image, list-item-two-line"
-              >
-                <v-responsive>
-                  <Plotly
-                    v-if="entityData.data"
-                    :key="componentKey"
-                    :data="entityData.data"
-                    :layout="entityData.layout"
-                    :to-image-button-options="toImageButtonOptions"
-                  />
-                </v-responsive>
-              </v-skeleton-loader>
+              <v-combobox
+                v-model="diseaseName"
+                dense
+                outlined
+                hide-details
+                :items="all_diseases"
+                label="Cohort / Cell Type"
+                prepend-icon="mdi-database"
+                @change="allUpdate"
+              />
             </v-card-text>
+            <v-card-text>
+              <v-row class="mb-4">
+                <v-col cols="12">
+                  <v-select
+                    v-model="activeMeta"
+                    dense
+                    outlined
+                    hide-details
+                    :items="metaData"
+                    label="Color by Metadata"
+                    prepend-icon="mdi-palette"
+                    @change="updateplotaData"
+                  />
+                </v-col>
+              </v-row>
+              <v-row class="mb-4">
+                <v-col cols="12">
+                  <v-text-field
+                    v-model="minNumitems"
+                    label="Min Items per Group"
+                    type="number"
+                    dense
+                    outlined
+                    prepend-icon="mdi-counter"
+                    hide-details
+                    @change="updateplotaData"
+                  />
+                </v-col>
+              </v-row>
+            </v-card-text>
+          </v-card>
+          <v-card
+            elevation="2"
+            class="pa-4 mt-4"
+          >
+            <v-expansion-panels>
+              <v-expansion-panel>
+                <v-expansion-panel-header>
+                  More info?
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  <p class="text-body-2">
+                    In this tab you can visualize meta dtata and number of detected modifications per type for each cohort.
+                  </p>
+                  <p class="text-body-2">
+                    Use the dropdown menus to select a cohort and metadata for visualization. Adjust the minimum items per group to filter the data accordingly.
+                  </p>
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+            </v-expansion-panels>
           </v-card>
         </v-col>
+
+        <!-- Data Visualization Section -->
         <v-col
-          v-if="modificationData.data"
           sm="12"
-          md="5"
-          lg="5"
+          md="6"
+          lg="6"
         >
-          <v-card flat>
-            <v-card-title>
-              Modifications
-            </v-card-title>
-            <v-card-text>
-              <v-skeleton-loader
-                :loading="loadingEntity"
-                height="200"
-                width="200"
-                type="image, list-item-two-line"
+          <v-row>
+            <v-col cols="12">
+              <v-card-title
+                v-if="entityData.data"
+                class="text-h6 font-weight-bold"
               >
-                <v-responsive>
-                  <Plotly
-                    v-if="modificationData.data"
-                    :key="componentKey"
-                    :data="modificationData.data"
-                    :layout="modificationData.layout"
-                    :to-image-button-options="toImageButtonOptions"
-                  />
-                </v-responsive>
-              </v-skeleton-loader>
-            </v-card-text>
-          </v-card>
+                Entity Data
+              </v-card-title>
+              <v-card-text>
+                <v-skeleton-loader
+                  :loading="loadingEntity"
+                  height="200"
+                  width="200"
+                  type="image, list-item-two-line"
+                >
+                  <v-responsive>
+                    <Plotly
+                      v-if="entityData.data"
+                      :key="componentKey"
+                      :data="entityData.data"
+                      :layout="entityData.layout"
+                      :to-image-button-options="toImageButtonOptions"
+                    />
+                  </v-responsive>
+                </v-skeleton-loader>
+              </v-card-text>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-card flat>
+              <v-card-title
+                v-if="modificationData.data"
+                class="text-h6 font-weight-bold"
+              >
+                Modification Data
+              </v-card-title>
+              <v-card-text>
+                <v-skeleton-loader
+                  :loading="loadingEntity"
+                  height="200"
+                  width="200"
+                  type="image, list-item-two-line"
+                >
+                  <v-responsive>
+                    <Plotly
+                      v-if="modificationData.data"
+                      :key="componentKey"
+                      :data="modificationData.data"
+                      :layout="modificationData.layout"
+                      :to-image-button-options="toImageButtonOptions"
+                    />
+                  </v-responsive>
+                </v-skeleton-loader>
+              </v-card-text>
+            </v-card>
+          </v-row>
         </v-col>
       </v-row>
     </v-col>
-  </v-row>
+  </div>
 </template>
 
 <script>
 import axios from 'axios'
-import { mapMutations } from 'vuex'
-
-import CohortSelect from './partials/CohortSelect.vue'
+import { mapGetters, mapState } from 'vuex'
 import { Plotly } from 'vue-plotly'
 
 export default {
   name: 'OverviewComponent',
   components: {
-    CohortSelect,
     Plotly
   },
   data: () => ({
-    cohortIndex: -1,
     entityData: [],
     topasactivityPath: '/topasscores',
     kinasectivityPath: '/kinasescores',
@@ -165,6 +176,7 @@ export default {
     metaData: [],
     minNumitems: 10,
     activeMeta: 'code_oncotree',
+    diseaseName: null,
     showPlot: false,
     layout: {
       title: 'plotlyoverview'
@@ -175,28 +187,32 @@ export default {
       filename: 'piechart'
     }
   }),
-  computed: {
-    cookieAccepted () {
-      return this.$store.state.cookieAccepted
-    }
-  },
   watch: {
-    cohortIndex () {
-      this.updateplotaDataphospho()
-    }
   },
   mounted () {
     this.metaComboUpdater()
   },
-  methods: {
-    ...mapMutations({
-      addNotification: 'notifications/addNotification'
+  computed: {
+    ...mapState({
+      all_diseases: state => state.all_diseases
     }),
-    updateCohort ({ dataSource, cohortIndex }) {
-      this.cohortIndex = cohortIndex
+    ...mapGetters({
+      hasData: 'hasData'
+    }),
+    cohortIndex: function () {
+      return this.all_diseases.indexOf(this.diseaseName)
     },
+    cookieAccepted () {
+      return this.$store.state.cookieAccepted
+    }
+  },
+  methods: {
     acceptCookies () {
       this.$store.dispatch('acceptCookies')
+    },
+    allUpdate () {
+      this.updateplotaData()
+      this.updateplotaDataphospho()
     },
     async metaComboUpdater () { // retrieving different meta data to color patients from the backend
       const response = await axios.get(`${process.env.VUE_APP_API_HOST}/overview/meta_types`)
@@ -215,10 +231,7 @@ export default {
         this.entityData = response.data
         // this.componentKey = this.componentKey + 1
       } catch (error) {
-        this.addNotification({
-          color: 'error',
-          message: `Error: ${error}`
-        })
+        console.log(error)
         this.entityData = []
       }
       this.loadingEntity = false

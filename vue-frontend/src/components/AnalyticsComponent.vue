@@ -2,7 +2,6 @@
   <v-main>
     <v-tabs
       v-model="tabs"
-      show-arrows
     >
       <v-tab
         v-for="item of allScores"
@@ -66,7 +65,7 @@ export default {
   },
   data: () => ({
     scoreType: 'Correlation Analysis',
-    allScores: ['Correlation', 'PCA/UMAP', 'Diff. Expression', 'Heatmap', 'Venn diagram', 'Kinase inhibitors'],
+    allScores: ['Correlation', 'PCA/UMAP', 'Diff. Expression', 'Heatmaps', 'Venn diagrams', 'Kinobeads'],
     tabs: null
   }),
   computed: {
@@ -74,7 +73,7 @@ export default {
   methods: {
     tabChange () {
     //  To Avoid data leakge between different d3 objects, SVGs remove during tab changes
-    //  if (this.items[this.tabs] === 'Protein Expression' || this.items[this.tabs] === 'Topas Scores' || this.items[this.tabs] === 'Drug Scores' || this.items[this.tabs] === 'Phosphorylation Scores') {
+    //  if (this.items[this.tabs] === 'Protein Expression' || this.items[this.tabs] === 'Basket Scores' || this.items[this.tabs] === 'Drug Scores' || this.items[this.tabs] === 'Phosphorylation Scores') {
       d3.selectAll('svg').remove()
       d3.selectAll('.names').remove()
       d3.selectAll('dot').remove()

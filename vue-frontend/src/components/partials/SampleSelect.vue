@@ -6,15 +6,12 @@
       color="primary"
       mandatory
       dense
-      class="mb-0"
+      class="mb-2"
     >
       <v-btn value="metadata">
         Metadata
       </v-btn>
-      <v-btn
-        v-if="showTableSelect"
-        value="table"
-      >
+      <v-btn value="table">
         Table
       </v-btn>
       <v-btn value="samplelist">
@@ -25,19 +22,20 @@
       v-if="selectionMethod === 'metadata'"
       v-model="activeMeta"
       prepend-icon="mdi-account"
+      class="mb-2 mt-4"
       dense
       outlined
       hide-details
       auto-select-first
       :items="metaDatatypes"
-      label="Metadata column"
+      label="Metadata types"
       @change="metaDataChanged"
     />
     <v-autocomplete
       v-if="selectionMethod === 'metadata'"
       v-model="fieldOfInterest"
       prepend-icon="mdi-filter"
-      class="mt-4"
+      class="mb-2 mt-4"
       dense
       small-chips
       outlined
@@ -65,7 +63,6 @@
 
 <script>
 import axios from 'axios'
-import { mapMutations } from 'vuex'
 
 export default {
   name: 'SampleSelect',
@@ -81,10 +78,6 @@ export default {
     showToggle: {
       type: Boolean,
       default: true
-    },
-    showTableSelect: {
-      type: Boolean,
-      default: false
     }
   },
   data: () => ({
@@ -118,7 +111,6 @@ export default {
       this.updateMetadata()
     },
     selectionMethod: function () {
-      // toggle visibility of the sample selection table in the parent component
       this.$emit('update-selection-method', this.selectionMethod)
     }
   },
@@ -126,9 +118,6 @@ export default {
     this.updateMetadata()
   },
   methods: {
-    ...mapMutations({
-      addNotification: 'notifications/addNotification'
-    }),
     async updateMetadata () {
       if (this.cohortIndex === -1) {
         return
@@ -139,10 +128,8 @@ export default {
         this.metaDatatypes = response.data
         this.metaDataChanged()
       } catch (error) {
-        this.addNotification({
-          color: 'error',
-          message: 'Error: Probably no meta data exists for this cohort'
-        })
+        alert('Error: Probably no meta data exists for this cohort')
+        console.error(error)
       }
     },
     async metaDataChanged () {
@@ -153,10 +140,8 @@ export default {
         response = await axios.get(`${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/metadata/fields/${activeMeta}`)
         this.activemetaFields = response.data
       } catch (error) {
-        this.addNotification({
-          color: 'error',
-          message: `Error: ${error}`
-        })
+        alert(`Error:${error}`)
+        console.error(`Error: ${error}`)
       }
     },
     async fieldOfInterestChanged () {
@@ -169,10 +154,8 @@ export default {
         const response = await axios.get(`${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/metadata/fields/${this.activeMeta}/patients/${this.fieldOfInterest}`)
         this.updateSampleIds(response.data)
       } catch (error) {
-        this.addNotification({
-          color: 'error',
-          message: `Error: ${error}`
-        })
+        alert(`Error:${error}`)
+        console.error(`Error: ${error}`)
       }
     },
     updateSampleIdList (sampleIds) {

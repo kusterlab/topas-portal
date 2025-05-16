@@ -9,7 +9,7 @@ import numpy as np
 
 import topas_portal.settings as settings
 from . import utils
-from .file_loaders import topas
+from .file_loaders import tupac
 from .dimensionality_reduction import get_dimensionality_reduction_method
 import db
 from topas_portal.utils import IntensityUnit
@@ -32,7 +32,7 @@ def do_pca(
     Args:
         selected_proteins (List[str]): _description_
         results_folder (str): _description_
-        plot_types (List[str]): Available plot types are: proteins, p-peptides, annot-proteins, annot-p-peptides, p-proteins, kinases, topas.
+        plot_types (List[str]): Available plot types are: proteins, p-peptides, annot-proteins, annot-p-peptides, p-proteins, kinases, tupac.
         sample_annot_df (pd.DataFrame): _description_
         meta_annot_df (pd.DataFrame): _description_
         min_sample_occurrence_ratio (float, optional): _description_. Defaults to 0.5.
@@ -62,7 +62,6 @@ def do_pca(
 
     if include_reference_channels:
         sample_annot_df = create_ref_sample_annot(results_folder, sample_annot_df)
-        #print(f'sampple_with_ref{sample_annot_df}')
 
 
     metadata_df = merge_sample_and_metadata_annots(
@@ -72,7 +71,7 @@ def do_pca(
         keep_reference=include_reference_channels,
         keep_replicates=include_replicates,
     )
-    #print(f'meta_data_with_ref{metadata_df}')
+
     all_principal_dfs = []
     all_principal_variances = []
     imputed_data = []
@@ -118,9 +117,6 @@ def do_pca(
     principal_df, pca, imputed_df = metadata_pca(
         df, metadata_df, dimensionality_reduction_method, min_sample_occurrence_ratio,
     )
-    #print(f'df {df}')
-    #print(f'imputed data{imputed_data}')
-    #print(f'meta data{metadata_df}')
     imputed_data.append(imputed_df)
     all_principal_dfs.append(principal_df)
     if dimensionality_reduction_method == "umap":
@@ -128,21 +124,20 @@ def do_pca(
     else:
         all_principal_variances.append(pca.get_explained_variances())
 
-
     return all_principal_dfs, all_principal_variances, imputed_data, metadata_df
 
 
 def load_pca_data(
     results_folder,
     samples,
-    plot_type: utils.DataType = utils.DataType.TOPAS_SCORE,
+    plot_type: utils.DataType = utils.DataType.TUPAC_SCORE,
     include_reference_channels: bool = False,
 ):
     print(plot_type)
     cohort_index = cohorts_db.config.get_cohort_index_from_report_directory(results_folder)
 
-    if plot_type == utils.DataType.TOPAS_SCORE:
-        df = cohorts_db.get_topas_scores_df(
+    if plot_type == utils.DataType.TUPAC_SCORE:
+        df = cohorts_db.get_basket_scores_df(
             cohort_index, intensity_unit=IntensityUnit.Z_SCORE
         )
         df = df.T
@@ -172,35 +167,33 @@ def load_pca_data(
 
         index_col = utils.get_index_cols(data_type)
         df = pd.read_csv(os.path.join(results_folder, file), index_col=index_col)
-        
+        print(df)
         df.columns = df.columns.str.replace("ref_channel_", "ref-channel-")
         df.columns = df.columns.str.replace("_batch", "-batch")
-        df = utils.remove_patient_prefix(df)
+        df = utils.remove_prefix(df)
         df.columns = df.columns.str.strip()
         if plot_type in [
             utils.DataType.FULL_PROTEOME_ANNOTATED,
             utils.DataType.PHOSPHO_PROTEOME_ANNOTATED,
         ]:
-            # Subset remove where both topas and rtk is empty
+            # Subset remove where both basket and rtk is empty
             if "rtk" in df.columns:
-                df = df.dropna(subset=["topas", "rtk"], how="all")
-            elif "sub_topas" in df.columns:
-                df = df.dropna(subset=["topas", "sub_topas"], how="all")
+                df = df.dropna(subset=["basket", "rtk"], how="all")
+            elif "sub_basket" in df.columns:
+                df = df.dropna(subset=["basket", "sub_basket"], how="all")
             else:
                 print(
-                    "Error. Wrong topas scoring file. cannot find topass of type topas & rtk or topas & sub_topas"
+                    "Error. Wrong basket scoring file. cannot find baskets of type basket & rtk or basket & sub_basket"
                 )
 
 
         samples_df = cohorts_db.get_sample_annotation_df(cohort_index)
         samplenames = samples_df['Sample name'].unique().tolist()
-        #print(f'sample name{samplenames}')
-        #print(f'raw data columns: {df.columns}')
-        df = utils.keep_only_sample_columns(df,samplenames,keep_ref_channels=include_reference_channels)
+        df = utils.keep_only_sample_columns(df,samplenames)
 
     # prepare data
     if plot_type in [
-        utils.DataType.TOPAS_SCORE,
+        utils.DataType.TUPAC_SCORE,
         utils.DataType.KINASE_SCORE,
         utils.DataType.PHOSPHO_SCORE,
     ]:  
@@ -356,7 +349,7 @@ def create_ref_sample_annot(results_folder, sample_annot_df):
 
     df.columns = df.columns.str.replace("ref_channel_", "ref-channel-")
     df.columns = df.columns.str.replace("_batch", "-batch")
-    df = utils.remove_patient_prefix(df)
+    df = utils.remove_prefix(df)
     df = utils.keep_only_sample_columns(df,sample_annot_df['Sample name'].unique().tolist())
 
     for sample in df:

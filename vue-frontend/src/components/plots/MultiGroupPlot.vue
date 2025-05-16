@@ -1,17 +1,19 @@
 <template>
-  <div :id="iD">
-    <v-btn
-      v-if="savePlot & plotData.length > 0"
-      class="ma-2"
-      color="primary"
-      @click="downloadSVG"
-    >
-      <v-icon
-        dark
+  <div>
+    <div :id="iD">
+      <v-btn
+        v-if="savePlot"
+        class="ma-2"
+        color="primary"
+        @click="downloadSVG"
       >
-        mdi-cloud-download
-      </v-icon>
-    </v-btn>
+        <v-icon
+          dark
+        >
+          mdi-cloud-download
+        </v-icon>
+      </v-btn>
+    </div>
   </div>
 </template>
 
@@ -63,7 +65,7 @@ export default {
     scatterPoints: [],
     key: 0,
     width: 1500,
-    // fieldX: 'topas',
+    // fieldX: 'basket',
     // fieldY: 'score',
     // title: 'sample',
     height: 500,

@@ -9,19 +9,30 @@
         <v-card-title
           tag="h1"
         >
-          PCA/UMAP plots
+          PCA plots
         </v-card-title>
         <v-card-text>
-          <cohort-select
-            @select-cohort="updateCohort"
+          <v-select
+            v-model="diseaseName"
+            prepend-icon="mdi-database"
+            class="cohort"
+            dense
+            outlined
+            :items="all_diseases"
+            label="Cohort"
           />
-          <subcohort-select
-            class="mt-4"
-            :cohort-index="cohortIndex"
-            :sample-ids="customGroup"
-            @update-group="updateSampleGroup"
-            @update-selection-method="updateSelectionMethodGroup"
+          <v-select
+            v-model="inputDataType"
+            prepend-icon="mdi-filter"
+            class="input_data_type mb-2"
+            dense
+            outlined
+            hide-details
+            :items="allInputDataTypes"
+            label="Input Data Type"
+            @change="loading=false"
           />
+
           <v-checkbox
             v-model="includeReplicates"
             label="Include replicates"
@@ -34,31 +45,50 @@
             hide-details
             dense
           />
+          <v-checkbox
+            v-model="geneSubsetActive"
+            label="Select Genes/Psites (Upload a text file )"
+            hide-details
+            dense
+          />
+
+          <v-card
+            v-if="geneSubsetActive"
+            class="grey lighten-3 mt-1"
+          >
+            <v-card-text>
+              <v-file-input
+                v-model="file"
+                placeholder="Upload a txt file"
+                accept="text/*,.txt"
+                hint="one gene name/Psite per line"
+                persistent-hint
+                dense
+              />
+            </v-card-text>
+          </v-card>
           <v-text-field
             v-model="imputationRatio"
-            class="mt-4"
-            label="Min. sample occurrence [%]"
-            hint="Only use proteins/p-peptides occurring in >x% of total samples. The remaining missing values are imputed by PPCA."
-            persistent-hint
+            label="Minimum Samples Occurence for imputation"
+            hide-details
             type="number"
           />
-        </v-card-text>
-      </v-card>
-      <v-card
-        flat
-        class="mt-4"
-      >
-        <v-card-title
-          tag="h1"
-        >
-          Select plot inputs
-        </v-card-title>
-        <v-card-text>
+          <v-checkbox
+            v-model="allPatients"
+            label="All Patients"
+          />
+          <sample-select
+            v-if="!allPatients"
+            :cohort-index="cohortIndex"
+            :sample-ids="customGroup"
+            @update-group="updateSampleGroup"
+            @update-selection-method="updateSelectionMethodGroup"
+          />
           <v-btn-toggle
             v-model="dimReductionMethod"
             color="primary"
             mandatory
-            dense
+            class="mt-4 mb-6"
           >
             <v-btn value="ppca">
               PCA
@@ -67,32 +97,11 @@
               UMAP
             </v-btn>
           </v-btn-toggle>
-          <v-select
-            v-model="inputDataType"
-            prepend-icon="mdi-filter"
-            class="input_data_type my-2"
-            dense
-            outlined
-            hide-details
-            :items="allInputDataTypes"
-            label="Input Type"
-            @change="loading=false"
-          />
-          <v-file-input
-            v-show="geneSubsetActive"
-            v-model="file"
-            class="mt-4"
-            placeholder="Upload a txt file"
-            accept="text/*,.txt"
-            hint="one gene name/Psite per line"
-            persistent-hint
-            dense
-          />
 
           <v-select
             v-model="activeMeta"
             prepend-icon="mdi-palette"
-            class="metadata mt-4"
+            class="metadata mb-4"
             dense
             outlined
             hide-details
@@ -100,18 +109,16 @@
             label="Color by Metadata"
             @change="loading=false"
           />
+
           <v-btn
-            class="primary mt-4"
+            class="primary ma-2"
             @click="updatePCA"
           >
-            Generate plot
+            Generate PCA/UMAP plot
           </v-btn>
         </v-card-text>
       </v-card>
-      <v-card
-        flat
-        class="mt-4"
-      >
+      <v-card flat>
         <v-card-title
           tag="h1"
         >
@@ -120,7 +127,7 @@
         <v-card-text>
           <v-text-field
             v-model="minNumPatients"
-            label="Min. #patients per group"
+            label="Min Number patients in each group"
             hide-details
             type="number"
           />
@@ -135,7 +142,7 @@
             />
 
             <v-radio
-              :label="dimReductionMethod.toUpperCase() + ' coordinates'"
+              :label="dimReductionMethod"
               value="afterCluster"
             />
           </v-radio-group>
@@ -145,7 +152,7 @@
             :loading="loading"
             @click="updateSilhouette"
           >
-            Generate Silhouette
+            Generate Silhouette plot
           </v-btn>
         </v-card-text>
       </v-card>
@@ -186,14 +193,6 @@
               />
             </v-col>
           </v-row>
-        </v-card-text>
-      </v-card>
-      <v-card
-        v-if="silData.length > 0"
-        flat
-        class="mt-4"
-      >
-        <v-card-text>
           <v-row>
             <v-col
               sm="12"
@@ -201,7 +200,6 @@
               lg="5"
             >
               <silhouetteTable
-                v-if="silData.length > 0"
                 :data-source="silData"
               />
             </v-col>
@@ -233,15 +231,13 @@
 
 <script>
 import axios from 'axios'
-import { mapMutations } from 'vuex'
-
+import { mapGetters, mapState } from 'vuex'
 import QcTable from '@/components/tables/QCTable'
 import silhouetteTable from '@/components/tables/silhouetteTable'
 import QcPlot from '@/components/plots/QCPlot.vue'
 import LolipopPlot from './plots/LolipopPlot.vue'
 import { DataType } from '@/constants'
-import CohortSelect from './partials/CohortSelect.vue'
-import SubcohortSelect from './partials/SubcohortSelect.vue'
+import SampleSelect from './partials/SampleSelect.vue'
 
 export default {
   name: 'QCComponent',
@@ -250,8 +246,7 @@ export default {
     QcPlot,
     LolipopPlot,
     silhouetteTable,
-    CohortSelect,
-    SubcohortSelect
+    SampleSelect
   },
   props: {
     minWidth: {
@@ -264,11 +259,11 @@ export default {
     }
   },
   data: () => ({
-    cohortIndex: 0,
     qcData: [],
     silData: [],
+    allPatients: true,
     minNumPatients: 1,
-    imputationRatio: 90,
+    imputationRatio: 0.9,
     variance1: 0,
     variance2: 0,
     fixedDomain: [{ min: -1, max: 1 }],
@@ -307,18 +302,16 @@ export default {
       },
       {
         text: 'TOPAS scores',
-        value: DataType.TOPAS_SCORE
-      },
-      {
-        text: 'Custom gene/psite list',
-        value: DataType.CUSTOM
+        value: DataType.TUPAC_SCORE
       }
     ],
     inputDataType: DataType.FULL_PROTEOME,
+    diseaseName: 'sarcoma',
     plotType: 'Intensity',
     dimReductionMethod: 'ppca',
     includeReplicates: true,
     includeReferenceChannels: false,
+    geneSubsetActive: false,
     allorSelectedgenes: 'all',
     loading: false,
     customGroup: [],
@@ -328,23 +321,23 @@ export default {
     file: null
   }),
 
-  computed: {
-    geneSubsetActive () {
-      return this.inputDataType === DataType.CUSTOM
-    }
-  },
-
   mounted () {
     this.metaComboUpdater()
   },
 
-  methods: {
-    ...mapMutations({
-      addNotification: 'notifications/addNotification'
+  computed: {
+    ...mapState({
+      all_diseases: state => state.all_diseases
     }),
-    updateCohort ({ dataSource, cohortIndex }) {
-      this.cohortIndex = cohortIndex
-    },
+    ...mapGetters({
+      hasData: 'hasData'
+    }),
+    cohortIndex () {
+      return this.all_diseases.indexOf(this.diseaseName)
+    }
+  },
+
+  methods: {
     async updateSilhouette () {
       try {
         this.loading = true
@@ -356,13 +349,11 @@ export default {
           const inputDataType = this.inputDataType
           const referenceChannel = this.includeReferenceChannels ? 'ref' : 'noref'
           const replicate = this.includeReplicates ? 'replicate' : 'noreplicate'
+          const cohortIndex = this.all_diseases.indexOf(this.diseaseName)
           const silInputType = this.silhouetteInputType
           this.allorSelectedgenes = 'all' // running with all genes
           if (this.geneSubsetActive && this.file !== null) {
-            this.addNotification({
-              color: 'info',
-              message: 'Submitting file for upload...'
-            })
+            console.log('Submitting file for upload...')
             const formData = new FormData()
             formData.append('file', this.file)
             const response = await axios.post(`${process.env.VUE_APP_API_HOST}/uploadGenes`, formData, {
@@ -371,29 +362,20 @@ export default {
               },
               timeout: 5000
             })
-            this.addNotification({
-              color: 'info',
-              message: `${response}`
-            })
+            console.log(response)
             this.allorSelectedgenes = 'selected' // running with selected genes
           }
-          const customGroup = this.customGroup.length === 0 ? 'all' : this.customGroup
+          const customGroup = this.allPatients ? 'all' : this.customGroup
           const allOrselected = this.allorSelectedgenes
-          const imputationRatio = this.imputationRatio / 100.0
-          const response = await axios.get(`${process.env.VUE_APP_API_HOST}/qc/sil/all/${inputDataType}/${this.cohortIndex}/${dimReductionMethod}/${referenceChannel}/${replicate}/${this.activeMeta}/${numPatient}/${silInputType}/${allOrselected}/${customGroup}/${imputationRatio}`)
+          const imputationRatio = this.imputationRatio
+          const response = await axios.get(`${process.env.VUE_APP_API_HOST}/qc/sil/all/${inputDataType}/${cohortIndex}/${dimReductionMethod}/${referenceChannel}/${replicate}/${this.activeMeta}/${numPatient}/${silInputType}/${allOrselected}/${customGroup}/${imputationRatio}`)
           this.silData = response.data
           this.silData.length > 0 ? this.showPlot = true : this.showPlot = false
         } else {
-          this.addNotification({
-            color: 'warning',
-            message: '"Sample" cannot be used as meta data type for silhouette scores.'
-          })
+          alert('"Sample" cannot be used as meta data type for silhouette scores.')
         }
       } catch (error) {
-        this.addNotification({
-          color: 'error',
-          message: `${error}`
-        })
+        alert(error)
       }
       this.loading = false
     },
@@ -409,10 +391,7 @@ export default {
     async updatePCA () {
       this.allorSelectedgenes = 'all' // running with all genes
       if (this.geneSubsetActive && this.file !== null) {
-        this.addNotification({
-          color: 'info',
-          message: 'Submitting file for upload...'
-        })
+        console.log('Submitting file for upload...')
         const formData = new FormData()
         formData.append('file', this.file)
         const response = await axios.post(`${process.env.VUE_APP_API_HOST}/uploadGenes`, formData, {
@@ -421,10 +400,7 @@ export default {
           },
           timeout: 5000
         })
-        this.addNotification({
-          color: 'info',
-          message: `${response}`
-        })
+        console.log(response)
         this.allorSelectedgenes = 'selected' // running with selected genes
       }
       this.getqcData()
@@ -441,24 +417,22 @@ export default {
     },
 
     async getqcData () {
-      const customGroup = this.customGroup.length === 0 ? 'all' : this.customGroup
+      const customGroup = this.allPatients ? 'all' : this.customGroup
       const inputDataType = this.inputDataType
       const dimReductionMethod = this.dimReductionMethod
       const referenceChannel = this.includeReferenceChannels ? 'ref' : 'noref'
       const allSelected = this.allorSelectedgenes
       const replicate = this.includeReplicates ? 'replicate' : 'noreplicate'
-      const imputationRatio = this.imputationRatio / 100.0
+      const cohortIndex = this.all_diseases.indexOf(this.diseaseName)
+      const imputationRatio = this.imputationRatio
       try {
         this.isLoading = true
-        const response = await axios.get(`${process.env.VUE_APP_API_HOST}/qc/${allSelected}/${inputDataType}/${this.cohortIndex}/${dimReductionMethod}/${referenceChannel}/${replicate}/${customGroup}/${imputationRatio}`)
+        const response = await axios.get(`${process.env.VUE_APP_API_HOST}/qc/${allSelected}/${inputDataType}/${cohortIndex}/${dimReductionMethod}/${referenceChannel}/${replicate}/${customGroup}/${imputationRatio}`)
         this.qcData = response.data.dataFrame
         this.variance1 = response.data.pcVars[0]
         this.variance2 = response.data.pcVars[1]
       } catch (error) {
-        this.addNotification({
-          color: 'error',
-          message: `Error while calculating PCA: ${error.response.data}`
-        })
+        alert(`Error while calculating PCA: ${error.response.data}`)
       } finally {
         this.isLoading = false
       }

@@ -1,5 +1,16 @@
 <template>
   <div>
+    <v-btn
+      class="ma-2"
+      color="primary"
+      @click="clearSels"
+    >
+      <v-icon
+        dark
+      >
+        mdi-refresh
+      </v-icon>
+    </v-btn>
     <DxDataGrid
       :ref="dataGridRefName"
       :data-source="dataSource"
@@ -9,7 +20,6 @@
       :row-alternation-enabled="true"
       :selection="{ mode: 'multiple', allowSelectAll: true}"
       :show-borders="true"
-      :scrolling="{ useNative: true }"
       column-resizing-mode="widget"
       :columns="customFields"
       :column-chooser="{ enabled: 'true', mode: 'select' }"
@@ -28,21 +38,6 @@
         :show-navigation-buttons="true"
       />
       <DxPaging :page-size="10" />
-      <DxToolbar>
-        <DxItem
-          location="before"
-          locate-in-menu="auto"
-          show-text="always"
-          widget="dxButton"
-          :options="refreshButtonOptions"
-        />
-        <DxItem
-          name="exportButton"
-        />
-        <DxItem
-          name="columnChooserButton"
-        />
-      </DxToolbar>
     </DxDataGrid>
   </div>
 </template>
@@ -53,9 +48,7 @@ import {
   DxPager,
   DxExport,
   DxPaging,
-  DxFilterRow,
-  DxToolbar,
-  DxItem
+  DxFilterRow
 } from 'devextreme-vue/data-grid'
 
 import 'devextreme/dist/css/dx.light.css'
@@ -66,9 +59,7 @@ export default {
     DxExport,
     DxPager,
     DxPaging,
-    DxFilterRow,
-    DxToolbar,
-    DxItem
+    DxFilterRow
   },
   props: {
     dataSource: undefined,
@@ -81,40 +72,34 @@ export default {
     return {
       pageSizes: [10, 25, 50, 100],
       dataGridRefName: 'dataGrid',
-      customFields: [
-        {
-          dataField: 'Sample name',
-          dataType: 'string',
-          visibleIndex: 0,
-          width: '170'
-        }, {
-          dataField: 'subcohort_zscore',
-          dataType: 'number',
-          format: { type: 'fixedPoint', precision: 2 },
-          width: '100'
-        }, {
-          dataField: 'full_cohort_zscore',
-          dataType: 'number',
-          format: { type: 'fixedPoint', precision: 2 },
-          width: '100'
-        }
+      commonFields: undefined,
+      customFields: [{
+        dataField: 'Sample name',
+        dataType: 'string',
+        visibleIndex: 0,
+        width: '170'
+      }, {
+
+        dataField: 'zscores',
+        dataType: 'number',
+        width: '100'
+      }, {
+
+        dataField: 'data_type',
+        dataType: 'string',
+        width: '120'
+      }, {
+
+        dataField: 'meta_column',
+        dataType: 'string',
+        width: '120'
+      }
       ]
     }
   },
   computed: {
     dataGrid: function () {
       return this.$refs[this.dataGridRefName].instance
-    },
-    refreshButtonOptions () {
-      return {
-        icon: 'pulldown',
-        text: 'Reset table',
-        onClick: () => {
-          this.filterBySamplename(null)
-          this.dataGrid.clearFilter()
-          this.dataGrid.clearSelection()
-        }
-      }
     }
   },
   watch: {
@@ -134,16 +119,21 @@ export default {
           element.visible = false
         }
       })
-      this.customFields = [...this.customFields, ...commonField]
     },
     filterBySamplename (sample) {
+      const dataGrid = this.$refs[this.dataGridRefName].instance
       if (sample !== null) {
-        this.dataGrid.filter([
+        dataGrid.filter([
           ['Sample name', '=', sample]
         ])
       } else {
-        this.dataGrid.filter(null)
+        dataGrid.filter(null)
       }
+    },
+    clearSels () {
+      this.filterBySamplename(null)
+      const dataGrid = this.$refs[this.dataGridRefName].instance
+      dataGrid.clearSelection()
     },
     onSelectionChanged: function (e) {
       this.$emit('onRowSelect', e.selectedRowKeys, e.selectedRowsData)
