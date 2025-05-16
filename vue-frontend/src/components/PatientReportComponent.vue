@@ -1,19 +1,27 @@
 <template>
   <v-container fluid>
-    <v-row class="grey lighten-3">
+    <v-row class="pa-4 grey lighten-3">
       <!-- Sidebar for Filters and Controls -->
       <v-col
-        sm="12"
+        cols="12"
         md="3"
-        lg="2"
+        lg="3"
       >
         <v-card flat>
           <v-card-title tag="h1">
             Patient Reports
           </v-card-title>
           <v-card-text>
-            <cohort-select
-              @select-cohort="updateCohort"
+            <v-select
+              v-model="diseaseName"
+              prepend-icon="mdi-database"
+              class="cohort"
+              dense
+              outlined
+              hide-details
+              :items="all_diseases"
+              label="Cohort / Cell Type"
+              @change="getpatientData"
             />
             <v-select
               v-model="scoreType"
@@ -23,12 +31,12 @@
               outlined
               hide-details
               :items="allInputDataTypes"
-              label="Data Type"
+              label="Input Data Type"
               @change="getscoresTable"
             />
             <v-checkbox
               v-model="showCorrelation"
-              label="Show FPKM/protein correlation histogram"
+              label="Show FPKM/protein correlation"
               @change="getpatientData"
             />
             <v-checkbox
@@ -37,239 +45,256 @@
               label="Open Report from pipeline Folder"
               @change="getscoresTable"
             />
+            <plot-save-vue
+              @status="changePlotSavestaus"
+            />
           </v-card-text>
         </v-card>
       </v-col>
       <!-- Main Content -->
       <v-col
-        sm="12"
+        cols="12"
         md="9"
-        lg="10"
+        lg="9"
       >
-        <v-container
-          fluid
-          class="pa-0"
-        >
-          <v-row>
-            <v-col
-              sm="12"
-              md="6"
-              lg="6"
-            >
-              <v-card flat>
-                <v-card-text>
-                  <patient-report-table
-                    :data-source="patientData"
-                    :patient-report-url="patientReportUrl"
-                    @onRowSelect="updateSelectedRows"
-                  />
-                </v-card-text>
-              </v-card>
-              <v-card
-                flat
-                class="mt-4"
-              >
-                <v-card-text>
-                  <patientscore-table :data-source="patientscoresDataurl" />
-                </v-card-text>
-              </v-card>
-            </v-col>
-            <v-col
-              sm="12"
-              md="6"
-              lg="6"
-            >
-              <v-card flat>
-                <v-card-text>
-                  <!-- Top Row: Patient Table and Histograms -->
-                  <v-row>
-                    <v-col
-                      sm="12"
-                      md="6"
-                      lg="6"
+        <v-card flat>
+          <v-card-text>
+            <!-- Top Row: Patient Table and Histograms -->
+            <div class="collapsible-container">
+              <v-row>
+                <v-col
+                  cols="12"
+                  md="6"
+                >
+                  <div class="collapsible-container">
+                    <patient-table
+                      :data-source="patientData"
+                      @onRowSelect="updateSelectedRows"
+                    />
+                  </div>
+                </v-col>
+                <v-col
+                  cols="12"
+                  md="6"
+                >
+                  <div class="collapsible-container">
+                    <v-row>
+                      <v-col
+                        cols="12"
+                        md="6"
+                      >
+                        <histogram
+                          id="proteinfreq"
+                          ref="histogram"
+                          :full-chart-data="proteinCount"
+                          :save-plot="savePlot"
+                          :plot-histogram="true"
+                          :plot-k-d-e="false"
+                          :selected-lines="selectedFPLines"
+                          :min-height="minHeight"
+                          :min-width="minWidth"
+                          xlabel="No identified proteins across all patients"
+                          :margin="histogramMargin"
+                          :min-dose="0"
+                          :max-dose="20000"
+                          dose-unit="standard deviations"
+                        />
+                      </v-col>
+                      <v-col
+                        cols="12"
+                        md="6"
+                      >
+                        <histogram
+                          id="peptidefpfreq"
+                          ref="histogram"
+                          :full-chart-data="peptidefpCount"
+                          :save-plot="savePlot"
+                          :plot-histogram="true"
+                          :plot-k-d-e="false"
+                          :selected-lines="selectedfppepLines"
+                          :min-height="minHeight"
+                          :min-width="minWidth"
+                          xlabel="No identified peptides across all patients"
+                          :margin="histogramMargin"
+                          :min-dose="0"
+                          :max-dose="150000"
+                          dose-unit="standard deviations"
+                        />
+                      </v-col>
+                    </v-row>
+                    <v-row>
+                      <v-col
+                        cols="12"
+                        md="6"
+                      >
+                        <histogram
+                          id="pepppfreq"
+                          ref="histogram"
+                          :full-chart-data="peptideCount"
+                          :save-plot="savePlot"
+                          :plot-histogram="true"
+                          :plot-k-d-e="false"
+                          :selected-lines="selectedpepLines"
+                          :min-height="minHeight"
+                          :min-width="minWidth"
+                          xlabel="No identified psites across all patients"
+                          :margin="histogramMargin"
+                          :min-dose="0"
+                          :max-dose="150000"
+                          dose-unit="standard deviations"
+                        />
+                      </v-col>
+                      <v-col
+                        cols="12"
+                        md="6"
+                      >
+                        <histogram
+                          id="ppintensity"
+                          ref="histogram"
+                          :full-chart-data="ppintensitySum"
+                          :save-plot="savePlot"
+                          :plot-histogram="false"
+                          :plot-k-d-e="true"
+                          :selected-lines="selectedLineppintensity"
+                          :min-height="minHeight"
+                          :min-width="minWidth"
+                          xlabel="Sum of Normalized PP intensities all patients"
+                          :margin="histogramMargin"
+                          :min-dose="0"
+                          :max-dose="500000"
+                          dose-unit="standard deviations"
+                        />
+                      </v-col>
+                      <v-col
+                        cols="12"
+                        md="6"
+                      >
+                        <histogram
+                          id="fpintensity"
+                          ref="histogram"
+                          :full-chart-data="fpintensitySum"
+                          :save-plot="savePlot"
+                          :plot-histogram="false"
+                          :plot-k-d-e="true"
+                          :selected-lines="selectedLinefpintensity"
+                          :min-height="minHeight"
+                          :min-width="minWidth"
+                          xlabel="Sum of Normalized FP intensities all patients"
+                          :margin="histogramMargin"
+                          :min-dose="0"
+                          :max-dose="300000"
+                          dose-unit="standard deviations"
+                        />
+                      </v-col>
+                      <v-col
+                        cols="12"
+                        md="6"
+                      >
+                        <histogram
+                          id="correlation"
+                          ref="histogram"
+                          :v-show="showCorrelation"
+                          :save-plot="savePlot"
+                          :full-chart-data="correlationCount"
+                          :plot-histogram="true"
+                          :plot-k-d-e="false"
+                          :selected-lines="selectedLinecorrelation"
+                          :min-height="minHeight"
+                          :min-width="minWidth"
+                          xlabel="FPKM/protein correlation across all patients"
+                          :margin="histogramMargin"
+                          :min-dose="-0.1"
+                          :max-dose="0.8"
+                          dose-unit="standard deviations"
+                        />
+                      </v-col>
+                    </v-row>
+                  </div>
+                </v-col>
+              </v-row>
+
+              <!-- Scores Table Toggle and Histograms -->
+              <v-row>
+                <v-col
+                  cols="12"
+                  md="6"
+                >
+                  <div class="collapsible-container">
+                    <button
+                      class="button-show-score"
+                      @click="toggleCollapse"
                     >
-                      <histogram
-                        id="proteinfreq"
-                        ref="histogram"
-                        :full-chart-data="proteinCount"
-                        :plot-histogram="true"
-                        :plot-k-d-e="false"
-                        :selected-lines="selectedFPLines"
-                        :min-height="minHeight"
-                        :min-width="minWidth"
-                        xlabel="No identified proteins across all patients"
-                        :margin="histogramMargin"
-                        :min-dose="0"
-                        :max-dose="20000"
-                        dose-unit="standard deviations"
-                      />
-                    </v-col>
-                    <v-col
-                      sm="12"
-                      md="6"
-                      lg="6"
+                      {{ isCollapsed ? '+ ' : '- ' }} Scores Table
+                    </button>
+                    <div
+                      v-show="!isCollapsed"
+                      class="collapsible-content"
                     >
-                      <histogram
-                        id="peptidefpfreq"
-                        ref="histogram"
-                        :full-chart-data="peptidefpCount"
-                        :plot-histogram="true"
-                        :plot-k-d-e="false"
-                        :selected-lines="selectedfppepLines"
-                        :min-height="minHeight"
-                        :min-width="minWidth"
-                        xlabel="No identified peptides across all patients"
-                        :margin="histogramMargin"
-                        :min-dose="0"
-                        :max-dose="150000"
-                        dose-unit="standard deviations"
-                      />
-                    </v-col>
-                  </v-row>
-                  <v-row>
-                    <v-col
-                      sm="12"
-                      md="6"
-                      lg="6"
-                    >
-                      <histogram
-                        id="pepppfreq"
-                        ref="histogram"
-                        :full-chart-data="peptideCount"
-                        :plot-histogram="true"
-                        :plot-k-d-e="false"
-                        :selected-lines="selectedpepLines"
-                        :min-height="minHeight"
-                        :min-width="minWidth"
-                        xlabel="No identified psites across all patients"
-                        :margin="histogramMargin"
-                        :min-dose="0"
-                        :max-dose="150000"
-                        dose-unit="standard deviations"
-                      />
-                    </v-col>
-                    <v-col
-                      sm="12"
-                      md="6"
-                      lg="6"
-                    >
-                      <histogram
-                        id="ppintensity"
-                        ref="histogram"
-                        :full-chart-data="ppintensitySum"
-                        :plot-histogram="false"
-                        :plot-k-d-e="true"
-                        :selected-lines="selectedLineppintensity"
-                        :min-height="minHeight"
-                        :min-width="minWidth"
-                        xlabel="Sum of Normalized PP intensities all patients"
-                        :margin="histogramMargin"
-                        :min-dose="0"
-                        :max-dose="500000"
-                        dose-unit="standard deviations"
-                      />
-                    </v-col>
-                    <v-col
-                      sm="12"
-                      md="6"
-                      lg="6"
-                    >
-                      <histogram
-                        id="fpintensity"
-                        ref="histogram"
-                        :full-chart-data="fpintensitySum"
-                        :plot-histogram="false"
-                        :plot-k-d-e="true"
-                        :selected-lines="selectedLinefpintensity"
-                        :min-height="minHeight"
-                        :min-width="minWidth"
-                        xlabel="Sum of Normalized FP intensities all patients"
-                        :margin="histogramMargin"
-                        :min-dose="0"
-                        :max-dose="300000"
-                        dose-unit="standard deviations"
-                      />
-                    </v-col>
-                    <v-col
-                      sm="12"
-                      md="6"
-                      lg="6"
-                    >
-                      <histogram
-                        id="correlation"
-                        ref="histogram"
-                        :v-if="showCorrelation"
-                        :full-chart-data="correlationCount"
-                        :plot-histogram="true"
-                        :plot-k-d-e="false"
-                        :selected-lines="selectedLinecorrelation"
-                        :min-height="minHeight"
-                        :min-width="minWidth"
-                        xlabel="FPKM/protein correlation across all patients"
-                        :margin="histogramMargin"
-                        :min-dose="-0.1"
-                        :max-dose="0.8"
-                        dose-unit="standard deviations"
-                      />
-                    </v-col>
-                  </v-row>
-                </v-card-text>
-              </v-card>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col
-              sm="12"
-              md="12"
-              lg="12"
-            >
-              <v-card flat>
-                <v-card-text>
-                  <v-btn-toggle
-                    v-model="type"
+                      <patientscore-table :data-source="patientscoresDataurl" />
+                    </div>
+                  </div>
+                </v-col>
+                <v-col
+                  cols="12"
+                  md="6"
+                />
+              </v-row>
+            </div>
+            <div class="collapsible-container">
+              <!-- Lollipop and Circular Plots -->
+              <v-row>
+                <v-col
+                  cols="12"
+                  md="2"
+                >
+                  <v-btn
+                    block
+                    @click="toggleDiv('rtk')"
                   >
-                    <v-btn
-                      value="rtk"
-                    >
-                      RTK Downstream
-                    </v-btn>
-                    <v-btn
-                      value="tumor"
-                    >
-                      Tumor Antigens
-                    </v-btn>
-                    <v-btn
-                      value="lolipop"
-                    >
-                      RTKs TOPAS vs Expression
-                    </v-btn>
-                  </v-btn-toggle>
-                  <!-- Lollipop and Circular Plots -->
+                    RTK Downsignaling
+                  </v-btn>
+                  <v-btn
+                    block
+                    @click="toggleDiv('tumor')"
+                  >
+                    Tumor Antigens
+                  </v-btn>
+                  <v-btn
+                    block
+                    @click="toggleDiv('lolipop')"
+                  >
+                    RTKs TOPAS vs Expression
+                  </v-btn>
+                </v-col>
+                <v-col
+                  cols="12"
+                  md="10"
+                >
                   <v-row>
                     <v-col
-                      sm="12"
+                      cols="12"
                       md="7"
-                      lg="7"
                     >
                       <Lolipop-plot
                         v-if="lolipopData && displayrtkBar"
-                        :width="800"
-                        lollipop-id="topas2Lolipop"
+                        :save-plot="savePlot"
+                        width="800"
+                        lollipop-id="tupac2Lolipop"
                         loli-title="TOPAS Z-scores"
                         :fixed-domain="fixedDomain"
-                        :vline="2"
-                        :loliradian="1"
+                        vline="2"
+                        loliradian="1"
                         :plot-data="lolipopData"
-                        :show-legends="true"
+                        show-legends="true"
                       />
                     </v-col>
                     <v-col
-                      sm="12"
-                      md="5"
-                      lg="5"
+                      cols="12"
+                      md="3"
                     >
                       <Circularbar-plot
                         v-if="lolipopData && displayrtkBar"
+                        :save-plot="savePlot"
                         plot-id="circular2Patway"
                         :plot-data="lolipopData"
                         :patient-name="firstPatient"
@@ -278,83 +303,78 @@
                   </v-row>
                   <v-row>
                     <v-col
-                      sm="12"
+                      cols="12"
                       md="7"
-                      lg="7"
                     >
                       <Lolipop-plot
                         v-if="lolipopDataTumor && displayTumorbar"
-                        :width="800"
-                        lollipop-id="topas2LolipopTumorantigen"
+                        :save-plot="savePlot"
+                        width="800"
+                        lollipop-id="tupac2LolipopTumorantigen"
                         loli-title="Expression Z-scores"
                         :fixed-domain="fixedDomain"
-                        :vline="2"
-                        :loliradian="1"
+                        vline="2"
+                        loliradian="1"
                         :plot-data="lolipopDataTumor"
-                        :show-legends="true"
+                        show-legends="true"
                       />
                     </v-col>
                     <v-col
-                      sm="12"
-                      md="5"
-                      lg="5"
+                      cols="12"
+                      md="3"
                     >
                       <Circularbar-plot
                         v-if="lolipopDataTumor && displayTumorbar"
+                        :save-plot="savePlot"
                         plot-id="circular2Tumor"
                         :plot-data="lolipopDataTumor"
                         :patient-name="firstPatient"
                       />
                     </v-col>
                   </v-row>
-                  <!-- Full-Width Lollipop Plots -->
-                  <v-row>
-                    <v-col
-                      sm="12"
-                      md="6"
-                      lg="6"
-                    >
-                      <Lolipop-plot
-                        v-if="expressionDataRTK && displaylolipop"
-                        :width="1600"
-                        :height="400"
-                        :fixed-domain="fixedDomain"
-                        loli-mode="true"
-                        loliradian="4"
-                        loli-title="Topas Z-scores | EXPRESSION Z-scores"
-                        lollipop-id="topas2ExpressionplotRTk"
-                        :plot-data="expressionDataRTK"
-                        overlapping-y="true"
-                        show-legends="true"
-                      />
-                    </v-col>
-                  </v-row>
-                  <v-row>
-                    <v-col
-                      sm="12"
-                      md="6"
-                      lg="6"
-                    >
-                      <Lolipop-plot
-                        v-if="expressionDataDownstream && displaylolipop"
-                        :width="1600"
-                        :height="400"
-                        :fixed-domain="fixedDomain"
-                        loli-mode="true"
-                        loliradian="2"
-                        loli-title="TOPAS Z-scores | EXPRESSION Z-scores"
-                        lollipop-id="topas2ExpressionplotDownSignaling"
-                        :plot-data="expressionDataDownstream"
-                        overlapping-y="true"
-                        show-legends="true"
-                      />
-                    </v-col>
-                  </v-row>
-                </v-card-text>
-              </v-card>
-            </v-col>
-          </v-row>
-        </v-container>
+                </v-col>
+              </v-row>
+
+              <!-- Full-Width Lollipop Plots -->
+              <v-row>
+                <v-col cols="12">
+                  <Lolipop-plot
+                    v-if="expressionDataRTK && displaylolipop"
+                    :save-plot="savePlot"
+                    width="1600"
+                    height="400"
+                    :fixed-domain="fixedDomain"
+                    loli-mode="true"
+                    loliradian="4"
+                    loli-title="Topas Z-scores | EXPRESSION Z-scores"
+                    lollipop-id="tupac2ExpressionplotRTk"
+                    :plot-data="expressionDataRTK"
+                    overlapping-y="true"
+                    show-legends="true"
+                  />
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="12">
+                  <Lolipop-plot
+                    v-if="expressionDataDownstream && displaylolipop"
+                    :save-plot="savePlot"
+                    width="1600"
+                    height="400"
+                    :fixed-domain="fixedDomain"
+                    loli-mode="true"
+                    loliradian="2"
+                    loli-title="TOPAS Z-scores | EXPRESSION Z-scores"
+                    lollipop-id="tupac2ExpressionplotDownSignaling"
+                    :plot-data="expressionDataDownstream"
+                    overlapping-y="true"
+                    show-legends="true"
+                  />
+                </v-col>
+              </v-row>
+            </div>
+          </v-card-text>
+        </v-card>
       </v-col>
     </v-row>
   </v-container>
@@ -362,21 +382,21 @@
 
 <script>
 import axios from 'axios'
-import { mapMutations } from 'vuex'
 
-import CohortSelect from './partials/CohortSelect.vue'
+import { mapGetters, mapState } from 'vuex'
 import patientscoreTable from '@/components/tables/PatientscoreTable.vue'
-import PatientReportTable from '@/components/tables/PatientReportTable.vue'
+import PatientTable from '@/components/tables/PatientReportTable.vue'
 import LolipopPlot from '@/components/plots/LolipopPlot'
 import CircularbarPlot from '@/components/plots/CircularbarPlot'
 import histogram from '@/components/plots/GenericHistogram.vue'
 import { DataType } from '@/constants'
+import PlotSaveVue from './partials/PlotSave.vue'
 
 export default {
   name: 'ReportComponent',
   components: {
-    CohortSelect,
-    PatientReportTable,
+    PatientTable,
+    PlotSaveVue,
     LolipopPlot,
     histogram,
     CircularbarPlot,
@@ -393,16 +413,17 @@ export default {
     }
   },
   data: () => ({
-    cohortIndex: -1,
-    topasName: '',
+    basketName: '',
+    savePlot: false,
     isCollapsed: true,
+    diseaseName: '',
     fixedDomain: false,
     sumIntesitiespp: [],
     sumIntesitiesfp: [],
     patientData: [],
     selectedLineppintensity: [],
     selectedLinefpintensity: [],
-    scoreType: DataType.TOPAS_SCORE,
+    scoreType: DataType.TUPAC_SCORE,
     Showcircular: true,
     lolipopData: false,
     showCorrelation: false,
@@ -416,17 +437,18 @@ export default {
     patientscoresDataurl: '',
     expressionDataRTK: false,
     expressionDataDownstream: false,
-    type: 'tumor',
+    displayrtkBar: false,
+    displayTumorbar: true,
+    displaylolipop: false,
     peptidefpSatitistics: [],
     selectedFPLines: [],
     selectedLinecorrelation: [],
     selectedpepLines: [],
     selectedfppepLines: [],
-    selectedData: [],
     allInputDataTypes: [
       {
         text: 'TOPAS score',
-        value: DataType.TOPAS_SCORE
+        value: DataType.TUPAC_SCORE
       },
       {
         text: 'Full proteome',
@@ -445,8 +467,8 @@ export default {
         value: DataType.PHOSPHO_SCORE
       },
       {
-        text: 'TOPAS subscore',
-        value: DataType.TOPAS_SUBSCORE
+        text: 'TUPAC subbasket',
+        value: DataType.TUPAC_SUBSCORE
       },
       {
         text: 'Biomarker',
@@ -455,6 +477,12 @@ export default {
     ]
   }),
   computed: {
+    ...mapState({
+      all_diseases: state => state.all_diseases
+    }),
+    ...mapGetters({
+      hasData: 'hasData'
+    }),
     proteinCount () {
       return this.proteinSatitistics.map(d => d.identified)
     },
@@ -472,112 +500,90 @@ export default {
     },
     fpintensitySum () {
       return this.sumIntesitiesfp.map(d => d.sumIntensities)
-    },
-    displayrtkBar () {
-      return this.type === 'rtk'
-    },
-    displayTumorbar () {
-      return this.type === 'tumor'
-    },
-    displaylolipop () {
-      return this.type === 'lolipop'
-    },
-    patientReportUrl () {
-      return `${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/patient_reports`
-    }
-  },
-  watch: {
-    cohortIndex () {
-      this.getpatientData()
     }
   },
   methods: {
-    ...mapMutations({
-      addNotification: 'notifications/addNotification'
-    }),
-    updateCohort ({ dataSource, cohortIndex }) {
-      this.cohortIndex = cohortIndex
+    changePlotSavestaus ({ status }) {
+      this.savePlot = status
     },
     toggleDiv (type) {
-      this.type = type
+      if (type === 'rtk') {
+        this.displayrtkBar = true
+        this.displayTumorbar = false
+        this.displaylolipop = false
+      }
+      if (type === 'tumor') {
+        this.displayrtkBar = false
+        this.displayTumorbar = true
+        this.displaylolipop = false
+      }
+      if (type === 'lolipop') {
+        this.displayrtkBar = false
+        this.displayTumorbar = false
+        this.displaylolipop = true
+      }
     },
     async getpatientData () {
+      const cohortIndex = this.all_diseases.indexOf(this.diseaseName)
       this.patientData = null
       let response = []
       try {
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/metadata`)
+        response = await axios.get(`${process.env.VUE_APP_API_HOST}/${cohortIndex}/metadata`)
         this.patientData = response.data
       } catch (error) {
-        this.addNotification({
-          color: 'error',
-          message: 'Error: Probably no meta data exists for this cohort'
-        })
+        alert('Error: Probably no meta data exists for this cohort')
+        console.error(error)
       }
       try {
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/patientcenteric/proteincounts/${this.cohortIndex}/fp`)
+        response = await axios.get(`${process.env.VUE_APP_API_HOST}/patientcenteric/proteincounts/${cohortIndex}/fp`)
         this.proteinSatitistics = response.data
       } catch (error) {
-        this.addNotification({
-          color: 'error',
-          message: 'Error: could not load protein counts data'
-        })
+        console.log('protein counts error')
       }
       try {
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/patientcentric/ppintensity/${this.cohortIndex}/pp`)
+        response = await axios.get(`${process.env.VUE_APP_API_HOST}/patientcentric/ppintensity/${cohortIndex}/pp`)
         this.sumIntesitiespp = response.data
       } catch (error) {
-        this.addNotification({
-          color: 'error',
-          message: 'Error: could not load phospho intensities data'
-        })
+        console.log('phospho intensities error')
       }
       try {
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/patientcentric/ppintensity/${this.cohortIndex}/fp`)
+        response = await axios.get(`${process.env.VUE_APP_API_HOST}/patientcentric/ppintensity/${cohortIndex}/fp`)
         this.sumIntesitiesfp = response.data
       } catch (error) {
-        this.addNotification({
-          color: 'error',
-          message: 'Error: could not load full proteome intensities data'
-        })
+        console.log('Full proteome intensities error')
       }
       try {
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/patientcenteric/proteincounts/${this.cohortIndex}/pp`)
+        response = await axios.get(`${process.env.VUE_APP_API_HOST}/patientcenteric/proteincounts/${cohortIndex}/pp`)
         this.peptideSatitistics = response.data
       } catch (error) {
-        this.addNotification({
-          color: 'error',
-          message: 'Error: could not load phosphoproteome peptide counts data'
-        })
+        console.log('phospho peptide counts error')
       }
       try {
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/patientcenteric/proteincounts/${this.cohortIndex}/fppeptide`)
+        response = await axios.get(`${process.env.VUE_APP_API_HOST}/patientcenteric/proteincounts/${cohortIndex}/fppeptide`)
         this.peptidefpSatitistics = response.data
       } catch (error) {
-        this.addNotification({
-          color: 'error',
-          message: 'Error: could not load full proteome peptide counts data'
-        })
+        console.log('FP peptide counts error')
       }
       if (this.showCorrelation) {
         try {
-          response = await axios.get(`${process.env.VUE_APP_API_HOST}/correlation/fpkmprotein/${this.cohortIndex}`)
+          response = await axios.get(`${process.env.VUE_APP_API_HOST}/correlation/fpkmprotein/${cohortIndex}`)
           this.correlationStatistics = response.data
         } catch (error) {
-          this.addNotification({
-            color: 'error',
-            message: 'Error: could not load FPKM-protein correlation statistics data'
-          })
+          console.log('Error: correlation statistics')
         }
       }
+    },
+    toggleCollapse () {
+      this.isCollapsed = !this.isCollapsed
     },
     getscoresTable () {
       this.patientscoresDataurl = ''
       const downloadmethod = this.openReport ? 'fromreport' : 'onfly'
-      this.patientscoresDataurl = `${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/patient_report/${this.firstPatient}/${this.scoreType}/${downloadmethod}`
+      const cohortIndex = this.all_diseases.indexOf(this.diseaseName)
+      this.patientscoresDataurl = `${process.env.VUE_APP_API_HOST}/${cohortIndex}/patient_report/${this.firstPatient}/${this.scoreType}/${downloadmethod}`
       // this.patientscoresData = response.data
     },
     async updateSelectedRows (selectedIds, selectedData) {
-      this.selectedData = selectedData
       this.lolipopData = false
       this.expressionDataRTK = false
       this.expressionDataDownstream = false
@@ -585,13 +591,14 @@ export default {
       if (selectedData.length > 0) {
         const firstPatient = selectedData[0]['Sample name']
         this.firstPatient = firstPatient
-        let response = await axios.get(`${process.env.VUE_APP_API_HOST}/topas/lolipopdata/${this.cohortIndex}/${firstPatient}`)
+        const cohortIndex = this.all_diseases.indexOf(this.diseaseName)
+        let response = await axios.get(`${process.env.VUE_APP_API_HOST}/basket/lolipopdata/${cohortIndex}/${firstPatient}`)
         this.lolipopData = response.data
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/topas/lolipopdata/${this.cohortIndex}/${firstPatient}/tumor_antigen`)
+        response = await axios.get(`${process.env.VUE_APP_API_HOST}/basket/lolipopdata/${cohortIndex}/${firstPatient}/tumor_antigen`)
         this.lolipopDataTumor = response.data
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/topas/lolipopdata/expression/${this.cohortIndex}/${firstPatient}/rtk`)
+        response = await axios.get(`${process.env.VUE_APP_API_HOST}/basket/lolipopdata/expression/${cohortIndex}/${firstPatient}/rtk`)
         this.expressionDataRTK = response.data
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/topas/lolipopdata/expression/${this.cohortIndex}/${firstPatient}/downstream_signaling`)
+        response = await axios.get(`${process.env.VUE_APP_API_HOST}/basket/lolipopdata/expression/${cohortIndex}/${firstPatient}/downstream_signaling`)
         this.expressionDataDownstream = response.data
         this.getscoresTable()
         this.selectedFPLines = [] // for full proteome

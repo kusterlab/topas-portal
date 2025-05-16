@@ -191,14 +191,14 @@ class SQLCohortDataAPI:
         df.columns = cn.PEPTIDE_PROTEIN_MAPPING_COLS.values()
         return df
 
-    def _general_topas_query_obtainer(self, cohort_index, table_name, table_class):
-        query = f"""SELECT patient_name,topas_name,value FROM {table_name} WHERE cohort_id={cohort_index} """
+    def _general_basket_query_obtainer(self, cohort_index, table_name, table_class):
+        query = f"""SELECT patient_name,basket_name,value FROM {table_name} WHERE cohort_id={cohort_index} """
         df = self._convert_query_to_df(table_class.raw(query))
-        df.columns = ["Sample name", "Topas_id", "Z-score"]
+        df.columns = ["Sample name", "Basket_id", "Z-score"]
         df["Sample"] = df["Sample name"]
         return df
 
-    def get_topas_scores_df(
+    def get_basket_scores_df(
         self,
         cohort_index: str,
         intensity_unit: Union[utils.IntensityUnit, None],
@@ -206,16 +206,16 @@ class SQLCohortDataAPI:
         patient_name: str = None,
     ) -> pd.DataFrame:
         if intensity_unit == utils.IntensityUnit.SCORE:
-            return self._general_topas_query_obtainer(
-                cohort_index, "topasscoresraw", models.Topasscoresraw
+            return self._general_basket_query_obtainer(
+                cohort_index, "tupacscoresraw", models.Tupacscoresraw
             )
         elif intensity_unit == utils.IntensityUnit.Z_SCORE:
-            return self._general_topas_query_obtainer(
-                cohort_index, "topaszscores", models.Topaszscores
+            return self._general_basket_query_obtainer(
+                cohort_index, "tupaczscores", models.Tupaczscores
             )
         else:
             raise ValueError(
-                f"Cannot return topas scores for intensity unit {intensity_unit}"
+                f"Cannot return tupac scores for intensity unit {intensity_unit}"
             )
 
     def get_report_dir(self, cohort_index: str) -> str:
@@ -249,12 +249,12 @@ class SQLCohortDataAPI:
         return self.provider.get_kinase_scores_dataframe(cohort_report_dir)
 
     """
-    TODO: add special cases for load_FPKM and load_topas_annotation_tables in
+    TODO: add special cases for load_FPKM and load_basket_annotation_tables in
     provider.get_dataframe. This way, we don't have to expose the dataframes directly.
     """
 
-    def get_topas_annotation_df(self) -> pd.DataFrame:
-        return self.provider.topas_complete_df
+    def get_basket_annotation_df(self) -> pd.DataFrame:
+        return self.provider.basket_complete_df
 
     def get_fpkm_df(
         self,

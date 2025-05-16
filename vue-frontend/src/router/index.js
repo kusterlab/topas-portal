@@ -7,7 +7,7 @@ import PatientComponent from '@/components/PatientComponent.vue'
 import OtherComponent from '@/components/OthertoolsComponent.vue'
 import KinaseComponent from '@/components/KinaseComponent.vue'
 import PproteinComponent from '@/components/ProteinScores.vue'
-import TopasComponent from '@/components/TopasComponent.vue'
+import TopasComponent from '@/components/BasketComponent.vue'
 import EntityComponent from '@/components/entitymodelComponent.vue'
 import ZscoringComponent from '@/components/ZscoringComponent.vue'
 
@@ -16,7 +16,7 @@ Vue.use(Router)
 export default new Router({
   mode: 'hash',
   base: process.env.NODE_ENV === 'production'
-    ? '/master_topas-portal/'
+    ? '/master_mtb_portal/'
     : '/',
   routes: [
     { path: '/', component: OverviewComponent },

@@ -1,5 +1,16 @@
 <template>
   <div>
+    <v-btn
+      class="ma-2"
+      color="primary"
+      @click="clearSels"
+    >
+      <v-icon
+        dark
+      >
+        mdi-refresh
+      </v-icon>
+    </v-btn>
     <DxDataGrid
       :ref="gridRefKey"
       :data-source="dataSource"
@@ -114,21 +125,6 @@
         :show-navigation-buttons="true"
       />
       <DxPaging :page-size="10" />
-      <DxToolbar>
-        <DxItem
-          location="before"
-          locate-in-menu="auto"
-          show-text="always"
-          widget="dxButton"
-          :options="refreshButtonOptions"
-        />
-        <DxItem
-          name="exportButton"
-        />
-        <DxItem
-          name="columnChooserButton"
-        />
-      </DxToolbar>
     </DxDataGrid>
   </div>
 </template>
@@ -140,9 +136,7 @@ import {
   DxPager,
   DxExport,
   DxPaging,
-  DxFilterRow,
-  DxToolbar,
-  DxItem
+  DxFilterRow
 } from 'devextreme-vue/data-grid'
 import 'devextreme/dist/css/dx.light.css'
 
@@ -153,9 +147,7 @@ export default {
     DxExport,
     DxPager,
     DxPaging,
-    DxFilterRow,
-    DxToolbar,
-    DxItem
+    DxFilterRow
   },
   props: {
     dataSource: undefined,
@@ -173,16 +165,6 @@ export default {
   computed: {
     dataGrid: function () {
       return this.$refs[this.gridRefKey].instance
-    },
-    refreshButtonOptions () {
-      return {
-        icon: 'pulldown',
-        text: 'Reset table',
-        onClick: () => {
-          this.dataGrid.clearFilter()
-          this.dataGrid.clearSelection()
-        }
-      }
     }
   },
   watch: {
@@ -200,9 +182,17 @@ export default {
         this.dataGrid.filter(null)
       }
     },
+
+    clearSels () {
+      this.dataGrid.filter(null)
+      const dataGrid = this.$refs[this.gridRefKey].instance
+      dataGrid.clearSelection()
+    },
+
     onSelectionChanged: function (e) {
       this.$emit('onRowSelect', e.selectedRowKeys, e.selectedRowsData)
     },
+
     formatThreeSignificant: function (value) {
       if (Math.abs(value) < 1e-3) {
         return value.toExponential(2)

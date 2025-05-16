@@ -1,14 +1,14 @@
 <template>
   <div>
     <v-select
-      v-model="cohortName"
+      v-model="diseaseName"
       class="cohort"
       prepend-icon="mdi-database"
       dense
       outlined
       hide-details
-      :items="all_cohorts"
-      label="Cohort"
+      :items="all_diseases"
+      label="Cohort / Cell Type"
       @change="updateCohort"
     />
   </div>
@@ -20,11 +20,11 @@ export default {
   props: {
   },
   data: () => ({
-    cohortName: ''
+    diseaseName: ''
   }),
   computed: {
     ...mapState({
-      all_cohorts: state => state.all_cohorts
+      all_diseases: state => state.all_diseases
     }),
     ...mapGetters({
       hasData: 'hasData'
@@ -33,7 +33,7 @@ export default {
       return this.$store.state.cookieAccepted
     },
     cohortIndex: function () {
-      return this.all_cohorts.indexOf(this.cohortName)
+      return this.all_diseases.indexOf(this.diseaseName)
     }
   },
   mounted () {
@@ -45,12 +45,13 @@ export default {
       this.$store.commit('setCohortIndex', newValue)
     },
     loadDefaultCohort () {
-      this.cohortName = this.$store.state.cohortName
+      this.cohortIndex = this.$store.state.cohortIndex
+      this.diseaseName = this.$store.state.diseaseName
     },
     updateCohort () {
-      if (!this.cohortName || this.cohortName.length === 0) return
-      this.$emit('select-cohort', { dataSource: this.cohortName, cohortIndex: this.cohortIndex })
-      this.setCohortIndex({ cohortName: this.cohortName, cohortIndex: this.cohortIndex })
+      if (!this.diseaseName || this.diseaseName.length === 0) return
+      this.$emit('select-cohort', { dataSource: this.diseaseName, cohortIndex: this.cohortIndex })
+      this.setCohortIndex({ diseaseName: this.diseaseName, cohortIndex: this.cohortIndex })
     }
   }
 }

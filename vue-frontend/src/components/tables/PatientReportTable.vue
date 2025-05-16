@@ -1,5 +1,16 @@
 <template>
   <div>
+    <v-btn
+      class="ma-2"
+      color="primary"
+      @click="clearSels"
+    >
+      <v-icon
+        dark
+      >
+        mdi-refresh
+      </v-icon>
+    </v-btn>
     <DxDataGrid
       :ref="dataGridRefName"
       :data-source="dataSource"
@@ -7,10 +18,10 @@
       :allow-column-reordering="true"
       :allow-column-resizing="true"
       :row-alternation-enabled="true"
-      :selection="{ mode: 'multiple', allowSelectAll: true }"
+      :selection="{ mode: 'single', allowSelectAll: false}"
       :show-borders="true"
       column-resizing-mode="widget"
-      :columns="topasFields"
+      :columns="tupacFields"
       :column-chooser="{ enabled: 'true', mode: 'select' }"
       @selection-changed="onSelectionChanged"
     >
@@ -26,75 +37,42 @@
         :show-info="true"
         :show-navigation-buttons="true"
       />
-      <DxPaging :page-size="10" />
-      <DxToolbar>
-        <DxItem
-          location="before"
-          locate-in-menu="auto"
-          show-text="always"
-          widget="dxButton"
-          :options="refreshButtonOptions"
-        />
-        <DxItem
-          location="before"
-          locate-in-menu="auto"
-          show-text="always"
-          widget="dxButton"
-          :disabled="patientReportUrl.length === 0"
-          :options="downloadReportsButtonOptions"
-        />
-        <DxItem
-          name="exportButton"
-        />
-        <DxItem
-          name="columnChooserButton"
-        />
-      </DxToolbar>
+      <DxPaging :page-size="15" />
     </DxDataGrid>
   </div>
 </template>
-
 <script>
+
 import {
   DxDataGrid,
   DxPager,
   DxExport,
   DxPaging,
-  DxFilterRow,
-  DxToolbar,
-  DxItem
+  DxFilterRow
 } from 'devextreme-vue/data-grid'
 
 import 'devextreme/dist/css/dx.light.css'
 import axios from 'axios'
-import { mapMutations } from 'vuex'
-
 export default {
   components: {
     DxDataGrid,
     DxExport,
     DxPager,
     DxPaging,
-    DxFilterRow,
-    DxToolbar,
-    DxItem
+    DxFilterRow
   },
   props: {
     dataSource: undefined,
     selectedPatient: {
       type: String,
       default: null
-    },
-    patientReportUrl: {
-      type: String,
-      default: null
     }
   },
   data () {
     return {
-      pageSizes: [10, 25, 50, 100],
+      pageSizes: [15, 25, 50, 100],
       dataGridRefName: 'dataGrid',
-      topasFields: [{
+      tupacFields: [{
         dataField: 'Sample name',
         dataType: 'string',
         visibleIndex: 0,
@@ -105,25 +83,6 @@ export default {
   computed: {
     dataGrid: function () {
       return this.$refs[this.dataGridRefName].instance
-    },
-    refreshButtonOptions () {
-      return {
-        icon: 'pulldown',
-        text: 'Reset table',
-        onClick: () => {
-          this.dataGrid.clearFilter()
-          this.dataGrid.clearSelection()
-        }
-      }
-    },
-    downloadReportsButtonOptions () {
-      return {
-        icon: 'download',
-        text: 'Download report(s)',
-        onClick: () => {
-          this.downloadReports()
-        }
-      }
     }
   },
   watch: {
@@ -135,9 +94,6 @@ export default {
     this.getCommonfield()
   },
   methods: {
-    ...mapMutations({
-      addNotification: 'notifications/addNotification'
-    }),
     async getCommonfield () {
       const response = await axios.get(`${process.env.VUE_APP_API_HOST}/colnames`)
       const commonField = response.data
@@ -146,54 +102,25 @@ export default {
           element.visible = false
         }
       })
-      this.topasFields = [...this.topasFields, ...commonField]
+      this.tupacFields = [...this.tupacFields, ...commonField]
     },
     filterBySamplename (sample) {
+      const dataGrid = this.$refs[this.dataGridRefName].instance
       if (sample !== null) {
-        this.dataGrid.filter([
+        dataGrid.filter([
           ['Sample name', '=', sample]
         ])
       } else {
-        this.dataGrid.filter(null)
+        dataGrid.filter(null)
       }
+    },
+    clearSels () {
+      this.filterBySamplename(null)
+      const dataGrid = this.$refs[this.dataGridRefName].instance
+      dataGrid.clearSelection()
     },
     onSelectionChanged: function (e) {
       this.$emit('onRowSelect', e.selectedRowKeys, e.selectedRowsData)
-    },
-    forceFileDownload: function (response, title) {
-      const url = window.URL.createObjectURL(new Blob([response.data]))
-      const link = document.createElement('a')
-      link.href = url
-      link.setAttribute('download', title)
-      document.body.appendChild(link)
-      link.click()
-    },
-    downloadReports: function () {
-      const patientIdentifiers = this.dataGrid.getSelectedRowsData().map(item => 'pat_' + item['Sample name'])
-      let outputFilename = ''
-      if (patientIdentifiers.length === 0) {
-        this.addNotification({
-          color: 'error',
-          message: 'Error: please select one or more patients'
-        })
-        return
-      }
-      if (patientIdentifiers.length === 1) {
-        outputFilename = patientIdentifiers[0] + '_patient_report.xlsx'
-      } else {
-        outputFilename = 'patient_reports.zip'
-      }
-      axios.get(`${this.patientReportUrl}/${patientIdentifiers.join(';')}`, { responseType: 'arraybuffer' })
-        .then((response) => {
-          this.forceFileDownload(response, outputFilename)
-        })
-        .catch((e) => {
-          const enc = new TextDecoder()
-          this.addNotification({
-            color: 'error',
-            message: 'Error: ' + enc.decode(e.response.data)
-          })
-        })
     }
   }
 }

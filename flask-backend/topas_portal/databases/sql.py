@@ -6,11 +6,11 @@ from typing import Dict, List, TYPE_CHECKING
 
 import pandas as pd
 
-import topas_portal.topas_preprocess
+import topas_portal.basket_preprocess
 import db_settings as database
 import topas_portal.settings as cn
 import topas_portal.utils as utils
-import topas_portal.file_loaders.topas as topas_loader
+import topas_portal.file_loaders.tupac as tupac_loader
 import topas_portal.file_loaders.transcriptomics as tp
 import topas_portal.file_loaders.genomics as genomics_preprocess
 import topas_portal.file_loaders.kinase as kinase_loader
@@ -31,7 +31,7 @@ if settings.DATABASE_MODE:
 class SQLProvider:
     def __init__(self, logger: CohortLogger):
         self.logger = logger
-        self.topas_complete_df = None
+        self.basket_complete_df = None
         self.FPKM = None
         self.genomics_data = None
         self.oncoKB_data = None
@@ -54,7 +54,7 @@ class SQLProvider:
         self._load_FPKM(config.get_config())
         self._load_genomics(config.get_config())
         self._load_onkoKB_annotations(config.get_config())
-        self._load_topas_annotation_tables(config.get_config())
+        self._load_basket_annotation_tables(config.get_config())
 
     def load_single_cohort(
         self, cohort_name: str, cohort_index: int, config: CohortConfig
@@ -67,17 +67,17 @@ class SQLProvider:
         self.load_cohort_to_db_sample_annotation_df(config, cohort_name)
         self.load_cohort_to_db_protein_seq_mapping_df(config, cohort_name)
         self.load_cohort_to_db_fp_meta_expression(config, cohort_name)
-        self.load_cohort_to_db_topas_scores(config, cohort_name)
+        self.load_cohort_to_db_tupac_scores(config, cohort_name)
         self.load_cohort_to_db_phosphoscores(config, cohort_name)
 
-    def _load_topas_annotation_tables(self, config: Dict):
-        """Topas table is independent of cohorts and will be treated as a single global variable separately"""
-        self.logger.log_message("Loading topas tables")
+    def _load_basket_annotation_tables(self, config: Dict):
+        """Basket table is independent of cohorts and will be treated as a single global variable separately"""
+        self.logger.log_message("Loading basket tables")
         basket_annotation_path = Path(config["basket_annotation_path"])
-        self.topas_complete_df = topas_loader.load_topas_annotation_df(
+        self.basket_complete_df = tupac_loader.load_basket_annotation_df(
             basket_annotation_path
         )
-        self.logger.log_message("Topas tables loaded")
+        self.logger.log_message("Basket tables loaded")
 
     def _load_FPKM(self, config: Dict):
         """FPKM table is independent of cohorts and will be treated as a single global variable separately"""
@@ -196,36 +196,36 @@ class SQLProvider:
         )
         self._final_importer(df_to_insert, table_class, cohort_index, data_type, id_key)
 
-    def _db_topas_score_importer(
+    def _db_tupac_score_importer(
         self,
         config: CohortConfig,
         cohort_index: int,
         table_class,
-        data_type="topaszscores",
+        data_type="tupaczscores",
     ):
-        """For importing the topas scores to cohortsDB"""
+        """For importing the tupac scores to cohortsDB"""
         cohort_report_dir = config.get_report_directory(cohort_index)
-        key = cn.TOPAS_Z_SCORES_FILE
-        if data_type == "topasscoresraw":
-            key = cn.TOPAS_SCORES_FILE
+        key = cn.BASKET_Z_SCORES_FILE
+        if data_type == "tupacscoresraw":
+            key = cn.BASKET_SCORES_FILE
         else:
-            key = cn.TOPAS_Z_SCORES_FILE
-        topas_df = topas_loader.load_topas_scores_df(
+            key = cn.BASKET_Z_SCORES_FILE
+        basket_df = tupac_loader.load_basket_scores_df(
             Path(os.path.join(cohort_report_dir, key))
         )
-        topas_df = topas_portal.topas_preprocess.get_topas_scores_long_format(
-            topas_df
+        basket_df = topas_portal.basket_preprocess.get_basket_scores_long_format(
+            basket_df
         )
 
         selected_cols = {
             "Sample name": "patient_name",
-            "Topas_id": "topas_name",
+            "Basket_id": "basket_name",
             "Z-score": "value",
         }
-        topas_df = topas_df[list(selected_cols.keys())]
-        topas_df.columns = list(selected_cols.values())
-        topas_df["cohort_id"] = cohort_index
-        models.chunkwise_insert(topas_df, table_class)
+        basket_df = basket_df[list(selected_cols.keys())]
+        basket_df.columns = list(selected_cols.values())
+        basket_df["cohort_id"] = cohort_index
+        models.chunkwise_insert(basket_df, table_class)
 
     def _db_intensity_importer(
         self,
@@ -291,18 +291,18 @@ class SQLProvider:
             )
 
     # per cohort
-    def load_cohort_to_db_topas_scores(self, config: CohortConfig, cohort_name):
+    def load_cohort_to_db_tupac_scores(self, config: CohortConfig, cohort_name):
         cohort_index = config.get_cohort_index(cohort_name)
-        topas_mapping_dic = {
-            "topasscoresraw": models.Topasscoresraw,
-            "topaszscores": models.Topaszscores,
+        tupac_mapping_dic = {
+            "tupacscoresraw": models.Tupacscoresraw,
+            "tupaczscores": models.Tupaczscores,
         }
-        for key in topas_mapping_dic.keys():
+        for key in tupac_mapping_dic.keys():
             database.db.execute_sql(
                 f"""DELETE FROM {key} WHERE cohort_id={cohort_index}"""
             )
-            self._db_topas_score_importer(
-                config, cohort_index, topas_mapping_dic[key], data_type=key
+            self._db_tupac_score_importer(
+                config, cohort_index, tupac_mapping_dic[key], data_type=key
             )
 
     def load_cohort_to_db_protein_seq_mapping_df(
@@ -420,13 +420,13 @@ class SQLProvider:
             except Exception as err:
                 print(f"Unexpected {err=}, {type(err)=}")
 
-    def load_all_to_db_phosphoscores(self, config: CohortConfig):
+    def load_all_to_db_to_db_to_db_phosphoscores(self, config: CohortConfig):
         self._general_all_importer(config, self.load_cohort_to_db_phosphoscores)
 
-    def load_all_to_db_topas_scores(self, config: CohortConfig):
-        self._general_all_importer(config, self.load_cohort_to_db_topas_scores)
+    def load_all_to_db_to_db_to_db_tupac_scores(self, config: CohortConfig):
+        self._general_all_importer(config, self.load_cohort_to_db_tupac_scores)
 
-    def load_all_to_db_fp_meta_expression(self, config: CohortConfig):
+    def load_all_to_db_to_db_fp_meta_expression(self, config: CohortConfig):
         self._general_all_importer(config, self.load_cohort_to_db_fp_meta_expression)
 
     def load_all_to_db_protein_seq_mapping_df(self, config: CohortConfig):
