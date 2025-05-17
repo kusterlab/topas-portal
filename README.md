@@ -203,8 +203,8 @@ Check the `Makefile` for additional functionalities.
 4. Deploy the frontend:
     ```
     cd vue-frontend
-    sudo docker build --build-arg NODE_ENV=development --build-arg VUE_APP_API_HOST=http://$(hostname -I | awk '{print $1}'):3832 -t mtb:dev . 
-    sudo docker run -d --name mtb_portal_frontend -it -p 3834:3834 --rm mtb:dev
+    sudo docker build --build-arg NODE_ENV=development --build-arg VUE_APP_API_HOST=http://$(hostname -I | awk '{print $1}'):3832 -t topas-portal:dev . 
+    sudo docker run -d --name mtb_portal_frontend -it -p 3834:3834 --rm topas-portal:dev
     ```
 5. Open the portal at http://localhost:3834. To upload cohort data, go to `Other tools -> Admin tools` and press the `Reload all cohorts` button at the bottom of the page.
 

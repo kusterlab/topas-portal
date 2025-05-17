@@ -18,7 +18,7 @@
               @select-cohort="updateCohort"
             />
             <protein-select
-              :cohort-index="activeCohortIndex"
+              :cohort-index="cohortIndex"
               data-layer="kinase"
               class="mt-4"
               @select-protein="updateKinase"
@@ -132,11 +132,11 @@ export default {
     activeKinases: []
   }),
   computed: {
-    activeCohortIndex () {
-      return this.cohortIndex
-    }
   },
   methods: {
+    updateCohort ({ dataSource, cohortIndex }) {
+      this.cohortIndex = cohortIndex
+    },
     updateKinase ({ dataSource, identifier }) {
       this.activeKinases = identifier
       this.react()
