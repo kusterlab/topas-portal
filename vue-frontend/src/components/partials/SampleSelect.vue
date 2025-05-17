@@ -23,7 +23,7 @@
     </v-btn-toggle>
     <v-autocomplete
       v-if="selectionMethod === 'metadata'"
-      v-model="activeMeta"
+      v-model="metadataType"
       prepend-icon="mdi-account"
       dense
       outlined
@@ -35,7 +35,7 @@
     />
     <v-autocomplete
       v-if="selectionMethod === 'metadata'"
-      v-model="fieldOfInterest"
+      v-model="metadataValuesSelected"
       prepend-icon="mdi-filter"
       class="mt-4"
       dense
@@ -44,9 +44,9 @@
       hide-details
       auto-select-first
       :multiple="true"
-      :items="activemetaFields"
+      :items="metadataTypeFields"
       label="Group of interest"
-      @change="fieldOfInterestChanged"
+      @change="metadataValuesSelectedChanged"
     />
     <v-textarea
       v-if="selectionMethod !== 'metadata'"
@@ -89,10 +89,10 @@ export default {
   },
   data: () => ({
     selectionMethod: 'metadata',
-    activeMeta: 'Sample name',
-    activemetaFields: [],
+    metadataType: 'Sample name',
+    metadataTypeFields: [],
     metaDatatypes: [],
-    fieldOfInterest: null
+    metadataValuesSelected: null
   }),
   computed: {
     customGroup: {
@@ -146,12 +146,12 @@ export default {
       }
     },
     async metaDataChanged () {
-      const activeMeta = this.activeMeta
-      this.fieldOfInterest = null
+      const metadataType = this.metadataType
+      this.metadataValuesSelected = null
       let response = []
       try {
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/metadata/fields/${activeMeta}`)
-        this.activemetaFields = response.data
+        response = await axios.get(`${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/metadata/fields/${metadataType}`)
+        this.metadataTypeFields = response.data
       } catch (error) {
         this.addNotification({
           color: 'error',
@@ -159,14 +159,14 @@ export default {
         })
       }
     },
-    async fieldOfInterestChanged () {
-      if (!this.fieldOfInterest || this.fieldOfInterest.length === 0) {
+    async metadataValuesSelectedChanged () {
+      if (!this.metadataValuesSelected || this.metadataValuesSelected.length === 0) {
         this.updateSampleIds([])
         return
       }
 
       try {
-        const response = await axios.get(`${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/metadata/fields/${this.activeMeta}/patients/${this.fieldOfInterest}`)
+        const response = await axios.get(`${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/metadata/fields/${this.metadataType}/patients/${this.metadataValuesSelected}`)
         this.updateSampleIds(response.data)
       } catch (error) {
         this.addNotification({
@@ -183,12 +183,11 @@ export default {
     },
     updateSampleIds (sampleIds) {
       if (this.selectionMethod !== 'metadata') {
-        this.fieldOfInterest = null
+        this.metadataValuesSelected = null
       }
       this.$emit('update-group', sampleIds)
-      this.$emit('update-field', this.fieldOfInterest)
-      this.$emit('update-meta', this.activeMeta)
-      // this will return both the sample names and the meta data types
+      this.$emit('update-metadata-type', this.metadataType)
+      this.$emit('update-metadata-values-selected', this.metadataValuesSelected)
     }
   }
 }

@@ -31,4 +31,4 @@ pnpm-debug.log*
 flask-backend/record.log
 flask-backend/uploads
 .qodo
-config_mintest.json
+config_*.json

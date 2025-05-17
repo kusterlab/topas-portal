@@ -427,7 +427,7 @@ def merged_df_to_json(data_type: str, merged_df: pd.DataFrame, title="Scores"):
         return df_to_json(meta_data)
 
 
-def calculate_z_scores(df, col_name="sum"):
+def calculate_z_scores(df: pd.DataFrame, col_name="sum"):
     """
     This will calculate z-scores using LOO method
     :df: a unicolumn pandas dataFrame
@@ -435,13 +435,14 @@ def calculate_z_scores(df, col_name="sum"):
     """
     print("Calculating zscores")
     try:
-        z_scors = []
+        z_scores = []
+        # TODO: replace this with Metrics LOO z-scoring function from topas-pipeline
         for i in df.index:
             loo_df = df.drop(i, axis=0)
             median = float(loo_df.median())
             stdev = float(loo_df.std())
-            z_scors.append((df.loc[i, col_name] - median) / stdev)
-        return z_scors
+            z_scores.append((df.loc[i, col_name] - median) / stdev)
+        return z_scores
     except Exception as err:
         print(f"Unexpected {err=}, {type(err)=}")
-        return "n.d."
+        return ["n.d."]*len(df.index)

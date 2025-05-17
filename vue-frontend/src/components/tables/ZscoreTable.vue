@@ -88,15 +88,18 @@ export default {
           visibleIndex: 0,
           width: '170'
         }, {
-          dataField: 'subcohort_zscore',
+          dataField: 'zscores',
           dataType: 'number',
           format: { type: 'fixedPoint', precision: 2 },
           width: '100'
         }, {
-          dataField: 'full_cohort_zscore',
-          dataType: 'number',
-          format: { type: 'fixedPoint', precision: 2 },
-          width: '100'
+          dataField: 'data_type',
+          dataType: 'string',
+          width: '120'
+        }, {
+          dataField: 'meta_column',
+          dataType: 'string',
+          width: '120'
         }
       ]
     }

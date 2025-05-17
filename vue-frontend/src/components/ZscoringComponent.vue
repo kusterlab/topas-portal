@@ -23,6 +23,7 @@
               :show-table-select="true"
               :sample-ids="customGroup"
               @update-group="updateSampleGroup"
+              @update-metadata-type="updateMetadataType"
               @update-selection-method="updateSelectionMethodGroup"
             />
           </v-card-text>
@@ -137,8 +138,8 @@
           <v-row>
             <v-col
               sm="12"
-              md="6"
-              lg="6"
+              md="4"
+              lg="4"
             >
               <v-card-text>
                 <zscore-table
@@ -150,11 +151,11 @@
             </v-col>
             <v-col
               sm="12"
-              md="6"
-              lg="6"
+              md="8"
+              lg="8"
             >
               <v-card flat>
-                <swarm-plot
+                <!-- <swarm-plot
                   v-if="swarmPlotData.length>0"
                   :swarm-data="swarmPlotData"
                   swarm-id="singleGene"
@@ -165,6 +166,15 @@
                   :draw-box-plot="true"
                   field-values="subcohort_zscore"
                   @onDotClick="selectDot"
+                /> -->
+                <multi-group-plot
+                  i-d="zscorePlot"
+                  field-x="data_type"
+                  field-y="zscores"
+                  title="Sample name"
+                  :plot-data="swarmPlotData"
+                  :selected-patients="swarmSelIds"
+                  :selected-color="multiGroupPlotSelectedColor"
                 />
               </v-card>
             </v-col>
@@ -180,7 +190,8 @@ import axios from 'axios'
 import { mapMutations } from 'vuex'
 
 import CohortSelect from './partials/CohortSelect.vue'
-import SwarmPlot from '@/components/plots/SwarmPlot'
+// import SwarmPlot from '@/components/plots/SwarmPlot'
+import MultiGroupPlot from '@/components/plots/MultiGroupPlot'
 import proteinSelect from './partials/ProteinSelect.vue'
 import SampleSelect from './partials/SampleSelect.vue'
 import ZscoreTable from './tables/ZscoreTable.vue'
@@ -192,7 +203,8 @@ import explorerComponent from './partials/scoresComponent.vue'
 export default {
   name: 'ZscoreComponent',
   components: {
-    SwarmPlot,
+    // SwarmPlot,
+    MultiGroupPlot,
     CohortSelect,
     ZscoreTable,
     PatientSelectTable,
@@ -219,6 +231,7 @@ export default {
     mode: DataType.FULL_PROTEOME,
     fixedDomain: false,
     customGroup: [],
+    metadataType: '',
     selectionMethod: '',
     zscoreTableUrl: '',
     swarmPlotData: [],
@@ -267,6 +280,9 @@ export default {
     updateSampleGroup (selectedPatients) {
       this.customGroup = selectedPatients
     },
+    updateMetadataType (metadataType) {
+      this.metadataType = metadataType
+    },
     updateTopas ({ dataSource, identifier }) {
       this.identifier = identifier
     },
@@ -290,7 +306,7 @@ export default {
       if (selectedData.length > 0) {
         selectedData.forEach((rowData) => {
           this.multiGroupPlotSelectedColor = 'red'
-          selIds.push(rowData.index) // selected indices on the swarm plot
+          selIds.push(rowData['Sample name']) // selected indices on the swarm plot
         })
       } else {
         this.swarmSelIds = null
@@ -314,10 +330,11 @@ export default {
           return
         }
         this.loading = true
-        this.zscoreTableUrl = `${process.env.VUE_APP_API_HOST}/zscore/${this.mode}/${this.cohortIndex}/${this.identifier}/${this.customGroup}`
+        this.zscoreTableUrl = `${process.env.VUE_APP_API_HOST}/zscore/${this.mode}/${this.cohortIndex}/${this.identifier}/${this.customGroup}/${this.metadataType}`
         const response = await axios.get(this.zscoreTableUrl)
         this.componentKey = this.componentKey + 1
         this.swarmPlotData = response.data
+        this.swarmSelIds = null
       } catch (error) {
         this.addNotification({
           color: 'error',
