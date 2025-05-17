@@ -62,6 +62,7 @@ def do_pca(
 
     if include_reference_channels:
         sample_annot_df = create_ref_sample_annot(results_folder, sample_annot_df)
+        #print(f'sampple_with_ref{sample_annot_df}')
 
 
     metadata_df = merge_sample_and_metadata_annots(
@@ -71,7 +72,7 @@ def do_pca(
         keep_reference=include_reference_channels,
         keep_replicates=include_replicates,
     )
-
+    #print(f'meta_data_with_ref{metadata_df}')
     all_principal_dfs = []
     all_principal_variances = []
     imputed_data = []
@@ -117,12 +118,16 @@ def do_pca(
     principal_df, pca, imputed_df = metadata_pca(
         df, metadata_df, dimensionality_reduction_method, min_sample_occurrence_ratio,
     )
+    #print(f'df {df}')
+    #print(f'imputed data{imputed_data}')
+    #print(f'meta data{metadata_df}')
     imputed_data.append(imputed_df)
     all_principal_dfs.append(principal_df)
     if dimensionality_reduction_method == "umap":
         all_principal_variances.append([])
     else:
         all_principal_variances.append(pca.get_explained_variances())
+
 
     return all_principal_dfs, all_principal_variances, imputed_data, metadata_df
 
@@ -167,7 +172,7 @@ def load_pca_data(
 
         index_col = utils.get_index_cols(data_type)
         df = pd.read_csv(os.path.join(results_folder, file), index_col=index_col)
-        print(df)
+        
         df.columns = df.columns.str.replace("ref_channel_", "ref-channel-")
         df.columns = df.columns.str.replace("_batch", "-batch")
         df = utils.remove_patient_prefix(df)
@@ -189,7 +194,9 @@ def load_pca_data(
 
         samples_df = cohorts_db.get_sample_annotation_df(cohort_index)
         samplenames = samples_df['Sample name'].unique().tolist()
-        df = utils.keep_only_sample_columns(df,samplenames)
+        #print(f'sample name{samplenames}')
+        #print(f'raw data columns: {df.columns}')
+        df = utils.keep_only_sample_columns(df,samplenames,keep_ref_channels=include_reference_channels)
 
     # prepare data
     if plot_type in [
