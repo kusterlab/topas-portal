@@ -44,6 +44,8 @@ class DataType(str, Enum):
     PATIENT_METADATA = "patients_df"
     SAMPLE_ANNOTATION = "sample_annotation_df"
 
+    CUSTOM = "custom"
+
 
 class ColumnNames(str, Enum):
     SAMPLE_NAME = "Sample name"
