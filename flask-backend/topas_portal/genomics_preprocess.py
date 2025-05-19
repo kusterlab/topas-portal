@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from pathlib import Path
 import pandas as pd
 
 import topas_portal.utils as utils
@@ -15,12 +14,8 @@ if TYPE_CHECKING:
 import requests
 
 
-AUTHENTICATION_KEY = "Bearer  d7eeee3f-cb5a-4c5d-8f95-5a85f7de61c2"  # this token was from FH and is valid for 180 days since 24/04/2024
-# the key for the authentication can be retrieved after registering in the OncoKB portal
-
-
 def get_data_from_the_ONKOKB_api(
-    gene_name, alteration, AUTHENTICATION_KEY=AUTHENTICATION_KEY, data_type="oncogenic"
+    gene_name, alteration, oncokb_api_token, data_type="oncogenic"
 ):
     """
     this function retrives the oncoKB annoation from oncoKB API as string
@@ -28,23 +23,29 @@ def get_data_from_the_ONKOKB_api(
     :alteration is the SNV mutation like R989H
     :data_type is the field you like to extract
     """
+    if len(oncokb_api_token) == 0:
+        return "{}"
+    
     url = f"https://www.oncokb.org/api/v1/annotate/mutations/byProteinChange?hugoSymbol={gene_name}&alteration={alteration}"
-    headers = {"accept": "application/json", "Authorization": AUTHENTICATION_KEY}
+    headers = {"accept": "application/json", "Authorization": f"Bearer  {oncokb_api_token}"}
     final = requests.get(url, headers=headers).json()[data_type]
     # logger.info(f'{final} for ## {alteration} ## on {gene_name}')
     return final
 
 
 def get_cnv_from_the_ONKOKB_api(
-    gene_name, cnv_type="AMPLIFICATION", AUTHENTICATION_KEY=AUTHENTICATION_KEY
+    gene_name, cnv_type, oncokb_api_token
 ):
     """
     this function retrives the copynumber variation from oncoKB API as JSON
     :gene_name: is the symbol gene name
     :cnv_type: can be deletion
     """
+    if len(oncokb_api_token) == 0:
+        return "{}"
+    
     url = f"https://www.oncokb.org/api/v1/annotate/copyNumberAlterations?hugoSymbol={gene_name}&copyNameAlterationType={cnv_type}"
-    headers = {"accept": "application/json", "Authorization": AUTHENTICATION_KEY}
+    headers = {"accept": "application/json", "Authorization": f"Bearer  {oncokb_api_token}"}
     final = requests.get(url, headers=headers).json()
     return final
 

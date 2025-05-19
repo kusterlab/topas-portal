@@ -384,14 +384,22 @@ export default {
       this.loading = false
     },
     async getoncoKB (gene) {
+      if (gene.length === 0) return
+
       let query
       let response
       query = `${process.env.VUE_APP_API_HOST}/oncokb/api/cnv/${gene}/AMPLIFICATION`
       response = await axios.get(query)
-      const cnv = response.data.mutationEffect.description
+      let cnv = ''
+      if (response.data && response.data.status === 200 && response.data.mutationEffect) {
+        cnv = response.data.mutationEffect.description
+      }
       query = `${process.env.VUE_APP_API_HOST}/oncokb/api/cnv/${gene}/DELETION`
       response = await axios.get(query)
-      const deletion = response.data.mutationEffect.description
+      let deletion = ''
+      if (response.data && response.data.status === 200 && response.data.mutationEffect) {
+        deletion = response.data.mutationEffect.description
+      }
       this.cnvDescription = cnv + deletion
     },
 

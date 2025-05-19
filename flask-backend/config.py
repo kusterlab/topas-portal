@@ -43,6 +43,9 @@ class CohortConfig:
     def get_integration_test_http(self) -> str:
         return self.config['local_http']
 
+    def get_oncokb_api_token(self) -> str:
+        return self.config.get("oncokb_api_token", "")
+
     def get_config_path(self) -> str:
         return self.config_path
 

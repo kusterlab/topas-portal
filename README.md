@@ -43,7 +43,8 @@ The `CONFIG_FILE_PATH` is a `json` file with the following format:
     "meta_data_columns_config": "meta_columns_config.json",
     "pspFastaFile": "Phosphosite_seq.fasta",
     "pspAnnotationFile": "Phosphorylation_site_dataset",
-    "pspRegulatoryFile": "Regulatory_sites"
+    "pspRegulatoryFile": "Regulatory_sites",
+    "oncokb_api_token": ""
 }
 ```
 

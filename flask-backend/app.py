@@ -287,7 +287,8 @@ def get_oncokb_cnv_annotation(identifier: str, cnv_type: str):
         - The `cnv_type` parameter specifies the type of copy number variation.
         - The returned data structure is dependent on the OncoKB API response format.
     """
-    return genomics_process.get_cnv_from_the_ONKOKB_api(identifier, cnv_type=cnv_type)
+    oncokb_api_token = cohorts_db.config.get_oncokb_api_token()
+    return genomics_process.get_cnv_from_the_ONKOKB_api(identifier, cnv_type=cnv_type, oncokb_api_token=oncokb_api_token)
 
 
 ##################### Cohorts Loading and UPDATING
@@ -459,7 +460,7 @@ def update_log():
 
 @app.route(ApiRoutes.ERROR_LOG)
 # http://localhost:3832/error/logs
-def error_log():
+def get_error_log():
     log = "".join(error_log)
     return jsonify(log)
 
