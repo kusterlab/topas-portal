@@ -27,9 +27,9 @@ services:
         order: start-first
       resources:
         limits:
-          memory: 80000M
+          memory: 100G
         reservations:
-          memory: 80000M
+          memory: 40G
     environment:
       - DB_HOST=db
       - DB_PORT=5432

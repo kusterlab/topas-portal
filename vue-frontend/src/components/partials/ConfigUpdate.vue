@@ -3,6 +3,7 @@
     <v-card-text>
       <v-text-field
         :value="configPath"
+        style="width: 100%; white-space: nowrap; overflow-x: auto;"
         label="Portal config file"
         readonly
         disabled

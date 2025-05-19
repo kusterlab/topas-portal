@@ -383,26 +383,38 @@ export default {
       this.swarmPlotData = response.data
       this.loading = false
     },
-    async getoncoKB (gene) {
-      if (gene.length === 0) return
+    async fetchOncoKB (gene, alterationType) {
+      try {
+        const query = `${process.env.VUE_APP_API_HOST}/oncokb/api/cnv/${gene}/${alterationType}`
+        const response = await axios.get(query)
+        const effect = response.data?.mutationEffect?.description
 
-      let query
-      let response
-      query = `${process.env.VUE_APP_API_HOST}/oncokb/api/cnv/${gene}/AMPLIFICATION`
-      response = await axios.get(query)
-      let cnv = ''
-      if (response.data && response.data.status === 200 && response.data.mutationEffect) {
-        cnv = response.data.mutationEffect.description
+        if (effect && effect.length > 0) {
+          return effect
+        } else if (effect === '') {
+          return `no ${alterationType.toLowerCase()} information in OncoKB.`
+        } else if (response.data?.status !== 200) {
+          if (response.data?.status === 401) {
+            return 'invalid OncoKB API token.'
+          }
+          return 'unable to connect to OncoKB.'
+        } else {
+          return `unable to retrieve ${alterationType.toLowerCase()} information.`
+        }
+      } catch (error) {
+        return `error retrieving ${alterationType.toLowerCase()} information.`
       }
-      query = `${process.env.VUE_APP_API_HOST}/oncokb/api/cnv/${gene}/DELETION`
-      response = await axios.get(query)
-      let deletion = ''
-      if (response.data && response.data.status === 200 && response.data.mutationEffect) {
-        deletion = response.data.mutationEffect.description
-      }
-      this.cnvDescription = cnv + deletion
     },
+    async getoncoKB (gene) {
+      if (!gene || gene.length === 0) return
 
+      const [amplification, deletion] = await Promise.all([
+        this.fetchOncoKB(gene, 'AMPLIFICATION'),
+        this.fetchOncoKB(gene, 'DELETION')
+      ])
+
+      this.cnvDescription = `${amplification}\n${deletion}`
+    },
     plotSelectedRows () {
       this.swarmShow = true
       this.swarmField = this.intensityUnit
