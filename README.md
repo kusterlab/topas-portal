@@ -163,25 +163,16 @@ Check the `Makefile` for additional functionalities.
         ```
         pip install -r flask-backend/requirements.txt
         ```
-4. export password and path to config file (see above):
+4. export password and path to config file (see above) and deploy the backend in debug mode:
     ```
-    export DB_PASSWORD=<your password>
-    export CONFIG_FILE_PATH=<path to your portal config file>
-    export VUE_APP_API_HOST=http://localhost:3832
+    DB_PASSWORD=<your password> CONFIG_FILE_PATH=<path to your portal config file> make test_flask
     ```
-5. deploy the backend in debug mode:
-
+5. Check that the backend is running by opening http://localhost:3832/config in your browser. Your config file should be displayed.
+6. Open a new shell and deploy the frontend by running:
     ```
-    make test_flask
+    VUE_APP_API_HOST=http://localhost:3832 make serve
     ```
-6. Check that the backend is running by opening http://localhost:3832/config in your browser. Your config file should be displayed.
-7. Open a new shell and deploy the frontend by running:
-    ```
-    cd vue-frontend
-    npm install
-    npm run serve
-    ```
-8. Open the portal at http://localhost:8080. To upload cohort data, go to `Other tools -> Admin tools` and press the `Reload all cohorts` button at the bottom of the page.
+7. Open the portal at http://localhost:8080. To upload cohort data, go to `Other tools -> Admin tools` and press the `Reload all cohorts` button at the bottom of the page.
 
 
 ### Option 3: deploy with docker
