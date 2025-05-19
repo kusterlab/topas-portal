@@ -293,7 +293,7 @@ def useruploadGenes():
         df_proteins = pd.DataFrame(lines)
         df_proteins.columns = ["selected_genes"]
         df_proteins.to_csv(selected_proteins_file, index=False)
-        return jsonify("ok")
+        return jsonify("Successfully uploaded identifier list")
     except Exception as err:
         return Response(f"{type(err).__name__}: {err}")
 

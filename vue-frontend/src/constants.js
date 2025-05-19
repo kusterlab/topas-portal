@@ -20,6 +20,5 @@ export const DataType = Object.freeze({
   TRANSCRIPTOMICS: 'fpkm',
   TOPAS_SUBSCORE: 'topas_subscore',
   BIOMARKER: 'biomarker',
-  FP_PP: 'FP_PP',
-  CUSTOM: 'custom'
+  FP_PP: 'FP_PP'
 })

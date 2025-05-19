@@ -78,13 +78,19 @@
             label="Input Type"
             @change="loading=false"
           />
+          <v-checkbox
+            v-model="geneSubsetActive"
+            label="Use custom identifier list"
+            hide-details
+            dense
+          />
           <v-file-input
             v-show="geneSubsetActive"
             v-model="file"
             class="mt-4"
             placeholder="Upload a txt file"
             accept="text/*,.txt"
-            hint="one gene name/Psite per line"
+            hint="one gene name/p-peptide per line"
             persistent-hint
             dense
           />
@@ -275,6 +281,7 @@ export default {
     selIds: [],
     metaData: [],
     silhouetteInputType: 'beforeCluster',
+    geneSubsetActive: false,
     activeMeta: 'code_oncotree',
     allInputDataTypes: [
       {
@@ -308,10 +315,6 @@ export default {
       {
         text: 'TOPAS scores',
         value: DataType.TOPAS_SCORE
-      },
-      {
-        text: 'Custom gene/psite list',
-        value: DataType.CUSTOM
       }
     ],
     inputDataType: DataType.FULL_PROTEOME,
@@ -329,9 +332,6 @@ export default {
   }),
 
   computed: {
-    geneSubsetActive () {
-      return this.inputDataType === DataType.CUSTOM
-    }
   },
 
   mounted () {
@@ -423,7 +423,7 @@ export default {
         })
         this.addNotification({
           color: 'info',
-          message: `${response}`
+          message: `${response.data}`
         })
         this.allorSelectedgenes = 'selected' // running with selected genes
       }
