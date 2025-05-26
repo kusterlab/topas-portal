@@ -6,6 +6,7 @@ services:
       - "${CI_FRONTEND_PORT}:${CI_FRONTEND_PORT}"
     environment:
       - NODE_ENV=${CI_NODE_ENV}
+      - CI_FRONTEND_PORT
   mtb_portal_flask_backend:
     image: "${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/backend:${CI_COMMIT_REF_SLUG}"
     volumes:
@@ -15,4 +16,5 @@ services:
     environment:
       - CONFIG_FILE_PATH=${CI_CONFIG_FILE_PATH}
       - DB_PASSWORD=topaswp3
+      - CI_BACKEND_PORT
 

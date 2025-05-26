@@ -47,8 +47,8 @@ class CohortConfig:
     def get_config_path(self) -> str:
         return self.config_path
 
-    def do_load_on_startup(self) -> str:
-        return self.config.get("load_on_startup", False)
+    def do_load_data_on_startup(self) -> str:
+        return self.config.get("load_data_on_startup", False)
 
     def get_config(self):
         self.config = utils.config_reader(self.config_path)

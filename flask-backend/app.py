@@ -78,7 +78,7 @@ with app.app_context():
     from compartments.overview_app import overview_page
     from compartments.z_scoring_app import zscoring_page
 
-    if cohorts_db.config.do_load_on_startup():
+    if cohorts_db.config.do_load_data_on_startup():
         start_background_loader()
 
 app.register_blueprint(qc_page)
