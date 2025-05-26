@@ -15,8 +15,48 @@ variables:
 stages:
   - build
   - deploy
- 
- 
+
+.parallel:
+  parallel:
+    matrix:
+      - SSH_DEPLOY_HOST_MATRIX: $SSH_DEPLOY_HOST
+        SSH_PRIVATE_KEY_MATRIX: $SSH_PRIVATE_KEY
+        SSH_KNOWN_HOSTS_MATRIX: $SSH_KNOWN_HOSTS
+        CI_VOLUME_MOUNT_PATH_MATRIX: $CI_VOLUME_MOUNT_PATH
+        CI_CONFIG_FILE_PATH: $CI_CONFIG_FILE_PATH_PRODUCTION
+        CI_BACKEND_PORT: "3832"
+        CI_FRONTEND_PORT: "3834"
+        DOCKER_COMPOSE_FILE: docker-compose.yml
+        BRANCH: master
+      - SSH_DEPLOY_HOST_MATRIX: $SSH_DEPLOY_HOST_INTERNAL
+        SSH_PRIVATE_KEY_MATRIX: $SSH_PRIVATE_KEY_INTERNAL
+        SSH_KNOWN_HOSTS_MATRIX: $SSH_KNOWN_HOSTS_INTERNAL
+        CI_VOLUME_MOUNT_PATH_MATRIX: $CI_VOLUME_MOUNT_PATH_INTERNAL
+        CI_CONFIG_FILE_PATH: $CI_CONFIG_FILE_PATH_DEVELOP
+        DOCKER_COMPOSE_FILE: docker-compose.dev.yml
+        CI_BACKEND_PORT: "3832"
+        CI_FRONTEND_PORT: "3834"
+        BRANCH: master-internal
+      - SSH_DEPLOY_HOST_MATRIX: $SSH_DEPLOY_HOST_TEST
+        SSH_PRIVATE_KEY_MATRIX: $SSH_PRIVATE_KEY_TEST
+        SSH_KNOWN_HOSTS_MATRIX: $SSH_KNOWN_HOSTS_TEST
+        CI_VOLUME_MOUNT_PATH_MATRIX: $CI_VOLUME_MOUNT_PATH_INTERNAL
+        CI_CONFIG_FILE_PATH: $CI_CONFIG_FILE_PATH_DEVELOP
+        DOCKER_COMPOSE_FILE: docker-compose.dev.yml
+        CI_BACKEND_PORT: "3832"
+        CI_FRONTEND_PORT: "3834"
+        BRANCH: master-test
+      - SSH_DEPLOY_HOST_MATRIX: $SSH_DEPLOY_HOST_INTERNAL
+        SSH_PRIVATE_KEY_MATRIX: $SSH_PRIVATE_KEY_INTERNAL
+        SSH_KNOWN_HOSTS_MATRIX: $SSH_KNOWN_HOSTS_INTERNAL
+        CI_VOLUME_MOUNT_PATH_MATRIX: $CI_VOLUME_MOUNT_PATH_INTERNAL
+        CI_CONFIG_FILE_PATH: $CI_CONFIG_FILE_PATH_YODA
+        DOCKER_COMPOSE_FILE: docker-compose.dev.yml
+        CI_BACKEND_PORT: "3836"
+        CI_FRONTEND_PORT: "3838"
+        BRANCH: master-yoda
+
+
 build-frontend:
   before_script:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
@@ -28,21 +68,14 @@ build-frontend:
     - PROJECT_PATH=$(echo $CI_PROJECT_PATH | tr '[:upper:]' '[:lower:]')
     - CONTAINER_IMAGE_FRONTEND=$REGISTRY/$PROJECT_PATH
     - NODE_ENV=$(if [ $CI_COMMIT_REF_SLUG != "master" ]; then echo "development"; else echo "production"; fi)
-    - VUE_APP_API_HOST=$(if [ $NODE_ENV != "production" ]; then echo "http://${SSH_DEPLOY_HOST_MATRIX}:3832"; else echo "/master_topas-portal_backend"; fi)
+    - VUE_APP_API_HOST=$(if [ $NODE_ENV != "production" ]; then echo "http://${SSH_DEPLOY_HOST_MATRIX}:${CI_BACKEND_PORT}"; else echo "/master_topas-portal_backend"; fi)
     - docker pull $CONTAINER_IMAGE_FRONTEND:latest || true
     - cd vue-frontend
     - docker image pull node:14.18.3-bullseye
     - DOCKER_BUILDKIT=0 docker build --build-arg NODE_ENV=$NODE_ENV --build-arg VUE_APP_API_HOST=$VUE_APP_API_HOST --cache-from $CONTAINER_IMAGE_FRONTEND:latest --tag $CONTAINER_IMAGE_FRONTEND:$CI_COMMIT_REF_SLUG --tag $CONTAINER_IMAGE_FRONTEND:latest .
     - docker push $CONTAINER_IMAGE_FRONTEND:$CI_COMMIT_REF_SLUG
     - docker push $CONTAINER_IMAGE_FRONTEND:latest
-  parallel:
-    matrix:
-      - SSH_DEPLOY_HOST_MATRIX: $SSH_DEPLOY_HOST
-        BRANCH: master
-      - SSH_DEPLOY_HOST_MATRIX: $SSH_DEPLOY_HOST_INTERNAL
-        BRANCH: master-internal
-      # - SSH_DEPLOY_HOST_MATRIX: $SSH_DEPLOY_HOST_TEST
-      #   BRANCH: master-test
+  parallel: !reference [.parallel,parallel]
   rules:
     - if: $CI_COMMIT_REF_NAME == $BRANCH
   tags:
@@ -61,9 +94,22 @@ build-backend:
     - CONTAINER_IMAGE_BACKEND=$REGISTRY/${PROJECT_PATH}/backend
     - docker pull $CONTAINER_IMAGE_BACKEND:latest || true
     - cd flask-backend
-    - docker image pull node:14.18.3-bullseye
-    - DOCKER_BUILDKIT=0 docker build --cache-from $CONTAINER_IMAGE_BACKEND:latest --tag $CONTAINER_IMAGE_BACKEND:$CI_COMMIT_REF_SLUG --tag $CONTAINER_IMAGE_BACKEND:latest .
+    - docker build
+        --target dev
+        --cache-from $CONTAINER_IMAGE_BACKEND:dev-buildcache
+        --tag $CONTAINER_IMAGE_BACKEND:dev-buildcache
+        --build-arg BUILDKIT_INLINE_CACHE=1
+        "."
+    - docker push $CONTAINER_IMAGE_BACKEND:dev-buildcache
+    - docker build 
+        --cache-from $CONTAINER_IMAGE_BACKEND:latest 
+        --cache-from $CONTAINER_IMAGE_BACKEND:dev-buildcache
+        --tag $CONTAINER_IMAGE_BACKEND:$CI_COMMIT_REF_SLUG
+        --tag $CONTAINER_IMAGE_BACKEND:$CI_COMMIT_SHORT_SHA
+        --tag $CONTAINER_IMAGE_BACKEND:latest 
+        "."
     - docker push $CONTAINER_IMAGE_BACKEND:$CI_COMMIT_REF_SLUG
+    - docker push $CONTAINER_IMAGE_BACKEND:$CI_COMMIT_SHORT_SHA
     - docker push $CONTAINER_IMAGE_BACKEND:latest
   tags:
     - topas_road
@@ -106,25 +152,7 @@ deploy-to-swarm:
     - scp $DOCKER_COMPOSE_FILE deployer@$SSH_DEPLOY_HOST_MATRIX:$COMPOSE_PATH
     # start new container
     - ssh deployer@$SSH_DEPLOY_HOST_MATRIX "cd $COMPOSE_PATH && docker stack deploy --with-registry-auth --compose-file $DOCKER_COMPOSE_FILE $CI_COMMIT_REF_SLUG"
-  parallel:
-    matrix:
-      - SSH_KNOWN_HOSTS_MATRIX: $SSH_KNOWN_HOSTS
-        SSH_PRIVATE_KEY_MATRIX: $SSH_PRIVATE_KEY
-        SSH_DEPLOY_HOST_MATRIX: $SSH_DEPLOY_HOST
-        CI_VOLUME_MOUNT_PATH_MATRIX: $CI_VOLUME_MOUNT_PATH
-        DOCKER_COMPOSE_FILE: docker-compose.yml
-        BRANCH: master
-      - SSH_KNOWN_HOSTS_MATRIX: $SSH_KNOWN_HOSTS_INTERNAL
-        SSH_PRIVATE_KEY_MATRIX: $SSH_PRIVATE_KEY_INTERNAL
-        SSH_DEPLOY_HOST_MATRIX: $SSH_DEPLOY_HOST_INTERNAL
-        CI_VOLUME_MOUNT_PATH_MATRIX: $CI_VOLUME_MOUNT_PATH_INTERNAL
-        DOCKER_COMPOSE_FILE: docker-compose.dev.yml
-        BRANCH: master-internal
-      # - SSH_KNOWN_HOSTS_MATRIX: $SSH_KNOWN_HOSTS_TEST
-      #   SSH_PRIVATE_KEY_MATRIX: $SSH_PRIVATE_KEY_TEST
-      #   SSH_DEPLOY_HOST_MATRIX: $SSH_DEPLOY_HOST_TEST
-      #   DOCKER_COMPOSE_FILE: docker-compose.dev.yml
-      #   BRANCH: master-test
+  parallel: !reference [.parallel,parallel]
   rules:
     - if: $CI_COMMIT_REF_NAME == $BRANCH
   tags:

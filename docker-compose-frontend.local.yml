@@ -6,10 +6,13 @@ services:
       context: ./vue-frontend
       args:
         - NODE_ENV=development
-        - VUE_APP_API_HOST=localhost:3832/
+        - VUE_APP_API_HOST
   
     image: mtb_portal_vue_frontend
+    environment:
+        - VUE_APP_API_HOST
+        - CI_FRONTEND_PORT
     ports:
-      - "3834:3834"
+      - "${CI_FRONTEND_PORT}:${CI_FRONTEND_PORT}"
 
 

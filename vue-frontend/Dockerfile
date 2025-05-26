@@ -26,7 +26,7 @@ RUN echo "NODE_ENV: $NODE_ENV"
 RUN echo "VUE_APP_API_HOST: $VUE_APP_API_HOST"
 
 WORKDIR /root
-CMD [ "http-server", "dist", "--port", "3834" ]
+CMD [ "sh", "-c", "http-server dist --port ${CI_FRONTEND_PORT:-3834}" ]
 
 
 

@@ -3,6 +3,7 @@ import sys
 import os
 import logging
 import shutil
+import threading
 from pathlib import Path
 import zipfile
 
@@ -58,6 +59,13 @@ app.url_map.converters["intensity_unit"] = routing_converters.IntensityUnitConve
 cache = Cache(app)
 Compress(app)
 
+
+def start_background_loader():
+    thread = threading.Thread(target=cohorts_db.load_all_data)
+    thread.daemon = True  # Allows thread to exit when the main program exits
+    thread.start()
+
+
 with app.app_context():
     from compartments.qc_app import qc_page
     from compartments.drug_app import drug_page
@@ -69,6 +77,9 @@ with app.app_context():
     from compartments.entityscore_app import entityscore_page
     from compartments.overview_app import overview_page
     from compartments.z_scoring_app import zscoring_page
+
+    if cohorts_db.config.do_load_on_startup():
+        start_background_loader()
 
 app.register_blueprint(qc_page)
 # app.register_blueprint(drugscore_page) # under development
@@ -288,7 +299,9 @@ def get_oncokb_cnv_annotation(identifier: str, cnv_type: str):
         - The returned data structure is dependent on the OncoKB API response format.
     """
     oncokb_api_token = cohorts_db.config.get_oncokb_api_token()
-    return genomics_process.get_cnv_from_the_ONKOKB_api(identifier, cnv_type=cnv_type, oncokb_api_token=oncokb_api_token)
+    return genomics_process.get_cnv_from_the_ONKOKB_api(
+        identifier, cnv_type=cnv_type, oncokb_api_token=oncokb_api_token
+    )
 
 
 ##################### Cohorts Loading and UPDATING
@@ -840,4 +853,4 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "test":
         debug = True
 
-    app.run(debug=debug, use_reloader=debug, host="0.0.0.0", port=3832)
+    app.run(debug=debug, use_reloader=debug, host="0.0.0.0", port=settings.CI_BACKEND_PORT)

@@ -33,7 +33,7 @@ services:
         reservations:
           memory: 40G
     environment:
-      - CONFIG_FILE_PATH=$CI_CONFIG_FILE_PATH_PRODUCTION
+      - CONFIG_FILE_PATH=$CI_CONFIG_FILE_PATH
       - DB_HOST=db
       - DB_PORT=5432
       - DB_NAME=cohort_db

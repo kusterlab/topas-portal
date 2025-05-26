@@ -11,8 +11,7 @@ services:
       - INTERNAL
       - EXTERNAL
     ports:
-      - "80:80"  
-      - "3832:3832"
+      - "${CI_BACKEND_PORT}:${CI_BACKEND_PORT}"
     deploy:
       mode: replicated
       replicas: 1
@@ -36,6 +35,8 @@ services:
       - DB_NAME=cohort_db
       - DB_USER=topas
       - DB_PASSWORD=topaswp3
+      - CONFIG_FILE_PATH
+      - CI_BACKEND_PORT
     depends_on:
       - db
   db:

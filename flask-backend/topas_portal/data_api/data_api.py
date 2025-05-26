@@ -19,6 +19,9 @@ class CohortDataAPI(Protocol):
     config: CohortConfig
     provider: DataProvider
 
+    def load_all_data(self) -> None:
+        """load data from all cohorts"""
+
     def get_sample_annotation_df(self, cohort_index: str) -> pd.DataFrame:
         """in sample_annotaton_df the replicates are included"""
 

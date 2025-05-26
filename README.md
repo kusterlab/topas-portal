@@ -187,16 +187,13 @@ Check the `Makefile` for additional functionalities.
     ```
     make create_docker_networks
     docker-compose -f docker-compose-backend.local.yml build
-    docker-compose -f docker-compose-backend.local.yml up -d
+    CONFIG_FILE_PATH=/absolute/path/to/config.json docker-compose -f docker-compose-backend.local.yml up -d
     ```
 3. The backend is available at http://localhost:3832 (to test, try http://localhost:3832/config)
-    - in the debug mode the config file which is used by default can be found at flask-backend/config_mtb_portal_mintest.json
-    - in the production mode the config file path is in settings.py
 4. Deploy the frontend:
     ```
-    cd vue-frontend
-    sudo docker build --build-arg NODE_ENV=development --build-arg VUE_APP_API_HOST=http://$(hostname -I | awk '{print $1}'):3832 -t topas-portal:dev . 
-    sudo docker run -d --name mtb_portal_frontend -it -p 3834:3834 --rm topas-portal:dev
+    VUE_APP_API_HOST=http://$(hostname -I | awk '{print $1}'):3832 docker-compose f docker-compose-frontend.local.yml build
+    docker-compose f docker-compose-frontend.local.yml up -d
     ```
 5. Open the portal at http://localhost:3834. To upload cohort data, go to `Other tools -> Admin tools` and press the `Reload all cohorts` button at the bottom of the page.
 

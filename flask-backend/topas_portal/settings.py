@@ -9,8 +9,12 @@ PASSWORD = os.getenv("DB_PASSWORD")  # this should be either in the environmenta
 
 # path to the config file, this should be either in the environmental variables or in CI/CD or docker compose file
 PORTAL_CONFIG_FILE = os.getenv("CONFIG_FILE_PATH")
+if PORTAL_CONFIG_FILE is None:
+    raise ValueError("No PORTAL_CONFIG_FILE environment variable found")
 
 PORTAL_LOG_FILE = "record.log"
+
+CI_BACKEND_PORT = os.getenv("CI_BACKEND_PORT", default=3832)
 
 # the chunked data size for import to DB (10000000) was tested with 512 GB RAM
 CHUNK_SIZE_IMPORT = 1000000

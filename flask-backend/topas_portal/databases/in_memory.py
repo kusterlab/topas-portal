@@ -57,11 +57,7 @@ class InMemoryProvider:
     def initialize_cohorts(self, cohort_names: List[str]):
         self.dict_all_data = DICT_ALL_DATA
         for cohort_name in cohort_names:
-            for data_layer in self.dict_all_data.keys():
-                # reserving a df for each data layer
-                self.dict_all_data[data_layer].append(
-                    {"name": cohort_name, "data_frame": []}
-                )
+            self.load_single_cohort_with_empty_data(cohort_name)
 
     def load_single_cohort_with_empty_data(self, cohort_name: str):
         for data_layer in self.dict_all_data.keys():
