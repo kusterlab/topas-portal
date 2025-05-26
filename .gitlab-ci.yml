@@ -140,7 +140,8 @@ deploy-to-swarm:
     - chmod 700 ~/.ssh
     - echo "$SSH_KNOWN_HOSTS_MATRIX" >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
-    # instruct ssh to send CI_* environment variables over ssh. AcceptEnv needs to be set on HOST!!!
+    # instruct ssh to send CI_* environment variables over ssh.
+    # Note that "AcceptEnv CI_*" needs to be set on the HOST in /etc/ssh/sshd_config (restart the ssh service if you add this the first time)!!!
     - echo "SendEnv LANG CI_*" >> /etc/ssh/ssh_config
     # log into Docker registry
     - ssh deployer@$SSH_DEPLOY_HOST_MATRIX "docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY"
