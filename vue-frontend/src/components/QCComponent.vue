@@ -23,14 +23,22 @@
             @update-selection-method="updateSelectionMethodGroup"
           />
           <v-checkbox
+            v-if = "!onlyReferenceChannels"
             v-model="includeReplicates"
             label="Include replicates"
             hide-details
             dense
           />
           <v-checkbox
+            v-if = "!onlyReferenceChannels"
             v-model="includeReferenceChannels"
             label="Include reference channels"
+            hide-details
+            dense
+          />
+          <v-checkbox
+            v-model="onlyReferenceChannels"
+            label="Only reference channels"
             hide-details
             dense
           />
@@ -271,6 +279,7 @@ export default {
   },
   data: () => ({
     cohortIndex: 0,
+    onlyReferenceChannels: false,
     qcData: [],
     silData: [],
     minNumPatients: 1,
@@ -354,7 +363,8 @@ export default {
           const dimReductionMethod = this.dimReductionMethod
           const numPatient = parseInt(this.minNumPatients)
           const inputDataType = this.inputDataType
-          const referenceChannel = this.includeReferenceChannels ? 'ref' : 'noref'
+          let referenceChannel = this.includeReferenceChannels ? 'ref' : 'noref'
+          referenceChannel = this.onlyReferenceChannels ? 'onlyref' : referenceChannel
           const replicate = this.includeReplicates ? 'replicate' : 'noreplicate'
           const silInputType = this.silhouetteInputType
           this.allorSelectedgenes = 'all' // running with all genes
@@ -444,7 +454,8 @@ export default {
       const customGroup = this.customGroup.length === 0 ? 'all' : this.customGroup
       const inputDataType = this.inputDataType
       const dimReductionMethod = this.dimReductionMethod
-      const referenceChannel = this.includeReferenceChannels ? 'ref' : 'noref'
+      let referenceChannel = this.includeReferenceChannels ? 'ref' : 'noref'
+      referenceChannel = this.onlyReferenceChannels ? 'onlyref' : referenceChannel
       const allSelected = this.allorSelectedgenes
       const replicate = this.includeReplicates ? 'replicate' : 'noreplicate'
       const imputationRatio = this.imputationRatio / 100.0
