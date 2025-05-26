@@ -26,6 +26,7 @@ def do_pca(
     dimensionality_reduction_method: str = "ppca",
     include_reference_channels: bool = False,
     include_replicates: bool = False,
+    only_ref_channels = False
 ):
     """_summary_
 
@@ -87,6 +88,7 @@ def do_pca(
             metadata_df["Sample name"],
             plot_type,
             include_reference_channels,
+            only_ref_channels=only_ref_channels
         )
         list_dfs.append(df)
 
@@ -137,6 +139,7 @@ def load_pca_data(
     samples,
     plot_type: utils.DataType = utils.DataType.TOPAS_SCORE,
     include_reference_channels: bool = False,
+    only_ref_channels=False
 ):
     print(plot_type)
     cohort_index = cohorts_db.config.get_cohort_index_from_report_directory(results_folder)
@@ -196,7 +199,11 @@ def load_pca_data(
         samplenames = samples_df['Sample name'].unique().tolist()
         #print(f'sample name{samplenames}')
         #print(f'raw data columns: {df.columns}')
-        df = utils.keep_only_sample_columns(df,samplenames,keep_ref_channels=include_reference_channels)
+        df = utils.keep_only_sample_columns(df,samplenames,keep_ref_channels=include_reference_channels,only_ref_channels=only_ref_channels)
+        df = df.dropna(how='all')
+        print(df)
+
+        
 
     # prepare data
     if plot_type in [
@@ -208,7 +215,7 @@ def load_pca_data(
 
     if not include_reference_channels:  # but then also replicates are kept
         df = df.loc[:, df.columns.isin(samples)]  # MT: not sure what this does
-
+    print(df)
     return df
 
 
@@ -218,7 +225,7 @@ def metadata_pca(
     method_name: str = "ppca",
     min_sample_occurrence_ratio: float = 0.5,
 ):
-
+    print(method_name)
     expression_df = filter_by_occurrence(df, min_sample_occurrence_ratio)
 
     # calculate ppca

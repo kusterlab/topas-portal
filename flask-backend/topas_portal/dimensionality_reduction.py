@@ -53,6 +53,7 @@ def impute_missing_values_with_min(
     return df.fillna(df.min().min())
 
 
+
 def _impute_and_scale(df: pd.DataFrame) -> pd.DataFrame:
     df = impute_missing_values_with_min(df)
     df = StandardScaler().fit_transform(df)
