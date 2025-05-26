@@ -34,7 +34,8 @@ def main(
     min_num_patients: int = 4,
     before_cluster: bool = True,
     custom_list_patients = [],
-    min_sample_occurrence_ratio = 0.9
+    min_sample_occurrence_ratio = 0.9,
+    
 ):
     """
     Performs PCA or UMAP dimensionality reduction on proteomics or phospho-proteomics data 
@@ -70,8 +71,14 @@ def main(
         - Scales the principal components between -1 and 1 for consistency.
     """
     cohort_index = int(cohort_index)
+    only_ref_channels = use_ref == "onlyref"
+    if only_ref_channels and dimensionality_reduction_method == 'ppca':
+        dimensionality_reduction_method = 'pca'
 
     use_ref = use_ref == "ref"
+    if only_ref_channels:
+        use_ref = True
+        
     use_replicate = use_replicate == "replicate"
     if topas_genes is None:
         print('No custom set of genes are selelcted')
@@ -103,6 +110,7 @@ def main(
                 include_reference_channels=use_ref,
                 dimensionality_reduction_method=dimensionality_reduction_method,
                 include_replicates=use_replicate,
+                only_ref_channels=only_ref_channels
             )
         )
 

@@ -218,16 +218,26 @@ def get_index_cols(data_type: str) -> List[str]:
     return index_cols
 
 
-def keep_only_sample_columns(df: pd.DataFrame, samples_list: list, keep_ref_channels: bool = False) -> pd.DataFrame:
+def keep_only_sample_columns(df: pd.DataFrame, samples_list: list, keep_ref_channels: bool = False, only_ref_channels: bool = False) -> pd.DataFrame:
     """Returns the columns which matches the samples Regex in the dataframe
     :df: pandas data frame
     :output : pandas data frame with filtered columns
     """
+    print(f'this is the status of onlyref:{only_ref_channels}')
     list_patients = intersection(df.columns, samples_list)
-    if not keep_ref_channels:
+
+    if not keep_ref_channels and not only_ref_channels: 
+        print('only patients')  
         return df[[x for x in list_patients if not str(x).__contains__("ref-")]]
-    else:
+
+    if keep_ref_channels and not only_ref_channels:
+        print('also include ref channels')
         return df[list_patients]
+    else:
+        print('only ref channels')
+        return df[[x for x in list_patients if  str(x).__contains__("ref-")]]
+
+
 
 
 def calculate_confidence_score(df: pd.DataFrame) -> pd.DataFrame:
