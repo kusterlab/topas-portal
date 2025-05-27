@@ -217,7 +217,7 @@ def _load_all_tables(cohort, config: Dict, do_return_place_holder: bool = False)
             fp_df_patients = expression_loader.load_expression_data(
                 Path(cohort_report_dir), cn.FP_KEY, "full_proteome"
             )
-            fp_df_patients = fp_df_patients.join(fp_intensity)
+            fp_df_patients = fp_df_patients.join(fp_intensity, how="right")
 
         ## Loading Phospho data to the portal
         if config["PP"][cohort] == 1:
@@ -230,7 +230,7 @@ def _load_all_tables(cohort, config: Dict, do_return_place_holder: bool = False)
             pp_df_patients = expression_loader.load_expression_data(
                 Path(cohort_report_dir), cn.PP_KEY, "phospho"
             )
-            pp_df_patients = pp_df_patients.join(pp_intensity)
+            pp_df_patients = pp_df_patients.join(pp_intensity, how="right")
 
             kinase_score_df = kinase_loader.load_kinase_scores_df(
                 Path(cohort_report_dir) / Path(cn.KINASE_SCORES_FILE)

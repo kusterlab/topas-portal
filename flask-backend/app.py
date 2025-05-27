@@ -55,6 +55,7 @@ app.config["integration_http"] = cohorts_db.config.get_integration_test_http()
 
 app.url_map.converters["data_type"] = routing_converters.DataTypeConverter
 app.url_map.converters["intensity_unit"] = routing_converters.IntensityUnitConverter
+app.url_map.converters["include_ref"] = routing_converters.IncludeRefConverter
 
 cache = Cache(app)
 Compress(app)
@@ -742,7 +743,11 @@ def get_important_phospho(cohort_index: int, identifier: str):
 # http://localhost:3832/0/phospho_score/abundance/EGFR/noimpute
 # http://localhost:3832/0/psite/abundance/_pYSPSQNpSPIHHIPSR_/noimpute
 def abundance(
-    cohort_index: int, level: utils.DataType, identifier: str, imputation: str
+    cohort_index: int,
+    level: utils.DataType,
+    identifier: str,
+    imputation: str,
+    include_ref: utils.IncludeRef,
 ):
     return pp.get_abundance(
         cohorts_db,
@@ -750,6 +755,7 @@ def abundance(
         level,
         identifier,
         utils.ImputationMode(imputation),
+        include_ref,
     )
 
 
@@ -853,4 +859,6 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "test":
         debug = True
 
-    app.run(debug=debug, use_reloader=debug, host="0.0.0.0", port=settings.CI_BACKEND_PORT)
+    app.run(
+        debug=debug, use_reloader=debug, host="0.0.0.0", port=settings.CI_BACKEND_PORT
+    )

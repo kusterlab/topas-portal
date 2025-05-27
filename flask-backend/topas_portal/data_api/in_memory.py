@@ -84,8 +84,12 @@ class InMemoryCohortDataAPI:
         intensity_unit: Union[utils.IntensityUnit, None] = None,
         identifier: str = None,
         patient_name: str = None,
+        include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
     ) -> pd.DataFrame:
         df = self.provider.get_dataframe(cohort_index, utils.DataType.FULL_PROTEOME)
+        if include_ref == utils.IncludeRef.EXCLUDE_REF:
+            df = df.loc[:, ~df.columns.str.startswith(cn.REF_CHANNEL_PREFIX)]
+
         return self._filter_expression_df(df, intensity_unit, identifier, patient_name)
 
     def get_psite_abundance_df(
@@ -94,8 +98,12 @@ class InMemoryCohortDataAPI:
         intensity_unit: Union[utils.IntensityUnit, None] = None,
         identifier: str = None,
         patient_name: str = None,
+        include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
     ) -> pd.DataFrame:
         df = self.provider.get_dataframe(cohort_index, utils.DataType.PHOSPHO_PROTEOME)
+        if include_ref == utils.IncludeRef.EXCLUDE_REF:
+            df = df.loc[:, ~df.columns.str.startswith(cn.REF_CHANNEL_PREFIX)]
+        
         return self._filter_expression_df(df, intensity_unit, identifier, patient_name)
 
     def get_topas_scores_df(

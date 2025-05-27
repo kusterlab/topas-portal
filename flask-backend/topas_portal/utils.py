@@ -50,6 +50,11 @@ class ColumnNames(str, Enum):
     GENE_NAME = "Gene names"
 
 
+class IncludeRef(str, Enum):
+    INCLUDE_REF = "include_ref"
+    EXCLUDE_REF = "exclude_ref"
+
+
 def get_selection_list_data_type(level: DataType):
     if level == DataType.KINASE_SUBSTRATE:
         return DataType.KINASE_SCORE

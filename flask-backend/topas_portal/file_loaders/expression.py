@@ -73,7 +73,13 @@ def load_annotated_intensity_file(
     )
 
     patient_list_prefixed = ef.add_patient_prefix(patients_list)
-    intensity_df = annot_df.loc[:, annot_df.columns.intersection(patient_list_prefixed)]
+    intensity_df = annot_df.loc[
+        :,
+        (
+            annot_df.columns.isin(patient_list_prefixed)
+            | annot_df.columns.str.startswith("ref_")
+        ),
+    ]
     intensity_df = ef.remove_patient_prefix(intensity_df)
 
     suffix = ef.INTENSITY_UNIT_SUFFIXES[ef.IntensityUnit.INTENSITY]

@@ -230,6 +230,7 @@ def get_abundance(
     level: ef.DataType,
     identifier: str,
     imputation_mode: ef.ImputationMode,
+    include_ref: ef.IncludeRef = ef.IncludeRef.EXCLUDE_REF,
 ):
     """_summary_
 
@@ -248,11 +249,11 @@ def get_abundance(
     """
     if level == ef.DataType.FULL_PROTEOME:
         abundances = cohorts_db.get_protein_abundance_df(
-            cohort_index, identifier=identifier
+            cohort_index, identifier=identifier, include_ref=include_ref
         )
     elif level == ef.DataType.PHOSPHO_PROTEOME:
         abundances = cohorts_db.get_psite_abundance_df(
-            cohort_index, identifier=identifier
+            cohort_index, identifier=identifier, include_ref=include_ref
         )
     elif level == ef.DataType.TRANSCRIPTOMICS:
         abundances = cohorts_db.get_fpkm_df(identifier=identifier)

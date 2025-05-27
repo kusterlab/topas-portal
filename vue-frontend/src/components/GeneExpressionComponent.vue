@@ -18,6 +18,12 @@
             <cohort-select
               @select-cohort="updateCohort"
             />
+            <v-checkbox
+              v-model="includeRefChannels"
+              label="Include ref channels"
+              dense
+              hide-details
+            />
             <v-radio-group
               v-model="mode"
               label="Input type"
@@ -250,7 +256,8 @@ import histogram from '@/components/plots/GenericHistogram'
 import SwarmPlot from '@/components/plots/SwarmPlot'
 import ProteinSelect from '@/components/partials/ProteinSelect.vue'
 import CohortSelect from './partials/CohortSelect.vue'
-import { DataType } from '@/constants'
+import { DataType, IncludeRef } from '@/constants'
+import { api } from '@/routes.ts'
 
 export default {
   name: 'GeneComponent',
@@ -276,6 +283,7 @@ export default {
     identifier: '',
     cohortIndex: 0,
     mode: DataType.FULL_PROTEOME,
+    includeRefChannels: false,
     showOncokbcnv: false,
     swarmShow: false,
     radioOptions: {
@@ -340,6 +348,9 @@ export default {
     },
     cohortIndex: function () {
       this.updateId()
+    },
+    includeRefChannels: function () {
+      this.updateId()
     }
   },
   mounted () {
@@ -374,7 +385,8 @@ export default {
       this.zScoreHistogramData = []
       this.swarmPlotData = []
       this.swarmSelIds = []
-      const query = `${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/${mode}/abundance/${key}/noimpute`
+      const includeRef = this.includeRefChannels ? IncludeRef.INCLUDE_REF : IncludeRef.EXCLUDE_REF
+      const query = api.ABUNDANCE({ cohort_index: this.cohortIndex, level: mode, identifier: key, imputation: 'noimpute', include_ref: includeRef })
       this.zScoreHistogramData = query
       const response = await axios.get(query)
       this.swarmShow = true

@@ -22,3 +22,8 @@ export const DataType = Object.freeze({
   BIOMARKER: 'biomarker',
   FP_PP: 'FP_PP'
 })
+
+export const IncludeRef = Object.freeze({
+  INCLUDE_REF: 'include_ref',
+  EXCLUDE_REF: 'exclude_ref'
+})

@@ -20,3 +20,13 @@ class IntensityUnitConverter(BaseConverter):
     def to_url(self, value):
         """Convert IntensityUnit object back to string for URL generation."""
         return str(value)
+
+
+class IncludeRefConverter(BaseConverter):
+    def to_python(self, value):
+        """Convert matched string to a IntensityUnit."""
+        return utils.IncludeRef(value)
+
+    def to_url(self, value):
+        """Convert IntensityUnit object back to string for URL generation."""
+        return str(value)

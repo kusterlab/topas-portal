@@ -20,6 +20,7 @@ CI_BACKEND_PORT = os.getenv("CI_BACKEND_PORT", default=3832)
 CHUNK_SIZE_IMPORT = 1000000
 
 PATIENT_PREFIX = "pat_"
+REF_CHANNEL_PREFIX = "ref_"
 
 PP_KEY = "Modified sequence"
 FP_KEY = "Gene names"

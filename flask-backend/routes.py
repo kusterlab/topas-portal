@@ -73,7 +73,7 @@ class ApiRoutes(str, Enum):
 
     IMPORTANT_PHOSPHO = "/<int:cohort_index>/important_phospho/<string:identifier>"
 
-    ABUNDANCE = "/<int:cohort_index>/<data_type:level>/abundance/<string:identifier>/<string:imputation>"
+    ABUNDANCE = "/<int:cohort_index>/<data_type:level>/abundance/<string:identifier>/<string:imputation>/<include_ref:include_ref>"
     CORRELATION = "/<int:cohort_index>/<data_type:level>/correlation/<data_type:level_2>/<string:identifier>/<intensity_unit:intensity_unit>/<string:patients_list>"
 
     BATCH_EFFECT = "/batcheffect/<data_type:level>/<int:cohort_index>/<string:identifier>/<string:sample_ids>/<string:data_type>"
