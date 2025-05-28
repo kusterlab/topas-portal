@@ -16,4 +16,6 @@ def load_patient_table(patient_annotation_path):
     patients_df = ef.fill_nans_patient_columns(patients_df)
     patients_df["index"] = patients_df.index
     patients_df = ef.QC_channel_nan_values_fill(patients_df)
+
+    patients_df = ef.whitespace_remover(patients_df)
     return patients_df

@@ -53,6 +53,7 @@ class ColumnNames(str, Enum):
 class IncludeRef(str, Enum):
     INCLUDE_REF = "include_ref"
     EXCLUDE_REF = "exclude_ref"
+    ONLY_REF = "only_ref"
 
 
 def get_selection_list_data_type(level: DataType):
@@ -221,28 +222,6 @@ def get_index_cols(data_type: str) -> List[str]:
     if data_type == "pp":
         index_cols = ["Gene names", "Modified sequence", "Proteins"]
     return index_cols
-
-
-def keep_only_sample_columns(df: pd.DataFrame, samples_list: list, keep_ref_channels: bool = False, only_ref_channels: bool = False) -> pd.DataFrame:
-    """Returns the columns which matches the samples Regex in the dataframe
-    :df: pandas data frame
-    :output : pandas data frame with filtered columns
-    """
-    print(f'this is the status of onlyref:{only_ref_channels}')
-    list_patients = intersection(df.columns, samples_list)
-
-    if not keep_ref_channels and not only_ref_channels: 
-        print('only patients')  
-        return df[[x for x in list_patients if not str(x).__contains__("ref-")]]
-
-    if keep_ref_channels and not only_ref_channels:
-        print('also include ref channels')
-        return df[list_patients]
-    else:
-        print('only ref channels')
-        return df[[x for x in list_patients if  str(x).__contains__("ref-")]]
-
-
 
 
 def calculate_confidence_score(df: pd.DataFrame) -> pd.DataFrame:
@@ -461,3 +440,13 @@ def calculate_z_scores(df: pd.DataFrame, col_name="sum"):
     except Exception as err:
         print(f"Unexpected {err=}, {type(err)=}")
         return ["n.d."]*len(df.index)
+
+
+def whitespace_remover(df: pd.DataFrame) -> pd.DataFrame:
+    for col in df.columns:
+        if df[col].dtype == "object":
+            # applying strip function on column
+            df[col] = df[col].astype(str).map(str.strip)
+        else:
+            pass
+    return df

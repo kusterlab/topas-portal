@@ -1,5 +1,7 @@
 from . import utils
 
+
+# the first 5 are used for heatmaps of TOPAS subscore components, the last 2 are used for PCA/UMAP
 TOPAS_LEVEL_MAPPING = {
     utils.DataType.TOPAS_KINASE_SCORE: {
         "data_level": utils.DataType.KINASE_SCORE,
@@ -21,12 +23,21 @@ TOPAS_LEVEL_MAPPING = {
         "data_level": utils.DataType.FULL_PROTEOME,
         "scoring_rule_level": utils.DataType.FULL_PROTEOME,
     },
+    utils.DataType.FULL_PROTEOME_ANNOTATED: {
+        "data_level": utils.DataType.FULL_PROTEOME,
+        "scoring_rule_level": utils.DataType.FULL_PROTEOME,
+    },
+    utils.DataType.PHOSPHO_PROTEOME_ANNOTATED: {
+        "data_level": utils.DataType.PHOSPHO_PROTEOME,
+        "scoring_rule_level": utils.DataType.PHOSPHO_PROTEOME,
+    }
 }
 
 TOPAS_SCORING_RULES = {
     utils.DataType.FULL_PROTEOME: "highest z-score",
     utils.DataType.PHOSPHO_SCORE: "highest protein phosphorylation score (2nd level z-score, FH)",
     utils.DataType.KINASE_SCORE: "highest kinase score (2nd level z-score, FH)",
+    utils.DataType.PHOSPHO_PROTEOME: "highest z-score (p-site)",
 }
 
 TOPAS_DIFFERENTIAL_INTENSITY_UNITS = {

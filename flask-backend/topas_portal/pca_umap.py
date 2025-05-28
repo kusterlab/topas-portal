@@ -7,12 +7,12 @@ import pandas as pd
 import numpy as np
 
 
-import topas_portal.settings as settings
+from . import settings
 from . import utils
-from .file_loaders import topas
+from . import fetch_data_matrix as data
 from .dimensionality_reduction import get_dimensionality_reduction_method
 import db
-from topas_portal.utils import IntensityUnit
+
 cohorts_db = db.cohorts_db
 
 
@@ -20,13 +20,13 @@ def do_pca(
     selected_proteins: List[str],
     results_folder: str,
     plot_types: List[utils.DataType],
-    sample_annot_df: pd.DataFrame,  # sample_annot: str,
+    sample_annot_df: pd.DataFrame,
     meta_annot_df: pd.DataFrame,
     min_sample_occurrence_ratio: float = 0.5,
     dimensionality_reduction_method: str = "ppca",
     include_reference_channels: bool = False,
     include_replicates: bool = False,
-    only_ref_channels = False
+    only_ref_channels=False,
 ):
     """_summary_
 
@@ -44,41 +44,23 @@ def do_pca(
     Returns:
         _type_: _description_
     """
-
-    if "QC" in sample_annot_df.columns:
-        sample_annot_df = sample_annot_df[
-            sample_annot_df["QC"].isin(["passed", "shaky"])
-        ]
     if not include_replicates:
         if "Replicate" in sample_annot_df.columns:
             sample_annot_df = sample_annot_df[
                 sample_annot_df["Replicate"] != "replicate"
             ]
-    if "Material issue" in sample_annot_df.columns:
-        sample_annot_df = sample_annot_df[sample_annot_df["Material issue"] != "+"]
-
-    sample_annot_df.columns = sample_annot_df.columns.str.strip()
-    # meta_annot_df = pd.read_excel(metadata_annot)
-    meta_annot_df = whitespace_remover(meta_annot_df)
-
-    if include_reference_channels:
-        sample_annot_df = create_ref_sample_annot(results_folder, sample_annot_df)
-        #print(f'sampple_with_ref{sample_annot_df}')
-
 
     metadata_df = merge_sample_and_metadata_annots(
         sample_annot_df,
         meta_annot_df,
-        remove_qc_failed=True,
         keep_reference=include_reference_channels,
         keep_replicates=include_replicates,
     )
-    #print(f'meta_data_with_ref{metadata_df}')
     all_principal_dfs = []
     all_principal_variances = []
     imputed_data = []
 
-    if plot_types[0] == "FP_PP":
+    if plot_types[0] == utils.DataType.FP_PP:
         plot_types = ["protein", "psite"]
 
     list_dfs = []
@@ -88,7 +70,7 @@ def do_pca(
             metadata_df["Sample name"],
             plot_type,
             include_reference_channels,
-            only_ref_channels=only_ref_channels
+            only_ref_channels=only_ref_channels,
         )
         list_dfs.append(df)
 
@@ -115,21 +97,21 @@ def do_pca(
             if len(mask) > 2:
                 df = df[mask]
 
-
-
     principal_df, pca, imputed_df = metadata_pca(
-        df, metadata_df, dimensionality_reduction_method, min_sample_occurrence_ratio,
+        df,
+        metadata_df,
+        dimensionality_reduction_method,
+        min_sample_occurrence_ratio,
     )
-    #print(f'df {df}')
-    #print(f'imputed data{imputed_data}')
-    #print(f'meta data{metadata_df}')
+    # print(f'df {df}')
+    # print(f'imputed data{imputed_data}')
+    # print(f'meta data{metadata_df}')
     imputed_data.append(imputed_df)
     all_principal_dfs.append(principal_df)
     if dimensionality_reduction_method == "umap":
         all_principal_variances.append([])
     else:
         all_principal_variances.append(pca.get_explained_variances())
-
 
     return all_principal_dfs, all_principal_variances, imputed_data, metadata_df
 
@@ -139,84 +121,53 @@ def load_pca_data(
     samples,
     plot_type: utils.DataType = utils.DataType.TOPAS_SCORE,
     include_reference_channels: bool = False,
-    only_ref_channels=False
+    only_ref_channels=False,
 ):
     print(plot_type)
-    cohort_index = cohorts_db.config.get_cohort_index_from_report_directory(results_folder)
+    cohort_index = cohorts_db.config.get_cohort_index_from_report_directory(
+        results_folder
+    )
 
-    if plot_type == utils.DataType.TOPAS_SCORE:
-        df = cohorts_db.get_topas_scores_df(
-            cohort_index, intensity_unit=IntensityUnit.Z_SCORE
-        )
-        df = df.T
-        df = _remove_prefix_from_index(df)
-    elif plot_type == utils.DataType.KINASE_SCORE:
-        df = read_kinase_score(results_folder)
-    elif plot_type == utils.DataType.PHOSPHO_SCORE:
-        df = read_phosphoprotein_score(results_folder)
-    elif plot_type in [
+    intensity_unit = utils.IntensityUnit.Z_SCORE
+    if plot_type in [
         utils.DataType.FULL_PROTEOME,
         utils.DataType.FULL_PROTEOME_ANNOTATED,
         utils.DataType.PHOSPHO_PROTEOME,
         utils.DataType.PHOSPHO_PROTEOME_ANNOTATED,
-    ]:  
-        data_type = (
-            utils.DataType.FP
-            if plot_type
-            in [utils.DataType.FULL_PROTEOME, utils.DataType.FULL_PROTEOME_ANNOTATED]
-            else utils.DataType.PP
-        )
+    ]:
+        intensity_unit = utils.IntensityUnit.INTENSITY
 
-        if include_reference_channels:
-            file = f"annot_{data_type}_with_ref.csv"   # in case with reference channels we read it from the resutl folder
+    include_ref = utils.IncludeRef.EXCLUDE_REF
+    if include_reference_channels:
+        include_ref = utils.IncludeRef.INCLUDE_REF
+    if only_ref_channels:
+        include_ref = utils.IncludeRef.ONLY_REF
 
-        else:
-            file = f"annot_{data_type}.csv"   # in case with reference channels we read it from the resutl folder
-
-        index_col = utils.get_index_cols(data_type)
-        df = pd.read_csv(os.path.join(results_folder, file), index_col=index_col)
-        
-        df.columns = df.columns.str.replace("ref_channel_", "ref-channel-")
-        df.columns = df.columns.str.replace("_batch", "-batch")
-        df = utils.remove_patient_prefix(df)
-        df.columns = df.columns.str.strip()
-        if plot_type in [
-            utils.DataType.FULL_PROTEOME_ANNOTATED,
-            utils.DataType.PHOSPHO_PROTEOME_ANNOTATED,
-        ]:
-            # Subset remove where both topas and rtk is empty
-            if "rtk" in df.columns:
-                df = df.dropna(subset=["topas", "rtk"], how="all")
-            elif "sub_topas" in df.columns:
-                df = df.dropna(subset=["topas", "sub_topas"], how="all")
-            else:
-                print(
-                    "Error. Wrong topas scoring file. cannot find topass of type topas & rtk or topas & sub_topas"
-                )
-
-
-        samples_df = cohorts_db.get_sample_annotation_df(cohort_index)
-        samplenames = samples_df['Sample name'].unique().tolist()
-        #print(f'sample name{samplenames}')
-        #print(f'raw data columns: {df.columns}')
-        df = utils.keep_only_sample_columns(df,samplenames,keep_ref_channels=include_reference_channels,only_ref_channels=only_ref_channels)
-        df = df.dropna(how='all')
-        print(df)
-
-        
-
-    # prepare data
-    if plot_type in [
-        utils.DataType.TOPAS_SCORE,
-        utils.DataType.KINASE_SCORE,
-        utils.DataType.PHOSPHO_SCORE,
-    ]:  
-        df = df.transpose()
+    df = data.fetch_data_matrix(
+        cohorts_db,
+        cohort_index,
+        intensity_unit=intensity_unit,
+        level=plot_type,
+        include_ref=include_ref,
+    )
+    df = _remove_prefix_from_columns(df)
 
     if not include_reference_channels:  # but then also replicates are kept
         df = df.loc[:, df.columns.isin(samples)]  # MT: not sure what this does
     print(df)
     return df
+
+
+def filter_for_annotated(df: pd.DataFrame) -> pd.DataFrame:
+    # Subset remove where both topas and rtk is empty
+    if "rtk" in df.columns:
+        return df.dropna(subset=["topas", "rtk"], how="all")
+    elif "sub_topas" in df.columns:
+        return df.dropna(subset=["topas", "sub_topas"], how="all")
+    else:
+        print(
+            "Error. Wrong topas scoring file. cannot find annotations of type topas & rtk or topas & sub_topas"
+        )
 
 
 def metadata_pca(
@@ -243,28 +194,13 @@ def metadata_pca(
     return principal_df, dim_reduction_method, imputed_data
 
 
-def read_kinase_score(results_folder):
-    cohort_index = cohorts_db.config.get_cohort_index_from_report_directory(results_folder)
-    df = cohorts_db.get_kinase_scores_df(
-            cohort_index, intensity_unit=IntensityUnit.Z_SCORE
-        )
-    df = df.T
-    df = _remove_prefix_from_index(df)
-    return df
-
-
-def read_phosphoprotein_score(results_folder):
-    cohort_index = cohorts_db.config.get_cohort_index_from_report_directory(results_folder)
-    df = cohorts_db.get_phosphorylation_scores_df(
-            cohort_index, intensity_unit=IntensityUnit.Z_SCORE
-        )
-    df = df.T
-    df = _remove_prefix_from_index(df)
-    return df
-
-
 def _remove_prefix_from_index(df):
     df.index = df.index.str.replace(settings.PATIENT_PREFIX, "")
+    return df
+
+
+def _remove_prefix_from_columns(df):
+    df.columns = df.columns.str.replace(settings.PATIENT_PREFIX, "")
     return df
 
 
@@ -276,39 +212,21 @@ def filter_by_occurrence(df, min_sample_occurrence_ratio: float = 0.5):
 def merge_sample_and_metadata_annots(
     sample_annotation_df: pd.DataFrame,
     meta_data: pd.DataFrame,
-    remove_qc_failed: bool,
     keep_replicates: bool = False,
     keep_reference: bool = False,
 ) -> pd.DataFrame:
-
-    if remove_qc_failed:
-        if "QC" in sample_annotation_df.columns:
-            sample_annotation_df = sample_annotation_df[
-                sample_annotation_df["QC"].isin(["passed", "shaky"])
-            ]
-        else:
-            sample_annotation_df = sample_annotation_df[
-                sample_annotation_df["Failed"] != "x"
-            ]
-
     meta_data_samples = meta_data["Sample name"].tolist()
-    if keep_replicates:  
+    if keep_replicates:
         sample_annotation_df = get_replicate_groups(
             sample_annotation_df, meta_data_samples
         )
-
-    if not keep_replicates and keep_reference:
-        sample_annotation_df = sample_annotation_df.loc[
-            (sample_annotation_df["Sample name"].isin(meta_data_samples))
-            | (sample_annotation_df["Sample name"].str.startswith("Reporter")),
-            :,
-        ]
-
-    if not keep_replicates and not keep_reference:
-        sample_annotation_df = meta_data.loc[
-            meta_data["Sample name"].isin(sample_annotation_df["Sample name"].tolist()),
-            :,
-        ]
+    else:
+        patient_samples = sample_annotation_df["Sample name"].isin(meta_data_samples)
+        if keep_reference:
+            patient_samples |= sample_annotation_df["Sample name"].str.startswith(
+                settings.REF_CHANNEL_PREFIX
+            )
+        sample_annotation_df = sample_annotation_df.loc[patient_samples, :]
 
     merged_annot = pd.merge(
         left=sample_annotation_df,
@@ -327,16 +245,22 @@ def merge_sample_and_metadata_annots(
     merged_annot["Batch_No"] = ""
     merged_annot["Tumor cell content"] = 0  # we bypass the get tumor cell conntent
     merged_annot["Is reference channel"] = merged_annot["Sample name"].str.startswith(
-        "Reporter"
+        settings.REF_CHANNEL_PREFIX
     )
     merged_annot = merged_annot.replace(np.nan, "nan")
     return merged_annot
 
 
-def get_replicate_groups(sample_annotation_df, meta_data_samples):
+def get_replicate_groups(
+    sample_annotation_df: pd.DataFrame, meta_data_samples: list[str]
+) -> pd.DataFrame:
     replicates = sample_annotation_df[
         ~(sample_annotation_df["Sample name"].isin(meta_data_samples))
-        & ~(sample_annotation_df["Sample name"].str.startswith("Reporter"))
+        & ~(
+            sample_annotation_df["Sample name"].str.startswith(
+                settings.REF_CHANNEL_PREFIX
+            )
+        )
     ]
 
     replicates["Sample name"] = replicates["Sample name"].apply(
@@ -353,43 +277,3 @@ def get_replicate_groups(sample_annotation_df, meta_data_samples):
         sample_annotation_df.loc[group_indices.values, "Replicate group"] = i + 1
 
     return sample_annotation_df
-
-
-
-def create_ref_sample_annot(results_folder, sample_annot_df):
-    df = pd.read_csv(
-        os.path.join(results_folder, f"annot_fp_with_ref.csv"), index_col="Gene names"
-    )
-
-    df.columns = df.columns.str.replace("ref_channel_", "ref-channel-")
-    df.columns = df.columns.str.replace("_batch", "-batch")
-    df = utils.remove_patient_prefix(df)
-    df = utils.keep_only_sample_columns(df,sample_annot_df['Sample name'].unique().tolist())
-
-    for sample in df:
-
-        if sample not in sample_annot_df["Sample name"].tolist():
-            # retrieve tmt channel, batch
-            tmt_channel = re.search("corrected \d{1,2}", sample).group().split(" ")[1]
-            cohort = re.search("\d [A-Z,a-z]+_", sample).group().split(" ")[1][:-1]
-            # new_sample = {'Sample name': sample, 'Cohort': cohort, 'Batch Name': batch, 'TMT Channel': tmt_channel,'QC': 'passed'}
-            new_sample = {
-                "Sample name": sample,
-                "Cohort": cohort,
-                "TMT Channel": tmt_channel,
-                "QC": "passed",
-            }
-
-            sample_annot_df = sample_annot_df.append(new_sample, ignore_index=True)
-
-    return sample_annot_df
-
-
-def whitespace_remover(df):
-    for col in df.columns:
-        if df[col].dtype == "object":
-            # applying strip function on column
-            df[col] = df[col].astype(str).map(str.strip)
-        else:
-            pass
-    return df

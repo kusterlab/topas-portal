@@ -23,14 +23,14 @@
             @update-selection-method="updateSelectionMethodGroup"
           />
           <v-checkbox
-            v-if = "!onlyReferenceChannels"
+            v-if="!onlyReferenceChannels"
             v-model="includeReplicates"
             label="Include replicates"
             hide-details
             dense
           />
           <v-checkbox
-            v-if = "!onlyReferenceChannels"
+            v-if="!onlyReferenceChannels"
             v-model="includeReferenceChannels"
             label="Include reference channels"
             hide-details
@@ -365,7 +365,7 @@ export default {
           const inputDataType = this.inputDataType
           let referenceChannel = this.includeReferenceChannels ? 'ref' : 'noref'
           referenceChannel = this.onlyReferenceChannels ? 'onlyref' : referenceChannel
-          const replicate = this.includeReplicates ? 'replicate' : 'noreplicate'
+          const replicate = (this.includeReplicates & !this.onlyReferenceChannels) ? 'replicate' : 'noreplicate'
           const silInputType = this.silhouetteInputType
           this.allorSelectedgenes = 'all' // running with all genes
           if (this.geneSubsetActive && this.file !== null) {

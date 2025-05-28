@@ -87,8 +87,7 @@ class InMemoryCohortDataAPI:
         include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
     ) -> pd.DataFrame:
         df = self.provider.get_dataframe(cohort_index, utils.DataType.FULL_PROTEOME)
-        if include_ref == utils.IncludeRef.EXCLUDE_REF:
-            df = df.loc[:, ~df.columns.str.startswith(cn.REF_CHANNEL_PREFIX)]
+        df = _filter_for_ref(df, include_ref)
 
         return self._filter_expression_df(df, intensity_unit, identifier, patient_name)
 
@@ -101,9 +100,8 @@ class InMemoryCohortDataAPI:
         include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
     ) -> pd.DataFrame:
         df = self.provider.get_dataframe(cohort_index, utils.DataType.PHOSPHO_PROTEOME)
-        if include_ref == utils.IncludeRef.EXCLUDE_REF:
-            df = df.loc[:, ~df.columns.str.startswith(cn.REF_CHANNEL_PREFIX)]
-        
+        df = _filter_for_ref(df, include_ref)
+
         return self._filter_expression_df(df, intensity_unit, identifier, patient_name)
 
     def get_topas_scores_df(
@@ -163,3 +161,11 @@ class InMemoryCohortDataAPI:
 
     def get_digestes_peptides_maps(self) -> pd.DataFrame:
         return self.provider.digest_data
+
+
+def _filter_for_ref(df: pd.DataFrame, include_ref: utils.IncludeRef) -> pd.DataFrame:
+    if include_ref == utils.IncludeRef.EXCLUDE_REF:
+        df = df.loc[:, ~df.columns.str.startswith(cn.REF_CHANNEL_PREFIX)]
+    elif include_ref == utils.IncludeRef.ONLY_REF:
+        df = df.loc[:, df.columns.str.startswith(cn.REF_CHANNEL_PREFIX)]
+    return df

@@ -8,7 +8,7 @@ import pandas as pd
 import topas_portal.genomics_preprocess as gp
 import topas_portal.settings as cn
 import topas_portal.utils as utils
-import topas_portal.topas_scores_meta as topass
+import topas_portal.topas_scores_meta as topas
 import topas_portal.IFN_topas_scoring as topas_scoring
 import topas_portal.file_loaders.topas as topas_loader
 
@@ -121,7 +121,7 @@ def get_topas_unique(topas_df: pd.DataFrame, categories: str):
         ids = [
             topas_id
             for topas_id in ids
-            if topass.TOPAS_CATEGORIES.get(topas_id, None) in categories.split(",")
+            if topas.TOPAS_CATEGORIES.get(topas_id, None) in categories.split(",")
         ]
     ids = pd.DataFrame(ids, columns=["ids"])
     return utils.df_to_json(ids)
@@ -298,14 +298,14 @@ def get_circular_barplot_data_pathways(topas_df: pd.DataFrame, patient: str):
         circular_barplot_data = get_circular_barplot_data_pathways(topas_df, "Patient_123")
     """
     topas_df = get_topas_scores_long_format(topas_df)
-    interested_topass = list(set(topass.TOPAS_CATEGORIES.keys()))
+    interested_topass = list(set(topas.TOPAS_CATEGORIES.keys()))
     df = topas_df[topas_df["Sample name"] == str(patient)].set_index("Sample name")
     df = df[df.Topas_id.isin(interested_topass)]
     df = df[["Topas_id", "Z-score"]]
     df = df.fillna(0)
     df.columns = ["label", "value"]
-    df["type"] = df.label.map(topass.TOPAS_CATEGORIES)
-    df["color"] = df.type.map(topass.TOPAS_COLORING_RULE)
+    df["type"] = df.label.map(topas.TOPAS_CATEGORIES)
+    df["color"] = df.type.map(topas.TOPAS_COLORING_RULE)
     df = df.sort_values(by=["type", "value"], ascending=[False, False])
     return df
 
@@ -340,7 +340,7 @@ def get_circular_barplot_data_tumor_antigens(
         tumor_antigen_data = get_circular_barplot_data_tumor_antigens(expression_z_scores_df, "Patient_123")
     """
     df = pd.DataFrame.from_dict(
-        topass.TOPAS_CATEGORIES, orient="index", columns=["type"]
+        topas.TOPAS_CATEGORIES, orient="index", columns=["type"]
     )
     interested_proteins = df.index[df.type == "Tumor_Antigen"].tolist()
     expression_df = expression_z_scores_df[
@@ -350,8 +350,8 @@ def get_circular_barplot_data_tumor_antigens(
     expression_df.columns = ["value"]
     expression_df = expression_df.dropna()
     expression_df["label"] = expression_df.index
-    expression_df["type"] = expression_df.label.map(topass.TOPAS_CATEGORIES)
-    expression_df["color"] = expression_df.type.map(topass.TOPAS_COLORING_RULE)
+    expression_df["type"] = expression_df.label.map(topas.TOPAS_CATEGORIES)
+    expression_df["color"] = expression_df.type.map(topas.TOPAS_COLORING_RULE)
     expression_df = expression_df.sort_values(
         by=["type", "value"], ascending=[False, False]
     )
@@ -405,7 +405,7 @@ def getlolipop_expression_topas(
     # patient_col = patient  + ' Z-score'
     protein_keys = [
         x
-        for x in topass.TOPAS_EXPRESSION_MAPPING.keys()
+        for x in topas.TOPAS_EXPRESSION_MAPPING.keys()
         if x in expression_z_scores_df.index
     ]
 
@@ -421,7 +421,7 @@ def getlolipop_expression_topas(
         (
             topas_z_scores_df["Sample name"].isin([patient])
             & topas_z_scores_df["Topas_id"].isin(
-                topass.TOPAS_EXPRESSION_MAPPING.values()
+                topas.TOPAS_EXPRESSION_MAPPING.values()
             )
         )
     ].set_index("Topas_id")[["Z-score"]]
@@ -433,7 +433,7 @@ def getlolipop_expression_topas(
     topas_df["topas_score"] = (
         -1 * topas_df["topas_score"]
     )  # to show them downward of the lolipop plot
-    expression_df["type"] = expression_df["label"].map(topass.TOPAS_EXPRESSION_MAPPING)
+    expression_df["type"] = expression_df["label"].map(topas.TOPAS_EXPRESSION_MAPPING)
 
     merged_df = expression_df.merge(topas_df, on="type", how="outer")
     merged_df["expression_score"] = merged_df["expression_score"].fillna(0)
@@ -446,8 +446,8 @@ def getlolipop_expression_topas(
         value_vars=["expression_score", "topas_score"],
         id_vars=["label", "type"],
     )
-    final_df["type2"] = final_df["type"].map(topass.TOPAS_CATEGORIES)
-    final_df["color"] = final_df.type2.map(topass.TOPAS_COLORING_RULE)
+    final_df["type2"] = final_df["type"].map(topas.TOPAS_CATEGORIES)
+    final_df["color"] = final_df.type2.map(topas.TOPAS_COLORING_RULE)
     final_df["type"] = final_df.type2
     return final_df[final_df.type == type_to_filter]
 

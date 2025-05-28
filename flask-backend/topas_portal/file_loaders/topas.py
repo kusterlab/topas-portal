@@ -9,7 +9,7 @@ from pathlib import Path
 
 import topas_portal.settings as cn
 import topas_portal.utils as utils
-import topas_portal.topas_scores_meta as topass
+import topas_portal.topas_scores_meta as topas
 
 
 
@@ -50,9 +50,9 @@ def load_topas_scores_df(topas_scores_path: str):
 def load_topas_subscore_table(
     report_dir: str, main_topas: str, return_wide=False
 ) -> pd.DataFrame:
-    for key in topass.TOPAS_RENAMING.keys():
+    for key in topas.TOPAS_RENAMING.keys():
         if main_topas == key:
-            main_topas = topass.TOPAS_RENAMING[key]
+            main_topas = topas.TOPAS_RENAMING[key]
     file_name = f"{report_dir}/{cn.TOPAS_SUBSCORE_FILES_PREFIX}{main_topas}.tsv"
     topas_subscores_long = pd.DataFrame()
     if os.path.exists(file_name):

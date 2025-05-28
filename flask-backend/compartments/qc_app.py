@@ -1,4 +1,3 @@
-from pathlib import Path
 import os
 import json
 from typing import List, Optional
@@ -11,7 +10,6 @@ import db
 import topas_portal.utils as ef
 import topas_portal.settings as cn
 import topas_portal.pca_umap as qc_meta
-from topas_portal.dimensionality_reduction import get_pca_objects
 
 from sklearn.metrics import silhouette_samples
 
@@ -95,91 +93,68 @@ def main(
     if not custom_list_patients == 'all':
         sample_annotation_df = sample_annotation_df[sample_annotation_df['Sample name'].isin(custom_list_patients)]
 
-    if len(sample_annotation_df.index) > 0:
-        patients_df = cohorts_db.get_patient_metadata_df(cohort_index)
-        if not custom_list_patients == 'all':
-            patients_df = patients_df[patients_df['Sample name'].isin(custom_list_patients)]
-        all_principal_dfs, all_principal_variances, imputed_data, metadata_df = (
-            qc_meta.do_pca(
-                topas_genes,
-                reports_dir,
-                [input_data_type],
-                sample_annotation_df,
-                patients_df,
-                min_sample_occurrence_ratio=min_sample_occurrence_ratio,
-                include_reference_channels=use_ref,
-                dimensionality_reduction_method=dimensionality_reduction_method,
-                include_replicates=use_replicate,
-                only_ref_channels=only_ref_channels
-            )
+    if len(sample_annotation_df.index) == 0:
+        raise ValueError("No samples available to perform PCA/UMAP on.")
+    patients_df = cohorts_db.get_patient_metadata_df(cohort_index)
+    if not custom_list_patients == 'all':
+        patients_df = patients_df[patients_df['Sample name'].isin(custom_list_patients)]
+    all_principal_dfs, all_principal_variances, imputed_data, metadata_df = (
+        qc_meta.do_pca(
+            topas_genes,
+            reports_dir,
+            [input_data_type],
+            sample_annotation_df,
+            patients_df,
+            min_sample_occurrence_ratio=min_sample_occurrence_ratio,
+            include_reference_channels=use_ref,
+            dimensionality_reduction_method=dimensionality_reduction_method,
+            include_replicates=use_replicate,
+            only_ref_channels=only_ref_channels
         )
+    )
 
-        if do_only_silhouette:
-            sil_input = []
-            if before_cluster:
-                sil_input = imputed_data[0]
-            else:
-                sil_input = pd.DataFrame(all_principal_dfs[0]).set_index("Sample name")
-                sil_input = sil_input.filter(regex="Principal component")
-
-            return calculate_silhouette_scores(
-                sil_input,
-                metadata_df.set_index("Sample name"),
-                meta_col_silhoutte,
-                min_num_patients=min_num_patients,
-            )
-
-        pc_df = pd.DataFrame(all_principal_dfs[0])
-        pc_df = pc_df.rename(
-            columns={"Principal component 1": "pc1", "Principal component 2": "pc2"}
-        )
-        pc_df["Sample name"] = pc_df["Sample"]
-        pc_df = pc_df[["Sample name", "pc1", "pc2", "Sample"]]
-        pc_df = ef.merge_with_sample_annotation_df(pc_df, sample_annotation_df)
-        pc_df = ef.merge_with_patients_meta_df(pc_df, patients_df)
-        pcs_vars = all_principal_variances[0]
-        string_cols = cn.QC_STRING_META  # meta data with string values
-        int_cols = cn.QC_INT_META  # meta data with number values
-        sel_cols = [*pc_cols, *string_cols, *int_cols]
-        sel_cols = ef.intersection(sel_cols, pc_df.columns)
-        pc_df = pc_df[sel_cols]
-        string_cols = ef.intersection(pc_df.columns, string_cols)
-        int_cols = ef.intersection(pc_df.columns, int_cols)
-        pc_df[string_cols] = pc_df[string_cols].fillna("n.d.")
-
-        if "Batch_No" in pc_df.columns:
-            pc_df["Batch_No"][pc_df["Sample"].str.contains("Batch")] = pc_df["Sample"][
-                pc_df["Sample"].str.contains("Batch")
-            ].apply(lambda x: x.split("Batch")[1])
-
-        pc_df[int_cols] = pc_df[int_cols].fillna(-1)
-
-    else:  # running PCA for the cohorts with no meta data
-        if input_data_type == ef.DataType.PHOSPHO_PROTEOME:
-            intensity_df = pd.read_csv(
-                Path(reports_dir) / Path(cn.PREPROCESSED_PP_INTENSITY),
-                index_col=cn.PP_KEY,
-            )
-        elif input_data_type == ef.DataType.FULL_PROTEOME:
-            intensity_df = pd.read_csv(
-                Path(reports_dir) / Path(cn.PREPROCESSED_FP_INTENSITY),
-                index_col=cn.FP_KEY,
-            )
+    if do_only_silhouette:
+        sil_input = []
+        if before_cluster:
+            sil_input = imputed_data[0]
         else:
-            raise ValueError(f"Unknown data type for PCA/UMAP: {input_data_type.value}")
+            sil_input = pd.DataFrame(all_principal_dfs[0]).set_index("Sample name")
+            sil_input = sil_input.filter(regex="Principal component")
 
-
-        list_patients = sample_annotation_df["Sample name"].unique().tolist()
-        list_patients_suffixed = [cn.PATIENT_PREFIX + x for x in list_patients_suffixed]
-        list_patients = [*list_patients,list_patients_suffixed]
-        list_patients = ef.intersection(list_patients,df.columns)
-        df = intensity_df[list_patients]
-        pca_objects_list, pcs_vars = get_pca_objects(
-            [df], pct_threshold=[0.5], do_pca=False
+        return calculate_silhouette_scores(
+            sil_input,
+            metadata_df.set_index("Sample name"),
+            meta_col_silhoutte,
+            min_num_patients=min_num_patients,
         )
-        pc_df = pd.DataFrame(data=pca_objects_list[0].transform(), columns=cn.QC_PCS)
-        pc_df = pc_df.reset_index()
-        pc_df["Sample"] = df.columns
+
+    pc_df = pd.DataFrame(all_principal_dfs[0])
+    print(pc_df)
+    pc_df = pc_df.rename(
+        columns={"Principal component 1": "pc1", "Principal component 2": "pc2"}
+    )
+    pc_df["Sample name"] = pc_df["Sample"]
+    pc_df = pc_df[["Sample name", "pc1", "pc2", "Sample"]]
+    pc_df = ef.merge_with_sample_annotation_df(pc_df, sample_annotation_df)
+    print(pc_df)
+    pc_df = ef.merge_with_patients_meta_df(pc_df, patients_df)
+    print(pc_df)
+    pcs_vars = all_principal_variances[0]
+    string_cols = cn.QC_STRING_META  # meta data with string values
+    int_cols = cn.QC_INT_META  # meta data with number values
+    sel_cols = [*pc_cols, *string_cols, *int_cols]
+    sel_cols = ef.intersection(sel_cols, pc_df.columns)
+    pc_df = pc_df[sel_cols]
+    string_cols = ef.intersection(pc_df.columns, string_cols)
+    int_cols = ef.intersection(pc_df.columns, int_cols)
+    pc_df[string_cols] = pc_df[string_cols].fillna("n.d.")
+
+    if "Batch_No" in pc_df.columns:
+        pc_df["Batch_No"][pc_df["Sample"].str.contains("Batch")] = pc_df["Sample"][
+            pc_df["Sample"].str.contains("Batch")
+        ].apply(lambda x: x.split("Batch")[1])
+
+    pc_df[int_cols] = pc_df[int_cols].fillna(-1)
 
     var1 = 0
     var2 = 0
@@ -189,10 +164,10 @@ def main(
 
     # SCALING THE PCS BETWEEN -1 AND 1
     pc_df[pc_cols[0]] = np.interp(
-        pc_df[pc_cols[0]], (pc_df[pc_cols[0]].min(), pc_df[pc_cols[0]].max()), (-1, +1)
+        pc_df[pc_cols[0]], (pc_df[pc_cols[0]].min(), pc_df[pc_cols[0]].max()), (-0.95, 0.95)
     )
     pc_df[pc_cols[1]] = np.interp(
-        pc_df[pc_cols[1]], (pc_df[pc_cols[1]].min(), pc_df[pc_cols[1]].max()), (-1, +1)
+        pc_df[pc_cols[1]], (pc_df[pc_cols[1]].min(), pc_df[pc_cols[1]].max()), (-0.95, 0.95)
     )
     pc_df["index"] = pc_df.index
     pcs_dict = pc_df.to_dict(orient="records")

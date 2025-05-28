@@ -3,13 +3,11 @@ from __future__ import annotations
 import math
 import numpy as np
 from typing import TYPE_CHECKING
-from pathlib import Path
 
 import topas_portal.utils as ef
 from topas_portal.signature_function import one_vs_all_t_test
 import topas_portal.fetch_data_matrix as data
-import topas_portal.topas_scores_meta as topass
-import topas_portal.file_loaders.expression as expression_loader
+import topas_portal.topas_scores_meta as topas
 
 import topas_portal.settings as cn  # conifgurations
 
@@ -187,7 +185,7 @@ def _preparare_input_for_t_test(
         level = ef.DataType.TOPAS_SCORE
         identifiers = [
             topas
-            for topas, category in topass.TOPAS_CATEGORIES.items()
+            for topas, category in topas.TOPAS_CATEGORIES.items()
             if category == "RTK"
         ]
 
@@ -196,7 +194,7 @@ def _preparare_input_for_t_test(
         cohort_index,
         level,
         identifiers=identifiers,
-        intensity_unit=topass.TOPAS_DIFFERENTIAL_INTENSITY_UNITS[level],
+        intensity_unit=topas.TOPAS_DIFFERENTIAL_INTENSITY_UNITS[level],
     )
     protein_list = input_df.index.unique().tolist()
     overlapping_patients = ef.intersection(patients_list, input_df.columns.tolist())
