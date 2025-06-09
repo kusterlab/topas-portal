@@ -1,0 +1,16 @@
+{
+    "front_end_col_names": [
+        {
+            "dataField": "case_submitter_id",
+            "dataType": "string",
+            "width": "70",
+            "visible": "false"
+        },
+        {
+            "dataField": "ethnicity",
+            "dataType": "string",
+            "width": "70",
+            "visible": "false"
+        }
+    ]
+}

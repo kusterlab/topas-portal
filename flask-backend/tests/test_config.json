@@ -1,0 +1,31 @@
+{
+    "local_http": "http://localhost:3832",
+    "basket_annotation_path": "TOPASscores_POI_AS_250307.xlsx",
+    "drug_annotation_path": "Drug_List.xlsx",
+    "patient_annotation_path": {
+        "LUAD_CPTAC": "METADATA_LUAD_new.xlsx"
+    },
+    "report_directory": {
+        "LUAD_CPTAC": "2025.03.19_MT_cptac_LUAD"
+    },
+    "sample_annotation_path": {
+        "LUAD_CPTAC": "cptac_annotation_241107.csv"
+    },
+    "FP": {
+        "LUAD_CPTAC": 1
+    },
+    "PP": {
+        "LUAD_CPTAC": 1
+    },
+    "transcriptomics_path_z_scored": "FPKM/trans_df2portal_CPTAC_zscores.csv",
+    "transcriptomics_path_not_z_scored": "FPKM/trans_df2portal_CPTAC_not_zscores.csv",
+    "genomics_path": "genomics/genomics_df2portal_CPTAC.csv",
+    "oncokb_path": "genomics/onkokb2portal.csv",
+    "meta_data_columns_config": "tests/test_columns.json",
+    "pspFastaFile": "PhosphoSitePlus/Phosphosite_seq.fasta",
+    "pspAnnotationFile": "PhosphoSitePlus/Phosphorylation_site_dataset",
+    "pspRegulatoryFile": "PhosphoSitePlus/Regulatory_sites",
+    "use_entity_model": 0,
+    "oncokb_api_token": "",
+    "load_data_on_startup": false
+}
