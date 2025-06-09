@@ -66,7 +66,7 @@ export default {
       { label: 'Scores', path: '/topasscores', icon: 'mdi-periodic-table' },
       { label: 'Analytics', path: '/analytics', icon: 'mdi-chart-line' },
       { label: 'Patient', path: '/patient', icon: 'mdi-chart-bar' },
-      { label: 'Settings', path: '/other-tools', icon: 'mdi-tools' }
+      { label: 'Settings', path: '/admin-tools', icon: 'mdi-tools' }
     ]
   })
 }

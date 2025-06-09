@@ -4,7 +4,7 @@ import OverviewComponent from '@/components/LandingPage.vue'
 import GeneExpression from '@/components/GeneExpressionComponent.vue'
 import AnalyticsComponent from '@/components/AnalyticsComponent.vue'
 import PatientComponent from '@/components/PatientComponent.vue'
-import OtherComponent from '@/components/OthertoolsComponent.vue'
+import AdminToolsComponent from '@/components/AdminToolsComponent.vue'
 import KinaseComponent from '@/components/KinaseComponent.vue'
 import PproteinComponent from '@/components/ProteinScores.vue'
 import TopasComponent from '@/components/TopasComponent.vue'
@@ -24,7 +24,7 @@ export default new Router({
     { path: '/topasscores', component: TopasComponent },
     { path: '/analytics', component: AnalyticsComponent },
     { path: '/patient', component: PatientComponent },
-    { path: '/other-tools', component: OtherComponent },
+    { path: '/admin-tools', component: AdminToolsComponent },
     { path: '/kinasescores', component: KinaseComponent },
     { path: '/proteinscores', component: PproteinComponent },
     { path: '/entityscores', component: EntityComponent },

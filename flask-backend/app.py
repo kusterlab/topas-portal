@@ -104,6 +104,15 @@ def index():
     return render_template("index.html")
 
 
+@app.route(ApiRoutes.FAVICON)
+def favicon():
+    return send_from_directory(
+        os.path.join(app.root_path, "static"),
+        "favicon.ico",
+        mimetype="image/vnd.microsoft.icon",
+    )
+
+
 @app.route(ApiRoutes.PASSWORD_CHECK)
 # http://localhost:3832/password/topaswp3
 def password_check(password: str):
@@ -133,15 +142,6 @@ def cohort_names():
 # http://localhost:3832/colnames
 def column_names():
     return jsonify(settings.front_end_col_names)
-
-
-@app.route(ApiRoutes.FAVICON)
-def favicon():
-    return send_from_directory(
-        os.path.join(app.root_path, "static"),
-        "favicon.ico",
-        mimetype="image/vnd.microsoft.icon",
-    )
 
 
 @cache.cached(timeout=50)
