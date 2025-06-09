@@ -12,26 +12,27 @@ from flask_cors import CORS
 from flask_caching import Cache
 from flask_compress import Compress
 
+import db
+import routing_converters
+
+from topas_portal.routes import ApiRoutes
 from topas_portal.data_api.exceptions import (
     CohortDataNotLoadedError,
     DataLayerUnavailableError,
     IntensityUnitUnavailableError,
 )
 from topas_portal.data_api.data_api import CohortDataAPI
-import db
-from routes import ApiRoutes
-import routing_converters
-import topas_portal.utils as utils
-import topas_portal.transcripts_preprocess as transcript
 
-import topas_portal.settings as settings
-import topas_portal.prexp_preprocess as pp
-import topas_portal.topas_preprocess as bp
-import topas_portal.correlations_preprocess as cp
+from topas_portal import utils
+from topas_portal import transcripts_preprocess as transcript
+from topas_portal import settings
 
-import topas_portal.fetch_data_matrix as hp
-import topas_portal.differential_expression as differential_test
-import topas_portal.genomics_preprocess as genomics_process
+from topas_portal import prexp_preprocess as pp
+from topas_portal import topas_preprocess as bp
+from topas_portal import correlations_preprocess as cp
+from topas_portal import fetch_data_matrix as hp
+from topas_portal import differential_expression as differential_test
+from topas_portal import genomics_preprocess as genomics_process
 
 
 config = {
@@ -41,8 +42,8 @@ config = {
 UPLOAD_FOLDER = "./uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
+# global variables
 error_log = []
-
 cohorts_db: CohortDataAPI = db.cohorts_db
 
 app = Flask(__name__, static_folder="../dist/static", template_folder="../dist")
@@ -68,9 +69,9 @@ def start_background_loader():
 
 
 with app.app_context():
+    from compartments.config import config_page
     from compartments.qc_app import qc_page
     from compartments.drug_app import drug_page
-
     # from compartments.drugscore_app import drugscore_page # under development
     from compartments.proteinscore_app import proteinscore_page
     from compartments.kinasescores_app import kinasescore_page
@@ -82,6 +83,7 @@ with app.app_context():
     if cohorts_db.config.do_load_data_on_startup():
         start_background_loader()
 
+app.register_blueprint(config_page)
 app.register_blueprint(qc_page)
 # app.register_blueprint(drugscore_page) # under development
 app.register_blueprint(proteinscore_page)
@@ -102,20 +104,6 @@ def index():
     return render_template("index.html")
 
 
-@app.route(ApiRoutes.CONFIG)
-# http://localhost:3832/config
-def configuration():
-    cohorts_db.config.reload_config()
-    return jsonify(cohorts_db.config.get_config())
-
-
-@app.route(ApiRoutes.CONFIG_CHECKALL)
-# http://localhost:3832/config/checkall
-def configuration_checks():
-    cohorts_db.config.reload_config()
-    return utils.check_all_config_file(cohorts_db.config.get_config())
-
-
 @app.route(ApiRoutes.PASSWORD_CHECK)
 # http://localhost:3832/password/topaswp3
 def password_check(password: str):
@@ -133,11 +121,6 @@ def password_check(password: str):
         return {"pass": "valid"}
     else:
         return {"pass": "invalid"}
-
-
-@app.route(ApiRoutes.CONFIG_PATH)
-def config_path():
-    return {"path": str(cohorts_db.config.config_path)}
 
 
 @app.route(ApiRoutes.COHORT_NAMES)
@@ -399,37 +382,6 @@ def reload_current_cohort(cohort: str):
     cohorts_db.config.reload_config()
     cohorts_db.provider.load_tables(cohorts_db.config, cohort_names=[cohort])
     return Response("Updated!")
-
-
-# http://localhost:3832/update/FP/INFORM/0
-@app.route(ApiRoutes.CONFIG_UPDATE)
-def config_updater(key: str, cohort: str, value: str):
-    """
-    Updates the configuration settings for a given key and cohort, then checks if the provided value exists as a file or directory.
-
-    Args:
-        key (str): The configuration key to update.
-        cohort (str): The cohort-specific context for the configuration update.
-        value (str): The new value to be assigned to the configuration key.
-
-    Returns:
-        Response: An HTTP response indicating whether the provided value exists as a file or directory.
-
-    Notes:
-        - Calls `cohorts_db.config.update_config_values()` to update the configuration.
-        - Uses `os.path.exists(value)` to check if the new value corresponds to an existing file or directory.
-        - Returns a Flask `Response` object with a string representation of the existence check result.
-    """
-    cohorts_db.config.update_config_values(key, cohort, value)
-    return Response(str(os.path.exists(value)))
-
-
-# http://localhost:3832/addcohort/new_cohort
-@app.route(ApiRoutes.ADD_COHORT)
-def add_cohort(cohort: str):
-    cohorts_db.config.add_new_cohort_placeholder(cohort)
-    cohorts_db.provider.load_single_cohort_with_empty_data(cohort)
-    return {"done": True}
 
 
 @app.route(ApiRoutes.PATH_CHECK)

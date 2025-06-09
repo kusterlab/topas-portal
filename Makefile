@@ -22,7 +22,7 @@ test_flask:
 	cd flask-backend && poetry run python3 app.py test
 
 export_flask_routes:
-	cd flask-backend && poetry run python3 routes.py
+	cd flask-backend && poetry run python3 topas_portal/routes.py
 
 serve: export_flask_routes
 	cd vue-frontend && npm install && npm run serve

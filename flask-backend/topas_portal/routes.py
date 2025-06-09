@@ -4,15 +4,21 @@ from enum import Enum
 
 from enum import Enum
 
+
 class ApiRoutes(str, Enum):
     INDEX = "/"
+    FAVICON = "/favicon.ico"
+
     CONFIG = "/config"
-    CONFIG_CHECKALL = "/config/checkall"
-    PASSWORD_CHECK = "/password/<string:password>"
     CONFIG_PATH = "/config/config_path"
+    CONFIG_CHECKALL = "/config/checkall"
+    ADD_COHORT = "/config/addcohort/<string:cohort>"
+    CONFIG_UPDATE = "/config/update/<string:key>/<string:cohort>/<string:value>"
+
+    PASSWORD_CHECK = "/password/<string:password>"
+
     COHORT_NAMES = "/cohort_names"
     COLUMN_NAMES = "/colnames"
-    FAVICON = "/favicon.ico"
 
     PATIENT_REPORT_TABLE = "/<int:cohort_index>/patient_reports/<string:patient>/<data_type:level>/<string:downloadmethod>"
     PATIENT_REPORT_TABLE_XLSX = "/<int:cohort_index>/patient_reports/<string:patients>"
@@ -33,35 +39,49 @@ class ApiRoutes(str, Enum):
     RELOAD_TOPAS_ANNOTATIONS = "/reload/topasannotations"
     RELOAD_COHORT = "/reload/<string:cohort>"
 
-    CONFIG_UPDATE = "/update/<string:key>/<string:cohort>/<string:value>"
-    ADD_COHORT = "/addcohort/<string:cohort>"
     PATH_CHECK = "/path/check/<path:path>"
 
     ANNOTATION_MODALITY = "/annotation/<int:cohort_index>/<string:modality>"
-    VENN_PATIENT_COMPARE = "/venn/<int:cohort_index>/patientcompare/<string:pp_fp>/<string:patientslists>"
-    VENN_BATCH_COMPARE = "/venn/<int:cohort_index>/batchcompare/<string:pp_fp>/<string:batchlists>"
+    VENN_PATIENT_COMPARE = (
+        "/venn/<int:cohort_index>/patientcompare/<string:pp_fp>/<string:patientslists>"
+    )
+    VENN_BATCH_COMPARE = (
+        "/venn/<int:cohort_index>/batchcompare/<string:pp_fp>/<string:batchlists>"
+    )
 
     UPDATE_LOG = "/update/logs"
     ERROR_LOG = "/error/logs"
 
-    PATIENT_CENTRIC_PP_INTENSITY = "/patientcentric/ppintensity/<int:cohort_index>/<string:dtype>"
-    PATIENT_CENTRIC_PROTEIN_COUNTS = "/patientcenteric/proteincounts/<int:cohort_index>/<string:fp_pp>"
+    PATIENT_CENTRIC_PP_INTENSITY = (
+        "/patientcentric/ppintensity/<int:cohort_index>/<string:dtype>"
+    )
+    PATIENT_CENTRIC_PROTEIN_COUNTS = (
+        "/patientcenteric/proteincounts/<int:cohort_index>/<string:fp_pp>"
+    )
 
     TOPAS = "/topas/<int:cohort_index>/<string:topas_names>/<string:score_type>"
     TOPAS_ANNOTATIONS = "/topas/annotations"
     TOPAS_LOLLIPOP = "/topas/lolipopdata/<int:cohort_index>/<string:patient>"
-    TOPAS_LOLLIPOP_TUMOR = "/topas/lolipopdata/<int:cohort_index>/<string:patient>/tumor_antigen"
+    TOPAS_LOLLIPOP_TUMOR = (
+        "/topas/lolipopdata/<int:cohort_index>/<string:patient>/tumor_antigen"
+    )
     TOPAS_EXPRESSION_DOWNSTREAM = "/topas/lolipopdata/expression/<int:cohort_index>/<string:patient>/downstream_signaling"
-    TOPAS_EXPRESSION_RTK = "/topas/lolipopdata/expression/<int:cohort_index>/<string:patient>/rtk"
+    TOPAS_EXPRESSION_RTK = (
+        "/topas/lolipopdata/expression/<int:cohort_index>/<string:patient>/rtk"
+    )
     TOPAS_IDS = "/topas/<int:cohort_index>/topasids/<string:categories>"
     TOPAS_SUBSCORE = "/topas/subscore/<int:cohort_index>/<string:topasname>"
 
     SAMPLE_ANNOTATION = "/<int:cohort_index>/sampleanot"
     PATIENTS = "/<int:cohort_index>/patients"
-    PATIENTS_GENOMICS_ANNOTATIONS = "/<int:cohort_index>/patients/genomics_annotations/<string:identifier>"
+    PATIENTS_GENOMICS_ANNOTATIONS = (
+        "/<int:cohort_index>/patients/genomics_annotations/<string:identifier>"
+    )
     PATIENTS_METADATA = "/<int:cohort_index>/metadata"
     PATIENTS_METADATA_FIELDS = "/<int:cohort_index>/metadata/fields"
-    PATIENTS_METADATA_FIELD_VALUES = "/<int:cohort_index>/metadata/fields/<string:fieldname>"
+    PATIENTS_METADATA_FIELD_VALUES = (
+        "/<int:cohort_index>/metadata/fields/<string:fieldname>"
+    )
     PATIENTS_BY_FIELD_INTEREST = "/<int:cohort_index>/metadata/fields/<string:fieldname>/patients/<string:field_interest>"
     PATIENTS_ALL_ENTITIES = "/patients/<int:cohort_index>/all_entities"
 
@@ -80,7 +100,6 @@ class ApiRoutes(str, Enum):
     DIFFERENTIAL = "/differential/<int:cohort_index>/<data_type:level>/<string:grp1_ind>/<string:grp2_ind>/<string:y_axis_type>"
 
     PROTEIN_LIST = "/<int:cohort_index>/<string:level>/list"
-
 
 
 def strip_types(flask_route: str):
