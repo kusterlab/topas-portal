@@ -25,14 +25,14 @@
 
 <script>
 import PatientreportComponent from './PatientReportComponent.vue'
-import overviewComponent from './OverviewComponent.vue'
+import OverviewComponent from './OverviewComponent.vue'
 
 const d3 = require('d3')
 export default {
   name: 'VisualizationComponent',
   components: {
     PatientreportComponent,
-    overviewComponent
+    OverviewComponent
   },
   props: {
     minWidth: {

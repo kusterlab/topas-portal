@@ -115,6 +115,10 @@ import proteinscoreTable from '@/components/tables/ProteinscoreTable.vue'
 import SwarmPlot from '@/components/plots/SwarmPlot'
 import ProteinSelect from '@/components/partials/ProteinSelect'
 import explorerComponent from './partials/scoresComponent.vue'
+
+import { DataType, IncludeRef } from '@/constants'
+import { api } from '@/routes.ts'
+
 export default {
   name: 'ProteinscoreComponent',
   components: {
@@ -190,7 +194,7 @@ export default {
       this.loading = true
       this.patientidentifier = ''
       this.plotData = []
-      const query = `${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/phospho_score/abundance/${key}/noimpute`
+      const query = api.ABUNDANCE({ cohort_index: this.cohortIndex, level: DataType.PHOSPHO_SCORE, identifier: key, imputation: 'noimpute', include_ref: IncludeRef.EXCLUDE_REF })
       this.url = query
       const response = await axios.get(query)
       this.swarmShow = true

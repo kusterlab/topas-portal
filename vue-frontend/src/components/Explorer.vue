@@ -62,7 +62,7 @@ export default {
     imagesrc: require('@/assets/topas_logo.png'),
     items: [
       { label: 'Home', path: '/', icon: 'mdi-home' },
-      { label: 'Abundance', path: '/expression', icon: 'mdi-dna', useSvg: true },
+      { label: 'Abundance', path: '/abundance', icon: 'mdi-dna', useSvg: true },
       { label: 'Scores', path: '/topasscores', icon: 'mdi-periodic-table' },
       { label: 'Analytics', path: '/analytics', icon: 'mdi-chart-line' },
       { label: 'Patient', path: '/patient', icon: 'mdi-chart-bar' },

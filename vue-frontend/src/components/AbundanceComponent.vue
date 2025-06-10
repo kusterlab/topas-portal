@@ -260,7 +260,7 @@ import { DataType, IncludeRef } from '@/constants'
 import { api } from '@/routes.ts'
 
 export default {
-  name: 'GeneComponent',
+  name: 'AbundanceComponent',
   components: {
     expressionTable,
     histogram,
@@ -397,7 +397,7 @@ export default {
     },
     async fetchOncoKB (gene, alterationType) {
       try {
-        const query = `${process.env.VUE_APP_API_HOST}/oncokb/api/cnv/${gene}/${alterationType}`
+        const query = api.ONCOKB_CNV({ identifier: gene, cnv_type: alterationType })
         const response = await axios.get(query)
         const effect = response.data?.mutationEffect?.description
 

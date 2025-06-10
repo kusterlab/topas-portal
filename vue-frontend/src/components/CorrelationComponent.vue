@@ -241,7 +241,9 @@ import scatterPlot from '@/components/plots/ScatterPlot'
 import topasSelect from '@/components/partials/TopasSelect'
 import ProteinSelect from '@/components/partials/ProteinSelect'
 import densityPlot from '@/components/plots/BarhistPlot'
-import { DataType } from '@/constants'
+
+import { DataType, IncludeRef } from '@/constants'
+import { api } from '@/routes.ts'
 
 export default {
   name: 'CorrelationComponent',
@@ -421,7 +423,7 @@ export default {
         url = `${process.env.VUE_APP_API_HOST}/topas/${this.cohortIndex}/${key}/${this.topasType}`
       } else {
         const imputeString = this.doImpute ? 'impute' : 'noimpute'
-        url = `${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/${modality}/abundance/${key}/${imputeString}`
+        url = api.ABUNDANCE({ cohort_index: this.cohortIndex, level: modality, identifier: key, imputation: imputeString, include_ref: IncludeRef.EXCLUDE_REF })
       }
       const response = await axios.get(url)
       if (response.data && response.data.length > 0) {

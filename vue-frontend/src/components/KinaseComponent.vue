@@ -111,6 +111,8 @@ import kinasescoreTable from '@/components/tables/KinasescoreTable.vue'
 import SwarmPlot from '@/components/plots/SwarmPlot'
 import ProteinSelect from '@/components/partials/ProteinSelect'
 import explorerComponent from './partials/scoresComponent.vue'
+import { DataType, IncludeRef } from '@/constants'
+import { api } from '@/routes.ts'
 
 export default {
   name: 'KinaseComponent',
@@ -149,7 +151,7 @@ export default {
       this.selectedData = selectedData
     },
     async react () {
-      const query = `${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/kinase/abundance/${this.activeKinases}/noimpute`
+      const query = api.ABUNDANCE({ cohort_index: this.cohortIndex, level: DataType.KINASE_SCORE, identifier: this.activeKinases, imputation: 'noimpute', include_ref: IncludeRef.EXCLUDE_REF })
       this.url = query
       const singleSwarm = await axios.get(query)
       this.swarmShow = true

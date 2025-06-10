@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import OverviewComponent from '@/components/LandingPage.vue'
-import GeneExpression from '@/components/GeneExpressionComponent.vue'
+import LandingPage from '@/components/LandingPage.vue'
+import AbundanceComponent from '@/components/AbundanceComponent.vue'
 import AnalyticsComponent from '@/components/AnalyticsComponent.vue'
 import PatientComponent from '@/components/PatientComponent.vue'
 import AdminToolsComponent from '@/components/AdminToolsComponent.vue'
@@ -19,8 +19,8 @@ export default new Router({
     ? '/master_topas-portal/'
     : '/',
   routes: [
-    { path: '/', component: OverviewComponent },
-    { path: '/expression', component: GeneExpression },
+    { path: '/', component: LandingPage },
+    { path: '/abundance', component: AbundanceComponent },
     { path: '/topasscores', component: TopasComponent },
     { path: '/analytics', component: AnalyticsComponent },
     { path: '/patient', component: PatientComponent },
