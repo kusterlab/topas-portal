@@ -1,17 +1,17 @@
-import topas_portal.settings as cn
-import topas_portal.utils as ef
 from app import app  # Flask instance of the API
 
 import json
 import os
 import pandas as pd
 
-from routes import ApiRoutes
+from topas_portal import settings
+from topas_portal import utils
+from topas_portal.routes import ApiRoutes
 
 
 def test_portal_main_config_exist():
 
-    assert os.path.exists(cn.PORTAL_CONFIG_FILE)
+    assert os.path.exists(settings.PORTAL_CONFIG_FILE)
 
 
 def _config_cheker(path_to_check: str, type_to_check="dictionary"):
@@ -60,7 +60,7 @@ def test_cohort_names():
 
 
 def _check_colnames_between_config_and_setting(
-    key=cn.PATIENTS_META_DATA, file_to_check="patient_annotation_path"
+    key=settings.PATIENTS_META_DATA, file_to_check="patient_annotation_path"
 ):
     """check to see all columns refering to patients meta data are in the files of the related cohorts"""
     response = app.test_client().get(ApiRoutes.CONFIG)
@@ -68,13 +68,13 @@ def _check_colnames_between_config_and_setting(
     for k in config_file_path_keys.keys():
         meta_data_file = pd.read_excel(config_file_path_keys[k])
         col_names = meta_data_file.columns.to_list()
-        print(ef.setdiff(key, col_names))
+        print(utils.setdiff(key, col_names))
         assert set(key).issubset(col_names)
 
 
 def test_check_patients_meta_data():
     _check_colnames_between_config_and_setting(
-        key=cn.PATIENTS_META_DATA, file_to_check="patient_annotation_path"
+        key=settings.PATIENTS_META_DATA, file_to_check="patient_annotation_path"
     )
 
 

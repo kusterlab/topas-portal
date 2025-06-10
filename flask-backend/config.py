@@ -1,7 +1,7 @@
 import json
 
-import topas_portal.settings as cn
-import topas_portal.utils as utils
+from topas_portal import settings
+from topas_portal import utils
 
 # imports just for type hints
 from logger import CohortLogger
@@ -100,6 +100,6 @@ class CohortConfig:
 
 
 def get_config_path():
-    config_path = cn.PORTAL_CONFIG_FILE
+    config_path = settings.PORTAL_CONFIG_FILE
     print(f"path to the config_file: {config_path}")
     return config_path

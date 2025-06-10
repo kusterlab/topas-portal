@@ -3,8 +3,8 @@ import re
 import pandas as pd
 from pathlib import Path
 
-import topas_portal.settings as cn
-import topas_portal.utils as ef
+from topas_portal import settings
+from topas_portal import utils
 
 
 def load_expression_data(report_directory: Path, key_col: str, modality: str):
@@ -54,14 +54,14 @@ def load_expression_data(report_directory: Path, key_col: str, modality: str):
                 lambda pat: f"p{pat.group(1)}",
                 regex=True,
             )
-        df_patient_expressions = ef.remove_patient_prefix(df_patient_expressions)
+        df_patient_expressions = utils.remove_patient_prefix(df_patient_expressions)
         print("Expression data loaded")
         return df_patient_expressions
     else:
         pass
 
 
-@ef.check_path_exist
+@utils.check_path_exist
 def load_annotated_intensity_file(
     annotated_intensity_file: os.PathLike,
     index_col: str,
@@ -72,7 +72,7 @@ def load_annotated_intensity_file(
         annotated_intensity_file, low_memory=False, index_col=index_col
     )
 
-    patient_list_prefixed = ef.add_patient_prefix(patients_list)
+    patient_list_prefixed = utils.add_patient_prefix(patients_list)
     intensity_df = annot_df.loc[
         :,
         (
@@ -80,9 +80,9 @@ def load_annotated_intensity_file(
             | annot_df.columns.str.startswith("ref_")
         ),
     ]
-    intensity_df = ef.remove_patient_prefix(intensity_df)
+    intensity_df = utils.remove_patient_prefix(intensity_df)
 
-    suffix = ef.INTENSITY_UNIT_SUFFIXES[ef.IntensityUnit.INTENSITY]
+    suffix = utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.INTENSITY]
     intensity_df = intensity_df.add_suffix(suffix)
 
     if extra_columns:
@@ -93,8 +93,8 @@ def load_annotated_intensity_file(
     return intensity_df
 
 
-@ef.check_path_exist
-def load_intensity_meta_data(instensitypath, key, regex=cn.REGEX_META):
+@utils.check_path_exist
+def load_intensity_meta_data(instensitypath, key, regex=settings.REGEX_META):
     cols = (
         pd.read_csv(instensitypath, low_memory=False, nrows=10)
         .filter(regex=regex)
@@ -106,7 +106,7 @@ def load_intensity_meta_data(instensitypath, key, regex=cn.REGEX_META):
     intensity_df.index = intensity_df[key]
     intensity_df = intensity_df.loc[:, ~intensity_df.columns.duplicated()]
     intensity_df = _post_process_meta_intensities(intensity_df)
-    intensity_df = ef.remove_patient_prefix(intensity_df)
+    intensity_df = utils.remove_patient_prefix(intensity_df)
     return intensity_df
 
 
@@ -120,12 +120,12 @@ def _post_process_meta_intensities(intensity_meta: pd.DataFrame) -> pd.DataFrame
 
 
 def load_modified_seq_protein_name_mapping(dir_path: Path):
-    filter_cols = cn.PEPTIDE_PROTEIN_MAPPING_COLS.values()
+    filter_cols = settings.PEPTIDE_PROTEIN_MAPPING_COLS.values()
     df_peptided_protein_df = pd.read_csv(
-        dir_path / cn.PHOSPHO_MEASURES, usecols=filter_cols, sep="\t", low_memory=False
+        dir_path / settings.PHOSPHO_MEASURES, usecols=filter_cols, sep="\t", low_memory=False
     )
     df_peptided_protein_df.index = df_peptided_protein_df[
-        cn.PEPTIDE_PROTEIN_MAPPING_COLS["peptide"]
+        settings.PEPTIDE_PROTEIN_MAPPING_COLS["peptide"]
     ]
 
     df_peptided_protein_df.index = df_peptided_protein_df.index.str.replace(

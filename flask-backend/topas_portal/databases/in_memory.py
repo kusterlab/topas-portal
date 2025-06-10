@@ -16,8 +16,8 @@ from topas_portal.data_api.exceptions import (
     CohortDataNotLoadedError,
     DataLayerUnavailableError,
 )
-import topas_portal.settings as cn
-import topas_portal.utils as utils
+from topas_portal import settings
+from topas_portal import utils
 import topas_portal.file_loaders.topas as topas_loader
 import topas_portal.file_loaders.transcriptomics as tp
 import topas_portal.file_loaders.genomics as genomics_preprocess
@@ -184,11 +184,11 @@ def _load_all_tables(cohort, config: Dict, do_return_place_holder: bool = False)
         cohort_report_dir = config["report_directory"][cohort]
         print(f"report dir #########{cohort_report_dir}")
         topas_df = topas_loader.load_topas_scores_df(
-            Path(os.path.join(cohort_report_dir, cn.TOPAS_SCORES_FILE))
+            Path(os.path.join(cohort_report_dir, settings.TOPAS_SCORES_FILE))
         )
         if isinstance(topas_df, pd.DataFrame):
             topas_df_z_scored = topas_loader.load_topas_scores_df(
-                Path(os.path.join(cohort_report_dir, cn.TOPAS_Z_SCORES_FILE))
+                Path(os.path.join(cohort_report_dir, settings.TOPAS_Z_SCORES_FILE))
             )
             topas_df = topas_df.join(
                 topas_df_z_scored,
@@ -207,15 +207,15 @@ def _load_all_tables(cohort, config: Dict, do_return_place_holder: bool = False)
         if config["FP"][cohort] == 1:
             print("Reading the data at the FP level")
             fp_intensity_meta = expression_loader.load_intensity_meta_data(
-                Path(os.path.join(cohort_report_dir, cn.PREPROCESSED_FP_INTENSITY)),
-                cn.FP_KEY,
+                Path(os.path.join(cohort_report_dir, settings.PREPROCESSED_FP_INTENSITY)),
+                settings.FP_KEY,
             )
             fp_intensity = expression_loader.load_annotated_intensity_file(
-                Path(os.path.join(cohort_report_dir, cn.PREPROCESSED_FP_INTENSITY)),
-                cn.FP_KEY, patients_list
+                Path(os.path.join(cohort_report_dir, settings.PREPROCESSED_FP_INTENSITY)),
+                settings.FP_KEY, patients_list
             )
             fp_df_patients = expression_loader.load_expression_data(
-                Path(cohort_report_dir), cn.FP_KEY, "full_proteome"
+                Path(cohort_report_dir), settings.FP_KEY, "full_proteome"
             )
             fp_df_patients = fp_df_patients.join(fp_intensity, how="right")
 
@@ -223,20 +223,20 @@ def _load_all_tables(cohort, config: Dict, do_return_place_holder: bool = False)
         if config["PP"][cohort] == 1:
             print("Reading the data at at the PP level")
             pp_intensity = expression_loader.load_annotated_intensity_file(
-                Path(os.path.join(cohort_report_dir, cn.PREPROCESSED_PP_INTENSITY)),
-                cn.PP_KEY, patients_list,
-                extra_columns=cn.PP_EXTRA_COLUMNS,
+                Path(os.path.join(cohort_report_dir, settings.PREPROCESSED_PP_INTENSITY)),
+                settings.PP_KEY, patients_list,
+                extra_columns=settings.PP_EXTRA_COLUMNS,
             )
             pp_df_patients = expression_loader.load_expression_data(
-                Path(cohort_report_dir), cn.PP_KEY, "phospho"
+                Path(cohort_report_dir), settings.PP_KEY, "phospho"
             )
             pp_df_patients = pp_df_patients.join(pp_intensity, how="right")
 
             kinase_score_df = kinase_loader.load_kinase_scores_df(
-                Path(cohort_report_dir) / Path(cn.KINASE_SCORES_FILE)
+                Path(cohort_report_dir) / Path(settings.KINASE_SCORES_FILE)
             )
             phospho_score_df = phospho_score_loader.load_phosphorylation_scores(
-                Path(os.path.join(cohort_report_dir, cn.PHOSPHORYLATION_SCORES)),
+                Path(os.path.join(cohort_report_dir, settings.PHOSPHORYLATION_SCORES)),
                 add_suffix=True,
             )
 

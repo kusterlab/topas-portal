@@ -6,8 +6,8 @@ from typing import TYPE_CHECKING
 import pandas as pd
 
 import topas_portal.genomics_preprocess as gp
-import topas_portal.settings as cn
-import topas_portal.utils as utils
+from topas_portal import settings
+from topas_portal import utils
 import topas_portal.topas_scores_meta as topas
 import topas_portal.IFN_topas_scoring as topas_scoring
 import topas_portal.file_loaders.topas as topas_loader
@@ -165,7 +165,7 @@ def get_topas_data(
         cohorts_db.get_sample_annotation_df(cohort_index),
         cohorts_db.get_patient_metadata_df(cohort_index),
     )
-    selected_columns = utils.intersection(cn.TOPAS_META_DATA, topas_subset_df.columns)
+    selected_columns = utils.intersection(settings.TOPAS_META_DATA, topas_subset_df.columns)
     topas_subset_df = topas_subset_df[selected_columns]
     topas_subset_df = gp._merge_data_with_genomics_alterations(
         cohorts_db,

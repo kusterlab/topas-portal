@@ -6,13 +6,13 @@ import pandas as pd
 
 import topas_portal.data_api.in_memory as in_memory
 import topas_portal.file_loaders.expression as expression_loader
-import topas_portal.settings as cn
-import topas_portal.utils as utils
+from topas_portal import settings
+from topas_portal import utils
 from topas_portal.databases.sql import SQLProvider
 from config import CohortConfig
 from logger import CohortLogger
 
-if cn.DATABASE_MODE:
+if settings.DATABASE_MODE:
     import models
 
 
@@ -33,7 +33,7 @@ class SQLCohortDataAPI:
     # based on the queries for each cohort
     def get_patients_entities_df(self, cohort_index: str) -> pd.DataFrame:
         patients_df = self.get_patient_metadata_df(cohort_index)
-        df = pd.DataFrame(patients_df[cn.ENTITY_COLUMN].unique(), columns=["Entity"])
+        df = pd.DataFrame(patients_df[settings.ENTITY_COLUMN].unique(), columns=["Entity"])
         df["Entity"] = df["Entity"].str.replace(r"[ ,;]", "_", regex=True)
         return df
 
@@ -120,8 +120,8 @@ class SQLCohortDataAPI:
                 sample_annotations_df = self.get_sample_annotation_df(cohort_index)
                 patient_list = sample_annotations_df['Sample name'].unique().tolist()
                 return expression_loader.load_annotated_intensity_file(
-                    Path(os.path.join(cohort_report_dir, cn.PREPROCESSED_FP_INTENSITY)),
-                    cn.FP_KEY, patient_list
+                    Path(os.path.join(cohort_report_dir, settings.PREPROCESSED_FP_INTENSITY)),
+                    settings.FP_KEY, patient_list
                 )
         elif intensity_unit == utils.IntensityUnit.Z_SCORE:
             if identifier:
@@ -137,7 +137,7 @@ class SQLCohortDataAPI:
             else:
                 cohort_report_dir = self.config.get_report_directory(cohort_index)
                 return expression_loader.load_expression_data(
-                    Path(cohort_report_dir), cn.FP_KEY, "full_proteome"
+                    Path(cohort_report_dir), settings.FP_KEY, "full_proteome"
                 )
 
     def get_psite_abundance_df(
@@ -163,8 +163,8 @@ class SQLCohortDataAPI:
                 sample_annotations_df = self.get_sample_annotation_df(cohort_index)
                 patient_list = sample_annotations_df['Sample name'].unique().tolist()
                 return expression_loader.load_annotated_intensity_file(
-                    Path(os.path.join(cohort_report_dir, cn.PREPROCESSED_PP_INTENSITY)),
-                    cn.PP_KEY,patient_list
+                    Path(os.path.join(cohort_report_dir, settings.PREPROCESSED_PP_INTENSITY)),
+                    settings.PP_KEY,patient_list
                 )
         elif intensity_unit == utils.IntensityUnit.Z_SCORE:
             if identifier:
@@ -180,7 +180,7 @@ class SQLCohortDataAPI:
             else:
                 cohort_report_dir = self.config.get_report_directory(cohort_index)
                 return expression_loader.load_expression_data(
-                    Path(cohort_report_dir), cn.PP_KEY, "phospho"
+                    Path(cohort_report_dir), settings.PP_KEY, "phospho"
                 )
 
     def _get_protein_peptide_mapping_df(self, cohort_index: str) -> pd.DataFrame:
@@ -188,7 +188,7 @@ class SQLCohortDataAPI:
         query = f"""SELECT gene_name,peptide,Proteins FROM modsequencetoprotein WHERE cohort_id={cohort_index} """
         df = self._convert_query_to_df(models.Modsequencetoprotein.raw(query))
         df.index = df["peptide"]
-        df.columns = cn.PEPTIDE_PROTEIN_MAPPING_COLS.values()
+        df.columns = settings.PEPTIDE_PROTEIN_MAPPING_COLS.values()
         return df
 
     def _general_topas_query_obtainer(self, cohort_index, table_name, table_class):

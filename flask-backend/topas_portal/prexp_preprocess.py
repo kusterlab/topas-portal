@@ -3,11 +3,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pandas as pd
-import numpy as np
 
-import topas_portal.utils as ef
+from topas_portal import utils
+from topas_portal import settings
+from topas_portal import fetch_data_matrix as data
 import topas_portal.genomics_preprocess as genomics_prep
-import topas_portal.settings as cn
 import topas_portal.psite_annotation as ps
 import topas_portal.topas_preprocess as topas_loader
 
@@ -61,7 +61,7 @@ def _get_protein_list_per_batch(batchNo, sample_annotation, df_intensity):
                 sample_annotation["Batch_No"].astype(str) == str(batchNo)
             ]
         )
-        list_patients_batch = ef.intersection(list_patients_batch, df_intensity.columns)
+        list_patients_batch = utils.intersection(list_patients_batch, df_intensity.columns)
         if len(list_patients_batch) == 0:
             return pd.DataFrame(columns=["sample", "group"])  # return an empty df
         else:
@@ -98,7 +98,7 @@ def merge_data_with_num_pep(
 
 
 def get_expression_data_per_analyte(
-    abundances, patients_df, sample_annotation_df, imputation_mode: ef.ImputationMode,
+    abundances, patients_df, sample_annotation_df, imputation_mode: utils.ImputationMode,
 ):
     """
     abundances: dataframe with abundances for a single gene/p-site across all patients
@@ -106,13 +106,13 @@ def get_expression_data_per_analyte(
     abundances_table = get_expression_data_from_abundance_df(abundances)
     abundances_table = add_is_replicate_column(abundances_table)
     abundances_table = add_occurence_rank(abundances_table)
-    abundances_table = ef.merge_with_sample_annotation_df(
+    abundances_table = utils.merge_with_sample_annotation_df(
         abundances_table, sample_annotation_df
     )
-    abundances_table = ef.merge_with_patients_meta_df(abundances_table, patients_df)
+    abundances_table = utils.merge_with_patients_meta_df(abundances_table, patients_df)
     abundances_table = min_impute_handler(abundances_table, imputation_mode)
-    abundances_table = ef.fill_nans_patient_columns(abundances_table)
-    abundances_table = ef.post_process_for_front_end(abundances_table)
+    abundances_table = utils.fill_nans_patient_columns(abundances_table)
+    abundances_table = utils.post_process_for_front_end(abundances_table)
     return abundances_table
 
 
@@ -196,13 +196,13 @@ def add_occurence_rank(df: pd.DataFrame):
         return df
 
 
-def min_impute_handler(df: pd.DataFrame, imputation_mode: ef.ImputationMode):
+def min_impute_handler(df: pd.DataFrame, imputation_mode: utils.ImputationMode):
     for col in ["Z-score", "Intensity"]:
         if col in df.columns.tolist():
-            if imputation_mode == ef.ImputationMode.IMPUTE:
+            if imputation_mode == utils.ImputationMode.IMPUTE:
                 min_value = df[col].min()
                 df[col] = df[col].fillna(min_value)
-            elif imputation_mode == ef.ImputationMode.NO_IMPUTE:
+            elif imputation_mode == utils.ImputationMode.NO_IMPUTE:
                 df[col] = df[col].fillna("n.d.")
             else:
                 raise ValueError(f"Unknown imputation mode {imputation_mode.value}")
@@ -213,24 +213,24 @@ def get_density_calc_protein(
     cohorts_db: data_api.CohortDataAPI,
     cohort_index,
     identifier,
-    intensity_unit: ef.IntensityUnit,
+    intensity_unit: utils.IntensityUnit,
 ):
     samples_annotation_df = cohorts_db.get_sample_annotation_df(cohort_index)
     samples_list = samples_annotation_df['Sample name'].unique().tolist()
     temp_df = cohorts_db.get_protein_abundance_df(
         cohort_index, intensity_unit=intensity_unit
     )
-    count_df_protein = ef.count_df_to_density_plot_df(temp_df, identifier,samples_list)
-    return ef.df_to_json(count_df_protein)
+    count_df_protein = utils.count_df_to_density_plot_df(temp_df, identifier,samples_list)
+    return utils.df_to_json(count_df_protein)
 
 
 def get_abundance(
     cohorts_db: data_api.CohortDataAPI,
     cohort_index: int,
-    level: ef.DataType,
+    level: utils.DataType,
     identifier: str,
-    imputation_mode: ef.ImputationMode,
-    include_ref: ef.IncludeRef = ef.IncludeRef.EXCLUDE_REF,
+    imputation_mode: utils.ImputationMode,
+    include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
 ):
     """_summary_
 
@@ -247,21 +247,21 @@ def get_abundance(
     Returns:
         _type_: _description_
     """
-    if level == ef.DataType.FULL_PROTEOME:
+    if level == utils.DataType.FULL_PROTEOME:
         abundances = cohorts_db.get_protein_abundance_df(
             cohort_index, identifier=identifier, include_ref=include_ref
         )
-    elif level == ef.DataType.PHOSPHO_PROTEOME:
+    elif level == utils.DataType.PHOSPHO_PROTEOME:
         abundances = cohorts_db.get_psite_abundance_df(
             cohort_index, identifier=identifier, include_ref=include_ref
         )
-    elif level == ef.DataType.TRANSCRIPTOMICS:
+    elif level == utils.DataType.TRANSCRIPTOMICS:
         abundances = cohorts_db.get_fpkm_df(identifier=identifier)
-    elif level == ef.DataType.KINASE_SCORE:
+    elif level == utils.DataType.KINASE_SCORE:
         abundances = cohorts_db.get_kinase_scores_df(
             cohort_index, identifier=identifier
         )
-    elif level == ef.DataType.PHOSPHO_SCORE:
+    elif level == utils.DataType.PHOSPHO_SCORE:
         abundances = cohorts_db.get_phosphorylation_scores_df(
             cohort_index, identifier=identifier
         )
@@ -281,18 +281,18 @@ def get_abundance(
     )
 
     # adding confidence score at FP level
-    if level == ef.DataType.FULL_PROTEOME:
+    if level == utils.DataType.FULL_PROTEOME:
         intensity_df_fp_meta = cohorts_db.get_num_pep_fp(cohort_index, identifier)
         abundances_table = merge_data_with_num_pep(
-            abundances_table, intensity_df_fp_meta, identifier, cn.REGEX_META
+            abundances_table, intensity_df_fp_meta, identifier, settings.REGEX_META
         )
-        abundances_table = ef.calculate_confidence_score(abundances_table)
+        abundances_table = utils.calculate_confidence_score(abundances_table)
 
     if level in [
-        ef.DataType.FULL_PROTEOME,
-        ef.DataType.TRANSCRIPTOMICS,
-        ef.DataType.KINASE_SCORE,
-        ef.DataType.PHOSPHO_SCORE,
+        utils.DataType.FULL_PROTEOME,
+        utils.DataType.TRANSCRIPTOMICS,
+        utils.DataType.KINASE_SCORE,
+        utils.DataType.PHOSPHO_SCORE,
     ]:
         # adding fusion cnv and snv data
         abundances_table = genomics_prep._merge_data_with_genomics_alterations(
@@ -310,26 +310,26 @@ def get_abundance(
 
     # filtering the columns with the settings options
     abundances_table = abundances_table[
-        ef.intersection(cn.EXPRESSION_TAB_DATA, abundances_table.columns.tolist())
+        utils.intersection(settings.EXPRESSION_TAB_DATA, abundances_table.columns.tolist())
     ]
     abundances_table["index"] = abundances_table.index
-    return ef.df_to_json(abundances_table)
+    return utils.df_to_json(abundances_table)
 
 
 def get_batches_proteins_as_json(
     cohorts_db: data_api.CohortDataAPI, cohort_index, pp_fp, batchlists
 ):
     sample_annotation = cohorts_db.get_sample_annotation_df(cohort_index)
-    if pp_fp == ef.DataType.FP:
+    if pp_fp == utils.DataType.FP:
         df = cohorts_db.get_protein_abundance_df(
-            cohort_index, intensity_unit=ef.IntensityUnit.INTENSITY
+            cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
         )
     else:
         df = cohorts_db.get_psite_abundance_df(
-            cohort_index, intensity_unit=ef.IntensityUnit.INTENSITY
+            cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
         )
     samples_list = sample_annotation['Sample name'].unique().tolist()
-    sample_names = ef.intersection(samples_list,df.columns)
+    sample_names = utils.intersection(samples_list,df.columns)
     df = df[sample_names]
     list_batches = batchlists.split(";")
     df_list = []
@@ -337,25 +337,25 @@ def get_batches_proteins_as_json(
         df_list.append(_get_protein_list_per_batch(batch, sample_annotation, df))
 
     venn_df = pd.concat(df_list)
-    return ef.df_to_json(venn_df)
+    return utils.df_to_json(venn_df)
 
 
 def get_patients_proteins_as_json(
     cohorts_db: data_api.CohortDataAPI, cohort_index, pp_fp, patientslists
 ):
     # TODO: replace with utils.DataType
-    if pp_fp == ef.DataType.FP:
+    if pp_fp == utils.DataType.FP:
         df = cohorts_db.get_protein_abundance_df(
-            cohort_index, intensity_unit=ef.IntensityUnit.INTENSITY
+            cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
         )
     else:
         df = cohorts_db.get_psite_abundance_df(
-            cohort_index, intensity_unit=ef.IntensityUnit.INTENSITY
+            cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
         )
 
     sample_annotation = cohorts_db.get_sample_annotation_df(cohort_index)
     samples_list = sample_annotation['Sample name'].unique().tolist()
-    sample_names = ef.intersection(samples_list,df.columns)
+    sample_names = utils.intersection(samples_list,df.columns)
     df = df[sample_names]
     list_patients = patientslists.split(";")
     df_list = []
@@ -363,7 +363,7 @@ def get_patients_proteins_as_json(
         df_list.append(get_protein_list_per_patient(patient, df))
 
     venn_df = pd.concat(df_list)
-    return ef.df_to_json(venn_df)
+    return utils.df_to_json(venn_df)
 
 
 def get_list_by_selected_modality_per_cohort(
@@ -380,7 +380,7 @@ def get_list_by_selected_modality_per_cohort(
     df = pd.DataFrame(result)
     df = df.dropna()
     df.columns = ["result"]
-    return ef.df_to_json(df)
+    return utils.df_to_json(df)
 
 
 def identifications_across_all_patients(
@@ -389,12 +389,12 @@ def identifications_across_all_patients(
     # TODO: replace with utils.DataType
     if fp_pp == "fp":
         df = cohorts_db.get_protein_abundance_df(
-            cohort_index, intensity_unit=ef.IntensityUnit.INTENSITY
+            cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
         )
         nan_count = pd.DataFrame(df.notna().sum())
     elif fp_pp == "pp":
         df = cohorts_db.get_psite_abundance_df(
-            cohort_index, intensity_unit=ef.IntensityUnit.INTENSITY
+            cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
         )
         nan_count = pd.DataFrame(df.notna().sum())
     else:
@@ -414,11 +414,11 @@ def sum_intensities_across_all_patients(
     """
     if dtype == 'pp':
         df = cohorts_db.get_psite_abundance_df(
-        cohort_index, intensity_unit=ef.IntensityUnit.INTENSITY
+        cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
     )
     else:
         df = cohorts_db.get_protein_abundance_df(
-        cohort_index, intensity_unit=ef.IntensityUnit.INTENSITY
+        cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
     )
 
     print(df)
@@ -432,7 +432,7 @@ def get_reports_per_patient(
     cohorts_db: data_api.CohortDataAPI,
     cohort_index: int,
     patient: str,
-    level: ef.DataType,
+    level: utils.DataType,
     download_method: str = "onfly",
 ):
     read_from_the_report_dir = download_method == "fromreport"
@@ -450,7 +450,7 @@ def get_reports_per_patient(
 
 def _get_reports_per_patient_from_the_reports_folder(
     cohorts_db: data_api.CohortDataAPI,
-    level: ef.DataType,
+    level: utils.DataType,
     cohort_index: int,
     patient: str,
 ):
@@ -464,20 +464,20 @@ def _get_reports_per_patient_from_the_reports_folder(
     return df
 
 
-def _get_sheetname_from_level(level: ef.DataType):
-    if level == ef.DataType.PHOSPHO_PROTEOME:
+def _get_sheetname_from_level(level: utils.DataType):
+    if level == utils.DataType.PHOSPHO_PROTEOME:
         return "Phospho proteome"
-    elif level == ef.DataType.FULL_PROTEOME:
+    elif level == utils.DataType.FULL_PROTEOME:
         return "Global proteome"
-    elif level == ef.DataType.TOPAS_SCORE:
+    elif level == utils.DataType.TOPAS_SCORE:
         return "Topas"
-    elif level == ef.DataType.PHOSPHO_SCORE:
+    elif level == utils.DataType.PHOSPHO_SCORE:
         return "Protein phosphorylation"
-    elif level == ef.DataType.KINASE_SCORE:
+    elif level == utils.DataType.KINASE_SCORE:
         return "Kinase"
-    elif level == ef.DataType.TOPAS_SUBSCORE:
+    elif level == utils.DataType.TOPAS_SUBSCORE:
         return "sutopas"
-    elif level == ef.DataType.BIOMARKER:
+    elif level == utils.DataType.BIOMARKER:
         return "Biomarkers"
 
 
@@ -485,7 +485,7 @@ def _get_reports_per_patient_on_the_fly(
     cohorts_db: data_api.CohortDataAPI, level, cohort_index, patient
 ):
     final_df = pd.DataFrame()
-    if level == ef.DataType.PHOSPHO_PROTEOME:
+    if level == utils.DataType.PHOSPHO_PROTEOME:
         patient_column = patient + " Z-score"
         sub_df = cohorts_db.get_psite_abundance_df(
             cohort_index, patient_name=patient_column,
@@ -493,7 +493,7 @@ def _get_reports_per_patient_on_the_fly(
         sub_df = sub_df.dropna()
         final_df = ps.phospho_annot(sub_df)
 
-    elif level == ef.DataType.FULL_PROTEOME:
+    elif level == utils.DataType.FULL_PROTEOME:
         patient_column = patient + " Z-score"
         sub_df = cohorts_db.get_protein_abundance_df(
             cohort_index, patient_name=patient_column,
@@ -501,33 +501,33 @@ def _get_reports_per_patient_on_the_fly(
         sub_df["Gene names"] = sub_df.index
         final_df = sub_df.dropna()
 
-    elif level == ef.DataType.TOPAS_SCORE:
+    elif level == utils.DataType.TOPAS_SCORE:
         sub_df = cohorts_db.get_topas_scores_df(
-            cohort_index, intensity_unit=ef.IntensityUnit.Z_SCORE
+            cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
         )
         sub_df = topas_loader.get_topas_scores_long_format(sub_df)
         sub_df = sub_df[sub_df["Sample name"] == patient]
         final_df = sub_df[["Topas_id", "Z-score"]]
         final_df = final_df.dropna()
 
-    elif level == ef.DataType.KINASE_SCORE:
+    elif level == utils.DataType.KINASE_SCORE:
         sub_df = cohorts_db.get_kinase_scores_df(
-            cohort_index, intensity_unit=ef.IntensityUnit.Z_SCORE
+            cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
         )
         sub_df["Kinase_names"] = sub_df.index
         final_df = sub_df[["Kinase_names", patient]]
         final_df = final_df.dropna()
 
-    elif level == ef.DataType.PHOSPHO_SCORE:
+    elif level == utils.DataType.PHOSPHO_SCORE:
         sub_df = cohorts_db.get_phosphorylation_scores_df(
-            cohort_index, intensity_unit=ef.IntensityUnit.Z_SCORE
+            cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
         )
         sub_df["Gene names"] = sub_df.index
         final_df = sub_df[["Gene names", patient]]
         final_df = final_df.dropna()
 
-    elif level == ef.DataType.TRANSCRIPTOMICS:
-        sub_df = cohorts_db.get_fpkm_df(intensity_unit=ef.IntensityUnit.Z_SCORE)
+    elif level == utils.DataType.TRANSCRIPTOMICS:
+        sub_df = cohorts_db.get_fpkm_df(intensity_unit=utils.IntensityUnit.Z_SCORE)
         sub_df["Gene names"] = sub_df.index
         final_df = sub_df[["Gene names", patient]]
 

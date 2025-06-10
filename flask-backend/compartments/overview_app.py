@@ -1,8 +1,7 @@
 
 from topas_portal.plotly_preprocess import get_piechart
 from flask import Blueprint, jsonify
-import topas_portal.utils as ef
-import topas_portal.settings as cn
+from topas_portal import settings
 import db
 import pandas as pd
 
@@ -41,7 +40,7 @@ def get_entity_scores_cohort(cohort_ind,meta_type,least_number):
 # http://localhost:3832/overview/meta_types
 @overview_page.route("/overview/meta_types")
 def get_meta_types():
-    return jsonify(cn.COMMON_META_DATA)
+    return jsonify(settings.COMMON_META_DATA)
 
     
 

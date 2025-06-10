@@ -1,8 +1,8 @@
 import pandas as pd
 from typing import List
 
-import topas_portal.utils as ef
-import topas_portal.settings as cn
+from topas_portal import utils
+from topas_portal import settings
 import topas_portal.plotly_preprocess as plotlyprepare
 
 
@@ -23,7 +23,7 @@ def kinase_get_patients_list(
             selected_df = annotation_file
         else:
             selected_df = annotation_file[
-                annotation_file[cn.ENTITY_COLUMN].isin(selected_entities_list)
+                annotation_file[settings.ENTITY_COLUMN].isin(selected_entities_list)
             ]
         patients_list = list(selected_df["Sample name"])
 
@@ -33,7 +33,7 @@ def kinase_get_patients_list(
 def subset_scores_df(primary_scores_df, patients_list, kinase_list):
     data = primary_scores_df.copy()
     if _is_subsetted_list(patients_list):  # if not all
-        final_list = ef.intersection(data.columns, patients_list)
+        final_list = utils.intersection(data.columns, patients_list)
         data = data[final_list]
 
     if _is_subsetted_list(kinase_list):  # if not all
@@ -66,10 +66,10 @@ def kinase_score_plots_prepare(
         merged_data_entity.index = (
             merged_data_entity["Sample name"].astype(str)
             + "_entity_"
-            + merged_data_entity[cn.ENTITY_COLUMN].astype(str)
+            + merged_data_entity[settings.ENTITY_COLUMN].astype(str)
         )
         extra_cols = [
-            *cn.COMMON_META_DATA,
+            *settings.COMMON_META_DATA,
             *[
                 "Batch_No",
                 "TMT_channel",
@@ -106,7 +106,7 @@ def get_multi_swarm_json(data, one_vs_all, selected_patient_or_entities):
             ] = "red"  # the patients with the entity
         else:
             clr_labels = data["entity"].unique()
-            lut = dict(zip(clr_labels, ef.ranodom_color_genetator(len(clr_labels))))
+            lut = dict(zip(clr_labels, utils.ranodom_color_genetator(len(clr_labels))))
             data["color"] = data["entity"].map(lut)
         id_vars.append("color")
     if (
@@ -122,9 +122,9 @@ def get_multi_swarm_json(data, one_vs_all, selected_patient_or_entities):
             data_long.columns = ["Sample", "color", "Gene names", "score"]
 
         data_long["sizeR"] = 1
-        fig_data = ef.df_to_json(data_long)
+        fig_data = utils.df_to_json(data_long)
     else:
-        fig_data = ef.df_to_json(pd.DataFrame())
+        fig_data = utils.df_to_json(pd.DataFrame())
     return fig_data
 
 

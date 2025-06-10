@@ -1,12 +1,8 @@
-import os
-
-from flask import Blueprint, jsonify
+from flask import Blueprint
 
 import db
-import topas_portal.utils as ef
-import topas_portal.settings as cn
+from topas_portal import utils
 import topas_portal.kinase_scores_prepare as kinase_prepare
-import topas_portal.genomics_preprocess as genomics_prep
 
 
 kinasescore_page = Blueprint(
@@ -39,7 +35,7 @@ def kinase_scores_plot(
     if "Entity" in sample_annotation_df.columns:
         sample_annotation_df = sample_annotation_df.drop(["Entity"], axis=1)
     patien_meta_df = cohorts_db.get_patient_metadata_df(cohort_index)
-    final_df = ef.merge_with_patients_meta_df(sample_annotation_df, patien_meta_df)
+    final_df = utils.merge_with_patients_meta_df(sample_annotation_df, patien_meta_df)
     annotation_df = final_df.dropna()
 
     if one_vs_all == "one_vs_all":
@@ -48,7 +44,7 @@ def kinase_scores_plot(
         one_vs_all = False
     return kinase_prepare.kinase_score_plots_prepare(
         cohorts_db.get_kinase_scores_df(
-            cohort_index, intensity_unit=ef.IntensityUnit.Z_SCORE
+            cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
         ),
         annotation_df,
         patient_or_entity,

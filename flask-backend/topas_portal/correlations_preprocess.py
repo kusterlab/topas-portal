@@ -5,20 +5,20 @@ import pandas as pd
 import numpy as np
 from scipy.stats import t
 
-import topas_portal.utils as ef
-import topas_portal.topas_preprocess as topas_utils
-import topas_portal.settings as cn
-import topas_portal.fetch_data_matrix as data
-import topas_portal.data_api.data_api as data_api
+from topas_portal import utils
+from topas_portal import settings
+from topas_portal import topas_preprocess as topas_utils
+from topas_portal import fetch_data_matrix as data
+from topas_portal.data_api import data_api
 
 
 def compute_correlation_df(
     cohorts_db: data_api.CohortDataAPI,
     cohort_index: int,
     identifier: str,
-    level: ef.DataType,
-    level_2: ef.DataType,
-    intensity_unit: ef.IntensityUnit,
+    level: utils.DataType,
+    level_2: utils.DataType,
+    intensity_unit: utils.IntensityUnit,
     topas_subscore_type: str = "important phosphorylation",
     patients_list=None,
 ):
@@ -63,7 +63,7 @@ def compute_correlation_df(
     if not cohorts_db.provider:
         return "", "500 Cohort data not loaded"
 
-    if level == ef.DataType.TOPAS_IMPORTANT_PHOSPHO:
+    if level == utils.DataType.TOPAS_IMPORTANT_PHOSPHO:
         report_dir = cohorts_db.get_report_dir(cohort_index)
         abundances = topas_utils.get_topas_subscore_data_per_type(
             report_dir, identifier, sub_type=topas_subscore_type
@@ -72,7 +72,7 @@ def compute_correlation_df(
         abundances = data.fetch_data_matrix(
             cohorts_db,
             cohort_index,
-            ef.DataType(level),
+            utils.DataType(level),
             identifiers=[identifier],
             intensity_unit=intensity_unit,
         )
@@ -83,7 +83,7 @@ def compute_correlation_df(
     all_abundances = data.fetch_data_matrix(
         cohorts_db,
         cohort_index,
-        ef.DataType(level_2),
+        utils.DataType(level_2),
         identifiers=None,
         intensity_unit=intensity_unit,
     )
@@ -91,7 +91,7 @@ def compute_correlation_df(
         all_abundances, abundances, patients_list=patients_list
     )
 
-    if level == ef.DataType.TOPAS_SCORE:
+    if level == utils.DataType.TOPAS_SCORE:
         # add "Topas weight column" to correlation table
         topas_complete_df = cohorts_db.get_topas_annotation_df()
         topas_annotation_df = topas_utils.get_topas_weights(topas_complete_df)
@@ -103,19 +103,19 @@ def compute_correlation_df(
         )
         correlation_df = correlation_df.fillna("")
 
-    if level_2 == ef.DataType.PHOSPHO_PROTEOME:
+    if level_2 == utils.DataType.PHOSPHO_PROTEOME:
         psite_annotation_df = cohorts_db.get_psite_abundance_df(
             cohort_index=cohort_index
         )
         correlation_df = correlation_df.merge(
-            psite_annotation_df[cn.PP_EXTRA_COLUMNS].reset_index(),
+            psite_annotation_df[settings.PP_EXTRA_COLUMNS].reset_index(),
             left_on="index",
             right_on="Modified sequence",
         )
         correlation_df = correlation_df.drop(columns=["Modified sequence"])
         correlation_df = correlation_df.fillna("")
 
-    return ef.df_to_json(correlation_df), error_code
+    return utils.df_to_json(correlation_df), error_code
 
 
 def _subset_to_overlapping_patients(
@@ -149,9 +149,9 @@ def _subset_to_overlapping_patients(
             patients_list=["Patient1", "Patient2"]
         )
     """
-    overlapping_patients = ef.intersection(all_abundances.columns, abundances.columns)
+    overlapping_patients = utils.intersection(all_abundances.columns, abundances.columns)
     if patients_list:
-        overlapping_patients = ef.intersection(overlapping_patients, patients_list)
+        overlapping_patients = utils.intersection(overlapping_patients, patients_list)
     if (
         len(overlapping_patients) == 0
         and len(all_abundances.columns) > 0
@@ -353,7 +353,7 @@ def wrapper_get_correlation_across_patients(
     )
     protein_df = protein_df.filter(regex='Intensity')
     protein_df.columns = protein_df.columns.str.replace(' Intensity','')
-    unested_protein_df = ef.unnest_proteingroups(protein_df)
+    unested_protein_df = utils.unnest_proteingroups(protein_df)
 
     overlappling_patients = [
         x for x in transcripts_df.columns if x in unested_protein_df.columns

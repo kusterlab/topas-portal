@@ -1,7 +1,7 @@
 import tests.datavalidation as icheck
 from flask import Blueprint, jsonify, current_app
 
-import topas_portal.utils as ef
+from topas_portal import utils
 
 
 PORTAL_CONFIG_FILE = current_app.config["config_file"]
@@ -18,7 +18,7 @@ integration_page = Blueprint(
 
 def integration_logger(message):
     print(message)
-    integration_log.append(f"{ef.time_now()}{message}#####")
+    integration_log.append(f"{utils.time_now()}{message}#####")
     integration_log.append(" topas_separator ")
 
 
@@ -43,7 +43,7 @@ def z_score_validity_check(cohort, protein_name):
     res = icheck.z_score_checker(PORTAL_CONFIG_FILE, LOCAL_HTTTP, cohort, protein_name)
     print(res)
     integration_logger(res)
-    return ef.df_to_json(res)
+    return utils.df_to_json(res)
 
 
 @integration_page.route("/check/validity_topas_score/<cohort>/<topas_name>")
@@ -53,7 +53,7 @@ def topas_score_validity_check(cohort, topas_name):
         PORTAL_CONFIG_FILE, LOCAL_HTTTP, cohort, topas_name
     )
     integration_logger(res)
-    return ef.df_to_json(res)
+    return utils.df_to_json(res)
 
 
 @integration_page.route("/integration/logs")

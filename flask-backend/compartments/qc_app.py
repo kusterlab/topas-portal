@@ -7,8 +7,8 @@ import pandas as pd
 import numpy as np
 
 import db
-import topas_portal.utils as ef
-import topas_portal.settings as cn
+from topas_portal import utils
+from topas_portal import settings
 import topas_portal.pca_umap as qc_meta
 
 from sklearn.metrics import silhouette_samples
@@ -21,7 +21,7 @@ cohorts_db = db.cohorts_db
 
 
 def main(
-    input_data_type: ef.DataType,
+    input_data_type: utils.DataType,
     cohort_index: str,
     dimensionality_reduction_method: str,
     use_ref: str,
@@ -84,7 +84,7 @@ def main(
 
     
     # the column names of the two pc vectors
-    pc_cols = cn.QC_PCS
+    pc_cols = settings.QC_PCS
     reports_dir = cohorts_db.config.get_report_directory(cohort_index)
     sample_annotation_df = cohorts_db.get_sample_annotation_df(cohort_index)
     
@@ -135,18 +135,18 @@ def main(
     )
     pc_df["Sample name"] = pc_df["Sample"]
     pc_df = pc_df[["Sample name", "pc1", "pc2", "Sample"]]
-    pc_df = ef.merge_with_sample_annotation_df(pc_df, sample_annotation_df)
+    pc_df = utils.merge_with_sample_annotation_df(pc_df, sample_annotation_df)
     print(pc_df)
-    pc_df = ef.merge_with_patients_meta_df(pc_df, patients_df)
+    pc_df = utils.merge_with_patients_meta_df(pc_df, patients_df)
     print(pc_df)
     pcs_vars = all_principal_variances[0]
-    string_cols = cn.QC_STRING_META  # meta data with string values
-    int_cols = cn.QC_INT_META  # meta data with number values
+    string_cols = settings.QC_STRING_META  # meta data with string values
+    int_cols = settings.QC_INT_META  # meta data with number values
     sel_cols = [*pc_cols, *string_cols, *int_cols]
-    sel_cols = ef.intersection(sel_cols, pc_df.columns)
+    sel_cols = utils.intersection(sel_cols, pc_df.columns)
     pc_df = pc_df[sel_cols]
-    string_cols = ef.intersection(pc_df.columns, string_cols)
-    int_cols = ef.intersection(pc_df.columns, int_cols)
+    string_cols = utils.intersection(pc_df.columns, string_cols)
+    int_cols = utils.intersection(pc_df.columns, int_cols)
     pc_df[string_cols] = pc_df[string_cols].fillna("n.d.")
 
     if "Batch_No" in pc_df.columns:
@@ -193,7 +193,7 @@ def calculate_silhouette_scores(
     meta_data_df["count"] = meta_data_df[meta_col_silhoutte].map(count_dict)
     meta_data_df = meta_data_df[meta_data_df["count"] >= int(min_num_patients)]
 
-    common_samples = ef.intersection(meta_data_df.index, silhoutte_input_df.index)
+    common_samples = utils.intersection(meta_data_df.index, silhoutte_input_df.index)
     silhoutte_input_df = silhoutte_input_df.loc[common_samples, :].to_numpy()
     meta_data = meta_data_df.loc[common_samples, meta_col_silhoutte].to_numpy()
 
@@ -214,7 +214,7 @@ def calculate_silhouette_scores(
     colors_df = pd.DataFrame(
         list(
             zip(
-                ef.ranodom_color_genetator(len(silhouete_df.type.unique())),
+                utils.ranodom_color_genetator(len(silhouete_df.type.unique())),
                 silhouete_df.type.unique().tolist(),
             )
         )
@@ -229,7 +229,7 @@ def calculate_silhouette_scores(
 @qc_page.route("/qc/metadata")
 def metadata():
     """The list of metadata to show in the QC coloring combobox"""
-    list_of_metadataTypes = [*cn.QC_STRING_META, *cn.QC_INT_META]
+    list_of_metadataTypes = [*settings.QC_STRING_META, *settings.QC_INT_META]
     return jsonify(list_of_metadataTypes)
 
 
@@ -249,7 +249,7 @@ def quality_control_all_genes(
     selected_genes = []  # if empty considers all genes
     imputation_ratio = float(imputation_ratio)
     PCA_umap_dic = main(
-        ef.DataType(input_data_type),
+        utils.DataType(input_data_type),
         cohort_index,
         dimensionality_reduction_method,
         use_ref,
@@ -316,7 +316,7 @@ def quality_control_selected_genes(
     imputation_ratio = float(imputation_ratio)
 
     PCA_umap_dic = main(
-        ef.DataType(input_data_type),
+        utils.DataType(input_data_type),
         cohort_index,
         dimensionality_reduction_method,
         use_ref,
@@ -357,7 +357,7 @@ def sil_df_all_genes(
     print(selected_genes)
     #selected_genes = []  # if empty conssiders all genes
     sil_df = main(
-        ef.DataType(input_data_type),
+        utils.DataType(input_data_type),
         cohort_index,
         dimensionality_reduction_method,
         use_ref,
@@ -371,4 +371,4 @@ def sil_df_all_genes(
         min_sample_occurrence_ratio=imputation_ratio
     )
 
-    return ef.df_to_json(sil_df)
+    return utils.df_to_json(sil_df)

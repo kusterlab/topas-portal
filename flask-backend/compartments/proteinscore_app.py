@@ -3,7 +3,7 @@ import db
 
 from flask import Blueprint, jsonify
 
-import topas_portal.utils as ef
+from topas_portal import utils
 
 
 proteinscore_page = Blueprint(
@@ -44,8 +44,8 @@ def get_protein_scores(cohort_index: int, item_name: str):
     )
     protein_scores_single_df = protein_scores_single_df.dropna()
     
-    protein_scores_single_df = ef.QC_channel_nan_values_fill(protein_scores_single_df)
-    return ef.df_to_json(protein_scores_single_df)
+    protein_scores_single_df = utils.QC_channel_nan_values_fill(protein_scores_single_df)
+    return utils.df_to_json(protein_scores_single_df)
 
 
 @proteinscore_page.route("/proteinscore/<cohort_ind>/patient/<patient_name>")

@@ -4,12 +4,11 @@ import math
 import numpy as np
 from typing import TYPE_CHECKING
 
-import topas_portal.utils as ef
+from topas_portal import utils
+from topas_portal import settings
 from topas_portal.signature_function import one_vs_all_t_test
 import topas_portal.fetch_data_matrix as data
 import topas_portal.topas_scores_meta as topas
-
-import topas_portal.settings as cn  # conifgurations
 
 if TYPE_CHECKING:
     import topas_portal.data_api.data_api as data_api
@@ -20,7 +19,7 @@ def get_data_for_t_test(
     cohort_index: str,
     grp1_indexes: str,
     grp2_indexes: str,
-    level: ef.DataType,
+    level: utils.DataType,
     y_axis_type: str,
 ):
     """
@@ -66,7 +65,7 @@ def get_data_for_t_test(
             "Sample name"
         ].tolist()  # the selected list of the patients vs all other patients
 
-    grp2 = ef.setdiff(grp2, grp1)
+    grp2 = utils.setdiff(grp2, grp1)
     patients_list = [*grp1, *grp2]
     protein_list, input_df = _preparare_input_for_t_test(
         cohorts_db, cohort_index, patients_list, level
@@ -95,7 +94,7 @@ def get_data_for_t_test(
     t_test_df = t_test_df.dropna()
 
     # adding psite_annotation for the PP data
-    if level == ef.DataType.PHOSPHO_PROTEOME:
+    if level == utils.DataType.PHOSPHO_PROTEOME:
         t_test_df = _add_PSP_annotation(cohorts_db, t_test_df, cohort_index)
 
     return t_test_df
@@ -129,9 +128,9 @@ def _add_PSP_annotation(cohorts_db, t_test_df, cohort_index: int):
         psite_annotation_df = cohorts_db.get_psite_abundance_df(
             cohort_index=cohort_index
         )
-        psite_annotation_df = psite_annotation_df[cn.PP_EXTRA_COLUMNS].reset_index()
-        psite_annotation_df[cn.PP_EXTRA_COLUMNS] = psite_annotation_df[
-            cn.PP_EXTRA_COLUMNS
+        psite_annotation_df = psite_annotation_df[settings.PP_EXTRA_COLUMNS].reset_index()
+        psite_annotation_df[settings.PP_EXTRA_COLUMNS] = psite_annotation_df[
+            settings.PP_EXTRA_COLUMNS
         ].fillna("n.d.")
         psite_annotation_df = psite_annotation_df.rename(
             columns={"Gene names": "Genes"}
@@ -151,7 +150,7 @@ def _preparare_input_for_t_test(
     cohorts_db: data_api.CohortDataAPI,
     cohort_index: str,
     patients_list: list[str],
-    level: ef.DataType,
+    level: utils.DataType,
 ):
     """
     Prepares input data for performing a t-test by fetching relevant data matrices.
@@ -181,8 +180,8 @@ def _preparare_input_for_t_test(
           are retained.
     """
     identifiers = None
-    if level == ef.DataType.TOPAS_SCORE_RTK:
-        level = ef.DataType.TOPAS_SCORE
+    if level == utils.DataType.TOPAS_SCORE_RTK:
+        level = utils.DataType.TOPAS_SCORE
         identifiers = [
             topas
             for topas, category in topas.TOPAS_CATEGORIES.items()
@@ -197,7 +196,7 @@ def _preparare_input_for_t_test(
         intensity_unit=topas.TOPAS_DIFFERENTIAL_INTENSITY_UNITS[level],
     )
     protein_list = input_df.index.unique().tolist()
-    overlapping_patients = ef.intersection(patients_list, input_df.columns.tolist())
+    overlapping_patients = utils.intersection(patients_list, input_df.columns.tolist())
     return protein_list, input_df[overlapping_patients].T
 
 

@@ -1,9 +1,9 @@
 import pandas as pd
 
-import topas_portal.utils as ef
+from topas_portal import utils
 
 
-@ef.check_path_exist
+@utils.check_path_exist
 def load_phosphorylation_scores(
     phosphorylation_scores_path,
     add_suffix=False,
@@ -22,4 +22,4 @@ def load_phosphorylation_scores(
 
     if add_suffix:
         phospho_score_df = phospho_score_df.add_suffix(" Z-score")
-    return ef.remove_patient_prefix(phospho_score_df)
+    return utils.remove_patient_prefix(phospho_score_df)

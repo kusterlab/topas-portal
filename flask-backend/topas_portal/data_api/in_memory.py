@@ -3,17 +3,16 @@ from typing import Union
 
 import pandas as pd
 
-import topas_portal.settings as cn
-import topas_portal.utils as utils
+from topas_portal import settings
+from topas_portal import utils
 from topas_portal.databases.in_memory import InMemoryProvider
-from topas_portal.utils import INTENSITY_UNIT_SUFFIXES, IntensityUnit
 from config import CohortConfig
 from logger import CohortLogger
 from topas_portal.data_api.exceptions import IntensityUnitUnavailableError
 
 
-def extract_columns_and_remove_suffix(df: pd.DataFrame, intensity_unit: IntensityUnit):
-    intensity_suffix = INTENSITY_UNIT_SUFFIXES[intensity_unit]
+def extract_columns_and_remove_suffix(df: pd.DataFrame, intensity_unit: utils.IntensityUnit):
+    intensity_suffix = utils.INTENSITY_UNIT_SUFFIXES[intensity_unit]
     df = df.filter(like=intensity_suffix)
     if len(df.columns) == 0:
         raise IntensityUnitUnavailableError(intensity_unit)
@@ -38,7 +37,7 @@ class InMemoryCohortDataAPI:
     # based on the queries for each cohort
     def get_patients_entities_df(self, cohort_index: str) -> pd.DataFrame:
         patients_df = self.get_patient_metadata_df(cohort_index)
-        df = pd.DataFrame(patients_df[cn.ENTITY_COLUMN].unique(), columns=["Entity"])
+        df = pd.DataFrame(patients_df[settings.ENTITY_COLUMN].unique(), columns=["Entity"])
         df["Entity"] = df["Entity"].str.replace(r"[ ,;]", "_", regex=True)
         return df
 
@@ -67,7 +66,7 @@ class InMemoryCohortDataAPI:
         if identifier:
             return df.loc[df.index == identifier]
         elif patient_name:
-            extra_columns = [c for c in cn.PP_EXTRA_COLUMNS if c in df.columns]
+            extra_columns = [c for c in settings.PP_EXTRA_COLUMNS if c in df.columns]
             return df[[patient_name] + extra_columns]
         else:
             return df
@@ -165,7 +164,7 @@ class InMemoryCohortDataAPI:
 
 def _filter_for_ref(df: pd.DataFrame, include_ref: utils.IncludeRef) -> pd.DataFrame:
     if include_ref == utils.IncludeRef.EXCLUDE_REF:
-        df = df.loc[:, ~df.columns.str.startswith(cn.REF_CHANNEL_PREFIX)]
+        df = df.loc[:, ~df.columns.str.startswith(settings.REF_CHANNEL_PREFIX)]
     elif include_ref == utils.IncludeRef.ONLY_REF:
-        df = df.loc[:, df.columns.str.startswith(cn.REF_CHANNEL_PREFIX)]
+        df = df.loc[:, df.columns.str.startswith(settings.REF_CHANNEL_PREFIX)]
     return df

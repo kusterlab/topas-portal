@@ -5,7 +5,7 @@ from flask import Blueprint, jsonify
 import pandas as pd
 
 import db
-import topas_portal.utils as ef
+from topas_portal import utils
 
 
 drug_page = Blueprint(
@@ -77,7 +77,7 @@ def get_drug_table_as_json(drug_df_for_json: pd.DataFrame):
         r"\|([0-9]+)", r" (\1)", regex=True
     )
     drug_g_df = drug_g_df.fillna("-")
-    return ef.df_to_json(drug_g_df)
+    return utils.df_to_json(drug_g_df)
 
 
 def load_drug_db(drug_annotation_path):

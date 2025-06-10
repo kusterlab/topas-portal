@@ -50,11 +50,6 @@ def config_updater(key: str, cohort: str, value: str):
 
     Returns:
         Response: An HTTP response indicating whether the provided value exists as a file or directory.
-
-    Notes:
-        - Calls `cohorts_db.config.update_config_values()` to update the configuration.
-        - Uses `os.path.exists(value)` to check if the new value corresponds to an existing file or directory.
-        - Returns a Flask `Response` object with a string representation of the existence check result.
     """
     cohorts_db.config.update_config_values(key, cohort, value)
     return Response(str(os.path.exists(value)))

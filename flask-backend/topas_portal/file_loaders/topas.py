@@ -1,14 +1,11 @@
 # needed to prevent circular import of db.CohortDataAPI
 from __future__ import annotations
 
-from typing import Union
-
 import pandas as pd
 import os
-from pathlib import Path
 
-import topas_portal.settings as cn
-import topas_portal.utils as utils
+from topas_portal import settings
+from topas_portal import utils
 import topas_portal.topas_scores_meta as topas
 
 
@@ -53,7 +50,7 @@ def load_topas_subscore_table(
     for key in topas.TOPAS_RENAMING.keys():
         if main_topas == key:
             main_topas = topas.TOPAS_RENAMING[key]
-    file_name = f"{report_dir}/{cn.TOPAS_SUBSCORE_FILES_PREFIX}{main_topas}.tsv"
+    file_name = f"{report_dir}/{settings.TOPAS_SUBSCORE_FILES_PREFIX}{main_topas}.tsv"
     topas_subscores_long = pd.DataFrame()
     if os.path.exists(file_name):
         topas_subscores = pd.read_csv(os.path.join(report_dir, file_name), sep="\t")

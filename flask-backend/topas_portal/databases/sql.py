@@ -8,8 +8,8 @@ import pandas as pd
 
 import topas_portal.topas_preprocess
 import db_settings as database
-import topas_portal.settings as cn
-import topas_portal.utils as utils
+from topas_portal import settings
+from topas_portal import utils
 import topas_portal.file_loaders.topas as topas_loader
 import topas_portal.file_loaders.transcriptomics as tp
 import topas_portal.file_loaders.genomics as genomics_preprocess
@@ -112,7 +112,7 @@ class SQLProvider:
 
     def get_kinase_scores_dataframe(self, result_dir):
         """TODO: store in database"""
-        path_to_kinase_df = Path(result_dir) / Path(cn.KINASE_SCORES_FILE)
+        path_to_kinase_df = Path(result_dir) / Path(settings.KINASE_SCORES_FILE)
         return kinase_loader.load_kinase_scores_df(path_to_kinase_df)
 
     def _db_protein_to_seq_importer(
@@ -166,8 +166,8 @@ class SQLProvider:
         """For the  insertion of the num_peptides per protein for each patient"""
         cohort_report_dir = config.get_report_directory(cohort_index)
         df_to_insert = expression_loader.load_intensity_meta_data(
-            Path(os.path.join(cohort_report_dir, cn.PREPROCESSED_FP_INTENSITY)),
-            cn.FP_KEY,
+            Path(os.path.join(cohort_report_dir, settings.PREPROCESSED_FP_INTENSITY)),
+            settings.FP_KEY,
         )
         # df_to_insert = df_to_insert.set_index('Gene names')
         df_to_insert.columns = [str(x).split(" ")[-1] for x in df_to_insert.columns]
@@ -205,11 +205,11 @@ class SQLProvider:
     ):
         """For importing the topas scores to cohortsDB"""
         cohort_report_dir = config.get_report_directory(cohort_index)
-        key = cn.TOPAS_Z_SCORES_FILE
+        key = settings.TOPAS_Z_SCORES_FILE
         if data_type == "topasscoresraw":
-            key = cn.TOPAS_SCORES_FILE
+            key = settings.TOPAS_SCORES_FILE
         else:
-            key = cn.TOPAS_Z_SCORES_FILE
+            key = settings.TOPAS_Z_SCORES_FILE
         topas_df = topas_loader.load_topas_scores_df(
             Path(os.path.join(cohort_report_dir, key))
         )
@@ -243,8 +243,8 @@ class SQLProvider:
             )
         patients_list = meta_data_df['Sample name'].unique().tolist()
         if data_type == "phospho":  # for the phosohopeptides
-            intensity_file = cn.PREPROCESSED_PP_INTENSITY
-            key = cn.PP_KEY
+            intensity_file = settings.PREPROCESSED_PP_INTENSITY
+            key = settings.PP_KEY
             df_to_insert = expression_loader.load_annotated_intensity_file(
                 Path(os.path.join(cohort_report_dir, intensity_file)), 
                 key,
@@ -252,15 +252,15 @@ class SQLProvider:
             )
 
         elif data_type == "phospho_scores":  # for the phospho scores
-            intensity_file = cn.PHOSPHORYLATION_SCORES
-            key = cn.FP_KEY
+            intensity_file = settings.PHOSPHORYLATION_SCORES
+            key = settings.FP_KEY
             df_to_insert = phospho_score_loader.load_phosphorylation_scores(
                 Path(os.path.join(cohort_report_dir, intensity_file)), add_suffix=False
             )
 
         else:
-            intensity_file = cn.PREPROCESSED_FP_INTENSITY
-            key = cn.FP_KEY
+            intensity_file = settings.PREPROCESSED_FP_INTENSITY
+            key = settings.FP_KEY
             df_to_insert = expression_loader.load_annotated_intensity_file(
                 Path(os.path.join(cohort_report_dir, intensity_file)),
                 key,

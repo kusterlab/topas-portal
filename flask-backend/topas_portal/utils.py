@@ -9,7 +9,7 @@ from flask import Response
 from typing import List
 from datetime import datetime
 
-import topas_portal.settings as cn
+from topas_portal import settings
 import topas_portal.plotly_preprocess as plotlyprepare
 from topas_portal.config_reader import *
 
@@ -84,25 +84,25 @@ class ImputationMode(str, Enum):
 
 
 def add_patient_prefix(patient_list: list[str]):
-    return [cn.PATIENT_PREFIX + x for x in patient_list]
+    return [settings.PATIENT_PREFIX + x for x in patient_list]
 
 
 def remove_patient_prefix(df, from_col=True) -> pd.DataFrame:
     if from_col:
         try:
-            df.columns = df.columns.str.replace(cn.PATIENT_PREFIX, "", regex=True)
+            df.columns = df.columns.str.replace(settings.PATIENT_PREFIX, "", regex=True)
         except:
             pass
     else:
         try:
-            df.index = df.index.str.replace(cn.PATIENT_PREFIX, "", regex=True)
+            df.index = df.index.str.replace(settings.PATIENT_PREFIX, "", regex=True)
         except:
             pass
 
         if "Sample name" in df.columns or "sample" in df.columns:
             try:
                 df["Sample name"] = df["Sample name"].str.replace(
-                    cn.PATIENT_PREFIX, "", regex=True
+                    settings.PATIENT_PREFIX, "", regex=True
                 )
             except:
                 pass
@@ -152,8 +152,8 @@ def QC_channel_nan_values_fill(df):
 def fill_nans_patient_columns(patients_df):
     """The na values will make issues inside devesxreme to avoid this we fill them with defaut values"""
     if isinstance(patients_df, pd.DataFrame):
-        string_cols = cn.PATIENT_TABLE_NAN_STRING
-        int_cols = cn.PATIENT_TABLE_NAN_INT
+        string_cols = settings.PATIENT_TABLE_NAN_STRING
+        int_cols = settings.PATIENT_TABLE_NAN_INT
         string_cols = [s for s in string_cols if s in patients_df.columns]
         int_cols = [s for s in int_cols if s in patients_df.columns]
         patients_df[string_cols] = patients_df[string_cols].fillna("")
@@ -407,7 +407,7 @@ def merged_df_to_json(data_type: str, merged_df: pd.DataFrame, title="Scores"):
     sample_annot_cols = [
         x
         for x in merged_df.columns.tolist()
-        if x in list(cn.SAMPLE_ANNOTATION.values())
+        if x in list(settings.SAMPLE_ANNOTATION.values())
     ]
     if data_type == "plot":
         merged_df.index = (
