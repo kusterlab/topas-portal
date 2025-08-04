@@ -174,6 +174,18 @@ export default {
         dataType: 'string',
         width: '120'
       }, {
+        dataField: 'snv',
+        dataType: 'string',
+        width: '120'
+      }, {
+        dataField: 'cnv',
+        dataType: 'string',
+        width: '120'
+      }, {
+        dataField: 'fusion',
+        dataType: 'string',
+        width: '120'
+      }, {
         dataField: 'oncoKB_annotations',
         dataType: 'string',
         width: '120'
