@@ -82,6 +82,39 @@ def get_genomics_alterations_per_identifier(
         return f"Unexpected {err=}, {type(err)=}"
 
 
+def _clean_annotation(x):
+    return str(x).replace('cnv','').replace(':','').replace('_','')
+
+
+
+
+def _split_genomics_annotation(x:str):
+    try:
+        if x == 'missing':
+            return {'cnv':'missing','snv':'missing','fusion':'missing'}
+        else:
+            cnv = x.split('snv:')[0]
+            snv = x.split('snv')[1].split('fusion:')[0]
+            fusion = x.split('snv')[1].split('fusion:')[1]
+            return {'cnv':_clean_annotation(cnv),'snv':_clean_annotation(snv),'fusion':_clean_annotation(fusion)}
+    except:
+        return {'cnv':'missing','snv':'missing','fusion':'missing'}
+
+
+
+def make_final_genomics_annotation(df):
+    try:
+        df['snv'] = df.genomics_annotations.apply(lambda x:_split_genomics_annotation(x)['snv'])
+        df['cnv'] = df.genomics_annotations.apply(lambda x:_split_genomics_annotation(x)['cnv'])
+        df['fusion'] = df.genomics_annotations.apply(lambda x:_split_genomics_annotation(x)['fusion'])
+    except:
+        pass
+    return df
+
+
+
+
+
 def _merge_data_with_genomics_alterations(
     cohorts_db: data_api.CohortDataAPI,
     abundances_df: pd.DataFrame,
@@ -104,6 +137,11 @@ def _merge_data_with_genomics_alterations(
         annotated_abundance_df[annotation_type] = annotated_abundance_df[
             annotation_type
         ].fillna("missing")
+
+        if annotation_type == "genomics_annotations":
+            annotated_abundance_df = make_final_genomics_annotation(annotated_abundance_df)
+
+
         return annotated_abundance_df
     except Exception as err:
         print(f"{type(err).__name__}: {err} in merging with Genomics data")
