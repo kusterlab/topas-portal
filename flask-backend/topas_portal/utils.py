@@ -287,6 +287,7 @@ def merge_with_patients_meta_df(scores_df: pd.DataFrame, patients_df: pd.DataFra
             "Sample name"
         ].str.replace(r"-R[0-9]$", "", regex=True)
         new_patients_df = new_patients_df.rename(columns={"Sample name": "patient_id"})
+        new_patients_df["patient_id"] = new_patients_df["patient_id"].str.replace(r"-R[0-9]$", "", regex=True)
         scores_table = scores_table.dropna(subset=["Sample_name_rep_truncated"])
         new_patients_df = new_patients_df.dropna(subset=["patient_id"])
         if len(scores_table) > 0 and len(new_patients_df) > 0:
