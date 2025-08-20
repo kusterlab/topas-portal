@@ -14,6 +14,43 @@ if TYPE_CHECKING:
 import requests
 
 
+
+def split_fusion(x):
+    if str(x).__contains__(','): 
+        x0 = x.split('|')[0]
+        x1 = x.split('|')[1].split(',')[0]
+        x2 = x.split('|')[1].split(',')[1]
+        return [f'{x0}|{x1}',f'{x0}|{x2}']
+    else:
+        return [x]
+    
+    
+def get_all_fusions_per_NGS(x,fusion_dic,pattern_alteration = r'[A-Z1-9]+\|[A-Z1-9,]+'):
+    try:
+        all_alteration = x.split('_fusion:')[-1]     
+        all_matches = re.finditer(pattern_alteration,all_alteration)
+        all_possibilities = [split_fusion(match.group()) for match in all_matches]
+        return (';').join([fusion_dic.get(x,x) for x in list(set(sum(all_possibilities,start=[])))])
+    except:
+        return ''
+
+
+def make_fusion_dic(df):
+    try:
+        return df[df.data_type == 'Fusion'][['gene_pair','annotation']].set_index('gene_pair').to_dict()['annotation']
+    except:
+        return {}
+    
+def add_fusion_annotation(df,genomics_df,gene_name, fusion_dic):
+    try:
+        sub_df = genomics_df[['Sample name',gene_name]]
+        sub_df['fusion_onkoKB'] = sub_df[gene_name].apply(lambda x:get_all_fusions_per_NGS(x,fusion_dic))
+        return df.merge(sub_df[['Sample name','fusion_onkoKB']],on='Sample name',how='left')
+    except:
+        return df
+
+
+
 def get_data_from_the_ONKOKB_api(
     gene_name, alteration, oncokb_api_token, data_type="oncogenic"
 ):
