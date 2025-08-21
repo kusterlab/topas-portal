@@ -112,6 +112,9 @@ def _merge_onkokb_annotation(
         df = add_onkokb_annotation(df, genomics_df, identifier, onkokb_dic,column_name='fusion_onkoKB')
         df = add_onkokb_annotation(df, genomics_df, identifier, onkokb_dic,column_name='cnv_onkoKB')
         df = add_onkokb_annotation(df, genomics_df, identifier, onkokb_dic,column_name='snv_onkoKB')
+        df['fusion_onkoKB'] = df['fusion_onkoKB'].fillna('n.d.')
+        df['cnv_onkoKB'] = df['cnv_onkoKB'].fillna('n.d.')
+        df['snv_onkoKB'] = df['snv_onkoKB'].fillna('n.d.')
         return df
     except:
         return df
