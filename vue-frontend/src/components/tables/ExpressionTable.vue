@@ -186,7 +186,15 @@ export default {
         dataType: 'string',
         width: '120'
       }, {
-        dataField: 'oncoKB_annotations',
+        dataField: 'fusion_onkoKB',
+        dataType: 'string',
+        width: '120'
+      }, {
+        dataField: 'cnv_onkoKB',
+        dataType: 'string',
+        width: '120'
+      }, {
+        dataField: 'snv_onkoKB',
         dataType: 'string',
         width: '120'
       }, {
