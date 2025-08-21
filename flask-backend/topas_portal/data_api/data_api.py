@@ -91,7 +91,7 @@ class CohortDataAPI(Protocol):
     def get_genomics(self) -> pd.DataFrame:
         """"""
 
-    def get_oncoKB_annotations(self) -> pd.DataFrame:
+    def get_oncoKB_annotations(self) -> dict:
         """"""
 
     def get_report_dir(self, cohort_index: str) -> str:

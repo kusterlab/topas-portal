@@ -155,7 +155,7 @@ class InMemoryCohortDataAPI:
     def get_genomics(self) -> pd.DataFrame:
         return self.provider.genomics_data
 
-    def get_oncoKB_annotations(self) -> pd.DataFrame:
+    def get_oncoKB_annotations(self) -> dict:
         return self.provider.oncoKB_data
 
     def get_digestes_peptides_maps(self) -> pd.DataFrame:
