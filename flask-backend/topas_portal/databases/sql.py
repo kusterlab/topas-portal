@@ -105,7 +105,7 @@ class SQLProvider:
     def _load_onkoKB_annotations(self, config: Dict):
         """oncoKB annotations table is independent of cohorts and will be treated as a single global variable separately"""
         self.logger.log_message("Loading oncoKB annotations data")
-        self.oncoKB_data = genomics_preprocess.load_genomics_table(
+        self.oncoKB_data = genomics_preprocess.load_onkoKB_dictionary(
             config["oncokb_path"]
         )
         self.logger.log_message("oncoKB annotations data loaded")

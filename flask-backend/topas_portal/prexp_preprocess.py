@@ -294,18 +294,19 @@ def get_abundance(
         utils.DataType.KINASE_SCORE,
         utils.DataType.PHOSPHO_SCORE,
     ]:
-        # adding fusion cnv and snv data
+        # adding genomics data
         abundances_table = genomics_prep._merge_data_with_genomics_alterations(
             cohorts_db,
             abundances_table,
             identifier,
             annotation_type="genomics_annotations",
         )
-        abundances_table = genomics_prep._merge_data_with_genomics_alterations(
+
+        # adding onkoKB annotations
+        abundances_table = genomics_prep._merge_onkokb_annotation(
             cohorts_db,
             abundances_table,
-            identifier,
-            annotation_type="oncoKB_annotations",
+            identifier
         )
 
     # filtering the columns with the settings options
