@@ -295,19 +295,25 @@ def get_abundance(
         utils.DataType.PHOSPHO_SCORE,
     ]:
         # adding genomics data
-        abundances_table = genomics_prep._merge_data_with_genomics_alterations(
-            cohorts_db,
-            abundances_table,
-            identifier,
-            annotation_type="genomics_annotations",
-        )
+        try:
+            abundances_table = genomics_prep._merge_data_with_genomics_alterations(
+                cohorts_db,
+                abundances_table,
+                identifier,
+                annotation_type="genomics_annotations",
+            )
+        except:
+            pass
 
         # adding onkoKB annotations
-        abundances_table = genomics_prep._merge_onkokb_annotation(
-            cohorts_db,
-            abundances_table,
-            identifier
-        )
+        try:
+            abundances_table = genomics_prep._merge_onkokb_annotation(
+                cohorts_db,
+                abundances_table,
+                identifier
+            )
+        except:
+            pass
 
     # filtering the columns with the settings options
     abundances_table = abundances_table[
