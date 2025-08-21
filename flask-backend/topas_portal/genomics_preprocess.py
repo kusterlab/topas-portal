@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 import pandas as pd
-
+import re
 import topas_portal.utils as utils
 
 # for type hints only
@@ -25,6 +25,7 @@ def split_fusion(x):
         return [x]
     
     
+    
 def get_all_fusions_per_NGS(x,fusion_dic,pattern_alteration = r'[A-Z1-9]+\|[A-Z1-9,]+'):
     try:
         all_alteration = x.split('_fusion:')[-1]     
@@ -33,6 +34,8 @@ def get_all_fusions_per_NGS(x,fusion_dic,pattern_alteration = r'[A-Z1-9]+\|[A-Z1
         return (';').join([fusion_dic.get(x,x) for x in list(set(sum(all_possibilities,start=[])))])
     except:
         return ''
+
+
 
 
 def get_all_cnvs_per_NGS(x,gene_name,cnv_dic,pattern_alteration = r'AMP|DEL|GAIN|LOSS'):

@@ -137,6 +137,7 @@ EXPRESSION_TAB_DATA = [
     "colorID",
     "sizeR",
     "num_pep",
+    "genomics_annotations",
     "fusion_onkoKB",
     "cnv_onkoKB",
     "snv_onkoKB",

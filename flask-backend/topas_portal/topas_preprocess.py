@@ -167,15 +167,24 @@ def get_topas_data(
     )
     selected_columns = utils.intersection(settings.TOPAS_META_DATA, topas_subset_df.columns)
     topas_subset_df = topas_subset_df[selected_columns]
-    topas_subset_df = gp._merge_data_with_genomics_alterations(
-        cohorts_db,
-        topas_subset_df,
-        topas_names,
-        annotation_type="genomics_annotations",
-    )
-    topas_subset_df = gp._merge_data_with_genomics_alterations(
-        cohorts_db, topas_subset_df, topas_names, annotation_type="oncoKB_annotations"
-    )
+    
+    try:
+        topas_subset_df = gp._merge_data_with_genomics_alterations(
+            cohorts_db,
+            topas_subset_df,
+            topas_names,
+            annotation_type="genomics_annotations",
+        )
+    except:
+        pass
+
+    try:
+        topas_subset_df = gp._merge_onkokb_annotation(
+            cohorts_db, topas_subset_df, topas_names
+        )
+    except:
+        pass
+
     topas_subset_df = topas_subset_df.sort_values(by='Z-score', ascending=False)
 
     return utils.df_to_json(topas_subset_df)
