@@ -136,7 +136,7 @@ export default {
           dataType: 'string',
           width: '120'
 
-      }
+        }
       ]
     }
   },
