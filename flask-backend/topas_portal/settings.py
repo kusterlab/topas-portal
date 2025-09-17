@@ -3,9 +3,12 @@ from topas_portal.config_reader import *
 
 
 DATABASE_MODE = False  # True means using Postgres, False means in-memory
-DEBUG_MODE = True
+DEBUG_MODE = False
 
 PASSWORD = os.getenv("DB_PASSWORD")  # this should be either in the environmental variables or in CI/CD or docker compose file
+
+PRDB_HOST = "https://proteomicsdb.org"
+ENRICHMENT_SERVER_HOST = "https://enrichment.kusterlab.org/main_enrichment-server"
 
 # path to the config file, this should be either in the environmental variables or in CI/CD or docker compose file
 PORTAL_CONFIG_FILE = os.getenv("CONFIG_FILE_PATH")

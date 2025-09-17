@@ -79,6 +79,7 @@ with app.app_context():
     from compartments.entityscore_app import entityscore_page
     from compartments.overview_app import overview_page
     from compartments.z_scoring_app import zscoring_page
+    from compartments.ptmnavigator_app import ptmnavigator_page
 
     if cohorts_db.config.do_load_data_on_startup():
         start_background_loader()
@@ -93,6 +94,7 @@ app.register_blueprint(integration_page)
 app.register_blueprint(entityscore_page)
 app.register_blueprint(overview_page)
 app.register_blueprint(zscoring_page)
+app.register_blueprint(ptmnavigator_page)
 
 CORS(app)
 
@@ -151,7 +153,7 @@ def get_patient_report_table(
 ):
     """Returns tables from the patient reports.
 
-    Example: http://localhost:3832/0/patient_report/I007-031-108742/protein/onfly
+    Example: http://localhost:3832/0/patient_reports/I007-031-108742/protein/onfly
 
     Args:
         cohort_index (int): cohort index
@@ -769,6 +771,7 @@ def get_t_test_json(
     level: utils.DataType,
     y_axis_type: str,
 ):
+    print(cohort_index, grp1_ind, grp2_ind, level, y_axis_type)
     return utils.df_to_json(
         differential_test.get_data_for_t_test(
             cohorts_db,
@@ -796,7 +799,6 @@ def handle_exception(err):
     portal_logger(traceback.format_exc(), log_list=error_log)
     return Response(f"{type(err).__name__}: {err}"), 500
 
-
 def portal_logger(message, log_list: list = error_log):
     print(message)
     log_list.append(f"{utils.time_now()}{message}#####")
@@ -812,5 +814,10 @@ if __name__ == "__main__":
         debug = True
 
     app.run(
-        debug=debug, use_reloader=debug, host="0.0.0.0", port=settings.CI_BACKEND_PORT
+        debug=debug, 
+        use_reloader=debug, 
+        host="jsantoso.local", 
+        port=settings.CI_BACKEND_PORT,
+        ssl_context=("/home/jsantoso/jsantoso.local.pem", "/home/jsantoso/jsantoso.local-key.pem")
+
     )
