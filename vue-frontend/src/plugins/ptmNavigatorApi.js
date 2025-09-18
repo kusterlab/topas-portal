@@ -89,8 +89,17 @@ const ptmnApi = {
         enrichmentClass: 'KinaseActivity',
         tooltipHtml: 'It uses the substrate phosphorylation scores from TOPAS backend.',
         stringColumns: ['Kinase'],
-        sortColumn: '-Log10 p_value adjusted',
-        sortDesc: true
+        sortColumn: '-log10 transformed p-value',
+        sortDesc: true,
+        kaiDetails: {
+          kinaseColname: 'Kinase',
+          scoreColnamePrefix: 'Mean difference',
+          significanceColnamePrefix: '-log10 transformed p-value',
+          higherScoreIsStrongerEnrichment: true,
+          hasDirection: true,
+          directionFromSignificance: false,
+          isAlreadyLogTransformed: true
+        }
       },
       {
         name: 'GCR-PEA',
@@ -153,8 +162,8 @@ async function fetchAndFormatProteins (projectId, datasetId) {
     details: {
       'Experiment Name': datasetId,
       'Experiment ID': datasetId,
-      'Fold Change': el.expression1,
-      '-log(p-value)': el.expression2
+      'Mean difference': el.expression1,
+      '-log10 transformed p-value': el.expression2
     }
   }))
 }
@@ -169,8 +178,8 @@ async function fetchAndFormatPtms (projectId, datasetId) {
     details: {
       'Experiment Name': datasetId,
       'Experiment ID': datasetId,
-      'Fold Change': el.expression1,
-      '-log(p-value)': el.expression2
+      'Mean difference': el.expression1,
+      '-log10 transformed p-value': el.expression2
     }
   }))
 }
@@ -179,7 +188,7 @@ async function fetchKinaseResults (projectId, datasetId) {
   const data = (await axios.get(api.DIFFERENTIAL({ cohort_index: projectId, level: DataType.KINASE_SCORE, grp1_ind: datasetId, grp2_ind: 'index', y_axis_type: 'p_values' }))).data
   return data.map(el => ({
     Kinase: el['Gene Names'],
-    'Log2 Enrichment': el.expression1,
-    '-Log10 p_value adjusted': el.expression2
+    'Mean difference': el.expression1,
+    '-log10 transformed p-value': el.expression2
   }))
 }
