@@ -1,8 +1,10 @@
 import axios from 'axios'
+import { api } from '@/routes.ts'
+import { DataType } from '@/constants'
 
 const INTERNAL_HOST = process.env.VUE_APP_API_HOST
 
-const api = {
+const ptmnApi = {
   getBackendName () {
     return 'Internal'
   },
@@ -16,7 +18,7 @@ const api = {
   },
 
   async refreshSessionId (uuid) {
-    return {}
+    return 'TOPASXPLATFORMXXTOPASXPLATFORMXX'
   },
 
   async getUserDatasetList (sessionId) {
@@ -34,6 +36,7 @@ const api = {
     const names = (await axios
       .get(`${INTERNAL_HOST}/cohort_names`)
     ).data.map((el, i) => ({ projectId: i, projectName: el }))
+
     return names
   },
 
@@ -57,7 +60,7 @@ const api = {
   },
 
   async getCanonicalPathwayList (taxcode) {
-    return (await axios.get(`${INTERNAL_HOST}/canonical_pathways/${taxcode}`)).data
+    return (await axios.get(api.CANONICAL_PATHWAYS({ taxcode, protein_search: '' }))).data
   },
 
   async getCustomPathwayList (uuid) {
@@ -65,14 +68,7 @@ const api = {
   },
 
   async getPathwaySkeleton (taxcode, canonicalPathwayLink) {
-    return (await axios.get(
-      `${INTERNAL_HOST}/pathway_skeletons/${taxcode}`,
-      {
-        params: {
-          link: canonicalPathwayLink
-        }
-      })
-    ).data
+    return (await axios.get(api.PATHWAY_SKELETONS({ taxcode, link: canonicalPathwayLink }))).data
   },
 
   async storeCustomPathway (skeleton, uuid, customPathwayName, currentlyEditedPathwayId) {
@@ -80,31 +76,33 @@ const api = {
   },
 
   async getFilteredPathwayIds (searchStrings, taxcode) {
-    return (await axios.get(
-      `${INTERNAL_HOST}/canonical_pathways/${taxcode}`,
-      {
-        params: {
-          protein_search: searchStrings
-        }
-      }
-    )).data
+    return (await axios.get(api.CANONICAL_PATHWAYS({ taxcode, protein_search: searchStrings }))).data
   },
 
   async getEnrichmentTypes () {
     return [
       {
-        name: 'Motif Enrichment',
-        short: 'motif',
+        name: 'TOPAS',
+        short: 'topas',
         enrichmentTypeId: 1,
         applicableOmics: ['Phosphorylation'],
-        enrichmentClass: 'KinaseActivity'
+        enrichmentClass: 'KinaseActivity',
+        tooltipHtml: 'It uses the substrate phosphorylation scores from TOPAS backend.',
+        stringColumns: ['Kinase'],
+        sortColumn: '-Log10 p_value adjusted',
+        sortDesc: true
       },
       {
         name: 'GCR-PEA',
         short: 'gcr',
         enrichmentTypeId: 2,
         applicableOmics: ['Phosphorylation', 'Protein', 'Other'],
-        enrichmentClass: 'Pathway'
+        enrichmentClass: 'Pathway',
+        tooltipHtml: 'Gene-Centric-Redundant Enrichment Analysis using the Molecular Signatures Database (MSigDB).<br>PTM data is collapsed to gene level.<br>We use the KEGG and WikiPathways signature sets.',
+        parametersHtml: '    gene.set.database:  c2.cp.kegg+wp.v2023.2.Hs.symbols.gmt\n    sample.norm.type:   rank\n    weight:             0.75\n    statistic:          area.under.RES\n    output.score.type   NES\n    nperm:              1000\n    global.fdr:         FALSE\n    min.overlap:        10\n    correl.type:        z.score\n    export.signat.gct:  FALSE\n    run.parallel:       TRUE',
+        stringColumns: ['Signature ID', 'Gene'],
+        sortColumn: 'Score',
+        sortDesc: true
       }
     ]
   },
@@ -114,18 +112,12 @@ const api = {
   },
 
   async loadInternalDatabaseEnrichmentResults (datasetId) {
-    const gcrResults = (await axios.get(`${INTERNAL_HOST}/0/enrichments/${datasetId}`,
-      {
-        params: {
-          method: 'gcr'
-        }
-      }
-    )).data
+    const gcrResults = (await axios.get(api.ENRICHMENTS({ cohort_index: 0, grp_ind: datasetId, method: 'gcr' }))).data
     const kinaseResults = await fetchKinaseResults(0, datasetId)
     return {
       [datasetId]: [
         {
-          enrichmentType: 'Motif Enrichment',
+          enrichmentType: 'TOPAS',
           enrichmentJSON: JSON.stringify(kinaseResults)
         },
         {
@@ -145,14 +137,14 @@ const api = {
   }
 }
 
-export default api
+export default ptmnApi
 
 /*
 * Helper functions that are not exported
 * */
 
 async function fetchAndFormatProteins (projectId, datasetId) {
-  const data = (await axios.get(`${INTERNAL_HOST}/differential/${projectId}/protein/${datasetId}/index/p_values`)).data
+  const data = (await axios.get(api.DIFFERENTIAL({ cohort_index: projectId, level: DataType.FULL_PROTEOME, grp1_ind: datasetId, grp2_ind: 'index', y_axis_type: 'p_values' }))).data
 
   return data.map(el => ({
     geneNames: [el['Gene Names']],
@@ -167,16 +159,16 @@ async function fetchAndFormatProteins (projectId, datasetId) {
   }))
 }
 
-async function fetchAndFormatPtms (projectId, patientId) {
-  const data = (await axios.get(`${INTERNAL_HOST}/differential/${projectId}/psite/${patientId}/index/p_values`)).data
+async function fetchAndFormatPtms (projectId, datasetId) {
+  const data = (await axios.get(api.DIFFERENTIAL({ cohort_index: projectId, level: DataType.PHOSPHO_PROTEOME, grp1_ind: datasetId, grp2_ind: 'index', y_axis_type: 'p_values' }))).data
 
   return data.map(el => ({
     geneNames: [el.Genes.split(';')].flat(),
     regulation: el.up_down,
     uniprotAccs: [],
     details: {
-      'Experiment Name': patientId,
-      'Experiment ID': patientId,
+      'Experiment Name': datasetId,
+      'Experiment ID': datasetId,
       'Fold Change': el.expression1,
       '-log(p-value)': el.expression2
     }
@@ -184,8 +176,8 @@ async function fetchAndFormatPtms (projectId, patientId) {
 }
 
 async function fetchKinaseResults (projectId, datasetId) {
-  const kinaseActivities = (await axios.get(`${INTERNAL_HOST}/differential/${projectId}/kinase/${datasetId}/index/p_values`)).data
-  return kinaseActivities.map(el => ({
+  const data = (await axios.get(api.DIFFERENTIAL({ cohort_index: projectId, level: DataType.KINASE_SCORE, grp1_ind: datasetId, grp2_ind: 'index', y_axis_type: 'p_values' }))).data
+  return data.map(el => ({
     Kinase: el['Gene Names'],
     'Log2 Enrichment': el.expression1,
     '-Log10 p_value adjusted': el.expression2
