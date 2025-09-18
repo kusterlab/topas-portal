@@ -3,7 +3,7 @@ from topas_portal.config_reader import *
 
 
 DATABASE_MODE = False  # True means using Postgres, False means in-memory
-DEBUG_MODE = False 
+DEBUG_MODE = True
 
 PASSWORD = os.getenv("DB_PASSWORD")  # this should be either in the environmental variables or in CI/CD or docker compose file
 
@@ -138,6 +138,12 @@ EXPRESSION_TAB_DATA = [
     "sizeR",
     "num_pep",
     "genomics_annotations",
+    "fusion_onkoKB",
+    "cnv_onkoKB",
+    "snv_onkoKB",
+    "snv",
+    "fusion",
+    "cnv",
     "oncoKB_annotations",
     "is_replicate",
     "FC",

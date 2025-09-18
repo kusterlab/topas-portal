@@ -595,7 +595,7 @@ def patientsmetadata(cohort_index: int):
         sample_annotation_df = sample_annotation_df.drop(["Entity"], axis=1)
     patien_meta_df = cohorts_db.get_patient_metadata_df(cohort_index)
     final_df = utils.merge_with_patients_meta_df(sample_annotation_df, patien_meta_df)
-    final_df = final_df.dropna()
+    final_df = final_df.fillna('n.d.')
     return utils.df_to_json(final_df)
 
 

@@ -87,7 +87,7 @@
                       :swarm-data="singleswarmData"
                       swarm-id="kinasescore"
                       :swarm-sel-ids="plotSelIds"
-                      :swarm-title="proteinidentifier"
+                      :swarm-title="activeKinases"
                       swarm-title-prefix="kinase_scores"
                       field-name="Sample name"
                       :draw-box-plot="true"
@@ -129,7 +129,6 @@ export default {
     singleswarmData: [],
     url: '',
     plotSelIds: [],
-    proteinidentifier: '',
     loading: false,
     activeKinases: []
   }),
