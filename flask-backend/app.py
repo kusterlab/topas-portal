@@ -771,7 +771,6 @@ def get_t_test_json(
     level: utils.DataType,
     y_axis_type: str,
 ):
-    print(cohort_index, grp1_ind, grp2_ind, level, y_axis_type)
     return utils.df_to_json(
         differential_test.get_data_for_t_test(
             cohorts_db,

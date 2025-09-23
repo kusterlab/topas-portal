@@ -100,18 +100,6 @@ const ptmnApi = {
           directionFromSignificance: false,
           isAlreadyLogTransformed: true
         }
-      },
-      {
-        name: 'GCR-PEA',
-        short: 'gcr',
-        enrichmentTypeId: 2,
-        applicableOmics: ['Phosphorylation', 'Protein', 'Other'],
-        enrichmentClass: 'Pathway',
-        tooltipHtml: 'Gene-Centric-Redundant Enrichment Analysis using the Molecular Signatures Database (MSigDB).<br>PTM data is collapsed to gene level.<br>We use the KEGG and WikiPathways signature sets.',
-        parametersHtml: '    gene.set.database:  c2.cp.kegg+wp.v2023.2.Hs.symbols.gmt\n    sample.norm.type:   rank\n    weight:             0.75\n    statistic:          area.under.RES\n    output.score.type   NES\n    nperm:              1000\n    global.fdr:         FALSE\n    min.overlap:        10\n    correl.type:        z.score\n    export.signat.gct:  FALSE\n    run.parallel:       TRUE',
-        stringColumns: ['Signature ID', 'Gene'],
-        sortColumn: 'Score',
-        sortDesc: true
       }
     ]
   },
@@ -120,18 +108,13 @@ const ptmnApi = {
     return []
   },
 
-  async loadInternalDatabaseEnrichmentResults (datasetId) {
-    const gcrResults = (await axios.get(api.ENRICHMENTS({ cohort_index: 0, grp_ind: datasetId, method: 'gcr' }))).data
-    const kinaseResults = await fetchKinaseResults(0, datasetId)
+  async loadInternalDatabaseEnrichmentResults (projectId, datasetId) {
+    const kinaseResults = await fetchKinaseResults(projectId, datasetId)
     return {
       [datasetId]: [
         {
           enrichmentType: 'TOPAS',
           enrichmentJSON: JSON.stringify(kinaseResults)
-        },
-        {
-          enrichmentType: 'GCR-PEA',
-          enrichmentJSON: JSON.stringify(gcrResults)
         }
       ]
     }
