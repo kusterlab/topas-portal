@@ -63,4 +63,7 @@ export const api = {
     BATCH_EFFECT: ({level, cohort_index, identifier, sample_ids, data_type}) => `${API_HOST}/batcheffect/${level}/${cohort_index}/${identifier}/${sample_ids}/${data_type}`,
     DIFFERENTIAL: ({cohort_index, level, grp1_ind, grp2_ind, y_axis_type}) => `${API_HOST}/differential/${cohort_index}/${level}/${grp1_ind}/${grp2_ind}/${y_axis_type}`,
     PROTEIN_LIST: ({cohort_index, level}) => `${API_HOST}/${cohort_index}/${level}/list`,
+    CANONICAL_PATHWAYS: ({taxcode, protein_search}) => `${API_HOST}/canonical_pathways/${taxcode}?protein_search=${protein_search}`,
+    PATHWAY_SKELETONS: ({taxcode, link}) => `${API_HOST}/pathway_skeletons/${taxcode}?link=${link}`,
+    ENRICHMENTS: ({cohort_index, grp_ind, method}) => `${API_HOST}/cohorts/${cohort_index}/enrichments/${grp_ind}?method=${method}`,
 };
