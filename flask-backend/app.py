@@ -813,10 +813,5 @@ if __name__ == "__main__":
         debug = True
 
     app.run(
-        debug=debug, 
-        use_reloader=debug, 
-        host="jsantoso.local", 
-        port=settings.CI_BACKEND_PORT,
-        ssl_context=("/home/jsantoso/jsantoso.local.pem", "/home/jsantoso/jsantoso.local-key.pem")
-
+        debug=debug, use_reloader=debug, host="0.0.0.0", port=settings.CI_BACKEND_PORT
     )
