@@ -10,7 +10,8 @@ class ApiRoutes(ApiBase):
     ADD_COHORT = "/config/addcohort/<string:cohort>"
     CONFIG_UPDATE = "/config/update/<string:key>/<string:cohort>/<string:value>"
 
-    PASSWORD_CHECK = "/password/<string:password>"
+    AUTH_LOGIN = "/auth/login"
+    AUTH_ME = "/auth/me"
 
     COHORT_NAMES = "/cohort_names"
     COLUMN_NAMES = "/colnames"

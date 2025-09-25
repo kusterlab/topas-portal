@@ -16,7 +16,7 @@
             <div style="display: flow-root">
               <v-text-field
                 v-model="password"
-                :disabled="passwordIsValid"
+                :disabled="isLoggedIn"
                 class="float-left"
                 label="Password"
                 type="password"
@@ -24,13 +24,13 @@
               >
                 <template #append>
                   <v-icon
-                    v-if="passwordIsValid"
+                    v-if="isLoggedIn"
                     color="green darken-2"
                   >
                     mdi-check-circle
                   </v-icon>
                   <v-icon
-                    v-if="!passwordIsValid"
+                    v-if="!isLoggedIn"
                     color="red darken-2"
                   >
                     mdi-minus-circle
@@ -42,7 +42,7 @@
         </v-card>
       </v-col>
       <v-col
-        v-if="passwordIsValid"
+        v-if="isLoggedIn"
         sm="12"
         md="9"
         lg="10"
@@ -110,19 +110,43 @@ export default {
     integrationValue: [],
     reportDir: '',
     password: '',
-    passwordIsValid: false,
+    isLoggedIn: false,
     file: null,
     PathvalidationUrl: api.CONFIG_CHECKALL(),
     checkPath: ''
   }),
   mounted () {
   },
+  created () {
+    this.checkAuth()
+  },
+
   methods: {
+    async checkAuth () {
+      console.log('hello')
+      try {
+        const token = localStorage.getItem('access_token')
+        if (!token) {
+          this.isLoggedIn = false
+          return
+        }
+
+        // Example API request to validate token
+        const res = await axios.get(api.AUTH_ME(), {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+
+        this.isLoggedIn = res.data.valid
+      } catch (err) {
+        this.isLoggedIn = false
+      }
+    },
     async checkPassValidity () {
       const pass = this.password
-      const response = await axios.get(api.PASSWORD_CHECK({ password: pass }))
+      const response = await axios.post(api.AUTH_LOGIN(), { password: pass })
       if (response.data.pass === 'valid') {
-        this.passwordIsValid = true
+        localStorage.setItem('access_token', response.data.access_token)
+        this.isLoggedIn = true
       }
     }
   }

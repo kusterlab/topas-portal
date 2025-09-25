@@ -1,4 +1,5 @@
 import os
+import datetime
 from topas_portal.config_reader import *
 
 
@@ -6,6 +7,9 @@ DATABASE_MODE = False  # True means using Postgres, False means in-memory
 DEBUG_MODE = False
 
 PASSWORD = os.getenv("DB_PASSWORD")  # this should be either in the environmental variables or in CI/CD or docker compose file
+
+JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(hours=1)
 
 PRDB_HOST = "https://proteomicsdb.org"
 ENRICHMENT_SERVER_HOST = "https://enrichment.kusterlab.org/main_enrichment-server"
