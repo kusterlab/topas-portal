@@ -246,10 +246,15 @@ export default {
       })
       this.showUpdateCohorts = false
       let response = ''
+      const token = localStorage.getItem('access_token')
       try {
         if (allCohorts) {
           response = await axios.get(`${process.env.VUE_APP_API_HOST}/drugs/load`)
-          response = await axios.get(api.RELOAD())
+          response = await axios.get(api.RELOAD(), {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          })
           this.showUpdateCohorts = true
           this.addNotification({
             color: 'info',
@@ -257,7 +262,12 @@ export default {
           })
         } else {
           const cohort = this.updateMode ? this.cohortName : this.cohortName
-          response = await axios.get(api.RELOAD_COHORT({ cohort }))
+          response = await axios.get(api.RELOAD_COHORT({ cohort }), {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+          )
           this.addNotification({
             color: 'info',
             message: `${response.data}`

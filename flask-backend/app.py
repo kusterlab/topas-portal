@@ -7,10 +7,13 @@ import threading
 from pathlib import Path
 import zipfile
 
-from flask import Flask, render_template, Response, jsonify, send_from_directory
+from flask import Flask, render_template, Response, jsonify, send_from_directory, request
 from flask_cors import CORS
 from flask_caching import Cache
 from flask_compress import Compress
+from flask_jwt_extended import (
+    JWTManager, create_access_token, jwt_required, get_jwt_identity
+)
 
 import db
 import routing_converters
@@ -53,12 +56,15 @@ app.config["config_file"] = cohorts_db.config.get_config_path()
 app.config["LOCAL_HTTTP"] = cohorts_db.config.get_local_http()
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.config["integration_http"] = cohorts_db.config.get_integration_test_http()
+app.config["JWT_SECRET_KEY"] = settings.JWT_SECRET_KEY
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = settings.JWT_ACCESS_TOKEN_EXPIRES
 
 app.url_map.converters["data_type"] = routing_converters.DataTypeConverter
 app.url_map.converters["intensity_unit"] = routing_converters.IntensityUnitConverter
 app.url_map.converters["include_ref"] = routing_converters.IncludeRefConverter
 
 cache = Cache(app)
+jwt = JWTManager(app)
 Compress(app)
 
 
@@ -115,25 +121,42 @@ def favicon():
     )
 
 
-@app.route(ApiRoutes.PASSWORD_CHECK)
-# http://localhost:3832/password/topaswp3
-def password_check(password: str):
+@app.route(ApiRoutes.AUTH_LOGIN, methods=['POST'])
+# http://localhost:3832/auth/login
+def auth_login():
     """
     Validates the provided password against the predefined system password.
 
-    Args:
+    Body:
         password (str): The input password to be checked.
 
     Returns:
-        dict: A dictionary with a key 'pass' and a value of 'valid' if the password matches
-              the system password, otherwise 'invalid'.
+        pass: string
+        access_token: string
     """
+    data = request.get_json()
+    password = data.get("password")
+
     if str(password) == settings.PASSWORD:
-        return {"pass": "valid"}
+        token = create_access_token(identity="admin")
+        return {"pass": "valid", "access_token": token}
     else:
         return {"pass": "invalid"}
 
+@app.route(ApiRoutes.AUTH_ME, methods=['GET'])
+@jwt_required()
+# http://localhost:3832/auth/me
+def auth_me():
+    """
+    Validates the jwt token and returns the user info.
 
+    Returns:
+        username: user name
+        vallid: bool
+    """
+    return jsonify(username=get_jwt_identity(), valid=True)
+
+    
 @app.route(ApiRoutes.COHORT_NAMES)
 # http://localhost:3832/cohort_names
 def cohort_names():
@@ -292,6 +315,7 @@ def get_oncokb_cnv_annotation(identifier: str, cnv_type: str):
 
 ##################### Cohorts Loading and UPDATING
 @app.route(ApiRoutes.RELOAD)
+@jwt_required()
 # http://localhost:3832/reload
 def reload():
     cohorts_db.load_all_data()
@@ -299,6 +323,7 @@ def reload():
 
 
 @app.route(ApiRoutes.RELOAD_DB_ZSCORES)
+@jwt_required()
 # http://localhost:3832/reloaddbz
 def reload_db_zscores():
     cohorts_db.config.reload_config()
@@ -308,6 +333,7 @@ def reload_db_zscores():
 
 
 @app.route(ApiRoutes.RELOAD_DB_INTENSITY)
+@jwt_required()
 # http://localhost:3832/reloaddbi
 def reload_db_intensity():
     cohorts_db.config.reload_config()
@@ -317,6 +343,7 @@ def reload_db_intensity():
 
 
 @app.route(ApiRoutes.RELOAD_METADATA)
+@jwt_required()
 # http://localhost:3832/reloadmeta
 def reload_db_metadata():
     cohorts_db.config.reload_config()
@@ -326,6 +353,7 @@ def reload_db_metadata():
 
 
 @app.route(ApiRoutes.RELOAD_FP_INTENSITY_META)
+@jwt_required()
 # http://localhost:3832/reloadfpintensity
 def reload_fp_intensity():
     cohorts_db.config.reload_config()
@@ -334,6 +362,7 @@ def reload_fp_intensity():
 
 
 @app.route(ApiRoutes.RELOAD_MAPPING_PROTEIN_SEQ)
+@jwt_required()
 # http://localhost:3832/reloadmapping
 def reload_mapping_protein_seq():
     cohorts_db.config.reload_config()
@@ -342,6 +371,7 @@ def reload_mapping_protein_seq():
 
 
 @app.route(ApiRoutes.RELOAD_TOPAS)
+@jwt_required()
 # http://localhost:3832/reloadtopas
 def reload_topass():
     cohorts_db.config.reload_config()
@@ -350,6 +380,7 @@ def reload_topass():
 
 
 @app.route(ApiRoutes.RELOAD_TRANSCRIPTS)
+@jwt_required()
 # http://localhost:3832/reload/transcripts
 def reload_transcripts():
     cohorts_db.config.reload_config()
@@ -359,6 +390,7 @@ def reload_transcripts():
 
 
 @app.route(ApiRoutes.RELOAD_DIGEST)
+@jwt_required()
 def reload_insilico_digest():
     cohorts_db.config.reload_config()
     cohorts_db.provider._load_insilicodigest(cohorts_db.config.get_config())
@@ -366,6 +398,7 @@ def reload_insilico_digest():
 
 
 @app.route(ApiRoutes.RELOAD_TOPAS_ANNOTATIONS)
+@jwt_required()
 # http://localhost:3832/reload/topasannotations
 def reload_topas_annotations():
     cohorts_db.config.reload_config()
@@ -373,13 +406,15 @@ def reload_topas_annotations():
 
 
 @app.route(ApiRoutes.RELOAD_DIGEST)
+@jwt_required()
 # this function is not used at the moment; it can be used to calculate iBAQ in case needed
 def get_the_insilico_peptide_digested():
     return utils.df_to_json(cohorts_db.get_digestes_peptides_maps())
 
 
-# http://localhost:3832/reload/PAN_CANCER
 @app.route(ApiRoutes.RELOAD_COHORT)
+@jwt_required()
+# http://localhost:3832/reload/PAN_CANCER
 def reload_current_cohort(cohort: str):
     cohorts_db.config.reload_config()
     cohorts_db.provider.load_tables(cohorts_db.config, cohort_names=[cohort])
@@ -387,6 +422,7 @@ def reload_current_cohort(cohort: str):
 
 
 @app.route(ApiRoutes.PATH_CHECK)
+@jwt_required()
 def path_checker(path: str):
     if os.path.exists(path.replace("topas_slash", "/")):
         return Response("True")
