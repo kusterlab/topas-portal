@@ -301,9 +301,17 @@ export default {
       this.generalUpdatePath('report_directory', this.reportDir)
     },
     async generalUpdatePath (key, annotation) {
+      const token = localStorage.getItem('access_token')
+      if (!token) {
+        this.isLoggedIn = false
+        return
+      }
+
       const cohortName = this.updateMode ? this.cohortName : this.cohortName
       const pathValue = annotation.replace(/[/]/g, 'topas_slash')
-      const pathCheck = await axios.get(api.PATH_CHECK({ path: pathValue }))
+      const pathCheck = await axios.get(api.PATH_CHECK({ path: pathValue }), {
+        headers: { Authorization: `Bearer ${token}` }
+      })
       if (pathCheck.data === 'True') {
         await axios.get(api.CONFIG_UPDATE({ key, cohort: cohortName, value: pathValue }))
         this.addNotification({
