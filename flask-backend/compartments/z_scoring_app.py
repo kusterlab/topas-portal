@@ -141,7 +141,7 @@ def get_subcohort_zscores(level: str, cohort_index: int, identifier: str, patien
     level = DataType(level)
 
     # Data modalities for the z scoring 
-    if level == DataType.TOPAS_SCORE:
+    if level == DataType.TOPAS_RTK_SCORE:
         unit = IntensityUnit.SCORE
     elif level == DataType.KINASE_SCORE or level == DataType.PHOSPHO_SCORE:
         unit = IntensityUnit.Z_SCORE
@@ -158,7 +158,7 @@ def get_subcohort_zscores(level: str, cohort_index: int, identifier: str, patien
 
     input_df = raw_df.T  # we transpose dataframe 
 
-    if level == DataType.TOPAS_SCORE:
+    if level == DataType.TOPAS_RTK_SCORE:
         input_df = input_df.reset_index()
     else: 
         input_df['Sample name'] = input_df.index

@@ -15,11 +15,12 @@ export const DataType = Object.freeze({
   TOPAS_PHOSPHO_SCORE: 'topas_phospho',
   TOPAS_PHOSPHO_SCORE_PSITE: 'topas_phospho_psite',
   TOPAS_PROTEIN: 'topas_expression',
-  TOPAS_SCORE: 'topas',
-  TOPAS_SCORE_RTK: 'topas_rtk',
+  TOPAS_RTK_SCORE: 'topas_rtk',
+  TOPAS_CK_SCORE: 'topas_ck',
   TRANSCRIPTOMICS: 'fpkm',
   TOPAS_SUBSCORE: 'topas_subscore',
   BIOMARKER: 'biomarker',
+  REPORT_SUMMARY: 'report_summary',
   FP_PP: 'FP_PP'
 })
 

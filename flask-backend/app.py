@@ -510,7 +510,7 @@ def topas_annotations():
 def get_circular_barplot_data(cohort_index: int, patient: str):
     return utils.df_to_json(
         bp.get_circular_barplot_data_pathways(
-            cohorts_db.get_topas_scores_df(
+            cohorts_db.get_topas_rtk_scores_df(
                 cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
             ),
             patient,
@@ -541,7 +541,7 @@ def get_lolipopexpression_down_stream(cohort_index: int, patient: str):
                 intensity_unit=utils.IntensityUnit.Z_SCORE,
                 patient_name=patient,
             ),
-            cohorts_db.get_topas_scores_df(
+            cohorts_db.get_topas_rtk_scores_df(
                 cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
             ),
             patient,
@@ -576,7 +576,7 @@ def get_lolipopexpression_rtk(cohort_index: int, patient: str):
                 intensity_unit=utils.IntensityUnit.Z_SCORE,
                 patient_name=patient,
             ),
-            cohorts_db.get_topas_scores_df(
+            cohorts_db.get_topas_rtk_scores_df(
                 cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
             ),
             patient,
@@ -588,7 +588,7 @@ def get_lolipopexpression_rtk(cohort_index: int, patient: str):
 @app.route(ApiRoutes.TOPAS_IDS)
 # http://localhost:3832/topas/0/topasids
 def topas_unique(cohort_index: int, categories: str):
-    return bp.get_topas_unique(cohorts_db.get_topas_scores_df(cohort_index), categories)
+    return bp.get_topas_unique(cohorts_db.get_topas_rtk_scores_df(cohort_index), categories)
 
 
 @app.route(ApiRoutes.TOPAS_SUBSCORE)

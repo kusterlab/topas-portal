@@ -73,8 +73,8 @@ def fetch_data_matrix(
             cohorts_db.get_psite_abundance_df(cohort_index),
             identifiers,
         )
-    elif level == utils.DataType.TOPAS_SCORE:
-        df = cohorts_db.get_topas_scores_df(cohort_index, intensity_unit=intensity_unit)
+    elif level == utils.DataType.TOPAS_RTK_SCORE:
+        df = cohorts_db.get_topas_rtk_scores_df(cohort_index, intensity_unit=intensity_unit)
     elif level == utils.DataType.TRANSCRIPTOMICS:
         df = cohorts_db.get_fpkm_df(intensity_unit=intensity_unit)
     else:

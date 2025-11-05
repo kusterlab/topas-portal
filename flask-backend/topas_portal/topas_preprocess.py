@@ -258,7 +258,7 @@ def get_topas_subset_df(
     else:
         score_unit = utils.IntensityUnit.Z_SCORE
 
-    topas_df = cohorts_db.get_topas_scores_df(cohort_index, score_unit)
+    topas_df = cohorts_db.get_topas_rtk_scores_df(cohort_index, score_unit)
     topas_df = get_topas_scores_long_format(topas_df)
 
     if topas_names == "IFN_sig":

@@ -6,10 +6,8 @@ import pandas as pd
 
 from topas_portal import utils
 from topas_portal import settings
-from topas_portal import fetch_data_matrix as data
 import topas_portal.genomics_preprocess as genomics_prep
-import topas_portal.psite_annotation as ps
-import topas_portal.topas_preprocess as topas_loader
+from . import patient_report
 
 if TYPE_CHECKING:
     import topas_portal.data_api.data_api as data_api
@@ -444,98 +442,12 @@ def get_reports_per_patient(
 ):
     read_from_the_report_dir = download_method == "fromreport"
     if not read_from_the_report_dir:
-        final_df = _get_reports_per_patient_on_the_fly(
+        final_df = patient_report.get_reports_per_patient_on_the_fly(
             cohorts_db, level, cohort_index, patient
         )
     else:
-        final_df = _get_reports_per_patient_from_the_reports_folder(
+        final_df = patient_report.get_reports_per_patient_from_reports_folder(
             cohorts_db, level, cohort_index, patient
         )
-
-    return final_df
-
-
-def _get_reports_per_patient_from_the_reports_folder(
-    cohorts_db: data_api.CohortDataAPI,
-    level: utils.DataType,
-    cohort_index: int,
-    patient: str,
-):
-    reports_dir = cohorts_db.get_report_dir(cohort_index)
-    path_to_patient_results = (
-        reports_dir + "/Reports/" + patient + "_proteomics_results.xlsx"
-    )
-    sheetname = _get_sheetname_from_level(level)
-    df = pd.read_excel(path_to_patient_results, sheet_name=sheetname)
-    df = df.fillna("n.d")
-    return df
-
-
-def _get_sheetname_from_level(level: utils.DataType):
-    if level == utils.DataType.PHOSPHO_PROTEOME:
-        return "Phospho proteome"
-    elif level == utils.DataType.FULL_PROTEOME:
-        return "Global proteome"
-    elif level == utils.DataType.TOPAS_SCORE:
-        return "Topas"
-    elif level == utils.DataType.PHOSPHO_SCORE:
-        return "Protein phosphorylation"
-    elif level == utils.DataType.KINASE_SCORE:
-        return "Kinase"
-    elif level == utils.DataType.TOPAS_SUBSCORE:
-        return "sutopas"
-    elif level == utils.DataType.BIOMARKER:
-        return "Biomarkers"
-
-
-def _get_reports_per_patient_on_the_fly(
-    cohorts_db: data_api.CohortDataAPI, level, cohort_index, patient
-):
-    final_df = pd.DataFrame()
-    if level == utils.DataType.PHOSPHO_PROTEOME:
-        patient_column = patient + " Z-score"
-        sub_df = cohorts_db.get_psite_abundance_df(
-            cohort_index, patient_name=patient_column,
-        )
-        sub_df = sub_df.dropna()
-        final_df = ps.phospho_annot(sub_df)
-
-    elif level == utils.DataType.FULL_PROTEOME:
-        patient_column = patient + " Z-score"
-        sub_df = cohorts_db.get_protein_abundance_df(
-            cohort_index, patient_name=patient_column,
-        )
-        sub_df["Gene names"] = sub_df.index
-        final_df = sub_df.dropna()
-
-    elif level == utils.DataType.TOPAS_SCORE:
-        sub_df = cohorts_db.get_topas_scores_df(
-            cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
-        )
-        sub_df = topas_loader.get_topas_scores_long_format(sub_df)
-        sub_df = sub_df[sub_df["Sample name"] == patient]
-        final_df = sub_df[["Topas_id", "Z-score"]]
-        final_df = final_df.dropna()
-
-    elif level == utils.DataType.KINASE_SCORE:
-        sub_df = cohorts_db.get_kinase_scores_df(
-            cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
-        )
-        sub_df["Kinase_names"] = sub_df.index
-        final_df = sub_df[["Kinase_names", patient]]
-        final_df = final_df.dropna()
-
-    elif level == utils.DataType.PHOSPHO_SCORE:
-        sub_df = cohorts_db.get_phosphorylation_scores_df(
-            cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
-        )
-        sub_df["Gene names"] = sub_df.index
-        final_df = sub_df[["Gene names", patient]]
-        final_df = final_df.dropna()
-
-    elif level == utils.DataType.TRANSCRIPTOMICS:
-        sub_df = cohorts_db.get_fpkm_df(intensity_unit=utils.IntensityUnit.Z_SCORE)
-        sub_df["Gene names"] = sub_df.index
-        final_df = sub_df[["Gene names", patient]]
 
     return final_df

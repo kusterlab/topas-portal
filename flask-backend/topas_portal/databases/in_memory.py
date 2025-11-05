@@ -38,7 +38,8 @@ DICT_ALL_DATA = {
     utils.DataType.SAMPLE_ANNOTATION: [],
     utils.DataType.PHOSPHO_PROTEOME: [],
     utils.DataType.FULL_PROTEOME: [],
-    utils.DataType.TOPAS_SCORE: [],
+    utils.DataType.TOPAS_RTK_SCORE: [],
+    utils.DataType.TOPAS_CK_SCORE: [],
     utils.DataType.KINASE_SCORE: [],
     utils.DataType.PHOSPHO_SCORE: [],
     "fp_intensity_meta_df": [],
@@ -50,6 +51,7 @@ class InMemoryProvider:
         self.logger = logger
         self.dict_all_data = DICT_ALL_DATA
         self.topas_complete_df = None
+        self.poi_annotation_df = None
         self.FPKM = None
         self.genomics_data = None
         self.oncoKB_data = None
@@ -79,6 +81,7 @@ class InMemoryProvider:
         self._load_genomics(config.get_config())
         self._load_onkoKB_annotations(config.get_config())
         self._load_topas_annotation_tables(config.get_config())
+        self._load_poi_annotations(config.get_config())
 
     def load_single_cohort(
         self, cohort_name: str, cohort_index: int, config: CohortConfig
@@ -118,6 +121,15 @@ class InMemoryProvider:
             basket_annotation_path
         )
         self.logger.log_message("Topas tables loaded")
+    
+    def _load_poi_annotations(self, config: Dict):
+        """The protein of interest (POI) table is independent of cohorts and will be treated as a single global variable separately"""
+        self.logger.log_message("Loading POI annotation table")
+        poi_annotation_path = Path(config["poi_annotation_path"])
+        self.poi_annotation_df = topas_loader.load_poi_annotation_df(
+            poi_annotation_path
+        )
+        self.logger.log_message("POI annotation tables loaded")
 
     def _load_FPKM(self, config: Dict):
         """FPKM table is independent of cohorts and will be treated as a single global variable separately"""
@@ -175,7 +187,7 @@ class InMemoryProvider:
 def _load_all_tables(cohort, config: Dict, do_return_place_holder: bool = False):
     """For a single cohort type makes a dictionary of dataframes"""
 
-    topas_df, pp_df_patients = [], []
+    topas_rtk_df, topas_ck_df, pp_df_patients = [], [], []
     sample_annotation_df, patients_df = [], []
     fp_df_patients, fp_intensity_meta = [], []
     kinase_score_df, phospho_score_df = [], []
@@ -183,18 +195,24 @@ def _load_all_tables(cohort, config: Dict, do_return_place_holder: bool = False)
     if not do_return_place_holder:
         cohort_report_dir = config["report_directory"][cohort]
         print(f"report dir #########{cohort_report_dir}")
-        topas_df = topas_loader.load_topas_scores_df(
-            Path(os.path.join(cohort_report_dir, settings.TOPAS_SCORES_FILE))
+        topas_rtk_df = topas_loader.load_topas_scores_df(
+            Path(os.path.join(cohort_report_dir, settings.TOPAS_RTK_SCORES_FILE))
         )
-        if isinstance(topas_df, pd.DataFrame):
+        if isinstance(topas_rtk_df, pd.DataFrame):
             topas_df_z_scored = topas_loader.load_topas_scores_df(
-                Path(os.path.join(cohort_report_dir, settings.TOPAS_Z_SCORES_FILE))
+                Path(os.path.join(cohort_report_dir, settings.TOPAS_RTK_Z_SCORES_FILE))
             )
-            topas_df = topas_df.join(
+            topas_rtk_df = topas_rtk_df.join(
                 topas_df_z_scored,
                 lsuffix=utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.SCORE],
                 rsuffix=utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.Z_SCORE],
             )
+
+        topas_ck_df = topas_loader.load_topas_scores_df(
+            Path(os.path.join(cohort_report_dir, settings.TOPAS_CK_SCORES_FILE)),
+            index_col="Sample name",
+            intensity_unit_suffix=utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.Z_SCORE]
+        )
 
         sample_annotation_df = sample_annotation_loader.load_sample_annotation_table(
             Path(config["sample_annotation_path"][cohort])
@@ -202,17 +220,22 @@ def _load_all_tables(cohort, config: Dict, do_return_place_holder: bool = False)
         patients_df = patient_metadata_loader.load_patient_table(
             Path(config["patient_annotation_path"][cohort])
         )
-        patients_list = sample_annotation_df['Sample name'].unique().tolist()
+        patients_list = sample_annotation_df["Sample name"].unique().tolist()
         ## preprocessed intensities at FP level
         if config["FP"][cohort] == 1:
             print("Reading the data at the FP level")
             fp_intensity_meta = expression_loader.load_intensity_meta_data(
-                Path(os.path.join(cohort_report_dir, settings.PREPROCESSED_FP_INTENSITY)),
+                Path(
+                    os.path.join(cohort_report_dir, settings.PREPROCESSED_FP_INTENSITY)
+                ),
                 settings.FP_KEY,
             )
             fp_intensity = expression_loader.load_annotated_intensity_file(
-                Path(os.path.join(cohort_report_dir, settings.PREPROCESSED_FP_INTENSITY)),
-                settings.FP_KEY, patients_list
+                Path(
+                    os.path.join(cohort_report_dir, settings.PREPROCESSED_FP_INTENSITY)
+                ),
+                settings.FP_KEY,
+                patients_list,
             )
             fp_df_patients = expression_loader.load_expression_data(
                 Path(cohort_report_dir), settings.FP_KEY, "full_proteome"
@@ -223,8 +246,11 @@ def _load_all_tables(cohort, config: Dict, do_return_place_holder: bool = False)
         if config["PP"][cohort] == 1:
             print("Reading the data at at the PP level")
             pp_intensity = expression_loader.load_annotated_intensity_file(
-                Path(os.path.join(cohort_report_dir, settings.PREPROCESSED_PP_INTENSITY)),
-                settings.PP_KEY, patients_list,
+                Path(
+                    os.path.join(cohort_report_dir, settings.PREPROCESSED_PP_INTENSITY)
+                ),
+                settings.PP_KEY,
+                patients_list,
                 extra_columns=settings.PP_EXTRA_COLUMNS,
             )
             pp_df_patients = expression_loader.load_expression_data(
@@ -245,7 +271,8 @@ def _load_all_tables(cohort, config: Dict, do_return_place_holder: bool = False)
         utils.DataType.SAMPLE_ANNOTATION: sample_annotation_df,  # meta data with replicates Sample name column refer to the patients, keeps replicates
         utils.DataType.PHOSPHO_PROTEOME: pp_df_patients,  # phospho sites Z-scores of normalized logged intensities
         utils.DataType.FULL_PROTEOME: fp_df_patients,  # full proteome Z-scores of normalized logged intensities
-        utils.DataType.TOPAS_SCORE: topas_df,  # topas scores not z_scored
+        utils.DataType.TOPAS_RTK_SCORE: topas_rtk_df,  # topas scores not z_scored
+        utils.DataType.TOPAS_CK_SCORE: topas_ck_df,  # topas scores not z_scored
         utils.DataType.KINASE_SCORE: kinase_score_df,  # kinase scores Z-scores
         utils.DataType.PHOSPHO_SCORE: phospho_score_df,  # phospho scores Z-scores
         "fp_intensity_meta_df": fp_intensity_meta,  # number of peptides detected at full proteome

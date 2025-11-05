@@ -6,9 +6,11 @@ from topas_portal.config_reader import *
 DATABASE_MODE = False  # True means using Postgres, False means in-memory
 DEBUG_MODE = False
 
-PASSWORD = os.getenv("DB_PASSWORD")  # this should be either in the environmental variables or in CI/CD or docker compose file
+PASSWORD = os.getenv(
+    "DB_PASSWORD"
+)  # this should be either in the environmental variables or in CI/CD or docker compose file
 
-JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY",'topas_portal_is_so_cool')
+JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "topas_portal_is_so_cool")
 JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(hours=1)
 
 PRDB_HOST = "https://proteomicsdb.org"
@@ -35,12 +37,12 @@ FP_KEY = "Gene names"
 # REGEX PATTERNS FOR THE PATIENTS IDS
 # patient identifiers
 
-Z_SCORE_REGEX = (
-    r" Z-score"
-)
+Z_SCORE_REGEX = r" Z-score"
 REGEX_META = (
-    r"^Identification metadata"  # to get num identified pepetides in FP intensity file
+    r"^Identification metadata"  # to get num identified peptides in FP intensity file
 )
+
+# PATIENT DATA FILES (Paths are relative to the results folder root)
 
 # normalized intensities with gene/p-site annotations from wp3 pipeline
 # includes topas (FP, PP) and PSP annotations (PP)
@@ -48,26 +50,28 @@ PREPROCESSED_FP_INTENSITY = "annot_fp.csv"
 PREPROCESSED_PP_INTENSITY = "annot_pp.csv"
 
 # phosphorylation scores from wp2 pipeline (FH)
-PHOSPHORYLATION_SCORES = "protein_results/protein_scores.tsv"
+PHOSPHORYLATION_SCORES = "topas_scores/protein_phosphorylation_scores.tsv"
 
 # Drug scores from wp2 pipeline (FH)
 DRUG_SCORES = "drug_results/drug_scores.tsv"
 
-# meta data entity column
-ENTITY_COLUMN = "code_oncotree"
-
-
-# THE FILES WITH RESPECT TO THE MAIN RESULT FOLDER
 KINASE_SCORES_FILE = "kinase_results/kinase_scores.tsv"
 KINASE_PEPTIDES_SCORES = "kinase_results/scored_peptides.tsv"
 
 #
-TOPAS_SUBSCORE_FILES_PREFIX = "subbasket_scores_"
-TOPAS_SCORES_FILE = "basket_scores_4th_gen.tsv"
-TOPAS_Z_SCORES_FILE = "basket_scores_4th_gen_zscored.tsv"
+TOPAS_SUBSCORE_FILES_PREFIX = "topas_scores/subbasket_scores_"
+TOPAS_RTK_SCORES_FILE = "topas_scores/topas_rtk_scores.tsv"
+TOPAS_RTK_Z_SCORES_FILE = "topas_scores/topas_rtk_scores_zscored.tsv"
+TOPAS_CK_SCORES_FILE = (
+    "topas_scores/ck_substrate_phosphorylation_scores_expressioncorrected.tsv"  # already z-scored
+)
+
 
 # pp z_scores
 PHOSPHO_MEASURES = "phospho_measures_z.tsv"
+
+# meta data entity column
+ENTITY_COLUMN = "code_oncotree"
 
 PEPTIDE_PROTEIN_MAPPING_COLS = {
     "gene_name": "Gene names",
@@ -89,8 +93,8 @@ SAMPLE_ANNOTATION = {
 
 # getting the list of meta data columns for devextreme table
 main_config = config_reader(PORTAL_CONFIG_FILE)
-meta_columns_json = config_reader(main_config['meta_data_columns_config'])
-front_end_col_names = meta_columns_json['front_end_col_names']
+meta_columns_json = config_reader(main_config["meta_data_columns_config"])
+front_end_col_names = meta_columns_json["front_end_col_names"]
 COMMON_META_DATA = [x["dataField"] for x in front_end_col_names]
 
 # add number type columns for -1 replacement of NaN values

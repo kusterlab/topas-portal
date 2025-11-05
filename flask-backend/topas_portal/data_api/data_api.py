@@ -46,14 +46,23 @@ class CohortDataAPI(Protocol):
     ) -> pd.DataFrame:
         """Z-scored p-site intensities per sample on phospho proteome level"""
 
-    def get_topas_scores_df(
+    def get_topas_rtk_scores_df(
         self,
         cohort_index: str,
         intensity_unit: Union[utils.IntensityUnit, None] = None,
         identifier: str = None,
         patient_name: str = None,
     ) -> pd.DataFrame:
-        """Topas scores per sample"""
+        """Topas RTK scores per sample"""
+
+    def get_topas_ck_scores_df(
+        self,
+        cohort_index: str,
+        intensity_unit: Union[utils.IntensityUnit, None] = None,
+        identifier: str = None,
+        patient_name: str = None,
+    ) -> pd.DataFrame:
+        """Topas CK scores per sample"""
 
     def get_phosphorylation_scores_df(
         self,
@@ -86,6 +95,9 @@ class CohortDataAPI(Protocol):
         """"""
 
     def get_topas_annotation_df(self) -> pd.DataFrame:
+        """"""
+
+    def get_poi_annotation_df(self) -> pd.DataFrame:
         """"""
 
     def get_genomics(self) -> pd.DataFrame:

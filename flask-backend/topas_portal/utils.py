@@ -35,11 +35,12 @@ class DataType(str, Enum):
         "topas_phospho_psite"  # p-sites making up a phosphoprotein score
     )
     TOPAS_PROTEIN = "topas_expression"
-    TOPAS_SCORE = "topas"
-    TOPAS_SCORE_RTK = "topas_rtk"
+    TOPAS_RTK_SCORE = "topas_rtk"
+    TOPAS_CK_SCORE = "topas_ck"
     TRANSCRIPTOMICS = "fpkm"
     TOPAS_SUBSCORE = "topas_subscore"
     BIOMARKER = "biomarker"
+    REPORT_SUMMARY = "report_summary"
 
     PATIENT_METADATA = "patients_df"
     SAMPLE_ANNOTATION = "sample_annotation_df"

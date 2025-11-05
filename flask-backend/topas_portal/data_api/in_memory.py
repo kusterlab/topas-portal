@@ -11,7 +11,9 @@ from logger import CohortLogger
 from topas_portal.data_api.exceptions import IntensityUnitUnavailableError
 
 
-def extract_columns_and_remove_suffix(df: pd.DataFrame, intensity_unit: utils.IntensityUnit):
+def extract_columns_and_remove_suffix(
+    df: pd.DataFrame, intensity_unit: utils.IntensityUnit
+):
     intensity_suffix = utils.INTENSITY_UNIT_SUFFIXES[intensity_unit]
     df = df.filter(like=intensity_suffix)
     if len(df.columns) == 0:
@@ -37,7 +39,9 @@ class InMemoryCohortDataAPI:
     # based on the queries for each cohort
     def get_patients_entities_df(self, cohort_index: str) -> pd.DataFrame:
         patients_df = self.get_patient_metadata_df(cohort_index)
-        df = pd.DataFrame(patients_df[settings.ENTITY_COLUMN].unique(), columns=["Entity"])
+        df = pd.DataFrame(
+            patients_df[settings.ENTITY_COLUMN].unique(), columns=["Entity"]
+        )
         df["Entity"] = df["Entity"].str.replace(r"[ ,;]", "_", regex=True)
         return df
 
@@ -103,14 +107,24 @@ class InMemoryCohortDataAPI:
 
         return self._filter_expression_df(df, intensity_unit, identifier, patient_name)
 
-    def get_topas_scores_df(
+    def get_topas_rtk_scores_df(
         self,
         cohort_index: str,
         intensity_unit: Union[utils.IntensityUnit, None] = None,
         identifier: str = None,
         patient_name: str = None,
     ) -> pd.DataFrame:
-        df = self.provider.get_dataframe(cohort_index, utils.DataType.TOPAS_SCORE)
+        df = self.provider.get_dataframe(cohort_index, utils.DataType.TOPAS_RTK_SCORE)
+        return self._filter_expression_df(df, intensity_unit, identifier, patient_name)
+
+    def get_topas_ck_scores_df(
+        self,
+        cohort_index: str,
+        intensity_unit: Union[utils.IntensityUnit, None] = None,
+        identifier: str = None,
+        patient_name: str = None,
+    ) -> pd.DataFrame:
+        df = self.provider.get_dataframe(cohort_index, utils.DataType.TOPAS_CK_SCORE)
         return self._filter_expression_df(df, intensity_unit, identifier, patient_name)
 
     def get_report_dir(self, cohort_index: str) -> str:
@@ -141,6 +155,9 @@ class InMemoryCohortDataAPI:
 
     def get_topas_annotation_df(self) -> pd.DataFrame:
         return self.provider.topas_complete_df
+    
+    def get_poi_annotation_df(self) -> pd.DataFrame:
+        return self.provider.poi_annotation_df
 
     def get_fpkm_df(
         self,

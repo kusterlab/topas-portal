@@ -172,21 +172,12 @@ def _preparare_input_for_t_test(
             - pd.DataFrame: A transposed data matrix containing only the selected patients.
 
     Notes:
-        - If `level` is `TOPAS_SCORE_RTK`, it is replaced with `TOPAS_SCORE`, and only RTK-related 
-          identifiers are retrieved.
         - The function fetches the relevant data matrix from `cohorts_db` using the specified 
           intensity unit.
         - Only the patients that exist in both `patients_list` and the data matrix columns 
           are retained.
     """
     identifiers = None
-    if level == utils.DataType.TOPAS_SCORE_RTK:
-        level = utils.DataType.TOPAS_SCORE
-        identifiers = [
-            topas
-            for topas, category in topas.TOPAS_CATEGORIES.items()
-            if category == "RTK"
-        ]
 
     input_df = data.fetch_data_matrix(
         cohorts_db,

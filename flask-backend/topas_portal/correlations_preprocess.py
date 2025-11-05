@@ -91,7 +91,7 @@ def compute_correlation_df(
         all_abundances, abundances, patients_list=patients_list
     )
 
-    if level == utils.DataType.TOPAS_SCORE:
+    if level == utils.DataType.TOPAS_RTK_SCORE:
         # add "Topas weight column" to correlation table
         topas_complete_df = cohorts_db.get_topas_annotation_df()
         topas_annotation_df = topas_utils.get_topas_weights(topas_complete_df)

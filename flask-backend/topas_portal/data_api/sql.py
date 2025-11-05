@@ -33,7 +33,9 @@ class SQLCohortDataAPI:
     # based on the queries for each cohort
     def get_patients_entities_df(self, cohort_index: str) -> pd.DataFrame:
         patients_df = self.get_patient_metadata_df(cohort_index)
-        df = pd.DataFrame(patients_df[settings.ENTITY_COLUMN].unique(), columns=["Entity"])
+        df = pd.DataFrame(
+            patients_df[settings.ENTITY_COLUMN].unique(), columns=["Entity"]
+        )
         df["Entity"] = df["Entity"].str.replace(r"[ ,;]", "_", regex=True)
         return df
 
@@ -118,10 +120,15 @@ class SQLCohortDataAPI:
             else:
                 cohort_report_dir = self.config.get_report_directory(cohort_index)
                 sample_annotations_df = self.get_sample_annotation_df(cohort_index)
-                patient_list = sample_annotations_df['Sample name'].unique().tolist()
+                patient_list = sample_annotations_df["Sample name"].unique().tolist()
                 return expression_loader.load_annotated_intensity_file(
-                    Path(os.path.join(cohort_report_dir, settings.PREPROCESSED_FP_INTENSITY)),
-                    settings.FP_KEY, patient_list
+                    Path(
+                        os.path.join(
+                            cohort_report_dir, settings.PREPROCESSED_FP_INTENSITY
+                        )
+                    ),
+                    settings.FP_KEY,
+                    patient_list,
                 )
         elif intensity_unit == utils.IntensityUnit.Z_SCORE:
             if identifier:
@@ -161,10 +168,15 @@ class SQLCohortDataAPI:
             else:
                 cohort_report_dir = self.config.get_report_directory(cohort_index)
                 sample_annotations_df = self.get_sample_annotation_df(cohort_index)
-                patient_list = sample_annotations_df['Sample name'].unique().tolist()
+                patient_list = sample_annotations_df["Sample name"].unique().tolist()
                 return expression_loader.load_annotated_intensity_file(
-                    Path(os.path.join(cohort_report_dir, settings.PREPROCESSED_PP_INTENSITY)),
-                    settings.PP_KEY,patient_list
+                    Path(
+                        os.path.join(
+                            cohort_report_dir, settings.PREPROCESSED_PP_INTENSITY
+                        )
+                    ),
+                    settings.PP_KEY,
+                    patient_list,
                 )
         elif intensity_unit == utils.IntensityUnit.Z_SCORE:
             if identifier:
@@ -198,7 +210,7 @@ class SQLCohortDataAPI:
         df["Sample"] = df["Sample name"]
         return df
 
-    def get_topas_scores_df(
+    def get_topas_rtk_scores_df(
         self,
         cohort_index: str,
         intensity_unit: Union[utils.IntensityUnit, None],
@@ -217,6 +229,15 @@ class SQLCohortDataAPI:
             raise ValueError(
                 f"Cannot return topas scores for intensity unit {intensity_unit}"
             )
+
+    def get_topas_ck_scores_df(
+        self,
+        cohort_index: str,
+        intensity_unit: Union[utils.IntensityUnit, None],
+        identifier: str = None,
+        patient_name: str = None,
+    ) -> pd.DataFrame:
+        raise NotImplementedError(f"Cannot return topas CK scores from SQL database")
 
     def get_report_dir(self, cohort_index: str) -> str:
         cohortname = list(self.config.config["report_directory"].keys())[
@@ -255,6 +276,9 @@ class SQLCohortDataAPI:
 
     def get_topas_annotation_df(self) -> pd.DataFrame:
         return self.provider.topas_complete_df
+
+    def get_poi_annotation_df(self) -> pd.DataFrame:
+        return self.provider.poi_annotation_df
 
     def get_fpkm_df(
         self,

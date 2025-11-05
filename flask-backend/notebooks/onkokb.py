@@ -443,7 +443,7 @@ def _get_sheetname_from_level(level: utils.DataType):
         return "Phospho proteome"
     elif level == utils.DataType.FULL_PROTEOME:
         return "Global proteome"
-    elif level == utils.DataType.TOPAS_SCORE:
+    elif level == utils.DataType.TOPAS_RTK_SCORE:
         return "Topas"
     elif level == utils.DataType.PHOSPHO_SCORE:
         return "Protein phosphorylation"
@@ -475,8 +475,8 @@ def _get_reports_per_patient_on_the_fly(
         sub_df["Gene names"] = sub_df.index
         final_df = sub_df.dropna()
 
-    elif level == utils.DataType.TOPAS_SCORE:
-        sub_df = cohorts_db.get_topas_scores_df(
+    elif level == utils.DataType.TOPAS_RTK_SCORE:
+        sub_df = cohorts_db.get_topas_rtk_scores_df(
             cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
         )
         sub_df = topas_loader.get_topas_scores_long_format(sub_df)

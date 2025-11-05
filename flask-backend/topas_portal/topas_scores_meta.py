@@ -41,7 +41,7 @@ TOPAS_SCORING_RULES = {
 }
 
 TOPAS_DIFFERENTIAL_INTENSITY_UNITS = {
-    utils.DataType.TOPAS_SCORE: utils.IntensityUnit.SCORE,
+    utils.DataType.TOPAS_RTK_SCORE: utils.IntensityUnit.SCORE,
     utils.DataType.KINASE_SCORE: utils.IntensityUnit.Z_SCORE,
     utils.DataType.PHOSPHO_SCORE: utils.IntensityUnit.Z_SCORE,
     utils.DataType.FULL_PROTEOME: utils.IntensityUnit.INTENSITY,

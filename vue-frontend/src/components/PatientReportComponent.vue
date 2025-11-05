@@ -403,7 +403,7 @@ export default {
     patientData: [],
     selectedLineppintensity: [],
     selectedLinefpintensity: [],
-    scoreType: DataType.TOPAS_SCORE,
+    scoreType: DataType.REPORT_SUMMARY,
     Showcircular: true,
     lolipopData: false,
     showCorrelation: false,
@@ -426,8 +426,16 @@ export default {
     selectedData: [],
     allInputDataTypes: [
       {
-        text: 'TOPAS score',
-        value: DataType.TOPAS_SCORE
+        text: 'Report summary',
+        value: DataType.REPORT_SUMMARY
+      },
+      {
+        text: 'TOPAS CK score',
+        value: DataType.TOPAS_CK_SCORE
+      },
+      {
+        text: 'TOPAS RTK score',
+        value: DataType.TOPAS_RTK_SCORE
       },
       {
         text: 'Full proteome',
@@ -572,6 +580,8 @@ export default {
       }
     },
     getscoresTable () {
+      if (this.firstPatient.length === 0) return
+
       this.patientscoresDataurl = api.PATIENT_REPORT_TABLE({
         cohort_index: this.cohortIndex,
         patient: this.firstPatient,

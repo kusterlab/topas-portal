@@ -9,8 +9,6 @@ from topas_portal import utils
 import topas_portal.topas_scores_meta as topas
 
 
-
-
 @utils.check_path_exist
 def load_topas_annotation_df(path_to_topas_annotation_file: str) -> pd.DataFrame:
     """
@@ -21,10 +19,21 @@ def load_topas_annotation_df(path_to_topas_annotation_file: str) -> pd.DataFrame
 
 
 @utils.check_path_exist
-def load_topas_scores_df(topas_scores_path: str):
+def load_poi_annotation_df(poi_annotation_file: str) -> pd.DataFrame:
+    """
+    Load all topas annotations as a DataFrame.
+    """
+    topas_annotations_df = pd.read_excel(poi_annotation_file)
+    return topas_annotations_df
+
+
+@utils.check_path_exist
+def load_topas_scores_df(
+    topas_scores_path: str, index_col: str = "Sample", intensity_unit_suffix: str = ""
+):
     """Loads DataFrame with topas scores for each sample."""
     topas_scores_df = pd.read_csv(
-        topas_scores_path, delimiter="\t", index_col="Sample"
+        topas_scores_path, delimiter="\t", index_col=index_col
     )
 
     topas_scores_df = utils.remove_patient_prefix(topas_scores_df, from_col=False)
@@ -37,11 +46,15 @@ def load_topas_scores_df(topas_scores_path: str):
 
     # remove the "targets_<sample_id>" rows containing the number of scored genes per sample(?)
     topas_scores_df = topas_scores_df.loc[
-        ~topas_scores_df.index.str.startswith("targets_")
+        ~topas_scores_df.index.str.startswith("targets_"), :
     ]
+    topas_scores_df = topas_scores_df.T
+
+    if len(intensity_unit_suffix) > 0:
+        topas_scores_df = topas_scores_df.add_suffix(intensity_unit_suffix)
 
     print("Topas score data loaded")
-    return topas_scores_df.T
+    return topas_scores_df
 
 
 def load_topas_subscore_table(
@@ -86,6 +99,8 @@ def load_topas_subscore_table(
 
             topas_subscores_long["color"] = "grey"
             topas_subscores_long["sizeR"] = 0.5
-            topas_subscores = utils.remove_patient_prefix(topas_subscores, from_col=False)
+            topas_subscores = utils.remove_patient_prefix(
+                topas_subscores, from_col=False
+            )
 
             return topas_subscores_long
