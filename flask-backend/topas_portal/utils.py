@@ -69,13 +69,19 @@ def get_selection_list_data_type(level: DataType):
 class IntensityUnit(str, Enum):
     INTENSITY = "intensity"
     Z_SCORE = "z_scored"
+    FOLD_CHANGE = "fc"
+    RANK = "rank"
     SCORE = "score"
+    IDENTIFICATION_METADATA = "identification_metadata"
 
 
 INTENSITY_UNIT_SUFFIXES = {
     IntensityUnit.INTENSITY: " Intensity",
     IntensityUnit.Z_SCORE: " Z-score",
+    IntensityUnit.FOLD_CHANGE: " FC",
+    IntensityUnit.RANK: " Rank",
     IntensityUnit.SCORE: " Score",
+    IntensityUnit.IDENTIFICATION_METADATA: " Identification metadata",
 }
 
 
@@ -85,7 +91,15 @@ class ImputationMode(str, Enum):
 
 
 def add_patient_prefix(patient_list: list[str]):
-    return [settings.PATIENT_PREFIX + x for x in patient_list]
+    return [
+        settings.PATIENT_PREFIX + x
+        for x in patient_list
+        if not x.startswith(settings.REF_CHANNEL_PREFIX)
+    ]
+
+
+def add_identification_metadata_prefix(patient_list: list[str]):
+    return [settings.IDENTIFICATION_METADATA_PREFIX + x for x in patient_list]
 
 
 def remove_patient_prefix(df, from_col=True) -> pd.DataFrame:
@@ -218,6 +232,35 @@ def unnest_proteingroups(df: pd.DataFrame) -> pd.DataFrame:
     return temp_df
 
 
+def merge_by_delimited_field(
+    df: pd.DataFrame,
+    other_df: pd.DataFrame,
+    field_name: str,
+    delimiter: str = ";",
+    agg_func=None,
+) -> pd.DataFrame:
+    """
+    Merges two dataframe by a field which contains a delimited field in the left dataframe
+    """
+    if not agg_func:
+        agg_func = lambda x: delimiter.join(x.dropna())
+    key_df = df[[field_name]]
+    merged_df = (
+        key_df.assign(
+            exploded_field=df[field_name].str.split(delimiter), row_id=range(len(df))
+        )
+        .explode("exploded_field")
+        .drop(columns=field_name)
+        .merge(other_df, left_on="exploded_field", right_on=field_name, how="left")
+        .drop(columns=field_name)
+        .groupby("row_id")
+        .agg(agg_func)
+        .rename(columns={"exploded_field": field_name})
+        .reset_index(drop=True)
+    )
+    return df.merge(merged_df, on=field_name, how="left")
+
+
 def get_index_cols(data_type: str) -> List[str]:
     index_cols = ["Gene names"]
     if data_type == "pp":
@@ -288,10 +331,14 @@ def merge_with_patients_meta_df(scores_df: pd.DataFrame, patients_df: pd.DataFra
             "Sample name"
         ].str.replace(r"-R[0-9]$", "", regex=True)
         new_patients_df = new_patients_df.rename(columns={"Sample name": "patient_id"})
-        new_patients_df["patient_id"] = new_patients_df["patient_id"].str.replace(r"-R[0-9]$", "", regex=True)
+        new_patients_df["patient_id"] = new_patients_df["patient_id"].str.replace(
+            r"-R[0-9]$", "", regex=True
+        )
         scores_table = scores_table.dropna(subset=["Sample_name_rep_truncated"])
         new_patients_df = new_patients_df.dropna(subset=["patient_id"])
-        new_patients_df = new_patients_df.drop_duplicates(subset=["patient_id"],keep="first")
+        new_patients_df = new_patients_df.drop_duplicates(
+            subset=["patient_id"], keep="first"
+        )
         if len(scores_table) > 0 and len(new_patients_df) > 0:
             merged_table = scores_table.merge(
                 new_patients_df,
@@ -442,7 +489,7 @@ def calculate_z_scores(df: pd.DataFrame, col_name="sum"):
         return z_scores
     except Exception as err:
         print(f"Unexpected {err=}, {type(err)=}")
-        return ["n.d."]*len(df.index)
+        return ["n.d."] * len(df.index)
 
 
 def whitespace_remover(df: pd.DataFrame) -> pd.DataFrame:

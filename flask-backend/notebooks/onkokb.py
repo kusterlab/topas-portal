@@ -188,10 +188,10 @@ def get_expression_data_from_abundance_df(abundances: pd.DataFrame) -> pd.DataFr
 
     # Extract measurement types and sample names
     melted_df["Type"] = melted_df["Measurement"].str.extract(
-        r" (Z-score|FC|Intensity)"
+        r" (Z-score|FC|Rank|Intensity)"
     )[0]
     melted_df["Sample name"] = melted_df["Measurement"].str.replace(
-        r" (Z-score|FC|Intensity)", "", regex=True
+        r" (Z-score|FC|Rank|Intensity)", "", regex=True
     )
 
     # Pivot the dataframe to wide format
@@ -203,11 +203,11 @@ def get_expression_data_from_abundance_df(abundances: pd.DataFrame) -> pd.DataFr
         dropna=False,
     ).reset_index()
 
-    for col in ["FC", "Z-score", "Intensity"]:
+    for col in ["FC", "Rank", "Z-score", "Intensity"]:
         if col not in result_df.columns:
             result_df[col] = "N/A"
 
-    return result_df[["Sample name", "FC", "Z-score", "Intensity"]]
+    return result_df[["Sample name", "FC", "Rank", "Z-score", "Intensity"]]
 
 
 def add_is_replicate_column(abundance_df: pd.DataFrame):    
@@ -250,9 +250,6 @@ def add_occurence_rank(df: pd.DataFrame):
         abundances_table = df.copy()
         abundances_table = abundances_table.sort_values("Z-score", ascending=False)
         occurrence = abundances_table["Z-score"].count()
-        abundances_table["Rank"] = list(range(1, occurrence + 1)) + ["n.d."] * (
-            len(abundances_table.index) - occurrence
-        )
         abundances_table["Occurrence"] = occurrence
         return abundances_table
     except:

@@ -30,8 +30,9 @@ serve: export_flask_routes
 lint:
 	cd vue-frontend && npx eslint "./**" --fix --ignore-pattern Dockerfile
 
+unittest: CONFIG_FILE_PATH=tests/test_config.json
 unittest:
-	python3 -m  pytest
+	cd flask-backend && poetry run python3 -m pytest
 
 all:
 	sh dockerize-dev-backend.sh && sh dockerize-dev-frontend.sh

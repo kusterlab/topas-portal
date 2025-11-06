@@ -63,6 +63,7 @@ class InMemoryCohortDataAPI:
         intensity_unit: Union[utils.IntensityUnit, None] = None,
         identifier: str = None,
         patient_name: str = None,
+        extra_columns: list[str] = None,
     ):
         if intensity_unit is not None:
             df = extract_columns_and_remove_suffix(df, intensity_unit=intensity_unit)
@@ -70,7 +71,9 @@ class InMemoryCohortDataAPI:
         if identifier:
             return df.loc[df.index == identifier]
         elif patient_name:
-            extra_columns = [c for c in settings.PP_EXTRA_COLUMNS if c in df.columns]
+            if not extra_columns:
+                extra_columns = settings.PP_EXTRA_COLUMNS
+            extra_columns = df.columns.intersection(extra_columns).to_list()
             return df[[patient_name] + extra_columns]
         else:
             return df

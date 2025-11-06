@@ -30,6 +30,7 @@ CHUNK_SIZE_IMPORT = 1000000
 
 PATIENT_PREFIX = "pat_"
 REF_CHANNEL_PREFIX = "ref_"
+IDENTIFICATION_METADATA_PREFIX = "Identification metadata "
 
 PP_KEY = "Modified sequence"
 FP_KEY = "Gene names"

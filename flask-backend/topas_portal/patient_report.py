@@ -47,19 +47,12 @@ def _report_summary(
     topas_ck_df["Score type"] = "CK-TOPAS"
 
     # proteins of interest
-    fp_df = _full_proteome(cohorts_db, cohort_index, patient)
+    fp_df = _full_proteome(
+        cohorts_db, cohort_index, patient, intensity_units=[utils.IntensityUnit.Z_SCORE]
+    )
     fp_df = fp_df.reset_index(drop=True)
 
-    poi_annotation_df = cohorts_db.get_poi_annotation_df()
-    poi_report_annotation_df = poi_annotation_df[
-        poi_annotation_df["POI_REPORT"].notna()
-    ]
-    
-    topas_poi_df = fp_df.merge(
-        poi_report_annotation_df[["Gene names", "POI_REPORT"]],
-        on="Gene names",
-        how="right",
-    )
+    topas_poi_df = fp_df[fp_df["POI_REPORT"] != ""]
     topas_poi_df = topas_poi_df.rename(
         columns={f"{patient} Z-score": "Z-score", "Gene names": "Topas_id"}
     )
@@ -77,7 +70,9 @@ def _report_summary(
 def _phospho_proteome(
     cohorts_db: data_api.CohortDataAPI, cohort_index: int, patient: str
 ) -> pd.DataFrame:
-    patient_column = patient + " Z-score"
+    patient_column = (
+        patient + utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.Z_SCORE]
+    )
     sub_df = cohorts_db.get_psite_abundance_df(
         cohort_index, patient_name=patient_column
     )
@@ -86,14 +81,55 @@ def _phospho_proteome(
 
 
 def _full_proteome(
-    cohorts_db: data_api.CohortDataAPI, cohort_index: int, patient: str
+    cohorts_db: data_api.CohortDataAPI,
+    cohort_index: int,
+    patient: str,
+    intensity_units: list[utils.IntensityUnit] = None,
 ) -> pd.DataFrame:
-    patient_column = patient + " Z-score"
-    sub_df = cohorts_db.get_protein_abundance_df(
-        cohort_index, patient_name=patient_column
+    if intensity_units is None:
+        intensity_units = [
+            utils.IntensityUnit.RANK,
+            utils.IntensityUnit.Z_SCORE,
+            utils.IntensityUnit.FOLD_CHANGE,
+            utils.IntensityUnit.INTENSITY,
+            utils.IntensityUnit.IDENTIFICATION_METADATA,
+        ]
+
+    sub_dfs = []
+    for intensity_unit in intensity_units:
+        sub_df = cohorts_db.get_protein_abundance_df(
+            cohort_index, patient_name=patient, intensity_unit=intensity_unit
+        )
+        sub_df = sub_df.rename(
+            columns={patient: utils.INTENSITY_UNIT_SUFFIXES[intensity_unit].strip()}
+        )
+        sub_dfs.append(sub_df)
+
+    full_proteome_df = pd.concat(sub_dfs, axis=1)
+    full_proteome_df = (
+        full_proteome_df.reset_index()
+    )  # make "Gene names" a regular column
+
+    full_proteome_df = merge_with_poi_annotations(
+        full_proteome_df, cohorts_db.get_poi_annotation_df()
     )
-    sub_df["Gene names"] = sub_df.index
-    return sub_df.dropna()
+    return full_proteome_df.dropna().sort_values(by="Z-score", ascending=False)
+
+
+def merge_with_poi_annotations(df: pd.DataFrame, poi_annotation_df: pd.DataFrame):
+    poi_report_annotation_df = poi_annotation_df[
+        poi_annotation_df["POI_REPORT"].notna()
+    ]
+
+    df = utils.merge_by_delimited_field(
+        df,
+        poi_report_annotation_df[
+            ["Gene names", "POI_REPORT", "POI_EXPLORATORY", "POI_PRODICT"]
+        ],
+        field_name="Gene names",
+    )
+
+    return df
 
 
 def _topas_rtk_score(
