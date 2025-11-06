@@ -42,6 +42,7 @@ Z_SCORE_REGEX = r" Z-score"
 REGEX_META = (
     r"^Identification metadata"  # to get num identified peptides in FP intensity file
 )
+NUM_PEPTIDES_REGEX = r"num_peptides=(\d+)"
 
 # PATIENT DATA FILES (Paths are relative to the results folder root)
 

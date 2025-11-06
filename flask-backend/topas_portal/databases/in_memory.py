@@ -42,7 +42,6 @@ DICT_ALL_DATA = {
     utils.DataType.TOPAS_CK_SCORE: [],
     utils.DataType.KINASE_SCORE: [],
     utils.DataType.PHOSPHO_SCORE: [],
-    "fp_intensity_meta_df": [],
 }
 
 
@@ -224,12 +223,6 @@ def _load_all_tables(cohort, config: Dict, do_return_place_holder: bool = False)
         ## preprocessed intensities at FP level
         if config["FP"][cohort] == 1:
             print("Reading the data at the FP level")
-            fp_intensity_meta = expression_loader.load_intensity_meta_data(
-                Path(
-                    os.path.join(cohort_report_dir, settings.PREPROCESSED_FP_INTENSITY)
-                ),
-                settings.FP_KEY,
-            )
             fp_intensity = expression_loader.load_annotated_intensity_file(
                 Path(
                     os.path.join(cohort_report_dir, settings.PREPROCESSED_FP_INTENSITY)
@@ -275,5 +268,4 @@ def _load_all_tables(cohort, config: Dict, do_return_place_holder: bool = False)
         utils.DataType.TOPAS_CK_SCORE: topas_ck_df,  # topas scores not z_scored
         utils.DataType.KINASE_SCORE: kinase_score_df,  # kinase scores Z-scores
         utils.DataType.PHOSPHO_SCORE: phospho_score_df,  # phospho scores Z-scores
-        "fp_intensity_meta_df": fp_intensity_meta,  # number of peptides detected at full proteome
     }

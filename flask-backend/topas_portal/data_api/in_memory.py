@@ -78,12 +78,6 @@ class InMemoryCohortDataAPI:
         else:
             return df
 
-    def get_num_pep_fp(self, cohort_index: str, protein_name=None) -> pd.DataFrame:
-        df = self.provider.get_dataframe(cohort_index, "fp_intensity_meta_df")
-        return self._filter_expression_df(
-            df, intensity_unit=None, identifier=protein_name, patient_name=None
-        )
-
     def get_protein_abundance_df(
         self,
         cohort_index: str,

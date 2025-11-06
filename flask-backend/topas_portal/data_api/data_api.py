@@ -91,9 +91,6 @@ class CohortDataAPI(Protocol):
     ) -> pd.DataFrame:
         """"""
 
-    def get_num_pep_fp(self, cohort_index: str) -> pd.DataFrame:
-        """"""
-
     def get_topas_annotation_df(self) -> pd.DataFrame:
         """"""
 

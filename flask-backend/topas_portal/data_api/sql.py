@@ -87,16 +87,16 @@ class SQLCohortDataAPI:
             df = df.T
         return df
 
-    def get_num_pep_fp(self, cohort_index: str, protein_name=None) -> pd.DataFrame:
-        if protein_name:
-            query = f"""SELECT patient_name,protein_name,value FROM Expressionfpmeta WHERE cohort_id={cohort_index} AND protein_name='{protein_name}' """
-        else:
-            query = f"""SELECT patient_name,protein_name,value FROM Expressionfpmeta WHERE cohort_id={cohort_index}  """
-        df = self._convert_query_to_df(models.Expressionfpmeta.raw(query))
-        df = self._post_process_query_result(df, data_type="full proteome")
-        df = df.T
-        df.index = ["Identification metadata " + x for x in df.index]
-        return df
+    # def get_num_pep_fp(self, cohort_index: str, protein_name=None) -> pd.DataFrame:
+    #     if protein_name:
+    #         query = f"""SELECT patient_name,protein_name,value FROM Expressionfpmeta WHERE cohort_id={cohort_index} AND protein_name='{protein_name}' """
+    #     else:
+    #         query = f"""SELECT patient_name,protein_name,value FROM Expressionfpmeta WHERE cohort_id={cohort_index}  """
+    #     df = self._convert_query_to_df(models.Expressionfpmeta.raw(query))
+    #     df = self._post_process_query_result(df, data_type="full proteome")
+    #     df = df.T
+    #     df.index = ["Identification metadata " + x for x in df.index]
+    #     return df
 
     def get_protein_abundance_df(
         self,
