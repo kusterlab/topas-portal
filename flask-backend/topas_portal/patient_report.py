@@ -118,6 +118,7 @@ def _load_proteome(
 
     sub_dfs = []
     for i, intensity_unit in enumerate(intensity_units):
+        print(f"Loading {intensity_unit.value} column")
         extra_columns = list(settings.PP_EXTRA_COLUMNS.keys()) if i == 0 else None
 
         sub_df = get_abundance_df(

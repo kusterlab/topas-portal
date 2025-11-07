@@ -16,10 +16,9 @@ from topas_portal.config_reader import *
 
 # remember to update the corresponding constant in vue-frontend/src/constants.js
 class DataType(str, Enum):
-    FP = "fp"
-    PP = "pp"
     FULL_PROTEOME = "protein"
     FULL_PROTEOME_ANNOTATED = "protein_annotated"
+    FULL_PROTEOME_NUM_PEPTIDES = "num_peptides"
     PHOSPHO_PROTEOME = "psite"
     FP_PP = "FP_PP"
     PHOSPHO_PROTEOME_ANNOTATED = "psite_annotated"

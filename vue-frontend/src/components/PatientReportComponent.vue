@@ -141,7 +141,7 @@
                         :selected-lines="selectedpepLines"
                         :min-height="minHeight"
                         :min-width="minWidth"
-                        xlabel="No identified psites across all patients"
+                        xlabel="No identified p-peptides across all patients"
                         :margin="histogramMargin"
                         :min-dose="0"
                         :max-dose="150000"
@@ -523,16 +523,7 @@ export default {
         })
       }
       try {
-        response = await axios.get(api.PATIENT_CENTRIC_PROTEIN_COUNTS({ cohort_index: this.cohortIndex, fp_pp: 'fp' }))
-        this.proteinSatitistics = response.data
-      } catch (error) {
-        this.addNotification({
-          color: 'error',
-          message: 'Error: could not load protein counts data'
-        })
-      }
-      try {
-        response = await axios.get(api.PATIENT_CENTRIC_PP_INTENSITY({ cohort_index: this.cohortIndex, dtype: 'pp' }))
+        response = await axios.get(api.PATIENT_CENTRIC_SUMMED_INTENSITY({ cohort_index: this.cohortIndex, level: DataType.PHOSPHO_PROTEOME }))
         this.sumIntesitiespp = response.data
       } catch (error) {
         this.addNotification({
@@ -541,7 +532,7 @@ export default {
         })
       }
       try {
-        response = await axios.get(api.PATIENT_CENTRIC_PP_INTENSITY({ cohort_index: this.cohortIndex, dtype: 'fp' }))
+        response = await axios.get(api.PATIENT_CENTRIC_SUMMED_INTENSITY({ cohort_index: this.cohortIndex, level: DataType.FULL_PROTEOME }))
         this.sumIntesitiesfp = response.data
       } catch (error) {
         this.addNotification({
@@ -550,7 +541,16 @@ export default {
         })
       }
       try {
-        response = await axios.get(api.PATIENT_CENTRIC_PROTEIN_COUNTS({ cohort_index: this.cohortIndex, fp_pp: 'pp' }))
+        response = await axios.get(api.PATIENT_CENTRIC_COUNTS({ cohort_index: this.cohortIndex, level: DataType.FULL_PROTEOME }))
+        this.proteinSatitistics = response.data
+      } catch (error) {
+        this.addNotification({
+          color: 'error',
+          message: 'Error: could not load protein counts data'
+        })
+      }
+      try {
+        response = await axios.get(api.PATIENT_CENTRIC_COUNTS({ cohort_index: this.cohortIndex, level: DataType.PHOSPHO_PROTEOME }))
         this.peptideSatitistics = response.data
       } catch (error) {
         this.addNotification({
@@ -559,7 +559,7 @@ export default {
         })
       }
       try {
-        response = await axios.get(api.PATIENT_CENTRIC_PROTEIN_COUNTS({ cohort_index: this.cohortIndex, fp_pp: 'fppeptide' }))
+        response = await axios.get(api.PATIENT_CENTRIC_COUNTS({ cohort_index: this.cohortIndex, level: DataType.FULL_PROTEOME_NUM_PEPTIDES }))
         this.peptidefpSatitistics = response.data
       } catch (error) {
         this.addNotification({

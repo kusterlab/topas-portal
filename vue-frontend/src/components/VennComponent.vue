@@ -16,20 +16,17 @@
             @select-cohort="updateCohort"
           />
           <v-btn-toggle
-            v-model="phospho"
+            v-model="dataType"
             class="mt-4"
             dense
             @change="getvennData"
           >
             <v-btn
-              value="fp"
+              v-for="option in allInputDataTypes"
+              :key="option.value"
+              :value="option.value"
             >
-              Proteins
-            </v-btn>
-            <v-btn
-              value="pp"
-            >
-              P-peptides
+              {{ option.text }}
             </v-btn>
           </v-btn-toggle>
           <v-btn-toggle
@@ -123,6 +120,8 @@
 import axios from 'axios'
 import CohortSelect from './partials/CohortSelect.vue'
 import VennPlot from '@/components/plots/VennPlot.vue'
+import { DataType } from '@/constants'
+import { api } from '@/routes.ts'
 
 export default {
   name: 'VennComponent',
@@ -143,11 +142,21 @@ export default {
   data: () => ({
     cohortIndex: 0,
     vennData: [],
-    phospho: 'fp',
+    dataType: DataType.FULL_PROTEOME,
     allPossibleBatches: [],
     activeBatches: [],
     modalityType: 'batchcompare',
-    loading: false
+    loading: false,
+    allInputDataTypes: [
+      {
+        text: 'Proteins',
+        value: DataType.FULL_PROTEOME
+      },
+      {
+        text: 'P-peptides',
+        value: DataType.PHOSPHO_PROTEOME
+      }
+    ]
 
   }),
   computed: {
@@ -182,9 +191,9 @@ export default {
       this.activeBatches = ''
       let response = null
       if (this.modalityType === 'batchcompare') {
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/annotation/${this.cohortIndex}/allbatch`)
+        response = await axios.get(api.ANNOTATION_MODALITY({ cohort_index: this.cohortIndex, modality: 'allbatch' }))
       } else {
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/annotation/${this.cohortIndex}/allpatients`)
+        response = await axios.get(api.ANNOTATION_MODALITY({ cohort_index: this.cohortIndex, modality: 'allpatients' }))
       }
       const allPossibleBatches = []
       response.data.forEach(element => {
@@ -194,12 +203,17 @@ export default {
     },
     async getvennData () {
       this.loading = true
-      let querY = this.activeBatches[0]
+      let query = this.activeBatches[0]
       for (let i = 1; i < this.activeBatches.length; i++) {
-        querY = querY + ';' + this.activeBatches[i]
+        query = query + ';' + this.activeBatches[i]
       }
       try {
-        const response = await axios.get(`${process.env.VUE_APP_API_HOST}/venn/${this.cohortIndex}/${this.modalityType}/${this.phospho}/${querY}`)
+        let response = null
+        if (this.modalityType === 'batchcompare') {
+          response = await axios.get(api.VENN_BATCH_COMPARE({ cohort_index: this.cohortIndex, level: this.dataType, batchlists: query }))
+        } else {
+          response = await axios.get(api.VENN_PATIENT_COMPARE({ cohort_index: this.cohortIndex, level: this.dataType, patientslists: query }))
+        }
         this.vennData = response.data
         this.loading = false
       } catch (error) {

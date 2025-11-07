@@ -335,17 +335,25 @@ def get_abundance(
 
 
 def get_batches_proteins_as_json(
-    cohorts_db: data_api.CohortDataAPI, cohort_index, pp_fp, batchlists
+    cohorts_db: data_api.CohortDataAPI,
+    cohort_index: int,
+    level: utils.DataType,
+    batchlists,
 ):
-    sample_annotation = cohorts_db.get_sample_annotation_df(cohort_index)
-    if pp_fp == utils.DataType.FP:
+    if level == utils.DataType.FULL_PROTEOME:
         df = cohorts_db.get_protein_abundance_df(
             cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
         )
-    else:
+    elif level == utils.DataType.PHOSPHO_PROTEOME:
         df = cohorts_db.get_psite_abundance_df(
             cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
         )
+    else:
+        raise ValueError(
+            f"Cannot compute protein overlap for data type {level.value}"
+        )
+
+    sample_annotation = cohorts_db.get_sample_annotation_df(cohort_index)
     samples_list = sample_annotation["Sample name"].unique().tolist()
     sample_names = utils.intersection(samples_list, df.columns)
     df = df[sample_names]
@@ -359,18 +367,23 @@ def get_batches_proteins_as_json(
 
 
 def get_patients_proteins_as_json(
-    cohorts_db: data_api.CohortDataAPI, cohort_index, pp_fp, patientslists
+    cohorts_db: data_api.CohortDataAPI,
+    cohort_index: int,
+    level: utils.DataType,
+    patientslists,
 ):
-    # TODO: replace with utils.DataType
-    if pp_fp == utils.DataType.FP:
+    if level == utils.DataType.FULL_PROTEOME:
         df = cohorts_db.get_protein_abundance_df(
             cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
         )
-    else:
+    elif level == utils.DataType.PHOSPHO_PROTEOME:
         df = cohorts_db.get_psite_abundance_df(
             cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
         )
-
+    else:
+        raise ValueError(
+            f"Cannot compute protein overlap for data type {level.value}"
+        )
     sample_annotation = cohorts_db.get_sample_annotation_df(cohort_index)
     samples_list = sample_annotation["Sample name"].unique().tolist()
     sample_names = utils.intersection(samples_list, df.columns)
@@ -402,20 +415,19 @@ def get_list_by_selected_modality_per_cohort(
 
 
 def identifications_across_all_patients(
-    cohorts_db: data_api.CohortDataAPI, fp_pp: str, cohort_index: int
+    cohorts_db: data_api.CohortDataAPI, cohort_index: int, level: utils.DataType
 ):
-    # TODO: replace with utils.DataType
-    if fp_pp == "fp":
+    if level == utils.DataType.FULL_PROTEOME:
         df = cohorts_db.get_protein_abundance_df(
             cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
         )
         nan_count = pd.DataFrame(df.notna().sum())
-    elif fp_pp == "pp":
+    elif level == utils.DataType.PHOSPHO_PROTEOME:
         df = cohorts_db.get_psite_abundance_df(
             cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
         )
         nan_count = pd.DataFrame(df.notna().sum())
-    else:
+    elif level == utils.DataType.FULL_PROTEOME_NUM_PEPTIDES:
         df = cohorts_db.get_protein_abundance_df(
             cohort_index, intensity_unit=utils.IntensityUnit.IDENTIFICATION_METADATA
         )
@@ -425,27 +437,34 @@ def identifications_across_all_patients(
             .astype(int)
         )
         nan_count = pd.DataFrame(df.sum())
+    else:
+        raise ValueError(
+            f"Cannot compute peptide/protein counts for data type {level.value}"
+        )
     nan_count.columns = ["identified"]
     nan_count["patients"] = df.columns
     return nan_count
 
 
 def sum_intensities_across_all_patients(
-    cohorts_db: data_api.CohortDataAPI, cohort_index: int, dtype="pp"
+    cohorts_db: data_api.CohortDataAPI, cohort_index: int, level: utils.DataType
 ):
     """
     Getting the sum of intensities accross all patients for the PP for the Patient centric tab
     """
-    if dtype == "pp":
+    if level == utils.DataType.FULL_PROTEOME:
         df = cohorts_db.get_psite_abundance_df(
             cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
         )
-    else:
+    elif level == utils.DataType.PHOSPHO_PROTEOME:
         df = cohorts_db.get_protein_abundance_df(
             cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
         )
+    else:
+        raise ValueError(
+            f"Cannot compute summed intensities for data type {level.value}"
+        )
 
-    print(df)
     sum_intensities = pd.DataFrame(df.sum())
     sum_intensities.columns = ["sumIntensities"]
     sum_intensities["patients"] = df.columns

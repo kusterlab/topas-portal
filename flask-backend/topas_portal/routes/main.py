@@ -39,20 +39,20 @@ class ApiRoutes(ApiBase):
 
     ANNOTATION_MODALITY = "/annotation/<int:cohort_index>/<string:modality>"
     VENN_PATIENT_COMPARE = (
-        "/venn/<int:cohort_index>/patientcompare/<string:pp_fp>/<string:patientslists>"
+        "/venn/<int:cohort_index>/patientcompare/<data_type:level>/<string:patientslists>"
     )
     VENN_BATCH_COMPARE = (
-        "/venn/<int:cohort_index>/batchcompare/<string:pp_fp>/<string:batchlists>"
+        "/venn/<int:cohort_index>/batchcompare/<data_type:level>/<string:batchlists>"
     )
 
     UPDATE_LOG = "/update/logs"
     ERROR_LOG = "/error/logs"
 
-    PATIENT_CENTRIC_PP_INTENSITY = (
-        "/patientcentric/ppintensity/<int:cohort_index>/<string:dtype>"
+    PATIENT_CENTRIC_SUMMED_INTENSITY = (
+        "/patientcentric/summed_intensity/<int:cohort_index>/<data_type:level>"
     )
-    PATIENT_CENTRIC_PROTEIN_COUNTS = (
-        "/patientcenteric/proteincounts/<int:cohort_index>/<string:fp_pp>"
+    PATIENT_CENTRIC_COUNTS = (
+        "/patientcentric/counts/<int:cohort_index>/<data_type:level>"
     )
 
     TOPAS = "/topas/<int:cohort_index>/<string:topas_names>/<string:score_type>"

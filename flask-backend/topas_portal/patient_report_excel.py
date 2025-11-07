@@ -84,6 +84,7 @@ def generate_patient_report(
     }
     with pd.ExcelWriter(report_path, engine="xlsxwriter") as writer:
         for data_type, sheet_name in sheet_names.items():
+            print(f"Writing {sheet_name} sheet for {patient}")
             df = patient_report.get_reports_per_patient_on_the_fly(
                 cohorts_db,
                 data_type,

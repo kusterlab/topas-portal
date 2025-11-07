@@ -461,16 +461,16 @@ def get_all_modality_possibilities(cohort_index: int, modality: str):
 
 @app.route(ApiRoutes.VENN_PATIENT_COMPARE)
 # http://localhost:3832/venn/0/patientcompare/fp/C3L-00032-1
-def get_patients_proteins(cohort_index: int, pp_fp: str, patientslists: str):
+def get_patients_proteins(cohort_index: int, level: utils.DataType, patientslists: str):
     return pp.get_patients_proteins_as_json(
-        cohorts_db, cohort_index, pp_fp, patientslists
+        cohorts_db, cohort_index, level, patientslists
     )
 
 
 @app.route(ApiRoutes.VENN_BATCH_COMPARE)
 # http://localhost:3832/venn/0/batchcompare/fp/1_2_43
-def get_batches_proteins(cohort_index: int, pp_fp: str, batchlists: str):
-    return pp.get_batches_proteins_as_json(cohorts_db, cohort_index, pp_fp, batchlists)
+def get_batches_proteins(cohort_index: int, level: utils.DataType, batchlists: str):
+    return pp.get_batches_proteins_as_json(cohorts_db, cohort_index, level, batchlists)
 
 
 @app.route(ApiRoutes.UPDATE_LOG)
@@ -487,27 +487,27 @@ def get_error_log():
     return jsonify(log)
 
 
-@app.route(ApiRoutes.PATIENT_CENTRIC_PP_INTENSITY)
+@app.route(ApiRoutes.PATIENT_CENTRIC_SUMMED_INTENSITY)
 # http://localhost:3832/patientcentric/ppintensity/0/fp
 # http://localhost:3832/patientcentric/ppintensity/0/pp
-def get_sum_intensities_pp_level(cohort_index: int, dtype: str):
+def get_sum_intensities_pp_level(cohort_index: int, level: utils.DataType):
     if settings.DATABASE_MODE:
         return {}  # this query is too slow in the database
 
     return utils.df_to_json(
-        pp.sum_intensities_across_all_patients(cohorts_db, cohort_index, dtype=dtype)
+        pp.sum_intensities_across_all_patients(cohorts_db, cohort_index, level)
     )
 
 
-@app.route(ApiRoutes.PATIENT_CENTRIC_PROTEIN_COUNTS)
+@app.route(ApiRoutes.PATIENT_CENTRIC_COUNTS)
 @cache.cached(timeout=50)
 # http://localhost:3832/patientcenteric/proteincounts/0/fp
-def get_identifications_frequency(cohort_index: int, fp_pp: str):
+def get_identifications_frequency(cohort_index: int, level: utils.DataType):
     if settings.DATABASE_MODE:
         return {}  # this query is too slow in the database
 
     return utils.df_to_json(
-        pp.identifications_across_all_patients(cohorts_db, fp_pp, cohort_index)
+        pp.identifications_across_all_patients(cohorts_db, cohort_index, level)
     )
 
 

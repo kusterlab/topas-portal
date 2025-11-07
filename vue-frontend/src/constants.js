@@ -5,6 +5,7 @@ export const DataType = Object.freeze({
   FULL_PROTEOME_ANNOTATED: 'protein_annotated',
   PHOSPHO_PROTEOME: 'psite',
   PHOSPHO_PROTEOME_ANNOTATED: 'psite_annotated',
+  FULL_PROTEOME_NUM_PEPTIDES: 'num_peptides',
   PHOSPHO_SCORE: 'phospho_score',
   PHOSPHO_SCORE_PSITE: 'phospho_psite',
   KINASE_SCORE: 'kinase',
