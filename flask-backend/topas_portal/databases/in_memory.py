@@ -120,7 +120,7 @@ class InMemoryProvider:
             basket_annotation_path
         )
         self.logger.log_message("Topas tables loaded")
-    
+
     def _load_poi_annotations(self, config: Dict):
         """The protein of interest (POI) table is independent of cohorts and will be treated as a single global variable separately"""
         self.logger.log_message("Loading POI annotation table")
@@ -186,33 +186,14 @@ class InMemoryProvider:
 def _load_all_tables(cohort, config: Dict, do_return_place_holder: bool = False):
     """For a single cohort type makes a dictionary of dataframes"""
 
-    topas_rtk_df, topas_ck_df, pp_df_patients = [], [], []
+    topas_rtk_df, topas_ck_df = [], []
     sample_annotation_df, patients_df = [], []
-    fp_df_patients, fp_intensity_meta = [], []
+    fp_df_patients, pp_df_patients = [], []
     kinase_score_df, phospho_score_df = [], []
 
     if not do_return_place_holder:
         cohort_report_dir = config["report_directory"][cohort]
         print(f"report dir #########{cohort_report_dir}")
-        topas_rtk_df = topas_loader.load_topas_scores_df(
-            Path(os.path.join(cohort_report_dir, settings.TOPAS_RTK_SCORES_FILE))
-        )
-        if isinstance(topas_rtk_df, pd.DataFrame):
-            topas_df_z_scored = topas_loader.load_topas_scores_df(
-                Path(os.path.join(cohort_report_dir, settings.TOPAS_RTK_Z_SCORES_FILE))
-            )
-            topas_rtk_df = topas_rtk_df.join(
-                topas_df_z_scored,
-                lsuffix=utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.SCORE],
-                rsuffix=utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.Z_SCORE],
-            )
-
-        topas_ck_df = topas_loader.load_topas_scores_df(
-            Path(os.path.join(cohort_report_dir, settings.TOPAS_CK_SCORES_FILE)),
-            index_col="Sample name",
-            intensity_unit_suffix=utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.Z_SCORE]
-        )
-
         sample_annotation_df = sample_annotation_loader.load_sample_annotation_table(
             Path(config["sample_annotation_path"][cohort])
         )
@@ -257,6 +238,30 @@ def _load_all_tables(cohort, config: Dict, do_return_place_holder: bool = False)
             phospho_score_df = phospho_score_loader.load_phosphorylation_scores(
                 Path(os.path.join(cohort_report_dir, settings.PHOSPHORYLATION_SCORES)),
                 add_suffix=True,
+            )
+            topas_rtk_df = topas_loader.load_topas_scores_df(
+                Path(os.path.join(cohort_report_dir, settings.TOPAS_RTK_SCORES_FILE))
+            )
+            if isinstance(topas_rtk_df, pd.DataFrame):
+                topas_df_z_scored = topas_loader.load_topas_scores_df(
+                    Path(
+                        os.path.join(
+                            cohort_report_dir, settings.TOPAS_RTK_Z_SCORES_FILE
+                        )
+                    )
+                )
+                topas_rtk_df = topas_rtk_df.join(
+                    topas_df_z_scored,
+                    lsuffix=utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.SCORE],
+                    rsuffix=utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.Z_SCORE],
+                )
+
+            topas_ck_df = topas_loader.load_topas_scores_df(
+                Path(os.path.join(cohort_report_dir, settings.TOPAS_CK_SCORES_FILE)),
+                index_col="Sample name",
+                intensity_unit_suffix=utils.INTENSITY_UNIT_SUFFIXES[
+                    utils.IntensityUnit.Z_SCORE
+                ],
             )
 
     return {

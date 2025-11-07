@@ -2,9 +2,14 @@ import pandas as pd
 
 import topas_portal.fetch_data_matrix as data
 from flask import Blueprint
-from topas_portal.utils import calculate_z_scores,df_to_json,DataType,IntensityUnit,merge_with_patients_meta_df
+from topas_portal.utils import (
+    calculate_z_scores,
+    df_to_json,
+    DataType,
+    IntensityUnit,
+    merge_with_patients_meta_df,
+)
 import db
-
 
 
 zscoring_page = Blueprint(
@@ -16,7 +21,14 @@ zscoring_page = Blueprint(
 
 cohorts_db = db.cohorts_db
 
-def main(annot_df:pd.DataFrame,meta_df:pd.DataFrame,patient_identifiers:list,identifier:str,metadata_type:str):
+
+def main(
+    annot_df: pd.DataFrame,
+    meta_df: pd.DataFrame,
+    patient_identifiers: list,
+    identifier: str,
+    metadata_type: str,
+):
     """
     Computes z-scores for annotation data based on metadata and returns the processed results in JSON format.
 
@@ -37,14 +49,17 @@ def main(annot_df:pd.DataFrame,meta_df:pd.DataFrame,patient_identifiers:list,ide
         - Fills NaN values in the z-scores column with the minimum value minus one.
         - Converts the final DataFrame into JSON format using `df_to_json`.
     """
-    raw_df = merge_with_patients_meta_df(annot_df,meta_df)
-    zscores_df = calculate_sub_df_zscores(raw_df,patient_identifiers,identifier,metadata_type)
+    raw_df = merge_with_patients_meta_df(annot_df, meta_df)
+    zscores_df = calculate_sub_df_zscores(
+        raw_df, patient_identifiers, identifier, metadata_type
+    )
     zscores_df = post_process_final_df(zscores_df)
     return df_to_json(zscores_df)
 
- 
 
-def calculate_sub_df_zscores(raw_df:pd.DataFrame,patient_identifiers:list,identifier:str,metadata_type:str) -> pd.DataFrame:
+def calculate_sub_df_zscores(
+    raw_df: pd.DataFrame, patient_identifiers: list, identifier: str, metadata_type: str
+) -> pd.DataFrame:
     """
     Computes z-scores for a dataset based on a given identifier and metadata categories.
 
@@ -55,7 +70,7 @@ def calculate_sub_df_zscores(raw_df:pd.DataFrame,patient_identifiers:list,identi
         identifier (str): The column for which z-scores are calculated.
 
     Returns:
-        pd.DataFrame: A DataFrame containing z-scores for the full dataset and subsets, 
+        pd.DataFrame: A DataFrame containing z-scores for the full dataset and subsets,
                       with additional metadata annotations.
 
     Notes:
@@ -63,29 +78,26 @@ def calculate_sub_df_zscores(raw_df:pd.DataFrame,patient_identifiers:list,identi
         - Iterates over `all_possibiliteis`, computing z-scores for each subset.
         - If an error occurs when processing a subset, it is silently skipped.
         - Merges all computed z-score subsets into a final DataFrame.
-        - Ensures missing values in `meta_col` are replaced with 'n.d.'.
         - Adds a `data_type` column to distinguish between full and subset calculations.
     """
-    raw_df['zscores'] = calculate_z_scores(raw_df[[identifier]],col_name=identifier)
-    raw_df = raw_df.sort_values(by='zscores', ascending=False)
-    raw_df['data_type'] = 'all_data'
-    
-    sub_df = raw_df[raw_df['Sample name'].isin(patient_identifiers)].copy()
-    sub_df['data_type'] = sub_df[metadata_type]
-    sub_df['zscores'] = calculate_z_scores(sub_df[[identifier]],col_name=identifier)    
+    raw_df["zscores"] = calculate_z_scores(raw_df[[identifier]], col_name=identifier)
+    raw_df = raw_df.sort_values(by="zscores", ascending=False)
+    raw_df["data_type"] = "all_data"
 
-    columns = ['Sample name','zscores','data_type']
+    sub_df = raw_df[raw_df["Sample name"].isin(patient_identifiers)].copy()
+    sub_df["data_type"] = sub_df[metadata_type]
+    sub_df["zscores"] = calculate_z_scores(sub_df[[identifier]], col_name=identifier)
+
+    columns = ["Sample name", "zscores", "data_type"]
     if metadata_type != "Sample name":
         columns.append(metadata_type)
 
-    final_df = pd.concat([raw_df,sub_df])[columns]    
-    final_df = final_df.fillna('n.d.')
-    final_df['meta_column'] = final_df[metadata_type]
+    final_df = pd.concat([raw_df, sub_df])[columns]
+    final_df["meta_column"] = final_df[metadata_type]
     return final_df
 
 
-
-def post_process_final_df(df:pd.DataFrame) -> pd.DataFrame:
+def post_process_final_df(df: pd.DataFrame) -> pd.DataFrame:
     """
     Adds post-processing attributes to the DataFrame for visualization or further analysis.
 
@@ -100,15 +112,23 @@ def post_process_final_df(df:pd.DataFrame) -> pd.DataFrame:
         - Adds a 'sizeR' column with a default value of 2.0.
         - Adds an 'index' column representing the row index in sequential order.
     """
-    df['colorID'] = 'grey'
-    df['sizeR'] = 2.0
-    df['index'] = range(len(df))
+    df["colorID"] = "grey"
+    df["sizeR"] = 2.0
+    df["index"] = range(len(df))
     return df
 
 
-@zscoring_page.route("/zscore/<level>/<int:cohort_index>/<identifier>/<patient_identifiers>/<metadata_type>")
+@zscoring_page.route(
+    "/zscore/<level>/<int:cohort_index>/<identifier>/<patient_identifiers>/<metadata_type>"
+)
 # http://localhost:3832/zscore/protein/0/EGFR/MASTER,CATCH/Program
-def get_subcohort_zscores(level: str, cohort_index: int, identifier: str, patient_identifiers: str, metadata_type: str):
+def get_subcohort_zscores(
+    level: str,
+    cohort_index: int,
+    identifier: str,
+    patient_identifiers: str,
+    metadata_type: str,
+):
     """
     Recomputes z-scores based on a subcohort of patients.
 
@@ -130,23 +150,23 @@ def get_subcohort_zscores(level: str, cohort_index: int, identifier: str, patien
 
     Example:
         result_df = get_subcohort_zscores(
-            cohort_ind="123", 
-            identifier="gene1", 
-            allpossibilities="A,B,C", 
-            meta_col="group", 
+            cohort_ind="123",
+            identifier="gene1",
+            allpossibilities="A,B,C",
+            meta_col="group",
             level="PHOSPHO_SCORE"
         )
     """
-    patient_identifiers = patient_identifiers.split(',')
+    patient_identifiers = patient_identifiers.split(",")
     level = DataType(level)
 
-    # Data modalities for the z scoring 
+    # Data modalities for the z scoring
     if level == DataType.TOPAS_RTK_SCORE:
         unit = IntensityUnit.SCORE
     elif level == DataType.KINASE_SCORE or level == DataType.PHOSPHO_SCORE:
         unit = IntensityUnit.Z_SCORE
     else:
-        unit = IntensityUnit.INTENSITY 
+        unit = IntensityUnit.INTENSITY
 
     raw_df = data.fetch_data_matrix(
         cohorts_db,
@@ -156,16 +176,13 @@ def get_subcohort_zscores(level: str, cohort_index: int, identifier: str, patien
         intensity_unit=unit,
     )
 
-    input_df = raw_df.T  # we transpose dataframe 
+    input_df = raw_df.T  # we transpose dataframe
 
     if level == DataType.TOPAS_RTK_SCORE:
         input_df = input_df.reset_index()
-    else: 
-        input_df['Sample name'] = input_df.index
-    
+    else:
+        input_df["Sample name"] = input_df.index
+
     meta_df = cohorts_db.get_patient_metadata_df(cohort_index)
 
-    return main(input_df,meta_df,patient_identifiers,identifier,metadata_type)
-
-
-    
+    return main(input_df, meta_df, patient_identifiers, identifier, metadata_type)

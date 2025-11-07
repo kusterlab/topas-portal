@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
 import pandas as pd
 
@@ -68,15 +68,18 @@ def _report_summary(
 
 
 def _phospho_proteome(
-    cohorts_db: data_api.CohortDataAPI, cohort_index: int, patient: str
+    cohorts_db: data_api.CohortDataAPI,
+    cohort_index: int,
+    patient: str,
+    intensity_units: list[utils.IntensityUnit] = None,
 ) -> pd.DataFrame:
-    patient_column = (
-        patient + utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.Z_SCORE]
+    sub_df = _load_proteome(
+        cohorts_db,
+        cohort_index,
+        patient,
+        cohorts_db.get_psite_abundance_df,
+        intensity_units,
     )
-    sub_df = cohorts_db.get_psite_abundance_df(
-        cohort_index, patient_name=patient_column
-    )
-    sub_df = sub_df.dropna()
     return ps.phospho_annot(sub_df)
 
 
@@ -84,6 +87,22 @@ def _full_proteome(
     cohorts_db: data_api.CohortDataAPI,
     cohort_index: int,
     patient: str,
+    intensity_units: list[utils.IntensityUnit] = None,
+) -> pd.DataFrame:
+    return _load_proteome(
+        cohorts_db,
+        cohort_index,
+        patient,
+        cohorts_db.get_protein_abundance_df,
+        intensity_units,
+    )
+
+
+def _load_proteome(
+    cohorts_db: data_api.CohortDataAPI,
+    cohort_index: int,
+    patient: str,
+    get_abundance_df: Callable,
     intensity_units: list[utils.IntensityUnit] = None,
 ) -> pd.DataFrame:
     if intensity_units is None:
@@ -97,7 +116,7 @@ def _full_proteome(
 
     sub_dfs = []
     for intensity_unit in intensity_units:
-        sub_df = cohorts_db.get_protein_abundance_df(
+        sub_df = get_abundance_df(
             cohort_index, patient_name=patient, intensity_unit=intensity_unit
         )
         sub_df = sub_df.rename(
@@ -105,15 +124,14 @@ def _full_proteome(
         )
         sub_dfs.append(sub_df)
 
-    full_proteome_df = pd.concat(sub_dfs, axis=1)
-    full_proteome_df = (
-        full_proteome_df.reset_index()
-    )  # make "Gene names" a regular column
+    proteome_df = pd.concat(sub_dfs, axis=1)
+    proteome_df = proteome_df.reset_index()  # make "Gene names" a regular column
+    print(proteome_df)
 
-    full_proteome_df = merge_with_poi_annotations(
-        full_proteome_df, cohorts_db.get_poi_annotation_df()
+    proteome_df = merge_with_poi_annotations(
+        proteome_df, cohorts_db.get_poi_annotation_df()
     )
-    return full_proteome_df.dropna().sort_values(by="Z-score", ascending=False)
+    return proteome_df.dropna().sort_values(by="Z-score", ascending=False)
 
 
 def merge_with_poi_annotations(df: pd.DataFrame, poi_annotation_df: pd.DataFrame):

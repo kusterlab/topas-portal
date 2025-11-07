@@ -57,16 +57,15 @@ PHOSPHORYLATION_SCORES = "topas_scores/protein_phosphorylation_scores.tsv"
 # Drug scores from wp2 pipeline (FH)
 DRUG_SCORES = "drug_results/drug_scores.tsv"
 
-KINASE_SCORES_FILE = "kinase_results/kinase_scores.tsv"
-KINASE_PEPTIDES_SCORES = "kinase_results/scored_peptides.tsv"
+TOPAS_CK_SCORES_FILE = "topas_scores/ck_substrate_phosphorylation_scores_expressioncorrected.tsv"  # already z-scored
+KINASE_SCORES_FILE = (
+    "topas_scores/rtk_substrate_phosphorylation_scores.tsv"  # already z-scored
+)
 
 #
 TOPAS_SUBSCORE_FILES_PREFIX = "topas_scores/subbasket_scores_"
 TOPAS_RTK_SCORES_FILE = "topas_scores/topas_rtk_scores.tsv"
 TOPAS_RTK_Z_SCORES_FILE = "topas_scores/topas_rtk_scores_zscored.tsv"
-TOPAS_CK_SCORES_FILE = (
-    "topas_scores/ck_substrate_phosphorylation_scores_expressioncorrected.tsv"  # already z-scored
-)
 
 
 # pp z_scores

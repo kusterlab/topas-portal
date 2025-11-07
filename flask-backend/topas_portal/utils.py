@@ -95,7 +95,7 @@ def add_patient_prefix(patient_list: list[str]):
         settings.PATIENT_PREFIX + x
         for x in patient_list
         if not x.startswith(settings.REF_CHANNEL_PREFIX)
-    ]
+    ] + [x for x in patient_list if x.startswith(settings.REF_CHANNEL_PREFIX)]
 
 
 def add_identification_metadata_prefix(patient_list: list[str]):
@@ -274,7 +274,6 @@ def calculate_confidence_score(df: pd.DataFrame) -> pd.DataFrame:
             df[["num_pep", "Z-score"]].copy().apply(pd.to_numeric, errors="coerce")
         )
         df_temp["confidence_score"] = df_temp["num_pep"] * df_temp["Z-score"]
-        df["confidence_score"] = df_temp["confidence_score"].fillna("n.d.")
         return df
     except:
         print("some thing wrong with confidence scoring")
@@ -413,12 +412,13 @@ def check_all_config_file(configs):
         return {}
 
 
-def df_to_json(df):
+def df_to_json(df: pd.DataFrame):
     """
     Makes flask JSON response from a dataframe
     """
     return Response(
-        json.dumps(df.to_dict(orient="records")), mimetype="application/json"
+        json.dumps(df.fillna("n.d.").to_dict(orient="records")),
+        mimetype="application/json",
     )
 
 

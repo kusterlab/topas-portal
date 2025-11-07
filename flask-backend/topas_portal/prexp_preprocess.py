@@ -109,7 +109,7 @@ def get_expression_data_per_analyte(
     """
     abundances_table = get_expression_data_from_abundance_df(abundances)
     abundances_table = add_is_replicate_column(abundances_table)
-    abundances_table = add_occurence_rank(abundances_table)
+    abundances_table = add_occurrence_and_fill_na_ranks(abundances_table)
     abundances_table = utils.merge_with_sample_annotation_df(
         abundances_table, sample_annotation_df
     )
@@ -149,7 +149,11 @@ def get_expression_data_from_abundance_df(abundances: pd.DataFrame) -> pd.DataFr
 
     # Consistent column order (Sample name first)
     ordered_cols = ["Sample name"] + [s.strip() for s in suffixes]
-    return result_df.reindex(columns=ordered_cols, fill_value=pd.NA)
+    result_df = result_df.reindex(columns=ordered_cols, fill_value=pd.NA)
+    return result_df.sort_values(
+        by=utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.INTENSITY].strip(),
+        ascending=False,
+    )
 
 
 def add_is_replicate_column(abundance_df: pd.DataFrame):
@@ -187,15 +191,10 @@ def add_is_replicate_column(abundance_df: pd.DataFrame):
         return abundance_df
 
 
-def add_occurence_rank(df: pd.DataFrame):
+def add_occurrence_and_fill_na_ranks(df: pd.DataFrame):
     try:
         abundances_table = df.copy()
-        abundances_table = abundances_table.sort_values("Z-score", ascending=False)
-        occurrence = abundances_table["Z-score"].count()
-        abundances_table["Rank"] = list(range(1, occurrence + 1)) + ["n.d."] * (
-            len(abundances_table.index) - occurrence
-        )
-        abundances_table["Occurrence"] = occurrence
+        abundances_table["Occurrence"] = abundances_table["Rank"].max()
         return abundances_table
     except:
         return df

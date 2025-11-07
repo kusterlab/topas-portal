@@ -147,7 +147,6 @@ def main(
     pc_df = pc_df[sel_cols]
     string_cols = utils.intersection(pc_df.columns, string_cols)
     int_cols = utils.intersection(pc_df.columns, int_cols)
-    pc_df[string_cols] = pc_df[string_cols].fillna("n.d.")
 
     if "Batch_No" in pc_df.columns:
         pc_df["Batch_No"][pc_df["Sample"].str.contains("Batch")] = pc_df["Sample"][

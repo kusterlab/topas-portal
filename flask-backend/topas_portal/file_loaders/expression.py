@@ -27,58 +27,65 @@ def load_expression_data(report_directory: Path, key_col: str, modality: str):
             return "_".join(x.split("_")[1:]).strip() + " Z-score"
         elif x.startswith("rank_"):
             return "_".join(x.split("_")[1:]).strip() + " Rank"
+        else:
+            return x
 
-    if (
+    if not (
         os.path.exists(report_directory / f"{modality}_measures_fc.tsv")
         and os.path.exists(report_directory / f"{modality}_measures_z.tsv")
         and os.path.exists(report_directory / f"{modality}_measures_rank.tsv")
     ):
-        df_patient_expressions_fc = pd.read_csv(
-            report_directory / f"{modality}_measures_fc.tsv",
-            sep="\t",
-            usecols=filter_columns,
-            dtype={key_col: "string"},
-            index_col=key_col,
-            low_memory=False,
+        print("Some or all of the measures files are unavailable")
+        return
+
+    df_patient_expressions_fc = pd.read_csv(
+        report_directory / f"{modality}_measures_fc.tsv",
+        sep="\t",
+        usecols=filter_columns,
+        dtype={key_col: "string"},
+        index_col=key_col,
+        low_memory=False,
+    )
+    print(report_directory / f"{modality}_measures_fc.tsv  finished")
+
+    df_patient_expressions_zscore = pd.read_csv(
+        report_directory / f"{modality}_measures_z.tsv",
+        sep="\t",
+        usecols=filter_columns,
+        dtype={key_col: "string"},
+        index_col=key_col,
+        low_memory=False,
+    )
+    print(report_directory / f"{modality}_measures_z.tsv  finished")
+
+    df_patient_expressions_rank = pd.read_csv(
+        report_directory / f"{modality}_measures_rank.tsv",
+        sep="\t",
+        usecols=filter_columns,
+        dtype={key_col: "string"},
+        index_col=key_col,
+        low_memory=False,
+    )
+    df_patient_expressions_rank = df_patient_expressions_rank.rename(
+        columns={"rank_max": "Occurrence"}
+    )
+    print(report_directory / f"{modality}_measures_rank.tsv  finished")
+
+    df_patient_expressions = df_patient_expressions_fc.join(
+        df_patient_expressions_zscore
+    ).join(df_patient_expressions_rank)
+
+    df_patient_expressions = df_patient_expressions.rename(columns=rename_columns)
+    if modality == "phospho":
+        df_patient_expressions.index = df_patient_expressions.index.str.replace(
+            re.compile(r"([STY])\(Phospho \(STY\)\)"),
+            lambda pat: f"p{pat.group(1)}",
+            regex=True,
         )
-        print(report_directory / f"{modality}_measures_fc.tsv  finished")
+    df_patient_expressions = utils.remove_patient_prefix(df_patient_expressions)
+    print("Expression data loaded")
 
-        df_patient_expressions_zscore = pd.read_csv(
-            report_directory / f"{modality}_measures_z.tsv",
-            sep="\t",
-            usecols=filter_columns,
-            dtype={key_col: "string"},
-            index_col=key_col,
-            low_memory=False,
-        )
-        print(report_directory / f"{modality}_measures_z.tsv  finished")
-
-        df_patient_expressions_rank = pd.read_csv(
-            report_directory / f"{modality}_measures_rank.tsv",
-            sep="\t",
-            usecols=filter_columns,
-            dtype={key_col: "string"},
-            index_col=key_col,
-            low_memory=False,
-        )
-        print(report_directory / f"{modality}_measures_rank.tsv  finished")
-
-        df_patient_expressions = df_patient_expressions_fc.join(
-            df_patient_expressions_zscore
-        ).join(df_patient_expressions_rank)
-
-        df_patient_expressions = df_patient_expressions.rename(columns=rename_columns)
-        if modality == "phospho":
-            df_patient_expressions.index = df_patient_expressions.index.str.replace(
-                re.compile(r"([STY])\(Phospho \(STY\)\)"),
-                lambda pat: f"p{pat.group(1)}",
-                regex=True,
-            )
-        df_patient_expressions = utils.remove_patient_prefix(df_patient_expressions)
-        print("Expression data loaded")
-        return df_patient_expressions
-    else:
-        pass
+    return df_patient_expressions
 
 
 @utils.check_path_exist
@@ -88,6 +95,9 @@ def load_annotated_intensity_file(
     patients_list: list[str],
     extra_columns=None,
 ):
+    if extra_columns is None:
+        extra_columns = []
+
     annot_df = pd.read_csv(
         annotated_intensity_file, low_memory=False, index_col=index_col
     )
@@ -98,7 +108,9 @@ def load_annotated_intensity_file(
     )
     intensity_df = annot_df.loc[
         :,
-        annot_df.columns.isin(patient_list_prefixed + identification_metadata_columns),
+        annot_df.columns.isin(
+            patient_list_prefixed + identification_metadata_columns + extra_columns
+        ),
     ]
 
     intensity_suffix = utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.INTENSITY]
@@ -114,9 +126,6 @@ def load_annotated_intensity_file(
         for c in identification_metadata_columns
     }
     intensity_df = intensity_df.rename(columns=column_rename_dict)
-
-    if extra_columns:
-        intensity_df = intensity_df.join(annot_df[extra_columns])
 
     # in some cases, replicates have the same column name, only keep the first one
     intensity_df = intensity_df.loc[:, ~intensity_df.columns.duplicated()]
