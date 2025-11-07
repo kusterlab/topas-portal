@@ -161,10 +161,17 @@ EXPRESSION_TAB_DATA = [
     "FC",
 ]
 
-PP_EXTRA_COLUMNS = [
-    "Gene names",
-    "Proteins",
-    "Occurrence",
-    "PSP Kinases",
-    "Site positions identified (MQ)",
-]
+PP_EXTRA_COLUMNS = {
+    "Gene names": "Gene names",
+    "Proteins": "Proteins",
+    "Occurrence": "Occurrence",
+    "PSP Kinases": "Kinases (PSP)",
+    "Site positions identified (MQ)": "Site positions (MQ identified - PSP)",
+    "Site positions": "Site positions (PSP)",
+    "PSP_ON_FUNCTION": "Effects on Modified Protein (PSP)",
+    "PSP_ON_PROCESS": "Effects on Biological Process (PSP)",
+    "PSP_ON_PROT_INTERACT": "Induce interaction with protein (PSP)",
+    "PSP_ON_OTHER_INTERACT": "Induce interaction with other (PSP)",
+    "PSP_LT_LIT": "Low throughput studies (PSP)",
+    "PSP_MS_LIT": "High throughput studies (PSP)",
+}

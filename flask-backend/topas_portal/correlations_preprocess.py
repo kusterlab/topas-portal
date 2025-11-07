@@ -108,7 +108,7 @@ def compute_correlation_df(
             cohort_index=cohort_index
         )
         correlation_df = correlation_df.merge(
-            psite_annotation_df[settings.PP_EXTRA_COLUMNS].reset_index(),
+            psite_annotation_df[settings.PP_EXTRA_COLUMNS.keys()].reset_index(),
             left_on="index",
             right_on="Modified sequence",
         )

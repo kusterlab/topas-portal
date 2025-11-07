@@ -27,6 +27,7 @@ flask-compress = "^1.15"
 requests = "^2.32.3"
 pyarrow = "^19.0.1"
 flask-jwt-extended = "^4.7.1"
+xlsxwriter = "^3.2.9"
 
 [tool.poetry.extras]
 pgsql = ["psycopg2-binary"]

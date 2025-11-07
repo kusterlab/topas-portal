@@ -7,12 +7,22 @@ import threading
 from pathlib import Path
 import zipfile
 
-from flask import Flask, render_template, Response, jsonify, send_from_directory, request
+from flask import (
+    Flask,
+    render_template,
+    Response,
+    jsonify,
+    send_from_directory,
+    request,
+)
 from flask_cors import CORS
 from flask_caching import Cache
 from flask_compress import Compress
 from flask_jwt_extended import (
-    JWTManager, create_access_token, jwt_required, get_jwt_identity
+    JWTManager,
+    create_access_token,
+    jwt_required,
+    get_jwt_identity,
 )
 
 import db
@@ -36,6 +46,7 @@ from topas_portal import correlations_preprocess as cp
 from topas_portal import fetch_data_matrix as hp
 from topas_portal import differential_expression as differential_test
 from topas_portal import genomics_preprocess as genomics_process
+from topas_portal import patient_report_excel
 
 
 config = {
@@ -78,6 +89,7 @@ with app.app_context():
     from compartments.config import config_page
     from compartments.qc_app import qc_page
     from compartments.drug_app import drug_page
+
     # from compartments.drugscore_app import drugscore_page # under development
     from compartments.proteinscore_app import proteinscore_page
     from compartments.kinasescores_app import kinasescore_page
@@ -121,7 +133,7 @@ def favicon():
     )
 
 
-@app.route(ApiRoutes.AUTH_LOGIN, methods=['POST'])
+@app.route(ApiRoutes.AUTH_LOGIN, methods=["POST"])
 # http://localhost:3832/auth/login
 def auth_login():
     """
@@ -143,7 +155,8 @@ def auth_login():
     else:
         return {"pass": "invalid"}
 
-@app.route(ApiRoutes.AUTH_ME, methods=['GET'])
+
+@app.route(ApiRoutes.AUTH_ME, methods=["GET"])
 @jwt_required()
 # http://localhost:3832/auth/me
 def auth_me():
@@ -156,7 +169,7 @@ def auth_me():
     """
     return jsonify(username=get_jwt_identity(), valid=True)
 
-    
+
 @app.route(ApiRoutes.COHORT_NAMES)
 # http://localhost:3832/cohort_names
 def cohort_names():
@@ -212,12 +225,17 @@ def get_patient_reports_as_attachment(cohort_index: int, patients: str):
     Returns:
         Response: excel or zip file with patient report(s)
     """
-    reports_dir = cohorts_db.get_report_dir(cohort_index)
-    patients = patients.split(";")
+    reports_dir = Path(cohorts_db.get_report_dir(cohort_index)) / "Reports"
+    reports_dir.mkdir(exist_ok=True)
 
     def get_patient_report_path(patient_identifier: str):
-        return (
-            reports_dir + "/Reports/" + patient_identifier + "_proteomics_results.xlsx"
+        return reports_dir / f"{patient_identifier}_proteomics_results.xlsx"
+
+    patients = patients.split(";")
+    for patient in patients:
+        path_to_patient_results = get_patient_report_path(patient)
+        patient_report_excel.generate_patient_report(
+            cohorts_db, cohort_index, patient, path_to_patient_results
         )
 
     if len(patients) == 1:
@@ -588,7 +606,9 @@ def get_lolipopexpression_rtk(cohort_index: int, patient: str):
 @app.route(ApiRoutes.TOPAS_IDS)
 # http://localhost:3832/topas/0/topasids
 def topas_unique(cohort_index: int, categories: str):
-    return bp.get_topas_unique(cohorts_db.get_topas_rtk_scores_df(cohort_index), categories)
+    return bp.get_topas_unique(
+        cohorts_db.get_topas_rtk_scores_df(cohort_index), categories
+    )
 
 
 @app.route(ApiRoutes.TOPAS_SUBSCORE)
@@ -832,6 +852,7 @@ def handle_exception(err):
     portal_logger(f"{type(err).__name__}: {err}", log_list=error_log)
     portal_logger(traceback.format_exc(), log_list=error_log)
     return Response(f"{type(err).__name__}: {err}"), 500
+
 
 def portal_logger(message, log_list: list = error_log):
     print(message)

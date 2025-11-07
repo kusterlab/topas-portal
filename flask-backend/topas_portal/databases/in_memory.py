@@ -225,7 +225,7 @@ def _load_all_tables(cohort, config: Dict, do_return_place_holder: bool = False)
                 ),
                 settings.PP_KEY,
                 patients_list,
-                extra_columns=settings.PP_EXTRA_COLUMNS,
+                extra_columns=list(settings.PP_EXTRA_COLUMNS.keys()),
             )
             pp_df_patients = expression_loader.load_expression_data(
                 Path(cohort_report_dir), settings.PP_KEY, "phospho"

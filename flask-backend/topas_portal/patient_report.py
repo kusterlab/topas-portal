@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Callable
 
 import pandas as pd
+import xlsxwriter
 
 from topas_portal import utils
 from topas_portal import settings
@@ -81,7 +82,7 @@ def _phospho_proteome(
         cohorts_db.get_psite_abundance_df,
         intensity_units,
     )
-    return ps.phospho_annot(sub_df)
+    return sub_df.rename(columns=settings.PP_EXTRA_COLUMNS)
 
 
 def _full_proteome(
@@ -117,7 +118,7 @@ def _load_proteome(
 
     sub_dfs = []
     for i, intensity_unit in enumerate(intensity_units):
-        extra_columns = settings.PP_EXTRA_COLUMNS if i == 0 else None
+        extra_columns = list(settings.PP_EXTRA_COLUMNS.keys()) if i == 0 else None
 
         sub_df = get_abundance_df(
             cohort_index,
@@ -193,7 +194,14 @@ def _phospho_score(
         cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
     )
     sub_df["Gene names"] = sub_df.index
-    return sub_df[["Gene names", patient]].dropna()
+    sub_df = sub_df[["Gene names", patient]].dropna()
+    zscore_col = utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.Z_SCORE].strip()
+    sub_df = sub_df.rename(columns={patient: zscore_col}).sort_values(
+        by=zscore_col, ascending=False
+    )
+
+    sub_df = merge_with_poi_annotations(sub_df, cohorts_db.get_poi_annotation_df())
+    return sub_df
 
 
 def _transcriptomics(
@@ -227,7 +235,6 @@ def _get_sheetname_from_level(level: utils.DataType) -> str:
         utils.DataType.TOPAS_RTK_SCORE: "Topas",
         utils.DataType.PHOSPHO_SCORE: "Protein phosphorylation",
         utils.DataType.KINASE_SCORE: "Kinase",
-        utils.DataType.TOPAS_SUBSCORE: "TOPAS subscores",
         utils.DataType.BIOMARKER: "Biomarkers",
     }
 
