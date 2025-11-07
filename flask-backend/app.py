@@ -99,7 +99,7 @@ with app.app_context():
     from compartments.z_scoring_app import zscoring_page
     from compartments.ptmnavigator_app import ptmnavigator_page
 
-    if cohorts_db.config.do_load_data_on_startup():
+    if cohorts_db.config.do_load_data_on_startup() and __name__ == "__main__":
         start_background_loader()
 
 app.register_blueprint(config_page)
