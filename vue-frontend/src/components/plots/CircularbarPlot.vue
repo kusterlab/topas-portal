@@ -28,7 +28,7 @@ export default {
   props: {
     plotId: {
       type: String,
-      default: 'loliPop'
+      default: 'lolliPop'
     },
     savePlot: {
       type: Boolean,

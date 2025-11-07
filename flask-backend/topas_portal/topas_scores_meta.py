@@ -118,7 +118,7 @@ TOPAS_COLORING_RULE = {
 }
 
 
-# TOPAS scores to show on the lolipop plot and the circular plot of the frontside
+# TOPAS scores to show on the lollipop plot and the circular plot of the frontside
 TOPAS_CATEGORIES = {
     # the rules for the 5th generation
     "ALK": "RTK",

@@ -524,7 +524,7 @@ def topas_annotations():
 
 
 @app.route(ApiRoutes.TOPAS_LOLLIPOP)
-# http://localhost:3832/topas/lolipopdata/0/I002-025-226610
+# http://localhost:3832/topas/lollipopdata/0/I002-025-226610
 def get_circular_barplot_data(cohort_index: int, patient: str):
     return utils.df_to_json(
         bp.get_circular_barplot_data_pathways(
@@ -537,7 +537,7 @@ def get_circular_barplot_data(cohort_index: int, patient: str):
 
 
 @app.route(ApiRoutes.TOPAS_LOLLIPOP_TUMOR)
-# http://localhost:3832/topas/lolipopdata/0/I002-025-226610/tumor_antigen
+# http://localhost:3832/topas/lollipopdata/0/I002-025-226610/tumor_antigen
 def get_circular_barplot_data_tumor(cohort_index: int, patient: str):
     return utils.df_to_json(
         bp.get_circular_barplot_data_tumor_antigens(
@@ -550,10 +550,10 @@ def get_circular_barplot_data_tumor(cohort_index: int, patient: str):
 
 
 @app.route(ApiRoutes.TOPAS_EXPRESSION_DOWNSTREAM)
-# http://localhost:3832/topas/lolipopdata/expression/0/I002-025-226610/downstream_signaling
-def get_lolipopexpression_down_stream(cohort_index: int, patient: str):
+# http://localhost:3832/topas/lollipopdata/expression/0/I002-025-226610/downstream_signaling
+def get_lollipopexpression_down_stream(cohort_index: int, patient: str):
     return utils.df_to_json(
-        bp.getlolipop_expression_topas(
+        bp.get_lollipop_expression_topas(
             cohorts_db.get_protein_abundance_df(
                 cohort_index,
                 intensity_unit=utils.IntensityUnit.Z_SCORE,
@@ -585,10 +585,10 @@ def get_list_proteins(cohort_index: int, level: str):
 
 
 @app.route(ApiRoutes.TOPAS_EXPRESSION_RTK)
-# http://localhost:3832/topas/lolipopdata/expression/0/I002-025-226610/rtk
-def get_lolipopexpression_rtk(cohort_index: int, patient: str):
+# http://localhost:3832/topas/lollipopdata/expression/0/I002-025-226610/rtk
+def get_lollipopexpression_rtk(cohort_index: int, patient: str):
     return utils.df_to_json(
-        bp.getlolipop_expression_topas(
+        bp.get_lollipop_expression_topas(
             cohorts_db.get_protein_abundance_df(
                 cohort_index,
                 intensity_unit=utils.IntensityUnit.Z_SCORE,

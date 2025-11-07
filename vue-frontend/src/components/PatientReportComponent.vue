@@ -239,7 +239,7 @@
                       Tumor Antigens
                     </v-btn>
                     <v-btn
-                      value="lolipop"
+                      value="lollipop"
                     >
                       RTKs TOPAS vs Expression
                     </v-btn>
@@ -251,15 +251,15 @@
                       md="7"
                       lg="7"
                     >
-                      <Lolipop-plot
-                        v-if="lolipopData && displayrtkBar"
+                      <Lollipop-plot
+                        v-if="lollipopData && displayrtkBar"
                         :width="800"
-                        lollipop-id="topas2Lolipop"
-                        loli-title="TOPAS Z-scores"
+                        lollipop-id="topas2Lollipop"
+                        lolli-title="TOPAS Z-scores"
                         :fixed-domain="fixedDomain"
                         :vline="2"
-                        :loliradian="1"
-                        :plot-data="lolipopData"
+                        :lolliradian="1"
+                        :plot-data="lollipopData"
                         :show-legends="true"
                       />
                     </v-col>
@@ -269,9 +269,9 @@
                       lg="5"
                     >
                       <Circularbar-plot
-                        v-if="lolipopData && displayrtkBar"
+                        v-if="lollipopData && displayrtkBar"
                         plot-id="circular2Patway"
-                        :plot-data="lolipopData"
+                        :plot-data="lollipopData"
                         :patient-name="firstPatient"
                       />
                     </v-col>
@@ -282,15 +282,15 @@
                       md="7"
                       lg="7"
                     >
-                      <Lolipop-plot
-                        v-if="lolipopDataTumor && displayTumorbar"
+                      <Lollipop-plot
+                        v-if="lollipopDataTumor && displayTumorbar"
                         :width="800"
-                        lollipop-id="topas2LolipopTumorantigen"
-                        loli-title="Expression Z-scores"
+                        lollipop-id="topas2LollipopTumorantigen"
+                        lolli-title="Expression Z-scores"
                         :fixed-domain="fixedDomain"
                         :vline="2"
-                        :loliradian="1"
-                        :plot-data="lolipopDataTumor"
+                        :lolliradian="1"
+                        :plot-data="lollipopDataTumor"
                         :show-legends="true"
                       />
                     </v-col>
@@ -300,9 +300,9 @@
                       lg="5"
                     >
                       <Circularbar-plot
-                        v-if="lolipopDataTumor && displayTumorbar"
+                        v-if="lollipopDataTumor && displayTumorbar"
                         plot-id="circular2Tumor"
-                        :plot-data="lolipopDataTumor"
+                        :plot-data="lollipopDataTumor"
                         :patient-name="firstPatient"
                       />
                     </v-col>
@@ -314,14 +314,14 @@
                       md="6"
                       lg="6"
                     >
-                      <Lolipop-plot
-                        v-if="expressionDataRTK && displaylolipop"
+                      <Lollipop-plot
+                        v-if="expressionDataRTK && displaylollipop"
                         :width="1600"
                         :height="400"
                         :fixed-domain="fixedDomain"
-                        loli-mode="true"
-                        loliradian="4"
-                        loli-title="Topas Z-scores | EXPRESSION Z-scores"
+                        lolli-mode="true"
+                        lolliradian="4"
+                        lolli-title="Topas Z-scores | EXPRESSION Z-scores"
                         lollipop-id="topas2ExpressionplotRTk"
                         :plot-data="expressionDataRTK"
                         overlapping-y="true"
@@ -335,14 +335,14 @@
                       md="6"
                       lg="6"
                     >
-                      <Lolipop-plot
-                        v-if="expressionDataDownstream && displaylolipop"
+                      <Lollipop-plot
+                        v-if="expressionDataDownstream && displaylollipop"
                         :width="1600"
                         :height="400"
                         :fixed-domain="fixedDomain"
-                        loli-mode="true"
-                        loliradian="2"
-                        loli-title="TOPAS Z-scores | EXPRESSION Z-scores"
+                        lolli-mode="true"
+                        lolliradian="2"
+                        lolli-title="TOPAS Z-scores | EXPRESSION Z-scores"
                         lollipop-id="topas2ExpressionplotDownSignaling"
                         :plot-data="expressionDataDownstream"
                         overlapping-y="true"
@@ -367,7 +367,7 @@ import { mapMutations } from 'vuex'
 import CohortSelect from './partials/CohortSelect.vue'
 import patientscoreTable from '@/components/tables/PatientscoreTable.vue'
 import PatientReportTable from '@/components/tables/PatientReportTable.vue'
-import LolipopPlot from '@/components/plots/LolipopPlot'
+import LollipopPlot from '@/components/plots/LollipopPlot'
 import CircularbarPlot from '@/components/plots/CircularbarPlot'
 import histogram from '@/components/plots/GenericHistogram.vue'
 import { DataType } from '@/constants'
@@ -378,7 +378,7 @@ export default {
   components: {
     CohortSelect,
     PatientReportTable,
-    LolipopPlot,
+    LollipopPlot,
     histogram,
     CircularbarPlot,
     patientscoreTable
@@ -405,9 +405,9 @@ export default {
     selectedLinefpintensity: [],
     scoreType: DataType.REPORT_SUMMARY,
     Showcircular: true,
-    lolipopData: false,
+    lollipopData: false,
     showCorrelation: false,
-    lolipopDataTumor: false,
+    lollipopDataTumor: false,
     openReport: false,
     histogramMargin: { top: 20, right: 10, bottom: 50, left: 70 },
     proteinCounts: [],
@@ -488,8 +488,8 @@ export default {
     displayTumorbar () {
       return this.type === 'tumor'
     },
-    displaylolipop () {
-      return this.type === 'lolipop'
+    displaylollipop () {
+      return this.type === 'lollipop'
     },
     patientReportUrl () {
       return api.PATIENT_REPORT_TABLE_XLSX({ cohort_index: this.cohortIndex, patients: ':patients' })
@@ -604,16 +604,16 @@ export default {
     },
     async updateSelectedRows (selectedIds, selectedData) {
       this.selectedData = selectedData
-      this.lolipopData = false
+      this.lollipopData = false
       this.expressionDataRTK = false
       this.expressionDataDownstream = false
-      this.lolipopDataTumor = false
+      this.lollipopDataTumor = false
       if (selectedData.length > 0) {
         const firstPatient = selectedData[0]['Sample name']
         this.firstPatient = firstPatient
         const requests = [
           {
-            name: 'lolipopData',
+            name: 'lollipopData',
             endpoint: api.TOPAS_LOLLIPOP({
               cohort_index: this.cohortIndex,
               patient: firstPatient
@@ -621,7 +621,7 @@ export default {
             errorMessage: 'Error: Could not load lollipop data'
           },
           {
-            name: 'lolipopDataTumor',
+            name: 'lollipopDataTumor',
             endpoint: api.TOPAS_LOLLIPOP_TUMOR({
               cohort_index: this.cohortIndex,
               patient: firstPatient

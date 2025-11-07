@@ -57,13 +57,13 @@ class ApiRoutes(ApiBase):
 
     TOPAS = "/topas/<int:cohort_index>/<string:topas_names>/<string:score_type>"
     TOPAS_ANNOTATIONS = "/topas/annotations"
-    TOPAS_LOLLIPOP = "/topas/lolipopdata/<int:cohort_index>/<string:patient>"
+    TOPAS_LOLLIPOP = "/topas/lollipopdata/<int:cohort_index>/<string:patient>"
     TOPAS_LOLLIPOP_TUMOR = (
-        "/topas/lolipopdata/<int:cohort_index>/<string:patient>/tumor_antigen"
+        "/topas/lollipopdata/<int:cohort_index>/<string:patient>/tumor_antigen"
     )
-    TOPAS_EXPRESSION_DOWNSTREAM = "/topas/lolipopdata/expression/<int:cohort_index>/<string:patient>/downstream_signaling"
+    TOPAS_EXPRESSION_DOWNSTREAM = "/topas/lollipopdata/expression/<int:cohort_index>/<string:patient>/downstream_signaling"
     TOPAS_EXPRESSION_RTK = (
-        "/topas/lolipopdata/expression/<int:cohort_index>/<string:patient>/rtk"
+        "/topas/lollipopdata/expression/<int:cohort_index>/<string:patient>/rtk"
     )
     TOPAS_IDS = "/topas/<int:cohort_index>/topasids/<string:categories>"
     TOPAS_SUBSCORE = "/topas/subscore/<int:cohort_index>/<string:topasname>"
