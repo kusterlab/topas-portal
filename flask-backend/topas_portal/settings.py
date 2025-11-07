@@ -164,6 +164,7 @@ EXPRESSION_TAB_DATA = [
 PP_EXTRA_COLUMNS = [
     "Gene names",
     "Proteins",
+    "Occurrence",
     "PSP Kinases",
     "Site positions identified (MQ)",
 ]

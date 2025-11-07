@@ -1,5 +1,5 @@
 import os
-from typing import Union
+from typing import Union, Optional
 
 import pandas as pd
 
@@ -12,14 +12,16 @@ from topas_portal.data_api.exceptions import IntensityUnitUnavailableError
 
 
 def extract_columns_and_remove_suffix(
-    df: pd.DataFrame, intensity_unit: utils.IntensityUnit
+    df: pd.DataFrame,
+    intensity_unit: utils.IntensityUnit,
+    extra_columns: list[str],
 ):
     intensity_suffix = utils.INTENSITY_UNIT_SUFFIXES[intensity_unit]
-    df = df.filter(like=intensity_suffix)
-    if len(df.columns) == 0:
+    filtered_df = df.filter(like=intensity_suffix)
+    if len(filtered_df.columns) == 0:
         raise IntensityUnitUnavailableError(intensity_unit)
-    df.columns = df.columns.str.removesuffix(intensity_suffix)
-    return df
+    filtered_df.columns = filtered_df.columns.str.removesuffix(intensity_suffix)
+    return filtered_df.join(df[extra_columns])
 
 
 class InMemoryCohortDataAPI:
@@ -59,21 +61,24 @@ class InMemoryCohortDataAPI:
 
     def _filter_expression_df(
         self,
-        df,
+        df: pd.DataFrame,
         intensity_unit: Union[utils.IntensityUnit, None] = None,
         identifier: str = None,
         patient_name: str = None,
-        extra_columns: list[str] = None,
+        extra_columns: Optional[list[str]] = None,
     ):
+        if extra_columns is None:
+            extra_columns = []
+        extra_columns = df.columns.intersection(extra_columns).to_list()
+
         if intensity_unit is not None:
-            df = extract_columns_and_remove_suffix(df, intensity_unit=intensity_unit)
+            df = extract_columns_and_remove_suffix(
+                df, intensity_unit=intensity_unit, extra_columns=extra_columns
+            )
 
         if identifier:
             return df.loc[df.index == identifier]
         elif patient_name:
-            if not extra_columns:
-                extra_columns = settings.PP_EXTRA_COLUMNS
-            extra_columns = df.columns.intersection(extra_columns).to_list()
             return df[[patient_name] + extra_columns]
         else:
             return df
@@ -85,11 +90,14 @@ class InMemoryCohortDataAPI:
         identifier: str = None,
         patient_name: str = None,
         include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+        extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         df = self.provider.get_dataframe(cohort_index, utils.DataType.FULL_PROTEOME)
         df = _filter_for_ref(df, include_ref)
 
-        return self._filter_expression_df(df, intensity_unit, identifier, patient_name)
+        return self._filter_expression_df(
+            df, intensity_unit, identifier, patient_name, extra_columns
+        )
 
     def get_psite_abundance_df(
         self,
@@ -98,11 +106,14 @@ class InMemoryCohortDataAPI:
         identifier: str = None,
         patient_name: str = None,
         include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+        extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         df = self.provider.get_dataframe(cohort_index, utils.DataType.PHOSPHO_PROTEOME)
         df = _filter_for_ref(df, include_ref)
 
-        return self._filter_expression_df(df, intensity_unit, identifier, patient_name)
+        return self._filter_expression_df(
+            df, intensity_unit, identifier, patient_name, extra_columns
+        )
 
     def get_topas_rtk_scores_df(
         self,
@@ -152,7 +163,7 @@ class InMemoryCohortDataAPI:
 
     def get_topas_annotation_df(self) -> pd.DataFrame:
         return self.provider.topas_complete_df
-    
+
     def get_poi_annotation_df(self) -> pd.DataFrame:
         return self.provider.poi_annotation_df
 

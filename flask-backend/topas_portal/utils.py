@@ -244,21 +244,22 @@ def merge_by_delimited_field(
     """
     if not agg_func:
         agg_func = lambda x: delimiter.join(x.dropna())
-    key_df = df[[field_name]]
+
+    df_with_row_idx = df.assign(row_id=range(len(df)))
+    key_df = df_with_row_idx[[field_name, "row_id"]]
     merged_df = (
-        key_df.assign(
-            exploded_field=df[field_name].str.split(delimiter), row_id=range(len(df))
-        )
+        key_df.assign(exploded_field=df[field_name].str.split(delimiter))
         .explode("exploded_field")
         .drop(columns=field_name)
         .merge(other_df, left_on="exploded_field", right_on=field_name, how="left")
-        .drop(columns=field_name)
+        .drop(columns=[field_name, "exploded_field"])
         .groupby("row_id")
         .agg(agg_func)
-        .rename(columns={"exploded_field": field_name})
-        .reset_index(drop=True)
+        .reset_index()
     )
-    return df.merge(merged_df, on=field_name, how="left")
+    merged_df = df_with_row_idx.merge(merged_df, on="row_id", how="left")
+    merged_df = merged_df.drop(columns="row_id")
+    return merged_df
 
 
 def get_index_cols(data_type: str) -> List[str]:

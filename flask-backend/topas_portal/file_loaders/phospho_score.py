@@ -9,7 +9,7 @@ def load_phosphorylation_scores(
     add_suffix=False,
 ):
     phospho_score_df = pd.read_csv(
-        phosphorylation_scores_path, sep="\t", low_memory=False
+        phosphorylation_scores_path, sep="\t", low_memory=False, index_col=0
     )
     phospho_score_df = phospho_score_df.T
     phospho_score_df.index.name = "Gene names"

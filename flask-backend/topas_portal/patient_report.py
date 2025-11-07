@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Callable
 import pandas as pd
 
 from topas_portal import utils
+from topas_portal import settings
 import topas_portal.psite_annotation as ps
 import topas_portal.topas_preprocess as topas_loader
 
@@ -102,7 +103,7 @@ def _load_proteome(
     cohorts_db: data_api.CohortDataAPI,
     cohort_index: int,
     patient: str,
-    get_abundance_df: Callable,
+    get_abundance_df: Callable[..., pd.DataFrame],
     intensity_units: list[utils.IntensityUnit] = None,
 ) -> pd.DataFrame:
     if intensity_units is None:
@@ -115,9 +116,14 @@ def _load_proteome(
         ]
 
     sub_dfs = []
-    for intensity_unit in intensity_units:
+    for i, intensity_unit in enumerate(intensity_units):
+        extra_columns = settings.PP_EXTRA_COLUMNS if i == 0 else None
+
         sub_df = get_abundance_df(
-            cohort_index, patient_name=patient, intensity_unit=intensity_unit
+            cohort_index,
+            patient_name=patient,
+            intensity_unit=intensity_unit,
+            extra_columns=extra_columns,
         )
         sub_df = sub_df.rename(
             columns={patient: utils.INTENSITY_UNIT_SUFFIXES[intensity_unit].strip()}
@@ -126,22 +132,20 @@ def _load_proteome(
 
     proteome_df = pd.concat(sub_dfs, axis=1)
     proteome_df = proteome_df.reset_index()  # make "Gene names" a regular column
-    print(proteome_df)
 
     proteome_df = merge_with_poi_annotations(
         proteome_df, cohorts_db.get_poi_annotation_df()
     )
-    return proteome_df.dropna().sort_values(by="Z-score", ascending=False)
+    zscore_col = utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.Z_SCORE].strip()
+    return proteome_df.dropna(subset=zscore_col).sort_values(
+        by=zscore_col, ascending=False
+    )
 
 
 def merge_with_poi_annotations(df: pd.DataFrame, poi_annotation_df: pd.DataFrame):
-    poi_report_annotation_df = poi_annotation_df[
-        poi_annotation_df["POI_REPORT"].notna()
-    ]
-
     df = utils.merge_by_delimited_field(
         df,
-        poi_report_annotation_df[
+        poi_annotation_df[
             ["Gene names", "POI_REPORT", "POI_EXPLORATORY", "POI_PRODICT"]
         ],
         field_name="Gene names",
