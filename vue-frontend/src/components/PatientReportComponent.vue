@@ -572,6 +572,9 @@ export default {
         })
       }
 
+      this.processRequestsAsync(requests)
+    },
+    async processRequestsAsync (requests) {
       // Start all requests immediately and handle them independently
       for (const { name, endpoint, errorMessage } of requests) {
         axios.get(endpoint)
@@ -608,55 +611,98 @@ export default {
       if (selectedData.length > 0) {
         const firstPatient = selectedData[0]['Sample name']
         this.firstPatient = firstPatient
-        let response = await axios.get(api.TOPAS_LOLLIPOP({ cohort_index: this.cohortIndex, patient: firstPatient }))
-        this.lolipopData = response.data
-        response = await axios.get(api.TOPAS_LOLLIPOP_TUMOR({ cohort_index: this.cohortIndex, patient: firstPatient }))
-        this.lolipopDataTumor = response.data
-        response = await axios.get(api.TOPAS_EXPRESSION_DOWNSTREAM({ cohort_index: this.cohortIndex, patient: firstPatient }))
-        this.expressionDataRTK = response.data
-        response = await axios.get(api.TOPAS_EXPRESSION_RTK({ cohort_index: this.cohortIndex, patient: firstPatient }))
-        this.expressionDataDownstream = response.data
+        const requests = [
+          {
+            name: 'lolipopData',
+            endpoint: api.TOPAS_LOLLIPOP({
+              cohort_index: this.cohortIndex,
+              patient: firstPatient
+            }),
+            errorMessage: 'Error: Could not load lollipop data'
+          },
+          {
+            name: 'lolipopDataTumor',
+            endpoint: api.TOPAS_LOLLIPOP_TUMOR({
+              cohort_index: this.cohortIndex,
+              patient: firstPatient
+            }),
+            errorMessage: 'Error: Could not load lollipop tumor data'
+          },
+          {
+            name: 'expressionDataRTK',
+            endpoint: api.TOPAS_EXPRESSION_RTK({
+              cohort_index: this.cohortIndex,
+              patient: firstPatient
+            }),
+            errorMessage: 'Error: Could not load RTK expression data'
+          },
+          {
+            name: 'expressionDataDownstream',
+            endpoint: api.TOPAS_EXPRESSION_DOWNSTREAM({
+              cohort_index: this.cohortIndex,
+              patient: firstPatient
+            }),
+            errorMessage: 'Error: Could not load downstream expression data'
+          }
+        ]
+        this.processRequestsAsync(requests)
+
         this.getscoresTable()
-        this.selectedFPLines = [] // for full proteome
-        this.selectedfppepLines = [] // for FP peptideLevel
-        this.selectedpepLines = [] // for PP at peptide level
-        this.selectedLineppintensity = [] // for PP peptide level
-        this.selectedLinefpintensity = [] // for FP peptide level
-        this.selectedLinecorrelation = [] // FPKM protein transcript level
-        this.proteinCounts.forEach(element => {
-          if (element.patients === firstPatient) {
-            this.selectedFPLines.push({ color: 'red', value: element.identified, curveid: -1, dash: ('5, 5') })
-          }
-        })
+        const dashStyle = '5, 5'
 
-        this.ppeptideCounts.forEach(element => {
-          if (element.patients === firstPatient) {
-            this.selectedpepLines.push({ color: 'blue', value: element.identified, curveid: -1, dash: ('5, 5') })
+        const mappings = [
+          {
+            source: 'proteinCounts',
+            target: 'selectedFPLines',
+            color: 'red',
+            valueKey: 'identified'
+          },
+          {
+            source: 'ppeptideCounts',
+            target: 'selectedpepLines',
+            color: 'blue',
+            valueKey: 'identified'
+          },
+          {
+            source: 'peptideCounts',
+            target: 'selectedfppepLines',
+            color: 'red',
+            valueKey: 'identified'
+          },
+          {
+            source: 'summedIntensitiesPhospho',
+            target: 'selectedLineppintensity',
+            color: 'blue',
+            valueKey: 'sumIntensities'
+          },
+          {
+            source: 'summedIntensitiesFull',
+            target: 'selectedLinefpintensity',
+            color: 'orange',
+            valueKey: 'sumIntensities'
           }
-        })
-
-        this.peptideCounts.forEach(element => {
-          if (element.patients === firstPatient) {
-            this.selectedfppepLines.push({ color: 'red', value: element.identified, curveid: -1, dash: ('5, 5') })
-          }
-        })
-
-        this.summedIntensitiesPhospho.forEach(element => {
-          if (element.patients === firstPatient) {
-            this.selectedLineppintensity.push({ color: 'blue', value: element.sumIntensities, curveid: -1, dash: ('5, 5') })
-          }
-        })
-
-        this.summedIntensitiesFull.forEach(element => {
-          if (element.patients === firstPatient) {
-            this.selectedLinefpintensity.push({ color: 'orange', value: element.sumIntensities, curveid: -1, dash: ('5, 5') })
-          }
-        })
+        ]
 
         if (this.showCorrelation) {
-          this.correlationStatistics.forEach(element => {
+          mappings.push({
+            source: 'correlationStatistics',
+            target: 'selectedLinecorrelation',
+            color: 'black',
+            valueKey: 'correlation'
+          })
+        }
+
+        // Populate each in one pass
+        for (const { source, target, color, valueKey } of mappings) {
+          this[target] = []
+          this[source].forEach(element => {
             if (element.patients === firstPatient) {
-              this.selectedLinecorrelation.push({ color: 'black', value: element.correlation, curveid: -1, dash: ('5, 5') })
+              this[target].push({
+                color,
+                value: element[valueKey],
+                curveid: -1,
+                dash: dashStyle
+              })
             }
           })
         }
