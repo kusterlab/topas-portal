@@ -398,8 +398,8 @@ export default {
     topasName: '',
     isCollapsed: true,
     fixedDomain: false,
-    sumIntesitiespp: [],
-    sumIntesitiesfp: [],
+    summedIntensitiesPhospho: [],
+    summedIntensitiesFull: [],
     patientData: [],
     selectedLineppintensity: [],
     selectedLinefpintensity: [],
@@ -410,15 +410,15 @@ export default {
     lolipopDataTumor: false,
     openReport: false,
     histogramMargin: { top: 20, right: 10, bottom: 50, left: 70 },
-    proteinSatitistics: [],
-    peptideSatitistics: [],
+    proteinCounts: [],
+    peptideCounts: [],
+    ppeptideCounts: [],
     correlationStatistics: [],
     firstPatient: '',
     patientscoresDataurl: '',
     expressionDataRTK: false,
     expressionDataDownstream: false,
     type: 'tumor',
-    peptidefpSatitistics: [],
     selectedFPLines: [],
     selectedLinecorrelation: [],
     selectedpepLines: [],
@@ -465,22 +465,22 @@ export default {
   }),
   computed: {
     proteinCount () {
-      return this.proteinSatitistics.map(d => d.identified)
+      return this.proteinCounts.map(d => d.identified)
     },
     peptideCount () {
-      return this.peptideSatitistics.map(d => d.identified)
+      return this.ppeptideCounts.map(d => d.identified)
     },
     peptidefpCount () {
-      return this.peptidefpSatitistics.map(d => d.identified)
+      return this.peptideCounts.map(d => d.identified)
     },
     correlationCount () {
       return this.correlationStatistics.map(d => d.correlation)
     },
     ppintensitySum () {
-      return this.sumIntesitiespp.map(d => d.sumIntensities)
+      return this.summedIntensitiesPhospho.map(d => d.sumIntensities)
     },
     fpintensitySum () {
-      return this.sumIntesitiesfp.map(d => d.sumIntensities)
+      return this.summedIntensitiesFull.map(d => d.sumIntensities)
     },
     displayrtkBar () {
       return this.type === 'rtk'
@@ -512,71 +512,80 @@ export default {
     },
     async getpatientData () {
       this.patientData = null
-      let response = []
-      try {
-        response = await axios.get(api.PATIENTS_METADATA({ cohort_index: this.cohortIndex }))
-        this.patientData = response.data
-      } catch (error) {
-        this.addNotification({
-          color: 'error',
-          message: 'Error: Probably no meta data exists for this cohort'
-        })
-      }
-      try {
-        response = await axios.get(api.PATIENT_CENTRIC_SUMMED_INTENSITY({ cohort_index: this.cohortIndex, level: DataType.PHOSPHO_PROTEOME }))
-        this.sumIntesitiespp = response.data
-      } catch (error) {
-        this.addNotification({
-          color: 'error',
-          message: 'Error: could not load phospho intensities data'
-        })
-      }
-      try {
-        response = await axios.get(api.PATIENT_CENTRIC_SUMMED_INTENSITY({ cohort_index: this.cohortIndex, level: DataType.FULL_PROTEOME }))
-        this.sumIntesitiesfp = response.data
-      } catch (error) {
-        this.addNotification({
-          color: 'error',
-          message: 'Error: could not load full proteome intensities data'
-        })
-      }
-      try {
-        response = await axios.get(api.PATIENT_CENTRIC_COUNTS({ cohort_index: this.cohortIndex, level: DataType.FULL_PROTEOME }))
-        this.proteinSatitistics = response.data
-      } catch (error) {
-        this.addNotification({
-          color: 'error',
-          message: 'Error: could not load protein counts data'
-        })
-      }
-      try {
-        response = await axios.get(api.PATIENT_CENTRIC_COUNTS({ cohort_index: this.cohortIndex, level: DataType.PHOSPHO_PROTEOME }))
-        this.peptideSatitistics = response.data
-      } catch (error) {
-        this.addNotification({
-          color: 'error',
-          message: 'Error: could not load phosphoproteome peptide counts data'
-        })
-      }
-      try {
-        response = await axios.get(api.PATIENT_CENTRIC_COUNTS({ cohort_index: this.cohortIndex, level: DataType.FULL_PROTEOME_NUM_PEPTIDES }))
-        this.peptidefpSatitistics = response.data
-      } catch (error) {
-        this.addNotification({
-          color: 'error',
-          message: 'Error: could not load full proteome peptide counts data'
-        })
-      }
-      if (this.showCorrelation) {
-        try {
-          response = await axios.get(api.CORRELATION_FPKM_PROTEIN({ cohort_index: this.cohortIndex }))
-          this.correlationStatistics = response.data
-        } catch (error) {
-          this.addNotification({
-            color: 'error',
-            message: 'Error: could not load FPKM-protein correlation statistics data'
-          })
+      const requests = [
+        {
+          name: 'patientData',
+          endpoint: api.PATIENTS_METADATA({
+            cohort_index: this.cohortIndex
+          }),
+          errorMessage: 'Error: Could not load patient metadata'
+        },
+        {
+          name: 'summedIntensitiesPhospho',
+          endpoint: api.PATIENT_CENTRIC_SUMMED_INTENSITY({
+            cohort_index: this.cohortIndex,
+            level: DataType.PHOSPHO_PROTEOME
+          }),
+          errorMessage: 'Error: could not load phospho intensities data'
+        },
+        {
+          name: 'summedIntensitiesFull',
+          endpoint: api.PATIENT_CENTRIC_SUMMED_INTENSITY({
+            cohort_index: this.cohortIndex,
+            level: DataType.FULL_PROTEOME
+          }),
+          errorMessage: 'Error: could not load full proteome intensities data'
+        },
+        {
+          name: 'proteinCounts',
+          endpoint: api.PATIENT_CENTRIC_COUNTS({
+            cohort_index: this.cohortIndex,
+            level: DataType.FULL_PROTEOME
+          }),
+          errorMessage: 'Error: could not load protein counts data'
+        },
+        {
+          name: 'ppeptideCounts',
+          endpoint: api.PATIENT_CENTRIC_COUNTS({
+            cohort_index: this.cohortIndex,
+            level: DataType.PHOSPHO_PROTEOME
+          }),
+          errorMessage: 'Error: could not load phosphoproteome peptide counts data'
+        },
+        {
+          name: 'peptideCounts',
+          endpoint: api.PATIENT_CENTRIC_COUNTS({
+            cohort_index: this.cohortIndex,
+            level: DataType.FULL_PROTEOME_NUM_PEPTIDES
+          }),
+          errorMessage: 'Error: could not load full proteome peptide counts data'
         }
+      ]
+
+      if (this.showCorrelation) {
+        requests.push({
+          name: 'correlationStatistics',
+          endpoint: api.CORRELATION_FPKM_PROTEIN({
+            cohort_index: this.cohortIndex
+          }),
+          errorMessage: 'Error: could not load FPKM-protein correlation statistics data'
+        })
+      }
+
+      // Start all requests immediately and handle them independently
+      for (const { name, endpoint, errorMessage } of requests) {
+        axios.get(endpoint)
+          .then(response => {
+            // Update the corresponding reactive variable as soon as data arrives
+            this[name] = response.data
+          })
+          .catch(() => {
+            // Handle errors individually
+            this.addNotification({
+              color: 'error',
+              message: errorMessage
+            })
+          })
       }
     },
     getscoresTable () {
@@ -614,31 +623,31 @@ export default {
         this.selectedLineppintensity = [] // for PP peptide level
         this.selectedLinefpintensity = [] // for FP peptide level
         this.selectedLinecorrelation = [] // FPKM protein transcript level
-        this.proteinSatitistics.forEach(element => {
+        this.proteinCounts.forEach(element => {
           if (element.patients === firstPatient) {
             this.selectedFPLines.push({ color: 'red', value: element.identified, curveid: -1, dash: ('5, 5') })
           }
         })
 
-        this.peptideSatitistics.forEach(element => {
+        this.ppeptideCounts.forEach(element => {
           if (element.patients === firstPatient) {
             this.selectedpepLines.push({ color: 'blue', value: element.identified, curveid: -1, dash: ('5, 5') })
           }
         })
 
-        this.peptidefpSatitistics.forEach(element => {
+        this.peptideCounts.forEach(element => {
           if (element.patients === firstPatient) {
             this.selectedfppepLines.push({ color: 'red', value: element.identified, curveid: -1, dash: ('5, 5') })
           }
         })
 
-        this.sumIntesitiespp.forEach(element => {
+        this.summedIntensitiesPhospho.forEach(element => {
           if (element.patients === firstPatient) {
             this.selectedLineppintensity.push({ color: 'blue', value: element.sumIntensities, curveid: -1, dash: ('5, 5') })
           }
         })
 
-        this.sumIntesitiesfp.forEach(element => {
+        this.summedIntensitiesFull.forEach(element => {
           if (element.patients === firstPatient) {
             this.selectedLinefpintensity.push({ color: 'orange', value: element.sumIntensities, curveid: -1, dash: ('5, 5') })
           }
