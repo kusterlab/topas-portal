@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import Union
+from typing import Union, Optional
 
 import pandas as pd
 
@@ -101,7 +101,7 @@ class SQLCohortDataAPI:
     def get_protein_abundance_df(
         self,
         cohort_index: str,
-        intensity_unit: Union[utils.IntensityUnit, None] = None,
+        intensity_unit: Optional[utils.IntensityUnit] = None,
         identifier=None,
         patient_name=None,
     ) -> pd.DataFrame:
@@ -150,7 +150,7 @@ class SQLCohortDataAPI:
     def get_psite_abundance_df(
         self,
         cohort_index: str,
-        intensity_unit: Union[utils.IntensityUnit, None] = None,
+        intensity_unit: Optional[utils.IntensityUnit] = None,
         identifier=None,
         patient_name=None,
     ) -> pd.DataFrame:
@@ -213,7 +213,7 @@ class SQLCohortDataAPI:
     def get_topas_rtk_scores_df(
         self,
         cohort_index: str,
-        intensity_unit: Union[utils.IntensityUnit, None],
+        intensity_unit: Optional[utils.IntensityUnit],
         identifier: str = None,
         patient_name: str = None,
     ) -> pd.DataFrame:
@@ -233,7 +233,7 @@ class SQLCohortDataAPI:
     def get_topas_ck_scores_df(
         self,
         cohort_index: str,
-        intensity_unit: Union[utils.IntensityUnit, None],
+        intensity_unit: Optional[utils.IntensityUnit],
         identifier: str = None,
         patient_name: str = None,
     ) -> pd.DataFrame:
@@ -249,7 +249,7 @@ class SQLCohortDataAPI:
     def get_phosphorylation_scores_df(
         self,
         cohort_index: str,
-        intensity_unit: Union[utils.IntensityUnit, None],
+        intensity_unit: Optional[utils.IntensityUnit],
         identifier: str = None,
         patient_name: str = None,
     ) -> pd.DataFrame:
@@ -262,7 +262,7 @@ class SQLCohortDataAPI:
     def get_kinase_scores_df(
         self,
         cohort_index: str,
-        intensity_unit: Union[utils.IntensityUnit, None],
+        intensity_unit: Optional[utils.IntensityUnit],
         identifier: str = None,
         patient_name: str = None,
     ) -> pd.DataFrame:
@@ -283,7 +283,7 @@ class SQLCohortDataAPI:
     def get_fpkm_df(
         self,
         cohort_index: Union[str, None] = None,
-        intensity_unit: Union[utils.IntensityUnit, None] = None,
+        intensity_unit: Optional[utils.IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
     ) -> pd.DataFrame:

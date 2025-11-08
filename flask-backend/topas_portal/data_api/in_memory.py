@@ -62,7 +62,7 @@ class InMemoryCohortDataAPI:
     def _filter_expression_df(
         self,
         df: pd.DataFrame,
-        intensity_unit: Union[utils.IntensityUnit, None] = None,
+        intensity_unit: Optional[utils.IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
         extra_columns: Optional[list[str]] = None,
@@ -86,7 +86,7 @@ class InMemoryCohortDataAPI:
     def get_protein_abundance_df(
         self,
         cohort_index: str,
-        intensity_unit: Union[utils.IntensityUnit, None] = None,
+        intensity_unit: Optional[utils.IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
         include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
@@ -102,7 +102,7 @@ class InMemoryCohortDataAPI:
     def get_psite_abundance_df(
         self,
         cohort_index: str,
-        intensity_unit: Union[utils.IntensityUnit, None] = None,
+        intensity_unit: Optional[utils.IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
         include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
@@ -118,7 +118,7 @@ class InMemoryCohortDataAPI:
     def get_topas_rtk_scores_df(
         self,
         cohort_index: str,
-        intensity_unit: Union[utils.IntensityUnit, None] = None,
+        intensity_unit: Optional[utils.IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
     ) -> pd.DataFrame:
@@ -128,7 +128,7 @@ class InMemoryCohortDataAPI:
     def get_topas_ck_scores_df(
         self,
         cohort_index: str,
-        intensity_unit: Union[utils.IntensityUnit, None] = None,
+        intensity_unit: Optional[utils.IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
     ) -> pd.DataFrame:
@@ -144,7 +144,7 @@ class InMemoryCohortDataAPI:
     def get_phosphorylation_scores_df(
         self,
         cohort_index: str,
-        intensity_unit: Union[utils.IntensityUnit, None] = None,
+        intensity_unit: Optional[utils.IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
     ) -> pd.DataFrame:
@@ -154,7 +154,7 @@ class InMemoryCohortDataAPI:
     def get_kinase_scores_df(
         self,
         cohort_index: str,
-        intensity_unit: Union[utils.IntensityUnit, None] = None,
+        intensity_unit: Optional[utils.IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
     ) -> pd.DataFrame:
@@ -170,7 +170,7 @@ class InMemoryCohortDataAPI:
     def get_fpkm_df(
         self,
         cohort_index: Union[str, None] = None,
-        intensity_unit: Union[utils.IntensityUnit, None] = None,
+        intensity_unit: Optional[utils.IntensityUnit] = None,
         identifier=None,
         patient_name=None,
     ) -> pd.DataFrame:
