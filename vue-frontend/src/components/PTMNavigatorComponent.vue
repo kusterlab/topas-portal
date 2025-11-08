@@ -6,13 +6,12 @@
 </template>
 
 <script>
-import { PTMNavigator } from 'ptmnavigator'
 import ptmNavigatorPrdbApi from '@/plugins/ptmNavigatorApi'
 
 export default {
   name: 'PTMNavigatorWrapper',
   components: {
-    'ptm-navigator': PTMNavigator
+    'ptm-navigator': () => import('ptmnavigator').then(m => m.PTMNavigator)
   },
   data () {
     return {
