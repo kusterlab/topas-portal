@@ -72,15 +72,15 @@ class InMemoryProvider:
         if cohort_names is None:
             cohort_names = config.get_cohort_names()
 
+        self._load_poi_annotations(config.get_config())
+        self._load_topas_annotation_tables(config.get_config())
+        self._load_onkoKB_annotations(config.get_config())
+        self._load_FPKM(config.get_config())
+        self._load_genomics(config.get_config())
+
         for cohort_name in cohort_names:
             cohort_index = config.get_cohort_index(cohort_name)
             self.load_single_cohort(cohort_name, cohort_index, config)
-
-        self._load_FPKM(config.get_config())
-        self._load_genomics(config.get_config())
-        self._load_onkoKB_annotations(config.get_config())
-        self._load_topas_annotation_tables(config.get_config())
-        self._load_poi_annotations(config.get_config())
 
     def load_single_cohort(
         self, cohort_name: str, cohort_index: int, config: CohortConfig
@@ -189,7 +189,8 @@ def _load_all_tables(cohort, config: Dict, do_return_place_holder: bool = False)
     topas_rtk_df, topas_ck_df = [], []
     sample_annotation_df, patients_df = [], []
     fp_df_patients, pp_df_patients = [], []
-    topas_rtk_substrate_phos_df, phospho_score_df = [], []
+    topas_rtk_substrate_phos_df, topas_substrate_phos_df = [], []
+    phospho_score_df = []
 
     if not do_return_place_holder:
         cohort_report_dir = config["report_directory"][cohort]
@@ -268,7 +269,12 @@ def _load_all_tables(cohort, config: Dict, do_return_place_holder: bool = False)
                 ],
             )
 
-            topas_substrate_phos_df = pd.concat([topas_rtk_substrate_phos_df, topas_ck_df], axis=1)
+            if isinstance(topas_rtk_substrate_phos_df, pd.DataFrame) and isinstance(
+                topas_ck_df, pd.DataFrame
+            ):
+                topas_substrate_phos_df = pd.concat(
+                    [topas_rtk_substrate_phos_df, topas_ck_df], axis=1
+                )
 
     return {
         utils.DataType.PATIENT_METADATA: patients_df,  # meta data per cohort the Sample name column refer to the patient, no replicates
