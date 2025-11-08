@@ -349,9 +349,7 @@ def get_batches_proteins_as_json(
             cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
         )
     else:
-        raise ValueError(
-            f"Cannot compute protein overlap for data type {level.value}"
-        )
+        raise ValueError(f"Cannot compute protein overlap for data type {level.value}")
 
     sample_annotation = cohorts_db.get_sample_annotation_df(cohort_index)
     samples_list = sample_annotation["Sample name"].unique().tolist()
@@ -381,9 +379,7 @@ def get_patients_proteins_as_json(
             cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
         )
     else:
-        raise ValueError(
-            f"Cannot compute protein overlap for data type {level.value}"
-        )
+        raise ValueError(f"Cannot compute protein overlap for data type {level.value}")
     sample_annotation = cohorts_db.get_sample_annotation_df(cohort_index)
     samples_list = sample_annotation["Sample name"].unique().tolist()
     sample_names = utils.intersection(samples_list, df.columns)
@@ -476,16 +472,7 @@ def get_reports_per_patient(
     cohort_index: int,
     patient: str,
     level: utils.DataType,
-    download_method: str = "onfly",
 ):
-    read_from_the_report_dir = download_method == "fromreport"
-    if not read_from_the_report_dir:
-        final_df = patient_report.get_reports_per_patient_on_the_fly(
-            cohorts_db, level, cohort_index, patient
-        )
-    else:
-        final_df = patient_report.get_reports_per_patient_from_reports_folder(
-            cohorts_db, level, cohort_index, patient
-        )
-
-    return final_df
+    return patient_report.get_reports_per_patient(
+        cohorts_db, level, cohort_index, patient
+    )

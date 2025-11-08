@@ -16,7 +16,7 @@ class ApiRoutes(ApiBase):
     COHORT_NAMES = "/cohort_names"
     COLUMN_NAMES = "/colnames"
 
-    PATIENT_REPORT_TABLE = "/<int:cohort_index>/patient_reports/<string:patient>/<data_type:level>/<string:downloadmethod>"
+    PATIENT_REPORT_TABLE = "/<int:cohort_index>/patient_reports/<string:patient>/<data_type:level>"
     PATIENT_REPORT_TABLE_XLSX = "/<int:cohort_index>/patient_reports/<string:patients>"
 
     ENTITY_STATUS = "/entityscore/status"

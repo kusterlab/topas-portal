@@ -31,12 +31,6 @@
               label="Show FPKM/protein correlation histogram"
               @change="getpatientData"
             />
-            <v-checkbox
-              v-show="false"
-              v-model="openReport"
-              label="Open Report from pipeline Folder"
-              @change="getscoresTable"
-            />
           </v-card-text>
         </v-card>
       </v-col>
@@ -408,7 +402,6 @@ export default {
     lollipopData: false,
     showCorrelation: false,
     lollipopDataTumor: false,
-    openReport: false,
     histogramMargin: { top: 20, right: 10, bottom: 50, left: 70 },
     proteinCounts: [],
     peptideCounts: [],
@@ -597,8 +590,7 @@ export default {
       this.patientscoresDataurl = api.PATIENT_REPORT_TABLE({
         cohort_index: this.cohortIndex,
         patient: this.firstPatient,
-        level: this.scoreType,
-        downloadmethod: this.openReport ? 'fromreport' : 'onfly'
+        level: this.scoreType
       })
       // this.patientscoresData = response.data
     },

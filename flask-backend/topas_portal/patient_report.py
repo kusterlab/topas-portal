@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     import topas_portal.data_api.data_api as data_api
 
 
-def get_reports_per_patient_on_the_fly(
+def get_reports_per_patient(
     cohorts_db: data_api.CohortDataAPI,
     level: utils.DataType,
     cohort_index: int,
@@ -76,7 +76,6 @@ def _phospho_proteome(
     intensity_units: list[utils.IntensityUnit] = None,
 ) -> pd.DataFrame:
     sub_df = _load_proteome(
-        cohorts_db,
         cohort_index,
         patient,
         cohorts_db.get_psite_abundance_df,
@@ -92,7 +91,6 @@ def _full_proteome(
     intensity_units: list[utils.IntensityUnit] = None,
 ) -> pd.DataFrame:
     return _load_proteome(
-        cohorts_db,
         cohort_index,
         patient,
         cohorts_db.get_protein_abundance_df,
@@ -101,7 +99,6 @@ def _full_proteome(
 
 
 def _load_proteome(
-    cohorts_db: data_api.CohortDataAPI,
     cohort_index: int,
     patient: str,
     get_abundance_df: Callable[..., pd.DataFrame],
@@ -116,44 +113,25 @@ def _load_proteome(
             utils.IntensityUnit.IDENTIFICATION_METADATA,
         ]
 
-    sub_dfs = []
-    for i, intensity_unit in enumerate(intensity_units):
-        print(f"Loading {intensity_unit.value} column")
-        extra_columns = list(settings.PP_EXTRA_COLUMNS.keys()) if i == 0 else None
+    extra_columns = settings.PP_EXTRA_COLUMNS.keys()
+    cohort_df = get_abundance_df(cohort_index, extra_columns=extra_columns)
+    extra_columns = cohort_df.columns.intersection(extra_columns).to_list()
 
-        sub_df = get_abundance_df(
-            cohort_index,
-            patient_name=patient,
-            intensity_unit=intensity_unit,
-            extra_columns=extra_columns,
-        )
-        sub_df = sub_df.rename(
-            columns={patient: utils.INTENSITY_UNIT_SUFFIXES[intensity_unit].strip()}
-        )
-        sub_dfs.append(sub_df)
+    patient_columns = {
+        patient
+        + utils.INTENSITY_UNIT_SUFFIXES[intensity_unit]: utils.INTENSITY_UNIT_SUFFIXES[
+            intensity_unit
+        ].strip()
+        for intensity_unit in intensity_units
+    }
 
-    proteome_df = pd.concat(sub_dfs, axis=1)
+    proteome_df = cohort_df[list(patient_columns.keys()) + extra_columns]
+    proteome_df = proteome_df.rename(columns=patient_columns)
     proteome_df = proteome_df.reset_index()  # make "Gene names" a regular column
-
-    proteome_df = merge_with_poi_annotations(
-        proteome_df, cohorts_db.get_poi_annotation_df()
-    )
     zscore_col = utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.Z_SCORE].strip()
     return proteome_df.dropna(subset=zscore_col).sort_values(
         by=zscore_col, ascending=False
     )
-
-
-def merge_with_poi_annotations(df: pd.DataFrame, poi_annotation_df: pd.DataFrame):
-    df = utils.merge_by_delimited_field(
-        df,
-        poi_annotation_df[
-            ["Gene names", "POI_REPORT", "POI_EXPLORATORY", "POI_PRODICT"]
-        ],
-        field_name="Gene names",
-    )
-
-    return df
 
 
 def _topas_rtk_score(
@@ -191,17 +169,20 @@ def _kinase_score(
 def _phospho_score(
     cohorts_db: data_api.CohortDataAPI, cohort_index: int, patient: str
 ) -> pd.DataFrame:
+    extra_columns = settings.PP_EXTRA_COLUMNS.keys()
     sub_df = cohorts_db.get_phosphorylation_scores_df(
-        cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
+        cohort_index,
+        intensity_unit=utils.IntensityUnit.Z_SCORE,
+        extra_columns=extra_columns,
     )
+    extra_columns = sub_df.columns.intersection(extra_columns).to_list()
+
     sub_df["Gene names"] = sub_df.index
-    sub_df = sub_df[["Gene names", patient]].dropna()
+    sub_df = sub_df[["Gene names", patient] + extra_columns].dropna()
     zscore_col = utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.Z_SCORE].strip()
     sub_df = sub_df.rename(columns={patient: zscore_col}).sort_values(
         by=zscore_col, ascending=False
     )
-
-    sub_df = merge_with_poi_annotations(sub_df, cohorts_db.get_poi_annotation_df())
     return sub_df
 
 
@@ -211,22 +192,6 @@ def _transcriptomics(
     sub_df = cohorts_db.get_fpkm_df(intensity_unit=utils.IntensityUnit.Z_SCORE)
     sub_df["Gene names"] = sub_df.index
     return sub_df[["Gene names", patient]]
-
-
-def get_reports_per_patient_from_reports_folder(
-    cohorts_db: data_api.CohortDataAPI,
-    level: utils.DataType,
-    cohort_index: int,
-    patient: str,
-):
-    reports_dir = cohorts_db.get_report_dir(cohort_index)
-    path_to_patient_results = (
-        reports_dir + "/Reports/" + patient + "_proteomics_results.xlsx"
-    )
-    sheetname = _get_sheetname_from_level(level)
-    df = pd.read_excel(path_to_patient_results, sheet_name=sheetname)
-    df = df.fillna("n.d")
-    return df
 
 
 def _get_sheetname_from_level(level: utils.DataType) -> str:

@@ -84,8 +84,8 @@ def generate_patient_report(
     }
     with pd.ExcelWriter(report_path, engine="xlsxwriter") as writer:
         for data_type, sheet_name in sheet_names.items():
-            print(f"Writing {sheet_name} sheet for {patient}")
-            df = patient_report.get_reports_per_patient_on_the_fly(
+            print(f"Preparing {sheet_name} sheet for {patient}")
+            df = patient_report.get_reports_per_patient(
                 cohorts_db,
                 data_type,
                 cohort_index,
@@ -96,6 +96,7 @@ def generate_patient_report(
             df = df[SHEET_COLUMN_FORMATS[data_type].keys()]
             df = df.set_index(df.columns[0])
 
+            print(f"Writing {sheet_name} sheet for {patient}")
             # Get the xlsxwriter workbook and worksheet objects
             worksheet, workbook = create_workbook(
                 df, writer, sheet_name, use_index=True

@@ -147,9 +147,12 @@ class InMemoryCohortDataAPI:
         intensity_unit: Optional[utils.IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
+        extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         df = self.provider.get_dataframe(cohort_index, utils.DataType.PHOSPHO_SCORE)
-        return self._filter_expression_df(df, intensity_unit, identifier, patient_name)
+        return self._filter_expression_df(
+            df, intensity_unit, identifier, patient_name, extra_columns
+        )
 
     def get_kinase_scores_df(
         self,

@@ -99,7 +99,7 @@ with app.app_context():
     from compartments.z_scoring_app import zscoring_page
     from compartments.ptmnavigator_app import ptmnavigator_page
 
-    if cohorts_db.config.do_load_data_on_startup() and __name__ == "__main__":
+    if cohorts_db.config.do_load_data_on_startup():
         start_background_loader()
 
 app.register_blueprint(config_page)
@@ -185,18 +185,17 @@ def column_names():
 @cache.cached(timeout=50)
 @app.route(ApiRoutes.PATIENT_REPORT_TABLE)
 def get_patient_report_table(
-    cohort_index: int, patient: str, level: utils.DataType, downloadmethod: str
+    cohort_index: int, patient: str, level: utils.DataType
 ):
     """Returns tables from the patient reports.
 
-    Example: http://localhost:3832/0/patient_reports/I007-031-108742/protein/onfly
+    Example: http://localhost:3832/0/patient_reports/I007-031-108742/protein
 
     Args:
         cohort_index (int): cohort index
         patient (str): patient identifier
         level (utils.DataType): modality (e.g. full proteome, topas, etc.) to get
             reports for, see utils.DataType.
-        downloadmethod (str): "fromreport" or "onfly". Defaults to "onfly".
 
     Returns:
         Response: jsonified dataframe with patient report table.
@@ -207,7 +206,6 @@ def get_patient_report_table(
             cohort_index,
             patient,
             utils.DataType(level),
-            download_method=downloadmethod,
         )
     )
 

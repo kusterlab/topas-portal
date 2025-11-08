@@ -91,6 +91,7 @@ class InMemoryProvider:
         """
         self.logger.log_message(f"loading ############ {cohort_name}")
         cohort_data = _load_all_tables(cohort_name, config.get_config())
+        self._add_annotations(cohort_data)
         for data_layer in cohort_data.keys():
             data_layer_cohort_name = self.dict_all_data[data_layer][cohort_index][
                 "name"
@@ -166,6 +167,19 @@ class InMemoryProvider:
             config["oncokb_path"]
         )
         self.logger.log_message("oncoKB annotations data loaded")
+
+    def _add_annotations(self, cohort_data: dict):
+        self.logger.log_message("adding Protein of Interest (POI) annotations")
+        for data_type in [
+            utils.DataType.FULL_PROTEOME,
+            utils.DataType.PHOSPHO_PROTEOME,
+            utils.DataType.PHOSPHO_SCORE,
+        ]:
+            merge_with_poi_annotations_inplace(
+                cohort_data[data_type], self.poi_annotation_df
+            )
+        self.logger.log_message("Protein of Interest (POI) annotations added")
+        
 
     def get_dataframe(
         self, cohort_index: Union[str, None], data_layer: utils.DataType
@@ -286,3 +300,16 @@ def _load_all_tables(cohort, config: Dict, do_return_place_holder: bool = False)
         utils.DataType.KINASE_SCORE: topas_substrate_phos_df,  # kinase scores Z-scores
         utils.DataType.PHOSPHO_SCORE: phospho_score_df,  # phospho scores Z-scores
     }
+
+
+def merge_with_poi_annotations_inplace(
+    df: pd.DataFrame, poi_annotation_df: pd.DataFrame
+):
+    utils.merge_by_delimited_field(
+        df,
+        poi_annotation_df[
+            ["Gene names", "POI_REPORT", "POI_EXPLORATORY", "POI_PRODICT"]
+        ],
+        field_name="Gene names",
+        inplace=True,
+    )
