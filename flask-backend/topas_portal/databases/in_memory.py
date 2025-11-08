@@ -189,7 +189,7 @@ def _load_all_tables(cohort, config: Dict, do_return_place_holder: bool = False)
     topas_rtk_df, topas_ck_df = [], []
     sample_annotation_df, patients_df = [], []
     fp_df_patients, pp_df_patients = [], []
-    kinase_score_df, phospho_score_df = [], []
+    topas_rtk_substrate_phos_df, phospho_score_df = [], []
 
     if not do_return_place_holder:
         cohort_report_dir = config["report_directory"][cohort]
@@ -232,8 +232,12 @@ def _load_all_tables(cohort, config: Dict, do_return_place_holder: bool = False)
             )
             pp_df_patients = pp_df_patients.join(pp_intensity, how="right")
 
-            kinase_score_df = kinase_loader.load_kinase_scores_df(
-                Path(cohort_report_dir) / Path(settings.KINASE_SCORES_FILE)
+            topas_rtk_substrate_phos_df = topas_loader.load_topas_scores_df(
+                Path(os.path.join(cohort_report_dir, settings.KINASE_SCORES_FILE)),
+                index_col="Sample name",
+                intensity_unit_suffix=utils.INTENSITY_UNIT_SUFFIXES[
+                    utils.IntensityUnit.Z_SCORE
+                ],
             )
             phospho_score_df = phospho_score_loader.load_phosphorylation_scores(
                 Path(os.path.join(cohort_report_dir, settings.PHOSPHORYLATION_SCORES)),
@@ -264,6 +268,8 @@ def _load_all_tables(cohort, config: Dict, do_return_place_holder: bool = False)
                 ],
             )
 
+            topas_substrate_phos_df = pd.concat([topas_rtk_substrate_phos_df, topas_ck_df], axis=1)
+
     return {
         utils.DataType.PATIENT_METADATA: patients_df,  # meta data per cohort the Sample name column refer to the patient, no replicates
         utils.DataType.SAMPLE_ANNOTATION: sample_annotation_df,  # meta data with replicates Sample name column refer to the patients, keeps replicates
@@ -271,6 +277,6 @@ def _load_all_tables(cohort, config: Dict, do_return_place_holder: bool = False)
         utils.DataType.FULL_PROTEOME: fp_df_patients,  # full proteome Z-scores of normalized logged intensities
         utils.DataType.TOPAS_RTK_SCORE: topas_rtk_df,  # topas scores not z_scored
         utils.DataType.TOPAS_CK_SCORE: topas_ck_df,  # topas scores not z_scored
-        utils.DataType.KINASE_SCORE: kinase_score_df,  # kinase scores Z-scores
+        utils.DataType.KINASE_SCORE: topas_substrate_phos_df,  # kinase scores Z-scores
         utils.DataType.PHOSPHO_SCORE: phospho_score_df,  # phospho scores Z-scores
     }
