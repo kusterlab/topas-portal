@@ -3,11 +3,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Callable
 
 import pandas as pd
-import xlsxwriter
 
 from topas_portal import utils
 from topas_portal import settings
-import topas_portal.psite_annotation as ps
 import topas_portal.topas_preprocess as topas_loader
 
 if TYPE_CHECKING:

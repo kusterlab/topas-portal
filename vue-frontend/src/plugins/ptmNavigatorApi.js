@@ -6,7 +6,7 @@ const INTERNAL_HOST = process.env.VUE_APP_API_HOST
 
 const ptmnApi = {
   getBackendName () {
-    return 'Internal'
+    return 'Cohort'
   },
 
   async getOrganisms () {
@@ -14,11 +14,11 @@ const ptmnApi = {
   },
 
   getDefaultSessionId () {
-    return 'TOPASXPLATFORMXXTOPASXPLATFORMXX'
+    return 'ABCDEF0123456789ABCDEF0123456789'
   },
 
   async refreshSessionId (uuid) {
-    return 'TOPASXPLATFORMXXTOPASXPLATFORMXX'
+    return 'ABCDEF0123456789ABCDEF0123456789'
   },
 
   async getUserDatasetList (sessionId) {
@@ -87,14 +87,14 @@ const ptmnApi = {
         enrichmentTypeId: 1,
         applicableOmics: ['Phosphorylation'],
         enrichmentClass: 'KinaseActivity',
-        tooltipHtml: 'It uses the substrate phosphorylation scores from TOPAS backend.',
+        tooltipHtml: 'Use the substrate phosphorylation scores from TOPAS backend.',
         stringColumns: ['Kinase'],
-        sortColumn: '-log10 transformed p-value',
+        sortColumn: 'Score',
         sortDesc: true,
         kaiDetails: {
           kinaseColname: 'Kinase',
-          scoreColnamePrefix: 'Mean difference',
-          significanceColnamePrefix: '-log10 transformed p-value',
+          scoreColnamePrefix: 'Score',
+          significanceColnamePrefix: 'adj p-val',
           higherScoreIsStrongerEnrichment: true,
           hasDirection: true,
           directionFromSignificance: false,
@@ -136,42 +136,58 @@ export default ptmnApi
 * */
 
 async function fetchAndFormatProteins (projectId, datasetId) {
-  const data = (await axios.get(api.DIFFERENTIAL({ cohort_index: projectId, level: DataType.FULL_PROTEOME, grp1_ind: datasetId, grp2_ind: 'index', y_axis_type: 'p_values' }))).data
+  const data = (await axios.get(api.PATIENT_REPORT_TABLE({ cohort_index: projectId, patient: datasetId, level: DataType.FULL_PROTEOME }))).data
 
   return data.map(el => ({
-    geneNames: [el['Gene Names']],
-    regulation: el.up_down,
+    geneNames: [el['Gene names'].split(';')].flat(),
+    regulation: el['Z-score'] > 1.5
+      ? 'up'
+      : el['Z-score'] < -1.5
+        ? 'down'
+        : 'not',
     uniprotAccs: [],
     details: {
       'Experiment Name': datasetId,
-      'Experiment ID': datasetId,
-      'Mean difference': el.expression1,
-      '-log10 transformed p-value': el.expression2
+      'Sample name': datasetId,
+      'Z-score': el['Z-score'],
+      'Fold change': el.FC,
+      Intensity: el.Intensity,
+      Rank: `${el.Rank} of ${el.Occurrence}`,
+      'Identification metadata': el['Identification metadata']
     }
   }))
 }
 
 async function fetchAndFormatPtms (projectId, datasetId) {
-  const data = (await axios.get(api.DIFFERENTIAL({ cohort_index: projectId, level: DataType.PHOSPHO_PROTEOME, grp1_ind: datasetId, grp2_ind: 'index', y_axis_type: 'p_values' }))).data
+  const data = (await axios.get(api.PATIENT_REPORT_TABLE({ cohort_index: projectId, patient: datasetId, level: DataType.PHOSPHO_PROTEOME }))).data
 
   return data.map(el => ({
-    geneNames: [el.Genes.split(';')].flat(),
-    regulation: el.up_down,
+    geneNames: [el['Gene names'].split(';')].flat(),
+    regulation: el['Z-score'] > 1.5
+      ? 'up'
+      : el['Z-score'] < -1.5
+        ? 'down'
+        : 'not',
     uniprotAccs: [],
     details: {
-      'Experiment Name': datasetId,
-      'Experiment ID': datasetId,
-      'Mean difference': el.expression1,
-      '-log10 transformed p-value': el.expression2
+      'Sample name': datasetId,
+      'Modified sequence': el['Modified sequence'],
+      'Site position': el['Site positions (MQ identified - PSP)'],
+      'Upstream kinases (PSP)': el['Kinases (PSP)'],
+      'Z-score': el['Z-score'],
+      'Fold change': el.FC,
+      Intensity: el.Intensity,
+      Rank: `${el.Rank} of ${el.Occurrence}`,
+      'Identification metadata': el['Identification metadata']
     }
   }))
 }
 
 async function fetchKinaseResults (projectId, datasetId) {
-  const data = (await axios.get(api.DIFFERENTIAL({ cohort_index: projectId, level: DataType.KINASE_SCORE, grp1_ind: datasetId, grp2_ind: 'index', y_axis_type: 'p_values' }))).data
+  const data = (await axios.get(api.PATIENT_REPORT_TABLE({ cohort_index: projectId, patient: datasetId, level: DataType.TOPAS_CK_SCORE }))).data
   return data.map(el => ({
     Kinase: el['Gene Names'],
-    'Mean difference': el.expression1,
-    '-log10 transformed p-value': el.expression2
+    [`Score (${datasetId})`]: el['Z-score'],
+    [`adj p-val (${datasetId})`]: el['Z-score']
   }))
 }

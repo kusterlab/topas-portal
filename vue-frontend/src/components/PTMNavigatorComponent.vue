@@ -21,3 +21,9 @@ export default {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+::v-deep(button) {
+  margin-bottom: 0;
+}
+</style>

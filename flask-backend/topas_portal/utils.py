@@ -429,7 +429,12 @@ def df_to_json(df: pd.DataFrame):
     Makes flask JSON response from a dataframe
     """
     return Response(
-        json.dumps(df.fillna("n.d.").to_dict(orient="records")),
+        json.dumps(
+            df.replace(np.inf, 'inf')
+            .replace(-np.inf, '-inf')
+            .fillna("n.d.")
+            .to_dict(orient="records")
+        ),
         mimetype="application/json",
     )
 
