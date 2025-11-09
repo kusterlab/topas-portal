@@ -197,7 +197,7 @@ class InMemoryProvider:
         return df
 
 
-def _load_all_tables(cohort, config: Dict, do_return_place_holder: bool = False):
+def _load_all_tables(cohort_name: str, config: Dict):
     """For a single cohort type makes a dictionary of dataframes"""
 
     topas_rtk_df, topas_ck_df = [], []
@@ -206,89 +206,88 @@ def _load_all_tables(cohort, config: Dict, do_return_place_holder: bool = False)
     topas_rtk_substrate_phos_df, topas_substrate_phos_df = [], []
     phospho_score_df = []
 
-    if not do_return_place_holder:
-        cohort_report_dir = config["report_directory"][cohort]
-        print(f"report dir #########{cohort_report_dir}")
-        sample_annotation_df = sample_annotation_loader.load_sample_annotation_table(
-            Path(config["sample_annotation_path"][cohort])
+    cohort_report_dir = config["report_directory"][cohort_name]
+    print(f"report dir #########{cohort_report_dir}")
+    sample_annotation_df = sample_annotation_loader.load_sample_annotation_table(
+        Path(config["sample_annotation_path"][cohort_name])
+    )
+    patients_df = patient_metadata_loader.load_patient_table(
+        Path(config["patient_annotation_path"][cohort_name])
+    )
+    patients_list = sample_annotation_df["Sample name"].unique().tolist()
+    ## preprocessed intensities at FP level
+    if config["FP"][cohort_name] == 1:
+        print("Reading the data at the FP level")
+        fp_intensity = expression_loader.load_annotated_intensity_file(
+            Path(
+                os.path.join(cohort_report_dir, settings.PREPROCESSED_FP_INTENSITY)
+            ),
+            settings.FP_KEY,
+            patients_list,
         )
-        patients_df = patient_metadata_loader.load_patient_table(
-            Path(config["patient_annotation_path"][cohort])
+        fp_df_patients = expression_loader.load_expression_data(
+            Path(cohort_report_dir), settings.FP_KEY, "full_proteome"
         )
-        patients_list = sample_annotation_df["Sample name"].unique().tolist()
-        ## preprocessed intensities at FP level
-        if config["FP"][cohort] == 1:
-            print("Reading the data at the FP level")
-            fp_intensity = expression_loader.load_annotated_intensity_file(
-                Path(
-                    os.path.join(cohort_report_dir, settings.PREPROCESSED_FP_INTENSITY)
-                ),
-                settings.FP_KEY,
-                patients_list,
-            )
-            fp_df_patients = expression_loader.load_expression_data(
-                Path(cohort_report_dir), settings.FP_KEY, "full_proteome"
-            )
-            fp_df_patients = fp_df_patients.join(fp_intensity, how="right")
+        fp_df_patients = fp_df_patients.join(fp_intensity, how="right")
 
-        ## Loading Phospho data to the portal
-        if config["PP"][cohort] == 1:
-            print("Reading the data at at the PP level")
-            pp_intensity = expression_loader.load_annotated_intensity_file(
-                Path(
-                    os.path.join(cohort_report_dir, settings.PREPROCESSED_PP_INTENSITY)
-                ),
-                settings.PP_KEY,
-                patients_list,
-                extra_columns=list(settings.PP_EXTRA_COLUMNS.keys()),
-            )
-            pp_df_patients = expression_loader.load_expression_data(
-                Path(cohort_report_dir), settings.PP_KEY, "phospho"
-            )
-            pp_df_patients = pp_df_patients.join(pp_intensity, how="right")
+    ## Loading Phospho data to the portal
+    if config["PP"][cohort_name] == 1:
+        print("Reading the data at at the PP level")
+        pp_intensity = expression_loader.load_annotated_intensity_file(
+            Path(
+                os.path.join(cohort_report_dir, settings.PREPROCESSED_PP_INTENSITY)
+            ),
+            settings.PP_KEY,
+            patients_list,
+            extra_columns=list(settings.ANNOTATION_COLUMNS.keys()),
+        )
+        pp_df_patients = expression_loader.load_expression_data(
+            Path(cohort_report_dir), settings.PP_KEY, "phospho"
+        )
+        pp_df_patients = pp_df_patients.join(pp_intensity, how="right")
 
-            topas_rtk_substrate_phos_df = topas_loader.load_topas_scores_df(
-                Path(os.path.join(cohort_report_dir, settings.KINASE_SCORES_FILE)),
-                index_col="Sample name",
-                intensity_unit_suffix=utils.INTENSITY_UNIT_SUFFIXES[
-                    utils.IntensityUnit.Z_SCORE
-                ],
-            )
-            phospho_score_df = phospho_score_loader.load_phosphorylation_scores(
-                Path(os.path.join(cohort_report_dir, settings.PHOSPHORYLATION_SCORES)),
-                add_suffix=True,
-            )
-            topas_rtk_df = topas_loader.load_topas_scores_df(
-                Path(os.path.join(cohort_report_dir, settings.TOPAS_RTK_SCORES_FILE))
-            )
-            if isinstance(topas_rtk_df, pd.DataFrame):
-                topas_df_z_scored = topas_loader.load_topas_scores_df(
-                    Path(
-                        os.path.join(
-                            cohort_report_dir, settings.TOPAS_RTK_Z_SCORES_FILE
-                        )
+        topas_rtk_substrate_phos_df = topas_loader.load_topas_scores_df(
+            Path(os.path.join(cohort_report_dir, settings.KINASE_SCORES_FILE)),
+            index_col="Sample name",
+            intensity_unit_suffix=utils.INTENSITY_UNIT_SUFFIXES[
+                utils.IntensityUnit.Z_SCORE
+            ],
+        )
+        phospho_score_df = phospho_score_loader.load_phosphorylation_scores(
+            Path(os.path.join(cohort_report_dir, settings.PHOSPHORYLATION_SCORES)),
+            add_suffix=True,
+        )
+        topas_rtk_df = topas_loader.load_topas_scores_df(
+            Path(os.path.join(cohort_report_dir, settings.TOPAS_RTK_SCORES_FILE))
+        )
+        if isinstance(topas_rtk_df, pd.DataFrame):
+            topas_df_z_scored = topas_loader.load_topas_scores_df(
+                Path(
+                    os.path.join(
+                        cohort_report_dir, settings.TOPAS_RTK_Z_SCORES_FILE
                     )
                 )
-                topas_rtk_df = topas_rtk_df.join(
-                    topas_df_z_scored,
-                    lsuffix=utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.SCORE],
-                    rsuffix=utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.Z_SCORE],
-                )
-
-            topas_ck_df = topas_loader.load_topas_scores_df(
-                Path(os.path.join(cohort_report_dir, settings.TOPAS_CK_SCORES_FILE)),
-                index_col="Sample name",
-                intensity_unit_suffix=utils.INTENSITY_UNIT_SUFFIXES[
-                    utils.IntensityUnit.Z_SCORE
-                ],
+            )
+            topas_rtk_df = topas_rtk_df.join(
+                topas_df_z_scored,
+                lsuffix=utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.SCORE],
+                rsuffix=utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.Z_SCORE],
             )
 
-            if isinstance(topas_rtk_substrate_phos_df, pd.DataFrame) and isinstance(
-                topas_ck_df, pd.DataFrame
-            ):
-                topas_substrate_phos_df = pd.concat(
-                    [topas_rtk_substrate_phos_df, topas_ck_df], axis=1
-                )
+        topas_ck_df = topas_loader.load_topas_scores_df(
+            Path(os.path.join(cohort_report_dir, settings.TOPAS_CK_SCORES_FILE)),
+            index_col="Sample name",
+            intensity_unit_suffix=utils.INTENSITY_UNIT_SUFFIXES[
+                utils.IntensityUnit.Z_SCORE
+            ],
+        )
+
+        if isinstance(topas_rtk_substrate_phos_df, pd.DataFrame) and isinstance(
+            topas_ck_df, pd.DataFrame
+        ):
+            topas_substrate_phos_df = pd.concat(
+                [topas_rtk_substrate_phos_df, topas_ck_df], axis=1
+            )
 
     return {
         utils.DataType.PATIENT_METADATA: patients_df,  # meta data per cohort the Sample name column refer to the patient, no replicates

@@ -161,7 +161,7 @@ EXPRESSION_TAB_DATA = [
     "FC",
 ]
 
-PP_EXTRA_COLUMNS = {
+ANNOTATION_COLUMNS = {
     "Gene names": "Gene names",
     "Proteins": "Proteins",
     "Occurrence": "Occurrence",

@@ -128,7 +128,7 @@ def _add_PSP_annotation(cohorts_db, t_test_df, cohort_index: int):
             cohort_index=cohort_index
         )
         psite_annotation_df = psite_annotation_df[
-            settings.PP_EXTRA_COLUMNS.keys()
+            settings.ANNOTATION_COLUMNS.keys()
         ].reset_index()
         psite_annotation_df = psite_annotation_df.rename(
             columns={"Gene names": "Genes"}

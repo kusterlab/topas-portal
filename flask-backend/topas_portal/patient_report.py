@@ -79,7 +79,7 @@ def _phospho_proteome(
         cohorts_db.get_psite_abundance_df,
         intensity_units,
     )
-    return sub_df.rename(columns=settings.PP_EXTRA_COLUMNS)
+    return sub_df.rename(columns=settings.ANNOTATION_COLUMNS)
 
 
 def _full_proteome(
@@ -111,7 +111,7 @@ def _load_proteome(
             utils.IntensityUnit.IDENTIFICATION_METADATA,
         ]
 
-    extra_columns = settings.PP_EXTRA_COLUMNS.keys()
+    extra_columns = settings.ANNOTATION_COLUMNS.keys()
     cohort_df = get_abundance_df(cohort_index, extra_columns=extra_columns)
     extra_columns = cohort_df.columns.intersection(extra_columns).to_list()
 
@@ -167,7 +167,7 @@ def _kinase_score(
 def _phospho_score(
     cohorts_db: data_api.CohortDataAPI, cohort_index: int, patient: str
 ) -> pd.DataFrame:
-    extra_columns = settings.PP_EXTRA_COLUMNS.keys()
+    extra_columns = settings.ANNOTATION_COLUMNS.keys()
     sub_df = cohorts_db.get_phosphorylation_scores_df(
         cohort_index,
         intensity_unit=utils.IntensityUnit.Z_SCORE,
