@@ -36,13 +36,15 @@ class DataType(str, Enum):
     TOPAS_PROTEIN = "topas_expression"
     TOPAS_RTK_SCORE = "topas_rtk"
     TOPAS_CK_SCORE = "topas_ck"
-    TRANSCRIPTOMICS = "fpkm"
     TOPAS_SUBSCORE = "topas_subscore"
     BIOMARKER = "biomarker"
     REPORT_SUMMARY = "report_summary"
 
     PATIENT_METADATA = "patients_df"
     SAMPLE_ANNOTATION = "sample_annotation_df"
+
+    TRANSCRIPTOMICS = "fpkm"
+    GENOMICS = "genomics"
 
 
 class ColumnNames(str, Enum):
@@ -430,9 +432,8 @@ def df_to_json(df: pd.DataFrame):
     """
     return Response(
         json.dumps(
-            df.replace(np.inf, 'inf')
-            .replace(-np.inf, '-inf')
-            .fillna("n.d.")
+            df.fillna("n.d.")
+            .replace({np.inf: "inf", -np.inf: "-inf"})
             .to_dict(orient="records")
         ),
         mimetype="application/json",

@@ -54,6 +54,8 @@ def load_topas_scores_df(
         topas_scores_df = topas_scores_df.add_suffix(intensity_unit_suffix)
 
     print("Topas score data loaded")
+
+    topas_scores_df.index.name = "TOPAS identifier"
     return topas_scores_df
 
 
