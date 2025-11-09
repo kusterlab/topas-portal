@@ -48,6 +48,9 @@ from topas_portal import differential_expression as differential_test
 from topas_portal import genomics_preprocess as genomics_process
 from topas_portal import patient_report_excel
 
+debug = settings.DEBUG_MODE
+if len(sys.argv) > 1 and sys.argv[1] == "test":
+    debug = True
 
 config = {
     "CACHE_TYPE": "SimpleCache",  # Flask-Caching related configs
@@ -99,7 +102,9 @@ with app.app_context():
     from compartments.z_scoring_app import zscoring_page
     from compartments.ptmnavigator_app import ptmnavigator_page
 
-    if cohorts_db.config.do_load_data_on_startup():
+    if cohorts_db.config.do_load_data_on_startup() and (
+        os.environ.get("WERKZEUG_RUN_MAIN") == "true" or not debug
+    ):
         start_background_loader()
 
 app.register_blueprint(config_page)
@@ -184,9 +189,7 @@ def column_names():
 
 @cache.cached(timeout=50)
 @app.route(ApiRoutes.PATIENT_REPORT_TABLE)
-def get_patient_report_table(
-    cohort_index: int, patient: str, level: utils.DataType
-):
+def get_patient_report_table(cohort_index: int, patient: str, level: utils.DataType):
     """Returns tables from the patient reports.
 
     Example: http://localhost:3832/0/patient_reports/I007-031-108742/protein
@@ -861,10 +864,6 @@ def portal_logger(message, log_list: list = error_log):
 if __name__ == "__main__":
     if os.path.exists("record.log"):
         utils.log_delete("record.log")
-
-    debug = settings.DEBUG_MODE
-    if len(sys.argv) > 1 and sys.argv[1] == "test":
-        debug = True
 
     app.run(
         debug=debug, use_reloader=debug, host="0.0.0.0", port=settings.CI_BACKEND_PORT
