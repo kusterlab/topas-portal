@@ -239,13 +239,20 @@ export default {
     },
     simulationSwarm: function (dataSet, width, svg, fieldOfTable, yScale, nominalField) {
       const spreadingFactor = dataSet.length > 1 ? 2 : 10
+
+      // Initialize positions before simulation starts
+      dataSet.forEach(d => {
+        d.x = width / 2
+        d.y = yScale(d[fieldOfTable])
+      })
+
       // const simulationItrations = dataSet.length + 1000
       // const simulationItrations = 100
       const simulation = d3.forceSimulation(dataSet)
         .force('x', d3.forceX((width / 2) + spreadingFactor))
         .force('y', d3.forceY(d => yScale(d[fieldOfTable])).strength(10)) // Increase velocity
         .force('collide', d3.forceCollide(3))
-        .alpha(1)
+        .alpha(0.3)
         .stop()
 
       // for (let i = 0; i < simulationItrations; ++i) {

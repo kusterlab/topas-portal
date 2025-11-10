@@ -16,16 +16,11 @@ from topas_portal.data_api.exceptions import (
     CohortDataNotLoadedError,
     DataLayerUnavailableError,
 )
-from topas_portal import settings
 from topas_portal import utils
+from . import table_loaders
 import topas_portal.file_loaders.topas as topas_loader
 import topas_portal.file_loaders.transcriptomics as tp
 import topas_portal.file_loaders.genomics as genomics_preprocess
-import topas_portal.file_loaders.kinase as kinase_loader
-import topas_portal.file_loaders.phospho_score as phospho_score_loader
-import topas_portal.file_loaders.expression as expression_loader
-import topas_portal.file_loaders.sample_annotation as sample_annotation_loader
-import topas_portal.file_loaders.patient_metadata as patient_metadata_loader
 import topas_portal.file_loaders.digest_load as digest_load
 
 if TYPE_CHECKING:
@@ -38,11 +33,13 @@ DICT_ALL_DATA = {
     utils.DataType.SAMPLE_ANNOTATION: [],
     utils.DataType.PHOSPHO_PROTEOME: [],
     utils.DataType.FULL_PROTEOME: [],
-    utils.DataType.TOPAS_SCORE: [],
+    utils.DataType.TOPAS_RTK_SCORE: [],
+    utils.DataType.TOPAS_CK_SCORE: [],
     utils.DataType.KINASE_SCORE: [],
     utils.DataType.PHOSPHO_SCORE: [],
-    "fp_intensity_meta_df": [],
 }
+
+SHARED_COHORT = "shared"
 
 
 class InMemoryProvider:
@@ -50,6 +47,7 @@ class InMemoryProvider:
         self.logger = logger
         self.dict_all_data = DICT_ALL_DATA
         self.topas_complete_df = None
+        self.poi_annotation_df = None
         self.FPKM = None
         self.genomics_data = None
         self.oncoKB_data = None
@@ -71,14 +69,15 @@ class InMemoryProvider:
         if cohort_names is None:
             cohort_names = config.get_cohort_names()
 
+        self._load_poi_annotations(config.get_config())
+        self._load_topas_annotation_tables(config.get_config())
+        self._load_onkoKB_annotations(config.get_config())
+        self._load_FPKM(config.get_config())
+        self._load_genomics(config.get_config())
+
         for cohort_name in cohort_names:
             cohort_index = config.get_cohort_index(cohort_name)
             self.load_single_cohort(cohort_name, cohort_index, config)
-
-        self._load_FPKM(config.get_config())
-        self._load_genomics(config.get_config())
-        self._load_onkoKB_annotations(config.get_config())
-        self._load_topas_annotation_tables(config.get_config())
 
     def load_single_cohort(
         self, cohort_name: str, cohort_index: int, config: CohortConfig
@@ -88,7 +87,8 @@ class InMemoryProvider:
         We pass both the cohort_name and cohort_index to check for consistency.
         """
         self.logger.log_message(f"loading ############ {cohort_name}")
-        cohort_data = _load_all_tables(cohort_name, config.get_config())
+        cohort_data = table_loaders.load_all_tables(cohort_name, config.get_config())
+        self._add_annotations(cohort_data)
         for data_layer in cohort_data.keys():
             data_layer_cohort_name = self.dict_all_data[data_layer][cohort_index][
                 "name"
@@ -119,27 +119,25 @@ class InMemoryProvider:
         )
         self.logger.log_message("Topas tables loaded")
 
+    def _load_poi_annotations(self, config: Dict):
+        """The protein of interest (POI) table is independent of cohorts and will be treated as a single global variable separately"""
+        self.logger.log_message("Loading POI annotation table")
+        poi_annotation_path = Path(config["poi_annotation_path"])
+        self.poi_annotation_df = topas_loader.load_poi_annotation_df(
+            poi_annotation_path
+        )
+        self.logger.log_message("POI annotation tables loaded")
+
     def _load_FPKM(self, config: Dict):
         """FPKM table is independent of cohorts and will be treated as a single global variable separately"""
         self.logger.log_message("Loading FPKM data")
-        self.FPKM = tp.load_FPKM_table(config["transcriptomics_path_z_scored"])
-        FPKM_not_z_scored = tp.load_FPKM_table(
-            config["transcriptomics_path_not_z_scored"]
-        )
-        self.FPKM = self.FPKM.join(
-            FPKM_not_z_scored,
-            lsuffix=utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.Z_SCORE],
-            rsuffix=utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.INTENSITY],
-        )
-
+        self.FPKM = table_loaders.load_transcriptomics_data(SHARED_COHORT, config)
         self.logger.log_message("FPKM data loaded")
 
     def _load_genomics(self, config: Dict):
         """Genomics table is independent of cohorts and will be treated as a single global variable separately"""
         self.logger.log_message("Loading Genomics data")
-        self.genomics_data = genomics_preprocess.load_genomics_table(
-            config["genomics_path"]
-        )
+        self.genomics_data = table_loaders.load_genomics_data(SHARED_COHORT, config)
         self.logger.log_message("Genomics data loaded")
 
     def _load_insilicodigest(self, config: Dict):
@@ -155,6 +153,19 @@ class InMemoryProvider:
             config["oncokb_path"]
         )
         self.logger.log_message("oncoKB annotations data loaded")
+
+    def _add_annotations(self, cohort_data: dict):
+        for data_type in [
+            utils.DataType.FULL_PROTEOME,
+            utils.DataType.PHOSPHO_PROTEOME,
+            utils.DataType.PHOSPHO_SCORE,
+        ]:
+            self.logger.log_message(f"adding Protein of Interest (POI) annotations for {data_type.value}.") 
+            merge_with_poi_annotations_inplace(
+                cohort_data[data_type], self.poi_annotation_df
+            )
+        self.logger.log_message("Protein of Interest (POI) annotations added")
+        
 
     def get_dataframe(
         self, cohort_index: Union[str, None], data_layer: utils.DataType
@@ -172,81 +183,14 @@ class InMemoryProvider:
         return df
 
 
-def _load_all_tables(cohort, config: Dict, do_return_place_holder: bool = False):
-    """For a single cohort type makes a dictionary of dataframes"""
-
-    topas_df, pp_df_patients = [], []
-    sample_annotation_df, patients_df = [], []
-    fp_df_patients, fp_intensity_meta = [], []
-    kinase_score_df, phospho_score_df = [], []
-
-    if not do_return_place_holder:
-        cohort_report_dir = config["report_directory"][cohort]
-        print(f"report dir #########{cohort_report_dir}")
-        topas_df = topas_loader.load_topas_scores_df(
-            Path(os.path.join(cohort_report_dir, settings.TOPAS_SCORES_FILE))
-        )
-        if isinstance(topas_df, pd.DataFrame):
-            topas_df_z_scored = topas_loader.load_topas_scores_df(
-                Path(os.path.join(cohort_report_dir, settings.TOPAS_Z_SCORES_FILE))
-            )
-            topas_df = topas_df.join(
-                topas_df_z_scored,
-                lsuffix=utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.SCORE],
-                rsuffix=utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.Z_SCORE],
-            )
-
-        sample_annotation_df = sample_annotation_loader.load_sample_annotation_table(
-            Path(config["sample_annotation_path"][cohort])
-        )
-        patients_df = patient_metadata_loader.load_patient_table(
-            Path(config["patient_annotation_path"][cohort])
-        )
-        patients_list = sample_annotation_df['Sample name'].unique().tolist()
-        ## preprocessed intensities at FP level
-        if config["FP"][cohort] == 1:
-            print("Reading the data at the FP level")
-            fp_intensity_meta = expression_loader.load_intensity_meta_data(
-                Path(os.path.join(cohort_report_dir, settings.PREPROCESSED_FP_INTENSITY)),
-                settings.FP_KEY,
-            )
-            fp_intensity = expression_loader.load_annotated_intensity_file(
-                Path(os.path.join(cohort_report_dir, settings.PREPROCESSED_FP_INTENSITY)),
-                settings.FP_KEY, patients_list
-            )
-            fp_df_patients = expression_loader.load_expression_data(
-                Path(cohort_report_dir), settings.FP_KEY, "full_proteome"
-            )
-            fp_df_patients = fp_df_patients.join(fp_intensity, how="right")
-
-        ## Loading Phospho data to the portal
-        if config["PP"][cohort] == 1:
-            print("Reading the data at at the PP level")
-            pp_intensity = expression_loader.load_annotated_intensity_file(
-                Path(os.path.join(cohort_report_dir, settings.PREPROCESSED_PP_INTENSITY)),
-                settings.PP_KEY, patients_list,
-                extra_columns=settings.PP_EXTRA_COLUMNS,
-            )
-            pp_df_patients = expression_loader.load_expression_data(
-                Path(cohort_report_dir), settings.PP_KEY, "phospho"
-            )
-            pp_df_patients = pp_df_patients.join(pp_intensity, how="right")
-
-            kinase_score_df = kinase_loader.load_kinase_scores_df(
-                Path(cohort_report_dir) / Path(settings.KINASE_SCORES_FILE)
-            )
-            phospho_score_df = phospho_score_loader.load_phosphorylation_scores(
-                Path(os.path.join(cohort_report_dir, settings.PHOSPHORYLATION_SCORES)),
-                add_suffix=True,
-            )
-
-    return {
-        utils.DataType.PATIENT_METADATA: patients_df,  # meta data per cohort the Sample name column refer to the patient, no replicates
-        utils.DataType.SAMPLE_ANNOTATION: sample_annotation_df,  # meta data with replicates Sample name column refer to the patients, keeps replicates
-        utils.DataType.PHOSPHO_PROTEOME: pp_df_patients,  # phospho sites Z-scores of normalized logged intensities
-        utils.DataType.FULL_PROTEOME: fp_df_patients,  # full proteome Z-scores of normalized logged intensities
-        utils.DataType.TOPAS_SCORE: topas_df,  # topas scores not z_scored
-        utils.DataType.KINASE_SCORE: kinase_score_df,  # kinase scores Z-scores
-        utils.DataType.PHOSPHO_SCORE: phospho_score_df,  # phospho scores Z-scores
-        "fp_intensity_meta_df": fp_intensity_meta,  # number of peptides detected at full proteome
-    }
+def merge_with_poi_annotations_inplace(
+    df: pd.DataFrame, poi_annotation_df: pd.DataFrame
+):
+    utils.merge_by_delimited_field(
+        df,
+        poi_annotation_df[
+            ["Gene names", "POI_REPORT", "POI_EXPLORATORY", "POI_PRODICT"]
+        ],
+        field_name="Gene names",
+        inplace=True,
+    )

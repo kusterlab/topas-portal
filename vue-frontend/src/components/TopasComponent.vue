@@ -27,7 +27,7 @@
               label="Show TOPAS subscore plots"
               dense
               hide-details
-              @change="gettopasData"
+              @change="getTopasData"
             />
           </v-card-text>
         </v-card>
@@ -76,9 +76,8 @@
                   :data-source="topasData"
                   :selected-patient="selectedDotsInPlot"
                   @onRowSelect="updateSelectedRows"
-                >
-                  >
-                </topas-table>
+                  @table-ready="loadSwarmplot"
+                />
               </v-col>
               <v-col
                 sm="12"
@@ -94,7 +93,7 @@
                   <v-responsive>
                     <swarm-plot
                       v-if="topasName"
-                      :swarm-data="swarmPLotData"
+                      :swarm-data="swarmPlotData"
                       :swarm-sel-ids="swarmSelIds"
                       swarm-id="singleTopas"
                       :swarm-title="topasName"
@@ -141,6 +140,7 @@ import TopasTable from '@/components/tables/TopasTable'
 import TopasSelect from '@/components/partials/TopasSelect'
 import multiGroupPlot from '@/components/plots/MultiGroupPlot'
 import ExplorerComponent from '@/components/partials/scoresComponent.vue'
+import { api } from '@/routes.ts'
 
 export default {
   name: 'TopasComponent',
@@ -172,7 +172,7 @@ export default {
     fixedDomain: false,
     topasData: [],
     allTopass: [],
-    swarmPLotData: [],
+    swarmPlotData: [],
     topasSubscoreData: [],
     showTopasSubscore: false,
     swarmSelIds: [],
@@ -191,10 +191,10 @@ export default {
   },
   watch: {
     topasType: function () {
-      this.gettopasData()
+      this.getTopasData()
     },
     activeCohortIndex: function () {
-      this.gettopasData()
+      this.getTopasData()
     }
   },
   methods: {
@@ -212,28 +212,26 @@ export default {
     updateCohort ({ dataSource, cohortIndex }) {
       this.cohortIndex = cohortIndex
     },
-    async gettopasData () {
+    async getTopasData () {
       if (this.topasName.length === 0) return
       this.loading = true
-      this.swarmPLotData = []
+      this.swarmPlotData = []
       this.swarmSelIds = []
       this.topasData = []
-      const bskid = this.topasName
-      const bsktyp = this.topasType
-      const cohortIndex = this.cohortIndex
-      let response = await axios.get(`${process.env.VUE_APP_API_HOST}/topas/${cohortIndex}/${bskid}/${bsktyp}`)
+      const dataSource = api.TOPAS({ cohort_index: this.cohortIndex, topas_names: this.topasName, score_type: this.topasType })
+      let response = await axios.get(dataSource)
       if (response.data.length > 0) {
         this.topasData = response.data
-        this.swarmPLotData = response.data
+        this.swarmPlotData = response.data
         this.loading = false
         this.swarmField = 'Z-score'
-        for (let i = 0; i < this.swarmPLotData.length; i++) {
-          this.swarmPLotData[i].colorID = 'grey'
-          this.swarmPLotData[i].sizeR = 2
+        for (let i = 0; i < this.swarmPlotData.length; i++) {
+          this.swarmPlotData[i].colorID = 'grey'
+          this.swarmPlotData[i].sizeR = 2
         }
       }
       if (this.showTopasSubscore) {
-        response = await axios.get(`${process.env.VUE_APP_API_HOST}/topas/subscore/${cohortIndex}/${bskid}`)
+        response = await axios.get(api.TOPAS_SUBSCORE({ cohort_index: this.cohortIndex, topasname: this.topasName }))
         this.topasSubscoreData = response.data
         this.multiGroupPlotSelectedPatients = []
       }
@@ -250,7 +248,7 @@ export default {
       this.topasType = dataSource
       this.topasName = identifier
       this.swarmField = dataSource
-      this.gettopasData()
+      this.getTopasData()
     }
 
   }

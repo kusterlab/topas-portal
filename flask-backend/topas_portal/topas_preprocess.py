@@ -258,7 +258,7 @@ def get_topas_subset_df(
     else:
         score_unit = utils.IntensityUnit.Z_SCORE
 
-    topas_df = cohorts_db.get_topas_scores_df(cohort_index, score_unit)
+    topas_df = cohorts_db.get_topas_rtk_scores_df(cohort_index, score_unit)
     topas_df = get_topas_scores_long_format(topas_df)
 
     if topas_names == "IFN_sig":
@@ -367,7 +367,7 @@ def get_circular_barplot_data_tumor_antigens(
     return expression_df
 
 
-def getlolipop_expression_topas(
+def get_lollipop_expression_topas(
     expression_z_scores_df: pd.DataFrame,
     topas_z_scores_df: pd.DataFrame,
     patient: str,
@@ -408,7 +408,7 @@ def getlolipop_expression_topas(
         - The output DataFrame is filtered by `type_to_filter` to show only the specified category (e.g., "RTK").
 
     Example:
-        lollipop_data = getlolipop_expression_topas(expression_z_scores_df, topas_z_scores_df, "Patient_123")
+        lollipop_data = get_lollipop_expression_topas(expression_z_scores_df, topas_z_scores_df, "Patient_123")
     """
     expression_z_scores_df = utils.unnest_proteingroups(expression_z_scores_df)
     # patient_col = patient  + ' Z-score'
@@ -441,7 +441,7 @@ def getlolipop_expression_topas(
     topas_df["topas_score"][topas_df["topas_score"] < 0] = 0
     topas_df["topas_score"] = (
         -1 * topas_df["topas_score"]
-    )  # to show them downward of the lolipop plot
+    )  # to show them downward of the lollipop plot
     expression_df["type"] = expression_df["label"].map(topas.TOPAS_EXPRESSION_MAPPING)
 
     merged_df = expression_df.merge(topas_df, on="type", how="outer")

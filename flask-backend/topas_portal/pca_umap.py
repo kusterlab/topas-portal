@@ -119,7 +119,7 @@ def do_pca(
 def load_pca_data(
     results_folder,
     samples,
-    plot_type: utils.DataType = utils.DataType.TOPAS_SCORE,
+    plot_type: utils.DataType = utils.DataType.TOPAS_RTK_SCORE,
     include_reference_channels: bool = False,
     only_ref_channels=False,
 ):

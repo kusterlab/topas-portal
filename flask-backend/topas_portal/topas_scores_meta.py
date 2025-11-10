@@ -41,7 +41,7 @@ TOPAS_SCORING_RULES = {
 }
 
 TOPAS_DIFFERENTIAL_INTENSITY_UNITS = {
-    utils.DataType.TOPAS_SCORE: utils.IntensityUnit.SCORE,
+    utils.DataType.TOPAS_RTK_SCORE: utils.IntensityUnit.SCORE,
     utils.DataType.KINASE_SCORE: utils.IntensityUnit.Z_SCORE,
     utils.DataType.PHOSPHO_SCORE: utils.IntensityUnit.Z_SCORE,
     utils.DataType.FULL_PROTEOME: utils.IntensityUnit.INTENSITY,
@@ -118,7 +118,7 @@ TOPAS_COLORING_RULE = {
 }
 
 
-# TOPAS scores to show on the lolipop plot and the circular plot of the frontside
+# TOPAS scores to show on the lollipop plot and the circular plot of the frontside
 TOPAS_CATEGORIES = {
     # the rules for the 5th generation
     "ALK": "RTK",

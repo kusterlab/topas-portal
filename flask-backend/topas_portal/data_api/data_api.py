@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Union, Protocol, TYPE_CHECKING
+from typing import Union, Protocol, TYPE_CHECKING, Optional
 
 import pandas as pd
 
@@ -31,7 +31,7 @@ class CohortDataAPI(Protocol):
     def get_protein_abundance_df(
         self,
         cohort_index: str,
-        intensity_unit: Union[utils.IntensityUnit, None] = None,
+        intensity_unit: Optional[utils.IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
     ) -> pd.DataFrame:
@@ -40,25 +40,34 @@ class CohortDataAPI(Protocol):
     def get_psite_abundance_df(
         self,
         cohort_index: str,
-        intensity_unit: Union[utils.IntensityUnit, None] = None,
+        intensity_unit: Optional[utils.IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
     ) -> pd.DataFrame:
         """Z-scored p-site intensities per sample on phospho proteome level"""
 
-    def get_topas_scores_df(
+    def get_topas_rtk_scores_df(
         self,
         cohort_index: str,
-        intensity_unit: Union[utils.IntensityUnit, None] = None,
+        intensity_unit: Optional[utils.IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
     ) -> pd.DataFrame:
-        """Topas scores per sample"""
+        """Topas RTK scores per sample"""
+
+    def get_topas_ck_scores_df(
+        self,
+        cohort_index: str,
+        intensity_unit: Optional[utils.IntensityUnit] = None,
+        identifier: str = None,
+        patient_name: str = None,
+    ) -> pd.DataFrame:
+        """Topas CK scores per sample"""
 
     def get_phosphorylation_scores_df(
         self,
         cohort_index: str,
-        intensity_unit: Union[utils.IntensityUnit, None] = None,
+        intensity_unit: Optional[utils.IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
     ) -> pd.DataFrame:
@@ -67,7 +76,7 @@ class CohortDataAPI(Protocol):
     def get_kinase_scores_df(
         self,
         cohort_index: str,
-        intensity_unit: Union[utils.IntensityUnit, None] = None,
+        intensity_unit: Optional[utils.IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
     ) -> pd.DataFrame:
@@ -76,16 +85,16 @@ class CohortDataAPI(Protocol):
     def get_fpkm_df(
         self,
         cohort_index: Union[str, None] = None,
-        intensity_unit: Union[utils.IntensityUnit, None] = None,
+        intensity_unit: Optional[utils.IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
     ) -> pd.DataFrame:
         """"""
 
-    def get_num_pep_fp(self, cohort_index: str) -> pd.DataFrame:
+    def get_topas_annotation_df(self) -> pd.DataFrame:
         """"""
 
-    def get_topas_annotation_df(self) -> pd.DataFrame:
+    def get_poi_annotation_df(self) -> pd.DataFrame:
         """"""
 
     def get_genomics(self) -> pd.DataFrame:

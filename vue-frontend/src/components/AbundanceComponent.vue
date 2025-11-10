@@ -140,6 +140,7 @@
                   :data-source="zScoreHistogramData"
                   :selected-patient="selectedDotsInPlot"
                   @onRowSelect="updateSelectedRows"
+                  @table-ready="loadSwarmplot"
                 />
               </v-col>
               <v-col
@@ -285,7 +286,6 @@ export default {
     mode: DataType.FULL_PROTEOME,
     includeRefChannels: false,
     showOncokbcnv: false,
-    swarmShow: false,
     radioOptions: {
       protein: 'Protein',
       psite: 'Phosphopeptide',
@@ -369,7 +369,6 @@ export default {
       this.cohortIndex = cohortIndex
     },
     updateId () {
-      this.swarmShow = false
       if (this.identifier.length > 0) { // gene mode
         this.swarmPlotData = []
         this.swarmSelIds = []
@@ -379,19 +378,19 @@ export default {
         this.getExpression(this.mode, this.identifier)
       }
     },
-    async getExpression (mode, key) {
-      this.swarmShow = false
+    getExpression (mode, key) {
       this.loading = true
       this.zScoreHistogramData = []
       this.swarmPlotData = []
       this.swarmSelIds = []
+
       const includeRef = this.includeRefChannels ? IncludeRef.INCLUDE_REF : IncludeRef.EXCLUDE_REF
       const query = api.ABUNDANCE({ cohort_index: this.cohortIndex, level: mode, identifier: key, imputation: 'noimpute', include_ref: includeRef })
       this.zScoreHistogramData = query
-      const response = await axios.get(query)
-      this.swarmShow = true
+    },
+    async loadSwarmplot ({ dataSource }) {
+      const response = await axios.get(dataSource)
       this.swarmField = this.intensityUnit
-      // this.swarmPlotData = response.data.filter(element => element[this.intensityUnit] !== 'n.d.')
       this.swarmPlotData = response.data
       this.loading = false
     },
@@ -428,7 +427,6 @@ export default {
       this.cnvDescription = `${amplification}\n${deletion}`
     },
     plotSelectedRows () {
-      this.swarmShow = true
       this.swarmField = this.intensityUnit
       this.swarmPlotData = this.selectedData
     },

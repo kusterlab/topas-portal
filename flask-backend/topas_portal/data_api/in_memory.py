@@ -1,5 +1,5 @@
 import os
-from typing import Union
+from typing import Union, Optional
 
 import pandas as pd
 
@@ -11,13 +11,17 @@ from logger import CohortLogger
 from topas_portal.data_api.exceptions import IntensityUnitUnavailableError
 
 
-def extract_columns_and_remove_suffix(df: pd.DataFrame, intensity_unit: utils.IntensityUnit):
+def extract_columns_and_remove_suffix(
+    df: pd.DataFrame,
+    intensity_unit: utils.IntensityUnit,
+    extra_columns: list[str],
+):
     intensity_suffix = utils.INTENSITY_UNIT_SUFFIXES[intensity_unit]
-    df = df.filter(like=intensity_suffix)
-    if len(df.columns) == 0:
+    filtered_df = df.filter(like=intensity_suffix)
+    if len(filtered_df.columns) == 0:
         raise IntensityUnitUnavailableError(intensity_unit)
-    df.columns = df.columns.str.removesuffix(intensity_suffix)
-    return df
+    filtered_df.columns = filtered_df.columns.str.removesuffix(intensity_suffix)
+    return filtered_df.join(df[extra_columns])
 
 
 class InMemoryCohortDataAPI:
@@ -37,7 +41,9 @@ class InMemoryCohortDataAPI:
     # based on the queries for each cohort
     def get_patients_entities_df(self, cohort_index: str) -> pd.DataFrame:
         patients_df = self.get_patient_metadata_df(cohort_index)
-        df = pd.DataFrame(patients_df[settings.ENTITY_COLUMN].unique(), columns=["Entity"])
+        df = pd.DataFrame(
+            patients_df[settings.ENTITY_COLUMN].unique(), columns=["Entity"]
+        )
         df["Entity"] = df["Entity"].str.replace(r"[ ,;]", "_", regex=True)
         return df
 
@@ -55,62 +61,78 @@ class InMemoryCohortDataAPI:
 
     def _filter_expression_df(
         self,
-        df,
-        intensity_unit: Union[utils.IntensityUnit, None] = None,
+        df: pd.DataFrame,
+        intensity_unit: Optional[utils.IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
+        extra_columns: Optional[list[str]] = None,
     ):
+        if extra_columns is None:
+            extra_columns = []
+        extra_columns = df.columns.intersection(extra_columns).to_list()
+
         if intensity_unit is not None:
-            df = extract_columns_and_remove_suffix(df, intensity_unit=intensity_unit)
+            df = extract_columns_and_remove_suffix(
+                df, intensity_unit=intensity_unit, extra_columns=extra_columns
+            )
 
         if identifier:
             return df.loc[df.index == identifier]
         elif patient_name:
-            extra_columns = [c for c in settings.PP_EXTRA_COLUMNS if c in df.columns]
             return df[[patient_name] + extra_columns]
         else:
             return df
 
-    def get_num_pep_fp(self, cohort_index: str, protein_name=None) -> pd.DataFrame:
-        df = self.provider.get_dataframe(cohort_index, "fp_intensity_meta_df")
-        return self._filter_expression_df(
-            df, intensity_unit=None, identifier=protein_name, patient_name=None
-        )
-
     def get_protein_abundance_df(
         self,
         cohort_index: str,
-        intensity_unit: Union[utils.IntensityUnit, None] = None,
+        intensity_unit: Optional[utils.IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
         include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+        extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         df = self.provider.get_dataframe(cohort_index, utils.DataType.FULL_PROTEOME)
         df = _filter_for_ref(df, include_ref)
 
-        return self._filter_expression_df(df, intensity_unit, identifier, patient_name)
+        return self._filter_expression_df(
+            df, intensity_unit, identifier, patient_name, extra_columns
+        )
 
     def get_psite_abundance_df(
         self,
         cohort_index: str,
-        intensity_unit: Union[utils.IntensityUnit, None] = None,
+        intensity_unit: Optional[utils.IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
         include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+        extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         df = self.provider.get_dataframe(cohort_index, utils.DataType.PHOSPHO_PROTEOME)
         df = _filter_for_ref(df, include_ref)
 
-        return self._filter_expression_df(df, intensity_unit, identifier, patient_name)
+        return self._filter_expression_df(
+            df, intensity_unit, identifier, patient_name, extra_columns
+        )
 
-    def get_topas_scores_df(
+    def get_topas_rtk_scores_df(
         self,
         cohort_index: str,
-        intensity_unit: Union[utils.IntensityUnit, None] = None,
+        intensity_unit: Optional[utils.IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
     ) -> pd.DataFrame:
-        df = self.provider.get_dataframe(cohort_index, utils.DataType.TOPAS_SCORE)
+        df = self.provider.get_dataframe(cohort_index, utils.DataType.TOPAS_RTK_SCORE)
+        return self._filter_expression_df(df, intensity_unit, identifier, patient_name)
+
+    def get_topas_ck_scores_df(
+        self,
+        cohort_index: str,
+        intensity_unit: Optional[utils.IntensityUnit] = None,
+        identifier: str = None,
+        patient_name: str = None,
+    ) -> pd.DataFrame:
+        df = self.provider.get_dataframe(cohort_index, utils.DataType.TOPAS_CK_SCORE)
         return self._filter_expression_df(df, intensity_unit, identifier, patient_name)
 
     def get_report_dir(self, cohort_index: str) -> str:
@@ -122,17 +144,20 @@ class InMemoryCohortDataAPI:
     def get_phosphorylation_scores_df(
         self,
         cohort_index: str,
-        intensity_unit: Union[utils.IntensityUnit, None] = None,
+        intensity_unit: Optional[utils.IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
+        extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         df = self.provider.get_dataframe(cohort_index, utils.DataType.PHOSPHO_SCORE)
-        return self._filter_expression_df(df, intensity_unit, identifier, patient_name)
+        return self._filter_expression_df(
+            df, intensity_unit, identifier, patient_name, extra_columns
+        )
 
     def get_kinase_scores_df(
         self,
         cohort_index: str,
-        intensity_unit: Union[utils.IntensityUnit, None] = None,
+        intensity_unit: Optional[utils.IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
     ) -> pd.DataFrame:
@@ -142,10 +167,13 @@ class InMemoryCohortDataAPI:
     def get_topas_annotation_df(self) -> pd.DataFrame:
         return self.provider.topas_complete_df
 
+    def get_poi_annotation_df(self) -> pd.DataFrame:
+        return self.provider.poi_annotation_df
+
     def get_fpkm_df(
         self,
         cohort_index: Union[str, None] = None,
-        intensity_unit: Union[utils.IntensityUnit, None] = None,
+        intensity_unit: Optional[utils.IntensityUnit] = None,
         identifier=None,
         patient_name=None,
     ) -> pd.DataFrame:

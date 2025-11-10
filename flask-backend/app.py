@@ -7,10 +7,23 @@ import threading
 from pathlib import Path
 import zipfile
 
-from flask import Flask, render_template, Response, jsonify, send_from_directory
+from flask import (
+    Flask,
+    render_template,
+    Response,
+    jsonify,
+    send_from_directory,
+    request,
+)
 from flask_cors import CORS
 from flask_caching import Cache
 from flask_compress import Compress
+from flask_jwt_extended import (
+    JWTManager,
+    create_access_token,
+    jwt_required,
+    get_jwt_identity,
+)
 
 import db
 import routing_converters
@@ -33,7 +46,11 @@ from topas_portal import correlations_preprocess as cp
 from topas_portal import fetch_data_matrix as hp
 from topas_portal import differential_expression as differential_test
 from topas_portal import genomics_preprocess as genomics_process
+from topas_portal import patient_report_excel
 
+debug = settings.DEBUG_MODE
+if len(sys.argv) > 1 and sys.argv[1] == "test":
+    debug = True
 
 config = {
     "CACHE_TYPE": "SimpleCache",  # Flask-Caching related configs
@@ -53,12 +70,15 @@ app.config["config_file"] = cohorts_db.config.get_config_path()
 app.config["LOCAL_HTTTP"] = cohorts_db.config.get_local_http()
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.config["integration_http"] = cohorts_db.config.get_integration_test_http()
+app.config["JWT_SECRET_KEY"] = settings.JWT_SECRET_KEY
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = settings.JWT_ACCESS_TOKEN_EXPIRES
 
 app.url_map.converters["data_type"] = routing_converters.DataTypeConverter
 app.url_map.converters["intensity_unit"] = routing_converters.IntensityUnitConverter
 app.url_map.converters["include_ref"] = routing_converters.IncludeRefConverter
 
 cache = Cache(app)
+jwt = JWTManager(app)
 Compress(app)
 
 
@@ -72,6 +92,7 @@ with app.app_context():
     from compartments.config import config_page
     from compartments.qc_app import qc_page
     from compartments.drug_app import drug_page
+
     # from compartments.drugscore_app import drugscore_page # under development
     from compartments.proteinscore_app import proteinscore_page
     from compartments.kinasescores_app import kinasescore_page
@@ -79,8 +100,11 @@ with app.app_context():
     from compartments.entityscore_app import entityscore_page
     from compartments.overview_app import overview_page
     from compartments.z_scoring_app import zscoring_page
+    from compartments.ptmnavigator_app import ptmnavigator_page
 
-    if cohorts_db.config.do_load_data_on_startup():
+    if cohorts_db.config.do_load_data_on_startup() and (
+        os.environ.get("WERKZEUG_RUN_MAIN") == "true" or not debug
+    ):
         start_background_loader()
 
 app.register_blueprint(config_page)
@@ -93,6 +117,7 @@ app.register_blueprint(integration_page)
 app.register_blueprint(entityscore_page)
 app.register_blueprint(overview_page)
 app.register_blueprint(zscoring_page)
+app.register_blueprint(ptmnavigator_page)
 
 CORS(app)
 
@@ -113,23 +138,41 @@ def favicon():
     )
 
 
-@app.route(ApiRoutes.PASSWORD_CHECK)
-# http://localhost:3832/password/topaswp3
-def password_check(password: str):
+@app.route(ApiRoutes.AUTH_LOGIN, methods=["POST"])
+# http://localhost:3832/auth/login
+def auth_login():
     """
     Validates the provided password against the predefined system password.
 
-    Args:
+    Body:
         password (str): The input password to be checked.
 
     Returns:
-        dict: A dictionary with a key 'pass' and a value of 'valid' if the password matches
-              the system password, otherwise 'invalid'.
+        pass: string
+        access_token: string
     """
+    data = request.get_json()
+    password = data.get("password")
+
     if str(password) == settings.PASSWORD:
-        return {"pass": "valid"}
+        token = create_access_token(identity="admin")
+        return {"pass": "valid", "access_token": token}
     else:
         return {"pass": "invalid"}
+
+
+@app.route(ApiRoutes.AUTH_ME, methods=["GET"])
+@jwt_required()
+# http://localhost:3832/auth/me
+def auth_me():
+    """
+    Validates the jwt token and returns the user info.
+
+    Returns:
+        username: user name
+        vallid: bool
+    """
+    return jsonify(username=get_jwt_identity(), valid=True)
 
 
 @app.route(ApiRoutes.COHORT_NAMES)
@@ -146,19 +189,16 @@ def column_names():
 
 @cache.cached(timeout=50)
 @app.route(ApiRoutes.PATIENT_REPORT_TABLE)
-def get_patient_report_table(
-    cohort_index: int, patient: str, level: utils.DataType, downloadmethod: str
-):
+def get_patient_report_table(cohort_index: int, patient: str, level: utils.DataType):
     """Returns tables from the patient reports.
 
-    Example: http://localhost:3832/0/patient_report/I007-031-108742/protein/onfly
+    Example: http://localhost:3832/0/patient_reports/I007-031-108742/protein
 
     Args:
         cohort_index (int): cohort index
         patient (str): patient identifier
         level (utils.DataType): modality (e.g. full proteome, topas, etc.) to get
             reports for, see utils.DataType.
-        downloadmethod (str): "fromreport" or "onfly". Defaults to "onfly".
 
     Returns:
         Response: jsonified dataframe with patient report table.
@@ -169,7 +209,6 @@ def get_patient_report_table(
             cohort_index,
             patient,
             utils.DataType(level),
-            download_method=downloadmethod,
         )
     )
 
@@ -187,12 +226,17 @@ def get_patient_reports_as_attachment(cohort_index: int, patients: str):
     Returns:
         Response: excel or zip file with patient report(s)
     """
-    reports_dir = cohorts_db.get_report_dir(cohort_index)
-    patients = patients.split(";")
+    reports_dir = Path(cohorts_db.get_report_dir(cohort_index)) / "Reports"
+    reports_dir.mkdir(exist_ok=True)
 
     def get_patient_report_path(patient_identifier: str):
-        return (
-            reports_dir + "/Reports/" + patient_identifier + "_proteomics_results.xlsx"
+        return reports_dir / f"{patient_identifier}_proteomics_results.xlsx"
+
+    patients = patients.split(";")
+    for patient in patients:
+        path_to_patient_results = get_patient_report_path(patient)
+        patient_report_excel.generate_patient_report(
+            cohorts_db, cohort_index, patient, path_to_patient_results
         )
 
     if len(patients) == 1:
@@ -290,6 +334,7 @@ def get_oncokb_cnv_annotation(identifier: str, cnv_type: str):
 
 ##################### Cohorts Loading and UPDATING
 @app.route(ApiRoutes.RELOAD)
+@jwt_required()
 # http://localhost:3832/reload
 def reload():
     cohorts_db.load_all_data()
@@ -297,6 +342,7 @@ def reload():
 
 
 @app.route(ApiRoutes.RELOAD_DB_ZSCORES)
+@jwt_required()
 # http://localhost:3832/reloaddbz
 def reload_db_zscores():
     cohorts_db.config.reload_config()
@@ -306,6 +352,7 @@ def reload_db_zscores():
 
 
 @app.route(ApiRoutes.RELOAD_DB_INTENSITY)
+@jwt_required()
 # http://localhost:3832/reloaddbi
 def reload_db_intensity():
     cohorts_db.config.reload_config()
@@ -315,6 +362,7 @@ def reload_db_intensity():
 
 
 @app.route(ApiRoutes.RELOAD_METADATA)
+@jwt_required()
 # http://localhost:3832/reloadmeta
 def reload_db_metadata():
     cohorts_db.config.reload_config()
@@ -324,6 +372,7 @@ def reload_db_metadata():
 
 
 @app.route(ApiRoutes.RELOAD_FP_INTENSITY_META)
+@jwt_required()
 # http://localhost:3832/reloadfpintensity
 def reload_fp_intensity():
     cohorts_db.config.reload_config()
@@ -332,6 +381,7 @@ def reload_fp_intensity():
 
 
 @app.route(ApiRoutes.RELOAD_MAPPING_PROTEIN_SEQ)
+@jwt_required()
 # http://localhost:3832/reloadmapping
 def reload_mapping_protein_seq():
     cohorts_db.config.reload_config()
@@ -340,6 +390,7 @@ def reload_mapping_protein_seq():
 
 
 @app.route(ApiRoutes.RELOAD_TOPAS)
+@jwt_required()
 # http://localhost:3832/reloadtopas
 def reload_topass():
     cohorts_db.config.reload_config()
@@ -348,6 +399,7 @@ def reload_topass():
 
 
 @app.route(ApiRoutes.RELOAD_TRANSCRIPTS)
+@jwt_required()
 # http://localhost:3832/reload/transcripts
 def reload_transcripts():
     cohorts_db.config.reload_config()
@@ -357,6 +409,7 @@ def reload_transcripts():
 
 
 @app.route(ApiRoutes.RELOAD_DIGEST)
+@jwt_required()
 def reload_insilico_digest():
     cohorts_db.config.reload_config()
     cohorts_db.provider._load_insilicodigest(cohorts_db.config.get_config())
@@ -364,6 +417,7 @@ def reload_insilico_digest():
 
 
 @app.route(ApiRoutes.RELOAD_TOPAS_ANNOTATIONS)
+@jwt_required()
 # http://localhost:3832/reload/topasannotations
 def reload_topas_annotations():
     cohorts_db.config.reload_config()
@@ -371,13 +425,15 @@ def reload_topas_annotations():
 
 
 @app.route(ApiRoutes.RELOAD_DIGEST)
+@jwt_required()
 # this function is not used at the moment; it can be used to calculate iBAQ in case needed
 def get_the_insilico_peptide_digested():
     return utils.df_to_json(cohorts_db.get_digestes_peptides_maps())
 
 
-# http://localhost:3832/reload/PAN_CANCER
 @app.route(ApiRoutes.RELOAD_COHORT)
+@jwt_required()
+# http://localhost:3832/reload/PAN_CANCER
 def reload_current_cohort(cohort: str):
     cohorts_db.config.reload_config()
     cohorts_db.provider.load_tables(cohorts_db.config, cohort_names=[cohort])
@@ -385,6 +441,7 @@ def reload_current_cohort(cohort: str):
 
 
 @app.route(ApiRoutes.PATH_CHECK)
+@jwt_required()
 def path_checker(path: str):
     if os.path.exists(path.replace("topas_slash", "/")):
         return Response("True")
@@ -405,16 +462,16 @@ def get_all_modality_possibilities(cohort_index: int, modality: str):
 
 @app.route(ApiRoutes.VENN_PATIENT_COMPARE)
 # http://localhost:3832/venn/0/patientcompare/fp/C3L-00032-1
-def get_patients_proteins(cohort_index: int, pp_fp: str, patientslists: str):
+def get_patients_proteins(cohort_index: int, level: utils.DataType, patientslists: str):
     return pp.get_patients_proteins_as_json(
-        cohorts_db, cohort_index, pp_fp, patientslists
+        cohorts_db, cohort_index, level, patientslists
     )
 
 
 @app.route(ApiRoutes.VENN_BATCH_COMPARE)
 # http://localhost:3832/venn/0/batchcompare/fp/1_2_43
-def get_batches_proteins(cohort_index: int, pp_fp: str, batchlists: str):
-    return pp.get_batches_proteins_as_json(cohorts_db, cohort_index, pp_fp, batchlists)
+def get_batches_proteins(cohort_index: int, level: utils.DataType, batchlists: str):
+    return pp.get_batches_proteins_as_json(cohorts_db, cohort_index, level, batchlists)
 
 
 @app.route(ApiRoutes.UPDATE_LOG)
@@ -431,27 +488,27 @@ def get_error_log():
     return jsonify(log)
 
 
-@app.route(ApiRoutes.PATIENT_CENTRIC_PP_INTENSITY)
+@app.route(ApiRoutes.PATIENT_CENTRIC_SUMMED_INTENSITY)
 # http://localhost:3832/patientcentric/ppintensity/0/fp
 # http://localhost:3832/patientcentric/ppintensity/0/pp
-def get_sum_intensities_pp_level(cohort_index: int, dtype: str):
+def get_sum_intensities_pp_level(cohort_index: int, level: utils.DataType):
     if settings.DATABASE_MODE:
         return {}  # this query is too slow in the database
 
     return utils.df_to_json(
-        pp.sum_intensities_across_all_patients(cohorts_db, cohort_index, dtype=dtype)
+        pp.sum_intensities_across_all_patients(cohorts_db, cohort_index, level)
     )
 
 
-@app.route(ApiRoutes.PATIENT_CENTRIC_PROTEIN_COUNTS)
+@app.route(ApiRoutes.PATIENT_CENTRIC_COUNTS)
 @cache.cached(timeout=50)
 # http://localhost:3832/patientcenteric/proteincounts/0/fp
-def get_identifications_frequency(cohort_index: int, fp_pp: str):
+def get_identifications_frequency(cohort_index: int, level: utils.DataType):
     if settings.DATABASE_MODE:
         return {}  # this query is too slow in the database
 
     return utils.df_to_json(
-        pp.identifications_across_all_patients(cohorts_db, fp_pp, cohort_index)
+        pp.identifications_across_all_patients(cohorts_db, cohort_index, level)
     )
 
 
@@ -468,11 +525,11 @@ def topas_annotations():
 
 
 @app.route(ApiRoutes.TOPAS_LOLLIPOP)
-# http://localhost:3832/topas/lolipopdata/0/I002-025-226610
+# http://localhost:3832/topas/lollipopdata/0/I002-025-226610
 def get_circular_barplot_data(cohort_index: int, patient: str):
     return utils.df_to_json(
         bp.get_circular_barplot_data_pathways(
-            cohorts_db.get_topas_scores_df(
+            cohorts_db.get_topas_rtk_scores_df(
                 cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
             ),
             patient,
@@ -481,7 +538,7 @@ def get_circular_barplot_data(cohort_index: int, patient: str):
 
 
 @app.route(ApiRoutes.TOPAS_LOLLIPOP_TUMOR)
-# http://localhost:3832/topas/lolipopdata/0/I002-025-226610/tumor_antigen
+# http://localhost:3832/topas/lollipopdata/0/I002-025-226610/tumor_antigen
 def get_circular_barplot_data_tumor(cohort_index: int, patient: str):
     return utils.df_to_json(
         bp.get_circular_barplot_data_tumor_antigens(
@@ -494,16 +551,16 @@ def get_circular_barplot_data_tumor(cohort_index: int, patient: str):
 
 
 @app.route(ApiRoutes.TOPAS_EXPRESSION_DOWNSTREAM)
-# http://localhost:3832/topas/lolipopdata/expression/0/I002-025-226610/downstream_signaling
-def get_lolipopexpression_down_stream(cohort_index: int, patient: str):
+# http://localhost:3832/topas/lollipopdata/expression/0/I002-025-226610/downstream_signaling
+def get_lollipopexpression_down_stream(cohort_index: int, patient: str):
     return utils.df_to_json(
-        bp.getlolipop_expression_topas(
+        bp.get_lollipop_expression_topas(
             cohorts_db.get_protein_abundance_df(
                 cohort_index,
                 intensity_unit=utils.IntensityUnit.Z_SCORE,
                 patient_name=patient,
             ),
-            cohorts_db.get_topas_scores_df(
+            cohorts_db.get_topas_rtk_scores_df(
                 cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
             ),
             patient,
@@ -529,16 +586,16 @@ def get_list_proteins(cohort_index: int, level: str):
 
 
 @app.route(ApiRoutes.TOPAS_EXPRESSION_RTK)
-# http://localhost:3832/topas/lolipopdata/expression/0/I002-025-226610/rtk
-def get_lolipopexpression_rtk(cohort_index: int, patient: str):
+# http://localhost:3832/topas/lollipopdata/expression/0/I002-025-226610/rtk
+def get_lollipopexpression_rtk(cohort_index: int, patient: str):
     return utils.df_to_json(
-        bp.getlolipop_expression_topas(
+        bp.get_lollipop_expression_topas(
             cohorts_db.get_protein_abundance_df(
                 cohort_index,
                 intensity_unit=utils.IntensityUnit.Z_SCORE,
                 patient_name=patient,
             ),
-            cohorts_db.get_topas_scores_df(
+            cohorts_db.get_topas_rtk_scores_df(
                 cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
             ),
             patient,
@@ -550,7 +607,9 @@ def get_lolipopexpression_rtk(cohort_index: int, patient: str):
 @app.route(ApiRoutes.TOPAS_IDS)
 # http://localhost:3832/topas/0/topasids
 def topas_unique(cohort_index: int, categories: str):
-    return bp.get_topas_unique(cohorts_db.get_topas_scores_df(cohort_index), categories)
+    return bp.get_topas_unique(
+        cohorts_db.get_topas_rtk_scores_df(cohort_index), categories
+    )
 
 
 @app.route(ApiRoutes.TOPAS_SUBSCORE)
@@ -595,7 +654,6 @@ def patientsmetadata(cohort_index: int):
         sample_annotation_df = sample_annotation_df.drop(["Entity"], axis=1)
     patien_meta_df = cohorts_db.get_patient_metadata_df(cohort_index)
     final_df = utils.merge_with_patients_meta_df(sample_annotation_df, patien_meta_df)
-    final_df = final_df.fillna('n.d.')
     return utils.df_to_json(final_df)
 
 
@@ -806,10 +864,6 @@ def portal_logger(message, log_list: list = error_log):
 if __name__ == "__main__":
     if os.path.exists("record.log"):
         utils.log_delete("record.log")
-
-    debug = settings.DEBUG_MODE
-    if len(sys.argv) > 1 and sys.argv[1] == "test":
-        debug = True
 
     app.run(
         debug=debug, use_reloader=debug, host="0.0.0.0", port=settings.CI_BACKEND_PORT

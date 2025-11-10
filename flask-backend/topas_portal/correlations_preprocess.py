@@ -91,7 +91,7 @@ def compute_correlation_df(
         all_abundances, abundances, patients_list=patients_list
     )
 
-    if level == utils.DataType.TOPAS_SCORE:
+    if level == utils.DataType.TOPAS_RTK_SCORE:
         # add "Topas weight column" to correlation table
         topas_complete_df = cohorts_db.get_topas_annotation_df()
         topas_annotation_df = topas_utils.get_topas_weights(topas_complete_df)
@@ -108,7 +108,7 @@ def compute_correlation_df(
             cohort_index=cohort_index
         )
         correlation_df = correlation_df.merge(
-            psite_annotation_df[settings.PP_EXTRA_COLUMNS].reset_index(),
+            psite_annotation_df[settings.ANNOTATION_COLUMNS.keys()].reset_index(),
             left_on="index",
             right_on="Modified sequence",
         )

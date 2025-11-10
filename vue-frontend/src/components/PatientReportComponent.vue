@@ -31,12 +31,6 @@
               label="Show FPKM/protein correlation histogram"
               @change="getpatientData"
             />
-            <v-checkbox
-              v-show="false"
-              v-model="openReport"
-              label="Open Report from pipeline Folder"
-              @change="getscoresTable"
-            />
           </v-card-text>
         </v-card>
       </v-col>
@@ -141,7 +135,7 @@
                         :selected-lines="selectedpepLines"
                         :min-height="minHeight"
                         :min-width="minWidth"
-                        xlabel="No identified psites across all patients"
+                        xlabel="No identified p-peptides across all patients"
                         :margin="histogramMargin"
                         :min-dose="0"
                         :max-dose="150000"
@@ -239,7 +233,7 @@
                       Tumor Antigens
                     </v-btn>
                     <v-btn
-                      value="lolipop"
+                      value="lollipop"
                     >
                       RTKs TOPAS vs Expression
                     </v-btn>
@@ -251,15 +245,15 @@
                       md="7"
                       lg="7"
                     >
-                      <Lolipop-plot
-                        v-if="lolipopData && displayrtkBar"
+                      <Lollipop-plot
+                        v-if="lollipopData && displayrtkBar"
                         :width="800"
-                        lollipop-id="topas2Lolipop"
-                        loli-title="TOPAS Z-scores"
+                        lollipop-id="topas2Lollipop"
+                        lolli-title="TOPAS Z-scores"
                         :fixed-domain="fixedDomain"
                         :vline="2"
-                        :loliradian="1"
-                        :plot-data="lolipopData"
+                        :lolliradian="1"
+                        :plot-data="lollipopData"
                         :show-legends="true"
                       />
                     </v-col>
@@ -269,9 +263,9 @@
                       lg="5"
                     >
                       <Circularbar-plot
-                        v-if="lolipopData && displayrtkBar"
+                        v-if="lollipopData && displayrtkBar"
                         plot-id="circular2Patway"
-                        :plot-data="lolipopData"
+                        :plot-data="lollipopData"
                         :patient-name="firstPatient"
                       />
                     </v-col>
@@ -282,15 +276,15 @@
                       md="7"
                       lg="7"
                     >
-                      <Lolipop-plot
-                        v-if="lolipopDataTumor && displayTumorbar"
+                      <Lollipop-plot
+                        v-if="lollipopDataTumor && displayTumorbar"
                         :width="800"
-                        lollipop-id="topas2LolipopTumorantigen"
-                        loli-title="Expression Z-scores"
+                        lollipop-id="topas2LollipopTumorantigen"
+                        lolli-title="Expression Z-scores"
                         :fixed-domain="fixedDomain"
                         :vline="2"
-                        :loliradian="1"
-                        :plot-data="lolipopDataTumor"
+                        :lolliradian="1"
+                        :plot-data="lollipopDataTumor"
                         :show-legends="true"
                       />
                     </v-col>
@@ -300,9 +294,9 @@
                       lg="5"
                     >
                       <Circularbar-plot
-                        v-if="lolipopDataTumor && displayTumorbar"
+                        v-if="lollipopDataTumor && displayTumorbar"
                         plot-id="circular2Tumor"
-                        :plot-data="lolipopDataTumor"
+                        :plot-data="lollipopDataTumor"
                         :patient-name="firstPatient"
                       />
                     </v-col>
@@ -314,14 +308,14 @@
                       md="6"
                       lg="6"
                     >
-                      <Lolipop-plot
-                        v-if="expressionDataRTK && displaylolipop"
+                      <Lollipop-plot
+                        v-if="expressionDataRTK && displaylollipop"
                         :width="1600"
                         :height="400"
                         :fixed-domain="fixedDomain"
-                        loli-mode="true"
-                        loliradian="4"
-                        loli-title="Topas Z-scores | EXPRESSION Z-scores"
+                        lolli-mode="true"
+                        lolliradian="4"
+                        lolli-title="Topas Z-scores | EXPRESSION Z-scores"
                         lollipop-id="topas2ExpressionplotRTk"
                         :plot-data="expressionDataRTK"
                         overlapping-y="true"
@@ -335,14 +329,14 @@
                       md="6"
                       lg="6"
                     >
-                      <Lolipop-plot
-                        v-if="expressionDataDownstream && displaylolipop"
+                      <Lollipop-plot
+                        v-if="expressionDataDownstream && displaylollipop"
                         :width="1600"
                         :height="400"
                         :fixed-domain="fixedDomain"
-                        loli-mode="true"
-                        loliradian="2"
-                        loli-title="TOPAS Z-scores | EXPRESSION Z-scores"
+                        lolli-mode="true"
+                        lolliradian="2"
+                        lolli-title="TOPAS Z-scores | EXPRESSION Z-scores"
                         lollipop-id="topas2ExpressionplotDownSignaling"
                         :plot-data="expressionDataDownstream"
                         overlapping-y="true"
@@ -367,7 +361,7 @@ import { mapMutations } from 'vuex'
 import CohortSelect from './partials/CohortSelect.vue'
 import patientscoreTable from '@/components/tables/PatientscoreTable.vue'
 import PatientReportTable from '@/components/tables/PatientReportTable.vue'
-import LolipopPlot from '@/components/plots/LolipopPlot'
+import LollipopPlot from '@/components/plots/LollipopPlot'
 import CircularbarPlot from '@/components/plots/CircularbarPlot'
 import histogram from '@/components/plots/GenericHistogram.vue'
 import { DataType } from '@/constants'
@@ -378,7 +372,7 @@ export default {
   components: {
     CohortSelect,
     PatientReportTable,
-    LolipopPlot,
+    LollipopPlot,
     histogram,
     CircularbarPlot,
     patientscoreTable
@@ -398,27 +392,26 @@ export default {
     topasName: '',
     isCollapsed: true,
     fixedDomain: false,
-    sumIntesitiespp: [],
-    sumIntesitiesfp: [],
+    summedIntensitiesPhospho: [],
+    summedIntensitiesFull: [],
     patientData: [],
     selectedLineppintensity: [],
     selectedLinefpintensity: [],
-    scoreType: DataType.TOPAS_SCORE,
+    scoreType: DataType.REPORT_SUMMARY,
     Showcircular: true,
-    lolipopData: false,
+    lollipopData: false,
     showCorrelation: false,
-    lolipopDataTumor: false,
-    openReport: false,
+    lollipopDataTumor: false,
     histogramMargin: { top: 20, right: 10, bottom: 50, left: 70 },
-    proteinSatitistics: [],
-    peptideSatitistics: [],
+    proteinCounts: [],
+    peptideCounts: [],
+    ppeptideCounts: [],
     correlationStatistics: [],
     firstPatient: '',
     patientscoresDataurl: '',
     expressionDataRTK: false,
     expressionDataDownstream: false,
     type: 'tumor',
-    peptidefpSatitistics: [],
     selectedFPLines: [],
     selectedLinecorrelation: [],
     selectedpepLines: [],
@@ -426,8 +419,16 @@ export default {
     selectedData: [],
     allInputDataTypes: [
       {
-        text: 'TOPAS score',
-        value: DataType.TOPAS_SCORE
+        text: 'Report summary',
+        value: DataType.REPORT_SUMMARY
+      },
+      {
+        text: 'TOPAS CK score',
+        value: DataType.TOPAS_CK_SCORE
+      },
+      {
+        text: 'TOPAS RTK score',
+        value: DataType.TOPAS_RTK_SCORE
       },
       {
         text: 'Full proteome',
@@ -457,22 +458,22 @@ export default {
   }),
   computed: {
     proteinCount () {
-      return this.proteinSatitistics.map(d => d.identified)
+      return this.proteinCounts.map(d => d.identified)
     },
     peptideCount () {
-      return this.peptideSatitistics.map(d => d.identified)
+      return this.ppeptideCounts.map(d => d.identified)
     },
     peptidefpCount () {
-      return this.peptidefpSatitistics.map(d => d.identified)
+      return this.peptideCounts.map(d => d.identified)
     },
     correlationCount () {
       return this.correlationStatistics.map(d => d.correlation)
     },
     ppintensitySum () {
-      return this.sumIntesitiespp.map(d => d.sumIntensities)
+      return this.summedIntensitiesPhospho.map(d => d.sumIntensities)
     },
     fpintensitySum () {
-      return this.sumIntesitiesfp.map(d => d.sumIntensities)
+      return this.summedIntensitiesFull.map(d => d.sumIntensities)
     },
     displayrtkBar () {
       return this.type === 'rtk'
@@ -480,8 +481,8 @@ export default {
     displayTumorbar () {
       return this.type === 'tumor'
     },
-    displaylolipop () {
-      return this.type === 'lolipop'
+    displaylollipop () {
+      return this.type === 'lollipop'
     },
     patientReportUrl () {
       return api.PATIENT_REPORT_TABLE_XLSX({ cohort_index: this.cohortIndex, patients: ':patients' })
@@ -504,140 +505,196 @@ export default {
     },
     async getpatientData () {
       this.patientData = null
-      let response = []
-      try {
-        response = await axios.get(api.PATIENTS_METADATA({ cohort_index: this.cohortIndex }))
-        this.patientData = response.data
-      } catch (error) {
-        this.addNotification({
-          color: 'error',
-          message: 'Error: Probably no meta data exists for this cohort'
-        })
-      }
-      try {
-        response = await axios.get(api.PATIENT_CENTRIC_PROTEIN_COUNTS({ cohort_index: this.cohortIndex, fp_pp: 'fp' }))
-        this.proteinSatitistics = response.data
-      } catch (error) {
-        this.addNotification({
-          color: 'error',
-          message: 'Error: could not load protein counts data'
-        })
-      }
-      try {
-        response = await axios.get(api.PATIENT_CENTRIC_PP_INTENSITY({ cohort_index: this.cohortIndex, dtype: 'pp' }))
-        this.sumIntesitiespp = response.data
-      } catch (error) {
-        this.addNotification({
-          color: 'error',
-          message: 'Error: could not load phospho intensities data'
-        })
-      }
-      try {
-        response = await axios.get(api.PATIENT_CENTRIC_PP_INTENSITY({ cohort_index: this.cohortIndex, dtype: 'fp' }))
-        this.sumIntesitiesfp = response.data
-      } catch (error) {
-        this.addNotification({
-          color: 'error',
-          message: 'Error: could not load full proteome intensities data'
-        })
-      }
-      try {
-        response = await axios.get(api.PATIENT_CENTRIC_PROTEIN_COUNTS({ cohort_index: this.cohortIndex, fp_pp: 'pp' }))
-        this.peptideSatitistics = response.data
-      } catch (error) {
-        this.addNotification({
-          color: 'error',
-          message: 'Error: could not load phosphoproteome peptide counts data'
-        })
-      }
-      try {
-        response = await axios.get(api.PATIENT_CENTRIC_PROTEIN_COUNTS({ cohort_index: this.cohortIndex, fp_pp: 'fppeptide' }))
-        this.peptidefpSatitistics = response.data
-      } catch (error) {
-        this.addNotification({
-          color: 'error',
-          message: 'Error: could not load full proteome peptide counts data'
-        })
-      }
-      if (this.showCorrelation) {
-        try {
-          response = await axios.get(api.CORRELATION_FPKM_PROTEIN({ cohort_index: this.cohortIndex }))
-          this.correlationStatistics = response.data
-        } catch (error) {
-          this.addNotification({
-            color: 'error',
-            message: 'Error: could not load FPKM-protein correlation statistics data'
-          })
+      const requests = [
+        {
+          name: 'patientData',
+          endpoint: api.PATIENTS_METADATA({
+            cohort_index: this.cohortIndex
+          }),
+          errorMessage: 'Error: Could not load patient metadata'
+        },
+        {
+          name: 'summedIntensitiesPhospho',
+          endpoint: api.PATIENT_CENTRIC_SUMMED_INTENSITY({
+            cohort_index: this.cohortIndex,
+            level: DataType.PHOSPHO_PROTEOME
+          }),
+          errorMessage: 'Error: could not load phospho intensities data'
+        },
+        {
+          name: 'summedIntensitiesFull',
+          endpoint: api.PATIENT_CENTRIC_SUMMED_INTENSITY({
+            cohort_index: this.cohortIndex,
+            level: DataType.FULL_PROTEOME
+          }),
+          errorMessage: 'Error: could not load full proteome intensities data'
+        },
+        {
+          name: 'proteinCounts',
+          endpoint: api.PATIENT_CENTRIC_COUNTS({
+            cohort_index: this.cohortIndex,
+            level: DataType.FULL_PROTEOME
+          }),
+          errorMessage: 'Error: could not load protein counts data'
+        },
+        {
+          name: 'ppeptideCounts',
+          endpoint: api.PATIENT_CENTRIC_COUNTS({
+            cohort_index: this.cohortIndex,
+            level: DataType.PHOSPHO_PROTEOME
+          }),
+          errorMessage: 'Error: could not load phosphoproteome peptide counts data'
+        },
+        {
+          name: 'peptideCounts',
+          endpoint: api.PATIENT_CENTRIC_COUNTS({
+            cohort_index: this.cohortIndex,
+            level: DataType.FULL_PROTEOME_NUM_PEPTIDES
+          }),
+          errorMessage: 'Error: could not load full proteome peptide counts data'
         }
+      ]
+
+      if (this.showCorrelation) {
+        requests.push({
+          name: 'correlationStatistics',
+          endpoint: api.CORRELATION_FPKM_PROTEIN({
+            cohort_index: this.cohortIndex
+          }),
+          errorMessage: 'Error: could not load FPKM-protein correlation statistics data'
+        })
+      }
+
+      this.processRequestsAsync(requests)
+    },
+    async processRequestsAsync (requests) {
+      // Start all requests immediately and handle them independently
+      for (const { name, endpoint, errorMessage } of requests) {
+        axios.get(endpoint)
+          .then(response => {
+            // Update the corresponding reactive variable as soon as data arrives
+            this[name] = response.data
+          })
+          .catch(() => {
+            // Handle errors individually
+            this.addNotification({
+              color: 'error',
+              message: errorMessage
+            })
+          })
       }
     },
     getscoresTable () {
+      if (this.firstPatient.length === 0) return
+
       this.patientscoresDataurl = api.PATIENT_REPORT_TABLE({
         cohort_index: this.cohortIndex,
         patient: this.firstPatient,
-        level: this.scoreType,
-        downloadmethod: this.openReport ? 'fromreport' : 'onfly'
+        level: this.scoreType
       })
       // this.patientscoresData = response.data
     },
     async updateSelectedRows (selectedIds, selectedData) {
       this.selectedData = selectedData
-      this.lolipopData = false
+      this.lollipopData = false
       this.expressionDataRTK = false
       this.expressionDataDownstream = false
-      this.lolipopDataTumor = false
+      this.lollipopDataTumor = false
       if (selectedData.length > 0) {
         const firstPatient = selectedData[0]['Sample name']
         this.firstPatient = firstPatient
-        let response = await axios.get(api.TOPAS_LOLLIPOP({ cohort_index: this.cohortIndex, patient: firstPatient }))
-        this.lolipopData = response.data
-        response = await axios.get(api.TOPAS_LOLLIPOP_TUMOR({ cohort_index: this.cohortIndex, patient: firstPatient }))
-        this.lolipopDataTumor = response.data
-        response = await axios.get(api.TOPAS_EXPRESSION_DOWNSTREAM({ cohort_index: this.cohortIndex, patient: firstPatient }))
-        this.expressionDataRTK = response.data
-        response = await axios.get(api.TOPAS_EXPRESSION_RTK({ cohort_index: this.cohortIndex, patient: firstPatient }))
-        this.expressionDataDownstream = response.data
+        const requests = [
+          {
+            name: 'lollipopData',
+            endpoint: api.TOPAS_LOLLIPOP({
+              cohort_index: this.cohortIndex,
+              patient: firstPatient
+            }),
+            errorMessage: 'Error: Could not load lollipop data'
+          },
+          {
+            name: 'lollipopDataTumor',
+            endpoint: api.TOPAS_LOLLIPOP_TUMOR({
+              cohort_index: this.cohortIndex,
+              patient: firstPatient
+            }),
+            errorMessage: 'Error: Could not load lollipop tumor data'
+          },
+          {
+            name: 'expressionDataRTK',
+            endpoint: api.TOPAS_EXPRESSION_RTK({
+              cohort_index: this.cohortIndex,
+              patient: firstPatient
+            }),
+            errorMessage: 'Error: Could not load RTK expression data'
+          },
+          {
+            name: 'expressionDataDownstream',
+            endpoint: api.TOPAS_EXPRESSION_DOWNSTREAM({
+              cohort_index: this.cohortIndex,
+              patient: firstPatient
+            }),
+            errorMessage: 'Error: Could not load downstream expression data'
+          }
+        ]
+        this.processRequestsAsync(requests)
+
         this.getscoresTable()
-        this.selectedFPLines = [] // for full proteome
-        this.selectedfppepLines = [] // for FP peptideLevel
-        this.selectedpepLines = [] // for PP at peptide level
-        this.selectedLineppintensity = [] // for PP peptide level
-        this.selectedLinefpintensity = [] // for FP peptide level
-        this.selectedLinecorrelation = [] // FPKM protein transcript level
-        this.proteinSatitistics.forEach(element => {
-          if (element.patients === firstPatient) {
-            this.selectedFPLines.push({ color: 'red', value: element.identified, curveid: -1, dash: ('5, 5') })
-          }
-        })
+        const dashStyle = '5, 5'
 
-        this.peptideSatitistics.forEach(element => {
-          if (element.patients === firstPatient) {
-            this.selectedpepLines.push({ color: 'blue', value: element.identified, curveid: -1, dash: ('5, 5') })
+        const mappings = [
+          {
+            source: 'proteinCounts',
+            target: 'selectedFPLines',
+            color: 'red',
+            valueKey: 'identified'
+          },
+          {
+            source: 'ppeptideCounts',
+            target: 'selectedpepLines',
+            color: 'blue',
+            valueKey: 'identified'
+          },
+          {
+            source: 'peptideCounts',
+            target: 'selectedfppepLines',
+            color: 'red',
+            valueKey: 'identified'
+          },
+          {
+            source: 'summedIntensitiesPhospho',
+            target: 'selectedLineppintensity',
+            color: 'blue',
+            valueKey: 'sumIntensities'
+          },
+          {
+            source: 'summedIntensitiesFull',
+            target: 'selectedLinefpintensity',
+            color: 'orange',
+            valueKey: 'sumIntensities'
           }
-        })
-
-        this.peptidefpSatitistics.forEach(element => {
-          if (element.patients === firstPatient) {
-            this.selectedfppepLines.push({ color: 'red', value: element.identified, curveid: -1, dash: ('5, 5') })
-          }
-        })
-
-        this.sumIntesitiespp.forEach(element => {
-          if (element.patients === firstPatient) {
-            this.selectedLineppintensity.push({ color: 'blue', value: element.sumIntensities, curveid: -1, dash: ('5, 5') })
-          }
-        })
-
-        this.sumIntesitiesfp.forEach(element => {
-          if (element.patients === firstPatient) {
-            this.selectedLinefpintensity.push({ color: 'orange', value: element.sumIntensities, curveid: -1, dash: ('5, 5') })
-          }
-        })
+        ]
 
         if (this.showCorrelation) {
-          this.correlationStatistics.forEach(element => {
+          mappings.push({
+            source: 'correlationStatistics',
+            target: 'selectedLinecorrelation',
+            color: 'black',
+            valueKey: 'correlation'
+          })
+        }
+
+        // Populate each in one pass
+        for (const { source, target, color, valueKey } of mappings) {
+          this[target] = []
+          this[source].forEach(element => {
             if (element.patients === firstPatient) {
-              this.selectedLinecorrelation.push({ color: 'black', value: element.correlation, curveid: -1, dash: ('5, 5') })
+              this[target].push({
+                color,
+                value: element[valueKey],
+                curveid: -1,
+                dash: dashStyle
+              })
             }
           })
         }

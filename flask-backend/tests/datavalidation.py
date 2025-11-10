@@ -123,7 +123,7 @@ def topas_score_checker(PORTAL_CONFIG_FILE, LOCAL_HTTTP, cohort, topas_name="ABL
     patient_sample_name = topas_z_scores[random_index_patient]["Sample name"]
     patient_sample_name = f'{settings.PATIENT_PREFIX}{patient_sample_name}'
     portal_z_score = topas_z_scores[random_index_patient]["Z-score"]
-    topas_scores = os.path.join(report_dir, settings.TOPAS_SCORES_FILE)
+    topas_scores = os.path.join(report_dir, settings.TOPAS_RTK_SCORES_FILE)
     topas_scores_df = pd.read_csv(topas_scores, sep="\t", index_col="Sample")
     print("####")
     pipeline_topas_score = topas_scores_df.loc[patient_sample_name, topas_name]

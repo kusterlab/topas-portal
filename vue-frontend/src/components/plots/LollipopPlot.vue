@@ -24,21 +24,21 @@ import utils from '@/plugins/DownloadUtils'
 import * as d3 from 'd3'
 
 export default {
-  name: 'LolipopPlot',
+  name: 'LollipopPlot',
   props: {
     // this is the id of the plot
     lollipopId: {
       type: String,
-      default: 'loliPop'
+      default: 'lolliPop'
     },
     savePlot: {
       type: Boolean,
       default: true
     },
     // title for the plot
-    loliTitle: {
+    lolliTitle: {
       type: String,
-      default: 'loliPop'
+      default: 'lolliPop'
     },
     // upper and lower limit of the plot with two lines
     vline: {
@@ -54,8 +54,8 @@ export default {
       type: Boolean,
       default: null
     },
-    // if true it will be lolipop else barplot
-    loliMode: {
+    // if true it will be lollipop else barplot
+    lolliMode: {
       type: Boolean,
       default: null
     },
@@ -71,12 +71,12 @@ export default {
       type: Number,
       default: 400
     },
-    loliradian: {
+    lolliradian: {
       type: Number,
       default: 5
     },
     fixedDomain: {
-      type: Array,
+      type: [Array, Boolean],
       default: () => [{
         min: -5,
         max: 5
@@ -222,8 +222,8 @@ export default {
         .attr('height', function (d) {
           return d.value > 0 ? y(0) - y(d.value) : y(d.value) - y(0)
         })
-      if (this.loliMode) {
-        const lolliradian = this.loliradian
+      if (this.lolliMode) {
+        const lolliradian = this.lolliradian
 
         const circles = lollipop
           .append('g')
@@ -324,7 +324,7 @@ export default {
         element.id = element.type + element.color // to get the unique list for the legends
       })
       */
-      const titlePlot = this.loliTitle
+      const titlePlot = this.lolliTitle
       svg.append('text')
       // .attr("class", "y label")
         .attr('transform', 'rotate(-90)')

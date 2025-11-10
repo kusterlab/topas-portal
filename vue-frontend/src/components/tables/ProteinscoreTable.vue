@@ -12,6 +12,7 @@
       :show-borders="true"
       :column-chooser="{ enabled: 'true', mode: 'select' }"
       @selection-changed="onSelectionChanged"
+      @content-ready="onTableReady"
     >
       <DxExport
         :enabled="true"
@@ -126,6 +127,9 @@ export default {
     },
     onSelectionChanged: function (e) {
       this.$emit('onRowSelect', e.selectedRowKeys, e.selectedRowsData)
+    },
+    onTableReady () {
+      this.$emit('table-ready', { dataSource: this.dataSource })
     }
   }
 }

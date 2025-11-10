@@ -23,11 +23,11 @@ def get_data_for_t_test(
     y_axis_type: str,
 ):
     """
-    Computes and prepares data for a t-test analysis between two patient groups 
+    Computes and prepares data for a t-test analysis between two patient groups
     within a specified cohort.
 
-    This function retrieves patient metadata, determines the two comparison groups, 
-    prepares the input data for the t-test, and computes statistical differences. 
+    This function retrieves patient metadata, determines the two comparison groups,
+    prepares the input data for the t-test, and computes statistical differences.
     It also formats the results for visualization, including color coding significant values.
 
     Args:
@@ -49,7 +49,7 @@ def get_data_for_t_test(
 
     Raises:
         ValueError: If cohort data retrieval or processing fails.
-    
+
     Notes:
         - If `grp2_indexes` is "index", the first group is tested against all other patients.
         - If the analysis is on phospho-proteome data, PSP annotations are added.
@@ -104,8 +104,8 @@ def _add_PSP_annotation(cohorts_db, t_test_df, cohort_index: int):
     """
     Adds PhosphoSitePlus (PSP) annotations to the t-test results dataframe.
 
-    This function retrieves phospho-proteome site abundance data for a given cohort, 
-    extracts relevant annotation columns, and merges them with the t-test results 
+    This function retrieves phospho-proteome site abundance data for a given cohort,
+    extracts relevant annotation columns, and merges them with the t-test results
     based on the modified sequence.
 
     Args:
@@ -117,21 +117,19 @@ def _add_PSP_annotation(cohorts_db, t_test_df, cohort_index: int):
         pd.DataFrame: The t-test dataframe with additional PSP annotation columns.
 
     Notes:
-        - Missing values in PSP annotation columns are filled with `"n.d."` (not detected).
         - The function renames `"Gene names"` to `"Genes"` for consistency.
-        - The merge is performed using `"Gene Names"` (from `t_test_df`) and `"Modified sequence"` 
+        - The merge is performed using `"Gene Names"` (from `t_test_df`) and `"Modified sequence"`
           (from `psite_annotation_df`).
-        - If an error occurs (e.g., missing PSP data), the function returns the original `t_test_df` 
+        - If an error occurs (e.g., missing PSP data), the function returns the original `t_test_df`
           without modifications.
     """
     try:
         psite_annotation_df = cohorts_db.get_psite_abundance_df(
             cohort_index=cohort_index
         )
-        psite_annotation_df = psite_annotation_df[settings.PP_EXTRA_COLUMNS].reset_index()
-        psite_annotation_df[settings.PP_EXTRA_COLUMNS] = psite_annotation_df[
-            settings.PP_EXTRA_COLUMNS
-        ].fillna("n.d.")
+        psite_annotation_df = psite_annotation_df[
+            settings.ANNOTATION_COLUMNS.keys()
+        ].reset_index()
         psite_annotation_df = psite_annotation_df.rename(
             columns={"Gene names": "Genes"}
         )
@@ -155,15 +153,15 @@ def _preparare_input_for_t_test(
     """
     Prepares input data for performing a t-test by fetching relevant data matrices.
 
-    This function retrieves the appropriate data matrix for the specified cohort and data type, 
-    filters the matrix to include only the relevant patients, and returns a list of unique 
+    This function retrieves the appropriate data matrix for the specified cohort and data type,
+    filters the matrix to include only the relevant patients, and returns a list of unique
     protein identifiers along with the formatted input dataframe.
 
     Args:
         cohorts_db (data_api.CohortDataAPI): The database interface for retrieving cohort data.
         cohort_index (str): The identifier of the cohort to fetch data from.
         patients_list (list[str]): A list of patient identifiers to be included in the analysis.
-        level (ef.DataType): The data type (e.g., proteome, transcriptome, TOPAS score, etc.) 
+        level (ef.DataType): The data type (e.g., proteome, transcriptome, TOPAS score, etc.)
                              used to determine which dataset to retrieve.
 
     Returns:
@@ -172,21 +170,12 @@ def _preparare_input_for_t_test(
             - pd.DataFrame: A transposed data matrix containing only the selected patients.
 
     Notes:
-        - If `level` is `TOPAS_SCORE_RTK`, it is replaced with `TOPAS_SCORE`, and only RTK-related 
-          identifiers are retrieved.
-        - The function fetches the relevant data matrix from `cohorts_db` using the specified 
+        - The function fetches the relevant data matrix from `cohorts_db` using the specified
           intensity unit.
-        - Only the patients that exist in both `patients_list` and the data matrix columns 
+        - Only the patients that exist in both `patients_list` and the data matrix columns
           are retained.
     """
     identifiers = None
-    if level == utils.DataType.TOPAS_SCORE_RTK:
-        level = utils.DataType.TOPAS_SCORE
-        identifiers = [
-            topas
-            for topas, category in topas.TOPAS_CATEGORIES.items()
-            if category == "RTK"
-        ]
 
     input_df = data.fetch_data_matrix(
         cohorts_db,

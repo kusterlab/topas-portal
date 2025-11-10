@@ -224,14 +224,14 @@
               md="5"
               lg="5"
             >
-              <lolipop-plot
+              <lollipop-plot
                 v-if="showPlot"
                 lollipop-id="silPlot"
-                loli-title="Silhouette Scores"
+                lolli-title="Silhouette Scores"
                 :fixed-domain="fixedDomain"
                 :plot-data="silData"
-                :loli-mode="true"
-                :loliradian="1"
+                :lolli-mode="true"
+                :lolliradian="1"
                 complete-tooltip="true"
                 show-legends="true"
                 width="1400"
@@ -252,7 +252,7 @@ import { mapMutations } from 'vuex'
 import QcTable from '@/components/tables/QCTable'
 import silhouetteTable from '@/components/tables/silhouetteTable'
 import QcPlot from '@/components/plots/QCPlot.vue'
-import LolipopPlot from './plots/LolipopPlot.vue'
+import LollipopPlot from './plots/LollipopPlot.vue'
 import { DataType } from '@/constants'
 import CohortSelect from './partials/CohortSelect.vue'
 import SubcohortSelect from './partials/SubcohortSelect.vue'
@@ -262,7 +262,7 @@ export default {
   components: {
     QcTable,
     QcPlot,
-    LolipopPlot,
+    LollipopPlot,
     silhouetteTable,
     CohortSelect,
     SubcohortSelect

@@ -1,15 +1,14 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+import re
 
 import pandas as pd
 
 from topas_portal import utils
 from topas_portal import settings
-from topas_portal import fetch_data_matrix as data
 import topas_portal.genomics_preprocess as genomics_prep
-import topas_portal.psite_annotation as ps
-import topas_portal.topas_preprocess as topas_loader
+from . import patient_report
 
 if TYPE_CHECKING:
     import topas_portal.data_api.data_api as data_api
@@ -61,7 +60,9 @@ def _get_protein_list_per_batch(batchNo, sample_annotation, df_intensity):
                 sample_annotation["Batch_No"].astype(str) == str(batchNo)
             ]
         )
-        list_patients_batch = utils.intersection(list_patients_batch, df_intensity.columns)
+        list_patients_batch = utils.intersection(
+            list_patients_batch, df_intensity.columns
+        )
         if len(list_patients_batch) == 0:
             return pd.DataFrame(columns=["sample", "group"])  # return an empty df
         else:
@@ -98,14 +99,17 @@ def merge_data_with_num_pep(
 
 
 def get_expression_data_per_analyte(
-    abundances, patients_df, sample_annotation_df, imputation_mode: utils.ImputationMode,
+    abundances,
+    patients_df,
+    sample_annotation_df,
+    imputation_mode: utils.ImputationMode,
 ):
     """
     abundances: dataframe with abundances for a single gene/p-site across all patients
     """
     abundances_table = get_expression_data_from_abundance_df(abundances)
     abundances_table = add_is_replicate_column(abundances_table)
-    abundances_table = add_occurence_rank(abundances_table)
+    abundances_table = add_occurrence_and_fill_na_ranks(abundances_table)
     abundances_table = utils.merge_with_sample_annotation_df(
         abundances_table, sample_annotation_df
     )
@@ -118,20 +122,23 @@ def get_expression_data_per_analyte(
 
 def get_expression_data_from_abundance_df(abundances: pd.DataFrame) -> pd.DataFrame:
     """
-    abundances: dataframe with abundances for a single gene/p-site across all patients
+    Convert a wide-format abundance DataFrame into a tidy expression table,
+    automatically recognizing measurement types based on configured suffixes.
     """
-    # Melt the dataframe to long format
+    # Build pattern from known suffixes
+    suffixes = list(utils.INTENSITY_UNIT_SUFFIXES.values())
+    pattern = r"(" + "|".join(map(re.escape, suffixes)) + r")$"
+
+    # Melt to long format
     melted_df = abundances.melt(var_name="Measurement", value_name="Value")
 
-    # Extract measurement types and sample names
-    melted_df["Type"] = melted_df["Measurement"].str.extract(
-        r" (Z-score|FC|Intensity)"
-    )[0]
+    # Extract measurement type and sample name
+    melted_df["Type"] = melted_df["Measurement"].str.extract(pattern)[0].str.strip()
     melted_df["Sample name"] = melted_df["Measurement"].str.replace(
-        r" (Z-score|FC|Intensity)", "", regex=True
+        pattern, "", regex=True
     )
 
-    # Pivot the dataframe to wide format
+    # Pivot to wide format
     result_df = melted_df.pivot_table(
         index="Sample name",
         columns="Type",
@@ -140,20 +147,22 @@ def get_expression_data_from_abundance_df(abundances: pd.DataFrame) -> pd.DataFr
         dropna=False,
     ).reset_index()
 
-    for col in ["FC", "Z-score", "Intensity"]:
-        if col not in result_df.columns:
-            result_df[col] = "N/A"
+    # Consistent column order (Sample name first)
+    ordered_cols = ["Sample name"] + [s.strip() for s in suffixes]
+    result_df = result_df.reindex(columns=ordered_cols, fill_value=pd.NA)
+    return result_df.sort_values(
+        by=utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.INTENSITY].strip(),
+        ascending=False,
+    )
 
-    return result_df[["Sample name", "FC", "Z-score", "Intensity"]]
 
-
-def add_is_replicate_column(abundance_df: pd.DataFrame):    
+def add_is_replicate_column(abundance_df: pd.DataFrame):
     """
     Adds a column to indicate whether a sample is a replicate.
 
-    This function processes the 'Sample name' column in the input DataFrame to determine 
-    whether a sample is a replicate. It extracts the last part of the sample name 
-    (after the last "-") and assigns it to a new column called 'is_replicate'. 
+    This function processes the 'Sample name' column in the input DataFrame to determine
+    whether a sample is a replicate. It extracts the last part of the sample name
+    (after the last "-") and assigns it to a new column called 'is_replicate'.
     If the extracted part does not contain "R", it is labeled as "not_replicate".
 
     Args:
@@ -164,7 +173,7 @@ def add_is_replicate_column(abundance_df: pd.DataFrame):
 
     Notes:
         - The function makes a copy of the input DataFrame before modifying it.
-        - It assumes that replicate samples are indicated by "-R" followed by a number 
+        - It assumes that replicate samples are indicated by "-R" followed by a number
           (e.g., "Sample1-R1").
         - If an error occurs, the function returns the original DataFrame unchanged.
     """
@@ -182,15 +191,10 @@ def add_is_replicate_column(abundance_df: pd.DataFrame):
         return abundance_df
 
 
-def add_occurence_rank(df: pd.DataFrame):
+def add_occurrence_and_fill_na_ranks(df: pd.DataFrame):
     try:
         abundances_table = df.copy()
-        abundances_table = abundances_table.sort_values("Z-score", ascending=False)
-        occurrence = abundances_table["Z-score"].count()
-        abundances_table["Rank"] = list(range(1, occurrence + 1)) + ["n.d."] * (
-            len(abundances_table.index) - occurrence
-        )
-        abundances_table["Occurrence"] = occurrence
+        abundances_table["Occurrence"] = abundances_table["Rank"].max()
         return abundances_table
     except:
         return df
@@ -216,11 +220,13 @@ def get_density_calc_protein(
     intensity_unit: utils.IntensityUnit,
 ):
     samples_annotation_df = cohorts_db.get_sample_annotation_df(cohort_index)
-    samples_list = samples_annotation_df['Sample name'].unique().tolist()
+    samples_list = samples_annotation_df["Sample name"].unique().tolist()
     temp_df = cohorts_db.get_protein_abundance_df(
         cohort_index, intensity_unit=intensity_unit
     )
-    count_df_protein = utils.count_df_to_density_plot_df(temp_df, identifier,samples_list)
+    count_df_protein = utils.count_df_to_density_plot_df(
+        temp_df, identifier, samples_list
+    )
     return utils.df_to_json(count_df_protein)
 
 
@@ -277,14 +283,19 @@ def get_abundance(
     patients_df = cohorts_db.get_patient_metadata_df(cohort_index)
     sample_annotation_df = cohorts_db.get_sample_annotation_df(cohort_index)
     abundances_table = get_expression_data_per_analyte(
-        abundances, patients_df, sample_annotation_df, imputation_mode,
+        abundances,
+        patients_df,
+        sample_annotation_df,
+        imputation_mode,
     )
 
-    # adding confidence score at FP level
+    # adding num_pep and confidence score at FP level
     if level == utils.DataType.FULL_PROTEOME:
-        intensity_df_fp_meta = cohorts_db.get_num_pep_fp(cohort_index, identifier)
-        abundances_table = merge_data_with_num_pep(
-            abundances_table, intensity_df_fp_meta, identifier, settings.REGEX_META
+        abundances_table["num_pep"] = (
+            abundances_table["Identification metadata"]
+            .str.extract(settings.NUM_PEPTIDES_REGEX)
+            .fillna(0)
+            .astype(int)
         )
         abundances_table = utils.calculate_confidence_score(abundances_table)
 
@@ -308,35 +319,41 @@ def get_abundance(
         # adding onkoKB annotations
         try:
             abundances_table = genomics_prep._merge_onkokb_annotation(
-                cohorts_db,
-                abundances_table,
-                identifier
+                cohorts_db, abundances_table, identifier
             )
         except:
             pass
 
     # filtering the columns with the settings options
     abundances_table = abundances_table[
-        utils.intersection(settings.EXPRESSION_TAB_DATA, abundances_table.columns.tolist())
+        utils.intersection(
+            settings.EXPRESSION_TAB_DATA, abundances_table.columns.tolist()
+        )
     ]
     abundances_table["index"] = abundances_table.index
     return utils.df_to_json(abundances_table)
 
 
 def get_batches_proteins_as_json(
-    cohorts_db: data_api.CohortDataAPI, cohort_index, pp_fp, batchlists
+    cohorts_db: data_api.CohortDataAPI,
+    cohort_index: int,
+    level: utils.DataType,
+    batchlists,
 ):
-    sample_annotation = cohorts_db.get_sample_annotation_df(cohort_index)
-    if pp_fp == utils.DataType.FP:
+    if level == utils.DataType.FULL_PROTEOME:
         df = cohorts_db.get_protein_abundance_df(
             cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
         )
-    else:
+    elif level == utils.DataType.PHOSPHO_PROTEOME:
         df = cohorts_db.get_psite_abundance_df(
             cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
         )
-    samples_list = sample_annotation['Sample name'].unique().tolist()
-    sample_names = utils.intersection(samples_list,df.columns)
+    else:
+        raise ValueError(f"Cannot compute protein overlap for data type {level.value}")
+
+    sample_annotation = cohorts_db.get_sample_annotation_df(cohort_index)
+    samples_list = sample_annotation["Sample name"].unique().tolist()
+    sample_names = utils.intersection(samples_list, df.columns)
     df = df[sample_names]
     list_batches = batchlists.split(";")
     df_list = []
@@ -348,21 +365,24 @@ def get_batches_proteins_as_json(
 
 
 def get_patients_proteins_as_json(
-    cohorts_db: data_api.CohortDataAPI, cohort_index, pp_fp, patientslists
+    cohorts_db: data_api.CohortDataAPI,
+    cohort_index: int,
+    level: utils.DataType,
+    patientslists,
 ):
-    # TODO: replace with utils.DataType
-    if pp_fp == utils.DataType.FP:
+    if level == utils.DataType.FULL_PROTEOME:
         df = cohorts_db.get_protein_abundance_df(
             cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
         )
-    else:
+    elif level == utils.DataType.PHOSPHO_PROTEOME:
         df = cohorts_db.get_psite_abundance_df(
             cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
         )
-
+    else:
+        raise ValueError(f"Cannot compute protein overlap for data type {level.value}")
     sample_annotation = cohorts_db.get_sample_annotation_df(cohort_index)
-    samples_list = sample_annotation['Sample name'].unique().tolist()
-    sample_names = utils.intersection(samples_list,df.columns)
+    samples_list = sample_annotation["Sample name"].unique().tolist()
+    sample_names = utils.intersection(samples_list, df.columns)
     df = df[sample_names]
     list_patients = patientslists.split(";")
     df_list = []
@@ -391,44 +411,56 @@ def get_list_by_selected_modality_per_cohort(
 
 
 def identifications_across_all_patients(
-    cohorts_db: data_api.CohortDataAPI, fp_pp: str, cohort_index: int
+    cohorts_db: data_api.CohortDataAPI, cohort_index: int, level: utils.DataType
 ):
-    # TODO: replace with utils.DataType
-    if fp_pp == "fp":
+    if level == utils.DataType.FULL_PROTEOME:
         df = cohorts_db.get_protein_abundance_df(
             cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
         )
         nan_count = pd.DataFrame(df.notna().sum())
-    elif fp_pp == "pp":
+    elif level == utils.DataType.PHOSPHO_PROTEOME:
         df = cohorts_db.get_psite_abundance_df(
             cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
         )
         nan_count = pd.DataFrame(df.notna().sum())
-    else:
-        df = cohorts_db.get_num_pep_fp(cohort_index).copy()
-        df.columns = df.columns.str.replace("Identification metadata ", "", regex=True)
+    elif level == utils.DataType.FULL_PROTEOME_NUM_PEPTIDES:
+        df = cohorts_db.get_protein_abundance_df(
+            cohort_index, intensity_unit=utils.IntensityUnit.IDENTIFICATION_METADATA
+        )
+        df = df.apply(
+            lambda col: col.str.extract(settings.NUM_PEPTIDES_REGEX)[0]
+            .fillna(0)
+            .astype(int)
+        )
         nan_count = pd.DataFrame(df.sum())
+    else:
+        raise ValueError(
+            f"Cannot compute peptide/protein counts for data type {level.value}"
+        )
     nan_count.columns = ["identified"]
     nan_count["patients"] = df.columns
     return nan_count
 
 
 def sum_intensities_across_all_patients(
-    cohorts_db: data_api.CohortDataAPI, cohort_index: int, dtype = 'pp'
+    cohorts_db: data_api.CohortDataAPI, cohort_index: int, level: utils.DataType
 ):
     """
     Getting the sum of intensities accross all patients for the PP for the Patient centric tab
     """
-    if dtype == 'pp':
+    if level == utils.DataType.FULL_PROTEOME:
         df = cohorts_db.get_psite_abundance_df(
-        cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
-    )
-    else:
+            cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
+        )
+    elif level == utils.DataType.PHOSPHO_PROTEOME:
         df = cohorts_db.get_protein_abundance_df(
-        cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
-    )
+            cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
+        )
+    else:
+        raise ValueError(
+            f"Cannot compute summed intensities for data type {level.value}"
+        )
 
-    print(df)
     sum_intensities = pd.DataFrame(df.sum())
     sum_intensities.columns = ["sumIntensities"]
     sum_intensities["patients"] = df.columns
@@ -440,102 +472,7 @@ def get_reports_per_patient(
     cohort_index: int,
     patient: str,
     level: utils.DataType,
-    download_method: str = "onfly",
 ):
-    read_from_the_report_dir = download_method == "fromreport"
-    if not read_from_the_report_dir:
-        final_df = _get_reports_per_patient_on_the_fly(
-            cohorts_db, level, cohort_index, patient
-        )
-    else:
-        final_df = _get_reports_per_patient_from_the_reports_folder(
-            cohorts_db, level, cohort_index, patient
-        )
-
-    return final_df
-
-
-def _get_reports_per_patient_from_the_reports_folder(
-    cohorts_db: data_api.CohortDataAPI,
-    level: utils.DataType,
-    cohort_index: int,
-    patient: str,
-):
-    reports_dir = cohorts_db.get_report_dir(cohort_index)
-    path_to_patient_results = (
-        reports_dir + "/Reports/" + patient + "_proteomics_results.xlsx"
+    return patient_report.get_reports_per_patient(
+        cohorts_db, level, cohort_index, patient
     )
-    sheetname = _get_sheetname_from_level(level)
-    df = pd.read_excel(path_to_patient_results, sheet_name=sheetname)
-    df = df.fillna("n.d")
-    return df
-
-
-def _get_sheetname_from_level(level: utils.DataType):
-    if level == utils.DataType.PHOSPHO_PROTEOME:
-        return "Phospho proteome"
-    elif level == utils.DataType.FULL_PROTEOME:
-        return "Global proteome"
-    elif level == utils.DataType.TOPAS_SCORE:
-        return "Topas"
-    elif level == utils.DataType.PHOSPHO_SCORE:
-        return "Protein phosphorylation"
-    elif level == utils.DataType.KINASE_SCORE:
-        return "Kinase"
-    elif level == utils.DataType.TOPAS_SUBSCORE:
-        return "sutopas"
-    elif level == utils.DataType.BIOMARKER:
-        return "Biomarkers"
-
-
-def _get_reports_per_patient_on_the_fly(
-    cohorts_db: data_api.CohortDataAPI, level, cohort_index, patient
-):
-    final_df = pd.DataFrame()
-    if level == utils.DataType.PHOSPHO_PROTEOME:
-        patient_column = patient + " Z-score"
-        sub_df = cohorts_db.get_psite_abundance_df(
-            cohort_index, patient_name=patient_column,
-        )
-        sub_df = sub_df.dropna()
-        final_df = ps.phospho_annot(sub_df)
-
-    elif level == utils.DataType.FULL_PROTEOME:
-        patient_column = patient + " Z-score"
-        sub_df = cohorts_db.get_protein_abundance_df(
-            cohort_index, patient_name=patient_column,
-        )
-        sub_df["Gene names"] = sub_df.index
-        final_df = sub_df.dropna()
-
-    elif level == utils.DataType.TOPAS_SCORE:
-        sub_df = cohorts_db.get_topas_scores_df(
-            cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
-        )
-        sub_df = topas_loader.get_topas_scores_long_format(sub_df)
-        sub_df = sub_df[sub_df["Sample name"] == patient]
-        final_df = sub_df[["Topas_id", "Z-score"]]
-        final_df = final_df.dropna()
-
-    elif level == utils.DataType.KINASE_SCORE:
-        sub_df = cohorts_db.get_kinase_scores_df(
-            cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
-        )
-        sub_df["Kinase_names"] = sub_df.index
-        final_df = sub_df[["Kinase_names", patient]]
-        final_df = final_df.dropna()
-
-    elif level == utils.DataType.PHOSPHO_SCORE:
-        sub_df = cohorts_db.get_phosphorylation_scores_df(
-            cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
-        )
-        sub_df["Gene names"] = sub_df.index
-        final_df = sub_df[["Gene names", patient]]
-        final_df = final_df.dropna()
-
-    elif level == utils.DataType.TRANSCRIPTOMICS:
-        sub_df = cohorts_db.get_fpkm_df(intensity_unit=utils.IntensityUnit.Z_SCORE)
-        sub_df["Gene names"] = sub_df.index
-        final_df = sub_df[["Gene names", patient]]
-
-    return final_df

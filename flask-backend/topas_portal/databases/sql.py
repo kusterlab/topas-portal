@@ -32,6 +32,7 @@ class SQLProvider:
     def __init__(self, logger: CohortLogger):
         self.logger = logger
         self.topas_complete_df = None
+        self.poi_annotation_df = None
         self.FPKM = None
         self.genomics_data = None
         self.oncoKB_data = None
@@ -78,6 +79,15 @@ class SQLProvider:
             basket_annotation_path
         )
         self.logger.log_message("Topas tables loaded")
+    
+    def _load_poi_annotations(self, config: Dict):
+        """The protein of interest (POI) table is independent of cohorts and will be treated as a single global variable separately"""
+        self.logger.log_message("Loading POI annotation table")
+        poi_annotation_path = Path(config["poi_annotation_path"])
+        self.poi_annotation_df = topas_loader.load_poi_annotation_df(
+            poi_annotation_path
+        )
+        self.logger.log_message("POI annotation tables loaded")
 
     def _load_FPKM(self, config: Dict):
         """FPKM table is independent of cohorts and will be treated as a single global variable separately"""
@@ -205,11 +215,11 @@ class SQLProvider:
     ):
         """For importing the topas scores to cohortsDB"""
         cohort_report_dir = config.get_report_directory(cohort_index)
-        key = settings.TOPAS_Z_SCORES_FILE
+        key = settings.TOPAS_RTK_Z_SCORES_FILE
         if data_type == "topasscoresraw":
-            key = settings.TOPAS_SCORES_FILE
+            key = settings.TOPAS_RTK_SCORES_FILE
         else:
-            key = settings.TOPAS_Z_SCORES_FILE
+            key = settings.TOPAS_RTK_Z_SCORES_FILE
         topas_df = topas_loader.load_topas_scores_df(
             Path(os.path.join(cohort_report_dir, key))
         )

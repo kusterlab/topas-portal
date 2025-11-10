@@ -5,6 +5,7 @@ export const DataType = Object.freeze({
   FULL_PROTEOME_ANNOTATED: 'protein_annotated',
   PHOSPHO_PROTEOME: 'psite',
   PHOSPHO_PROTEOME_ANNOTATED: 'psite_annotated',
+  FULL_PROTEOME_NUM_PEPTIDES: 'num_peptides',
   PHOSPHO_SCORE: 'phospho_score',
   PHOSPHO_SCORE_PSITE: 'phospho_psite',
   KINASE_SCORE: 'kinase',
@@ -15,11 +16,12 @@ export const DataType = Object.freeze({
   TOPAS_PHOSPHO_SCORE: 'topas_phospho',
   TOPAS_PHOSPHO_SCORE_PSITE: 'topas_phospho_psite',
   TOPAS_PROTEIN: 'topas_expression',
-  TOPAS_SCORE: 'topas',
-  TOPAS_SCORE_RTK: 'topas_rtk',
+  TOPAS_RTK_SCORE: 'topas_rtk',
+  TOPAS_CK_SCORE: 'topas_ck',
   TRANSCRIPTOMICS: 'fpkm',
   TOPAS_SUBSCORE: 'topas_subscore',
   BIOMARKER: 'biomarker',
+  REPORT_SUMMARY: 'report_summary',
   FP_PP: 'FP_PP'
 })
 

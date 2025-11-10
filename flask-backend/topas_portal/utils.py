@@ -16,10 +16,9 @@ from topas_portal.config_reader import *
 
 # remember to update the corresponding constant in vue-frontend/src/constants.js
 class DataType(str, Enum):
-    FP = "fp"
-    PP = "pp"
     FULL_PROTEOME = "protein"
     FULL_PROTEOME_ANNOTATED = "protein_annotated"
+    FULL_PROTEOME_NUM_PEPTIDES = "num_peptides"
     PHOSPHO_PROTEOME = "psite"
     FP_PP = "FP_PP"
     PHOSPHO_PROTEOME_ANNOTATED = "psite_annotated"
@@ -35,14 +34,17 @@ class DataType(str, Enum):
         "topas_phospho_psite"  # p-sites making up a phosphoprotein score
     )
     TOPAS_PROTEIN = "topas_expression"
-    TOPAS_SCORE = "topas"
-    TOPAS_SCORE_RTK = "topas_rtk"
-    TRANSCRIPTOMICS = "fpkm"
+    TOPAS_RTK_SCORE = "topas_rtk"
+    TOPAS_CK_SCORE = "topas_ck"
     TOPAS_SUBSCORE = "topas_subscore"
     BIOMARKER = "biomarker"
+    REPORT_SUMMARY = "report_summary"
 
     PATIENT_METADATA = "patients_df"
     SAMPLE_ANNOTATION = "sample_annotation_df"
+
+    TRANSCRIPTOMICS = "fpkm"
+    GENOMICS = "genomics"
 
 
 class ColumnNames(str, Enum):
@@ -68,13 +70,19 @@ def get_selection_list_data_type(level: DataType):
 class IntensityUnit(str, Enum):
     INTENSITY = "intensity"
     Z_SCORE = "z_scored"
+    FOLD_CHANGE = "fc"
+    RANK = "rank"
     SCORE = "score"
+    IDENTIFICATION_METADATA = "identification_metadata"
 
 
 INTENSITY_UNIT_SUFFIXES = {
     IntensityUnit.INTENSITY: " Intensity",
     IntensityUnit.Z_SCORE: " Z-score",
+    IntensityUnit.FOLD_CHANGE: " FC",
+    IntensityUnit.RANK: " Rank",
     IntensityUnit.SCORE: " Score",
+    IntensityUnit.IDENTIFICATION_METADATA: " Identification metadata",
 }
 
 
@@ -84,7 +92,15 @@ class ImputationMode(str, Enum):
 
 
 def add_patient_prefix(patient_list: list[str]):
-    return [settings.PATIENT_PREFIX + x for x in patient_list]
+    return [
+        settings.PATIENT_PREFIX + x
+        for x in patient_list
+        if not x.startswith(settings.REF_CHANNEL_PREFIX)
+    ] + [x for x in patient_list if x.startswith(settings.REF_CHANNEL_PREFIX)]
+
+
+def add_identification_metadata_prefix(patient_list: list[str]):
+    return [settings.IDENTIFICATION_METADATA_PREFIX + x for x in patient_list]
 
 
 def remove_patient_prefix(df, from_col=True) -> pd.DataFrame:
@@ -217,6 +233,48 @@ def unnest_proteingroups(df: pd.DataFrame) -> pd.DataFrame:
     return temp_df
 
 
+def merge_by_delimited_field(
+    df: pd.DataFrame,
+    other_df: pd.DataFrame,
+    field_name: str,
+    delimiter: str = ";",
+    agg_func=None,
+    inplace: bool = False,
+) -> pd.DataFrame:
+    """
+    Merges two dataframe by a field which contains a delimited field in the left dataframe
+    """
+    if not agg_func:
+        agg_func = lambda x: delimiter.join(x.dropna())
+
+    df_with_row_idx = df.assign(row_id=range(len(df)))
+    if field_name not in df.columns and field_name in df.index.names:
+        df_with_row_idx = df_with_row_idx.reset_index()
+
+    key_df = df_with_row_idx[[field_name, "row_id"]]
+    merged_df = (
+        key_df.assign(exploded_field=key_df[field_name].str.split(delimiter))
+        .explode("exploded_field")
+        .drop(columns=field_name)
+        .merge(other_df, left_on="exploded_field", right_on=field_name, how="left")
+        .drop(columns=[field_name, "exploded_field"])
+        .groupby("row_id")
+        .agg(agg_func)
+        .reset_index()
+    )
+    if inplace:
+        merged_df = df_with_row_idx[["row_id"]].merge(
+            merged_df, on="row_id", how="left"
+        )
+        merged_df = merged_df.drop(columns="row_id")
+        merged_df.index = df.index
+        df[merged_df.columns] = merged_df
+    else:
+        merged_df = df_with_row_idx.merge(merged_df, on="row_id", how="left")
+        merged_df = merged_df.drop(columns="row_id")
+        return merged_df
+
+
 def get_index_cols(data_type: str) -> List[str]:
     index_cols = ["Gene names"]
     if data_type == "pp":
@@ -230,7 +288,6 @@ def calculate_confidence_score(df: pd.DataFrame) -> pd.DataFrame:
             df[["num_pep", "Z-score"]].copy().apply(pd.to_numeric, errors="coerce")
         )
         df_temp["confidence_score"] = df_temp["num_pep"] * df_temp["Z-score"]
-        df["confidence_score"] = df_temp["confidence_score"].fillna("n.d.")
         return df
     except:
         print("some thing wrong with confidence scoring")
@@ -287,10 +344,14 @@ def merge_with_patients_meta_df(scores_df: pd.DataFrame, patients_df: pd.DataFra
             "Sample name"
         ].str.replace(r"-R[0-9]$", "", regex=True)
         new_patients_df = new_patients_df.rename(columns={"Sample name": "patient_id"})
-        new_patients_df["patient_id"] = new_patients_df["patient_id"].str.replace(r"-R[0-9]$", "", regex=True)
+        new_patients_df["patient_id"] = new_patients_df["patient_id"].str.replace(
+            r"-R[0-9]$", "", regex=True
+        )
         scores_table = scores_table.dropna(subset=["Sample_name_rep_truncated"])
         new_patients_df = new_patients_df.dropna(subset=["patient_id"])
-        new_patients_df = new_patients_df.drop_duplicates(subset=["patient_id"],keep="first")
+        new_patients_df = new_patients_df.drop_duplicates(
+            subset=["patient_id"], keep="first"
+        )
         if len(scores_table) > 0 and len(new_patients_df) > 0:
             merged_table = scores_table.merge(
                 new_patients_df,
@@ -365,12 +426,17 @@ def check_all_config_file(configs):
         return {}
 
 
-def df_to_json(df):
+def df_to_json(df: pd.DataFrame):
     """
     Makes flask JSON response from a dataframe
     """
     return Response(
-        json.dumps(df.to_dict(orient="records")), mimetype="application/json"
+        json.dumps(
+            df.fillna("n.d.")
+            .replace({np.inf: "inf", -np.inf: "-inf"})
+            .to_dict(orient="records")
+        ),
+        mimetype="application/json",
     )
 
 
@@ -441,7 +507,7 @@ def calculate_z_scores(df: pd.DataFrame, col_name="sum"):
         return z_scores
     except Exception as err:
         print(f"Unexpected {err=}, {type(err)=}")
-        return ["n.d."]*len(df.index)
+        return ["n.d."] * len(df.index)
 
 
 def whitespace_remover(df: pd.DataFrame) -> pd.DataFrame:

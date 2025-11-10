@@ -16,10 +16,11 @@ export CONFIG_FILE_PATH=<path to your portal config file>
 The `DB_PASSWORD` you can choose yourself and is needed to login to the admin tools panel in the portal.
 
 The `CONFIG_FILE_PATH` is a `json` file with the following format:
-```
+```json
 {
     "local_http": "http://localhost:3832",
     "basket_annotation_path": "TOPAS_SCORING_4th gen_5th gen 231212.xlsx",
+    "poi_annotation_path": "POI_annotations_231212.xlsx",
     "drug_annotation_path": "Drug_List.xlsx",
     "patient_annotation_path": {
         "INFORM": "METADATA.xlsx"

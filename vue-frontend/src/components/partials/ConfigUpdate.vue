@@ -246,10 +246,15 @@ export default {
       })
       this.showUpdateCohorts = false
       let response = ''
+      const token = localStorage.getItem('access_token')
       try {
         if (allCohorts) {
           response = await axios.get(`${process.env.VUE_APP_API_HOST}/drugs/load`)
-          response = await axios.get(api.RELOAD())
+          response = await axios.get(api.RELOAD(), {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          })
           this.showUpdateCohorts = true
           this.addNotification({
             color: 'info',
@@ -257,7 +262,12 @@ export default {
           })
         } else {
           const cohort = this.updateMode ? this.cohortName : this.cohortName
-          response = await axios.get(api.RELOAD_COHORT({ cohort }))
+          response = await axios.get(api.RELOAD_COHORT({ cohort }), {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+          )
           this.addNotification({
             color: 'info',
             message: `${response.data}`
@@ -291,9 +301,17 @@ export default {
       this.generalUpdatePath('report_directory', this.reportDir)
     },
     async generalUpdatePath (key, annotation) {
+      const token = localStorage.getItem('access_token')
+      if (!token) {
+        this.isLoggedIn = false
+        return
+      }
+
       const cohortName = this.updateMode ? this.cohortName : this.cohortName
       const pathValue = annotation.replace(/[/]/g, 'topas_slash')
-      const pathCheck = await axios.get(api.PATH_CHECK({ path: pathValue }))
+      const pathCheck = await axios.get(api.PATH_CHECK({ path: pathValue }), {
+        headers: { Authorization: `Bearer ${token}` }
+      })
       if (pathCheck.data === 'True') {
         await axios.get(api.CONFIG_UPDATE({ key, cohort: cohortName, value: pathValue }))
         this.addNotification({

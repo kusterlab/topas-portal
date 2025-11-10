@@ -169,7 +169,7 @@ export default {
       link.click()
     },
     downloadReports: function () {
-      const patientIdentifiers = this.dataGrid.getSelectedRowsData().map(item => 'pat_' + item['Sample name'])
+      const patientIdentifiers = this.dataGrid.getSelectedRowsData().map(item => item['Sample name'])
       let outputFilename = ''
       if (patientIdentifiers.length === 0) {
         this.addNotification({
