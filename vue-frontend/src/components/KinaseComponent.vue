@@ -69,6 +69,7 @@
                 <kinasescore-table
                   :data-source="url"
                   @onRowSelect="updateSelectedRows"
+                  @table-ready="loadSwarmplot"
                 />
               </v-col>
               <v-col
@@ -149,10 +150,14 @@ export default {
       })
       this.selectedData = selectedData
     },
-    async react () {
+    react () {
+      this.loading = true
       const query = api.ABUNDANCE({ cohort_index: this.cohortIndex, level: DataType.KINASE_SCORE, identifier: this.activeKinases, imputation: 'noimpute', include_ref: IncludeRef.EXCLUDE_REF })
       this.url = query
-      const singleSwarm = await axios.get(query)
+    },
+    async loadSwarmplot ({ dataSource }) {
+      const singleSwarm = await axios.get(dataSource)
+      this.loading = false
       this.swarmShow = true
       this.singleswarmData = singleSwarm.data
     }

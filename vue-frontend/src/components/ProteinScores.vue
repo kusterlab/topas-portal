@@ -70,6 +70,7 @@
                 <proteinscore-table
                   :data-source="url"
                   @onRowSelect="updateSelectedRows"
+                  @table-ready="loadSwarmplot"
                 />
               </v-col>
               <v-col
@@ -190,13 +191,15 @@ export default {
         this.getProteindata(this.proteinidentifier)
       }
     },
-    async getProteindata (key) {
+    getProteindata (key) {
       this.loading = true
       this.patientidentifier = ''
       this.plotData = []
       const query = api.ABUNDANCE({ cohort_index: this.cohortIndex, level: DataType.PHOSPHO_SCORE, identifier: key, imputation: 'noimpute', include_ref: IncludeRef.EXCLUDE_REF })
       this.url = query
-      const response = await axios.get(query)
+    },
+    async loadSwarmplot ({ dataSource }) {
+      const response = await axios.get(dataSource)
       this.swarmShow = true
       this.plotData = response.data
       this.loading = false
