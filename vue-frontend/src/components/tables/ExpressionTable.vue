@@ -173,7 +173,8 @@ export default {
       }, {
         dataField: 'genomics_annotations',
         dataType: 'string',
-        width: '120'
+        width: '120',
+        visible: false
       }, {
         dataField: 'snv',
         dataType: 'string',

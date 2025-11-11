@@ -92,7 +92,7 @@
                 >
                   <v-responsive>
                     <swarm-plot
-                      v-if="topasName"
+                      v-show="topasName"
                       :swarm-data="swarmPlotData"
                       :swarm-sel-ids="swarmSelIds"
                       swarm-id="singleTopas"
@@ -211,6 +211,8 @@ export default {
     },
     updateCohort ({ dataSource, cohortIndex }) {
       this.cohortIndex = cohortIndex
+    },
+    loadSwarmplot () {
     },
     async getTopasData () {
       if (this.topasName.length === 0) return

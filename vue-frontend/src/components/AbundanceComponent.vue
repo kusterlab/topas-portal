@@ -29,7 +29,6 @@
               label="Input type"
               hide-details
               class="mt-4"
-              @change="updateId"
             >
               <v-radio
                 v-for="(label, value) in radioOptions"
@@ -43,7 +42,6 @@
               label="Swarmplot intensity unit"
               hide-details
               class="mt-4"
-              @change="updateId"
             >
               <v-radio
                 label="Z-score"
@@ -162,7 +160,7 @@
                       Render Selected samples
                     </v-btn>
                     <swarm-plot
-                      v-if="swarmPlotData.length>0"
+                      v-show="swarmPlotData.length>0"
                       :swarm-data="swarmPlotData"
                       swarm-id="singleGene"
                       :swarm-sel-ids="swarmSelIds"
@@ -170,7 +168,7 @@
                       :swarm-title-prefix="swarmPrefix"
                       field-name="Sample name"
                       :draw-box-plot="true"
-                      :field-values="swarmField"
+                      :field-values="intensityUnit"
                       @onDotClick="selectDot"
                     />
                   </v-responsive>
@@ -179,6 +177,7 @@
             </v-row>
             <v-row class="mt-4">
               <v-col
+                v-if="numPep.length > 0"
                 sm="12"
                 md="4"
               >
@@ -221,6 +220,7 @@
                 />
               </v-col>
               <v-col
+                v-if="confidenceScore.length > 0"
                 sm="12"
                 md="4"
               >
@@ -287,9 +287,9 @@ export default {
     includeRefChannels: false,
     showOncokbcnv: false,
     radioOptions: {
-      protein: 'Protein',
-      psite: 'Phosphopeptide',
-      fpkm: 'mRNA (FPKM)'
+      [DataType.FULL_PROTEOME]: 'Protein',
+      [DataType.PHOSPHO_PROTEOME]: 'Phosphopeptide',
+      [DataType.TRANSCRIPTOMICS]: 'mRNA (FPKM)'
     },
     intensityUnit: 'Z-score',
     selectedDotsInPlot: '',
@@ -303,7 +303,6 @@ export default {
     selectedLinesConfidence: [],
     selectedLinesnumPep: [],
     selectedData: [],
-    swarmField: '',
     loading: false
   }),
   computed: {
@@ -318,10 +317,11 @@ export default {
       return this.intensityUnit === 'Z-score' ? -4 : 5
     },
     numPep () {
-      return this.swarmPlotData.map(d => d.num_pep)
+      const numPepData = this.swarmPlotData.filter(d => d.num_pep !== 'n.d.' && d.num_pep !== undefined)
+      return numPepData.map(d => d.num_pep)
     },
     confidenceScore () {
-      const confData = this.swarmPlotData.filter(d => d.confidence_score !== 'n.d.')
+      const confData = this.swarmPlotData.filter(d => d.confidence_score !== 'n.d.' && d.confidence_score !== undefined)
       return confData.map(d => d.confidence_score)
     },
     identifierLabel () {
@@ -351,6 +351,16 @@ export default {
     },
     includeRefChannels: function () {
       this.updateId()
+    },
+    mode: function (newMode, oldMode) {
+      this.zScoreHistogramData = []
+      this.swarmPlotData = []
+      this.swarmSelIds = []
+      if (newMode === DataType.PHOSPHO_PROTEOME || oldMode === DataType.PHOSPHO_PROTEOME) {
+        this.identifier = ''
+      } else {
+        this.updateId()
+      }
     }
   },
   mounted () {
@@ -389,8 +399,9 @@ export default {
       this.zScoreHistogramData = query
     },
     async loadSwarmplot ({ dataSource }) {
+      if (dataSource.length === 0) return
+
       const response = await axios.get(dataSource)
-      this.swarmField = this.intensityUnit
       this.swarmPlotData = response.data
       this.loading = false
     },
@@ -427,7 +438,6 @@ export default {
       this.cnvDescription = `${amplification}\n${deletion}`
     },
     plotSelectedRows () {
-      this.swarmField = this.intensityUnit
       this.swarmPlotData = this.selectedData
     },
 

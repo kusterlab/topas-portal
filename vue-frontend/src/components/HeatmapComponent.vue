@@ -171,7 +171,7 @@ export default {
         value: DataType.KINASE_SCORE
       },
       {
-        text: 'Substrate Phosphrylation scores',
+        text: 'Substrate Phosphorylation scores',
         value: DataType.KINASE_SUBSTRATE
       },
       {
