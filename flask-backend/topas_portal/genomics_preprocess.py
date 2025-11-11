@@ -76,11 +76,14 @@ def get_all_snv_per_NGS(
 
 
 def add_onkokb_annotation(
-    df, genomics_df, gene_name, onkokb_dic, column_name="fusion_onkoKB"
+    df: pd.DataFrame,
+    genomics_df: pd.DataFrame,
+    gene_name: str,
+    onkokb_dic: dict,
+    column_name="fusion_onkoKB",
 ):
     try:
-
-        sub_df = genomics_df[["Sample name", gene_name]]
+        sub_df = genomics_df[["Sample name", gene_name]].copy()
 
         if column_name == "fusion_onkoKB":
             sub_df[column_name] = sub_df[gene_name].apply(
