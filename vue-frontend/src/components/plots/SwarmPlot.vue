@@ -152,6 +152,9 @@ export default {
       this.initSwarm()
       this.disposeLabels()
     },
+    fieldValues: function () {
+      this.initSwarm()
+    },
     drawBoxPlot: function () {
       this.reDrawPlot()
     }
@@ -458,12 +461,15 @@ export default {
     },
 
     initSwarm: function () {
-      const pltobj = this.initaxes(this.width, this.height, this.margin, this.swarmData, this.fieldValues)
-      this.boxPlot(this.swarmData, this.fieldValues, this.width, pltobj.yScale, this.margin, pltobj.svg) // draw boxplot
+      if (this.swarmData.length === 0) return
+
+      const swarmDataFiltered = this.swarmData.filter(d => typeof d[this.fieldValues] === 'number')
+      const pltobj = this.initaxes(this.width, this.height, this.margin, swarmDataFiltered, this.fieldValues)
+      this.boxPlot(swarmDataFiltered, this.fieldValues, this.width, pltobj.yScale, this.margin, pltobj.svg) // draw boxplot
       const plotObject = this.prepFunc(pltobj.svg, this.margin, pltobj.yScale)
       const tooltip = plotObject.tooltip
       const xLine = plotObject.xLine
-      this.simulationSwarm(this.swarmData, this.width, pltobj.svg, this.fieldValues, pltobj.yScale, this.fieldName) // 1st simulation of the data on the plot
+      this.simulationSwarm(swarmDataFiltered, this.width, pltobj.svg, this.fieldValues, pltobj.yScale, this.fieldName) // 1st simulation of the data on the plot
       this.mouseHover(pltobj, this.fieldName, this.fieldValues, tooltip, xLine) // at mouse hover
     }
   }

@@ -88,7 +88,7 @@
                       :swarm-data="singleswarmData"
                       swarm-id="kinasescore"
                       :swarm-sel-ids="plotSelIds"
-                      :swarm-title="activeKinases"
+                      :swarm-title="activeKinase"
                       swarm-title-prefix="kinase_scores"
                       field-name="Sample name"
                       :draw-box-plot="true"
@@ -131,7 +131,7 @@ export default {
     url: '',
     plotSelIds: [],
     loading: false,
-    activeKinases: []
+    activeKinase: ''
   }),
   computed: {
   },
@@ -140,8 +140,9 @@ export default {
       this.cohortIndex = cohortIndex
     },
     updateKinase ({ dataSource, identifier }) {
-      this.activeKinases = identifier
-      this.react()
+      this.activeKinase = identifier
+      this.loading = true
+      this.url = api.ABUNDANCE({ cohort_index: this.cohortIndex, level: DataType.KINASE_SCORE, identifier: this.activeKinase, imputation: 'noimpute', include_ref: IncludeRef.EXCLUDE_REF })
     },
     updateSelectedRows (selectedIds, selectedData) {
       this.plotSelIds = []
@@ -150,12 +151,9 @@ export default {
       })
       this.selectedData = selectedData
     },
-    react () {
-      this.loading = true
-      const query = api.ABUNDANCE({ cohort_index: this.cohortIndex, level: DataType.KINASE_SCORE, identifier: this.activeKinases, imputation: 'noimpute', include_ref: IncludeRef.EXCLUDE_REF })
-      this.url = query
-    },
     async loadSwarmplot ({ dataSource }) {
+      if (dataSource.length === 0) return
+
       const singleSwarm = await axios.get(dataSource)
       this.loading = false
       this.swarmShow = true

@@ -268,7 +268,7 @@ def merge_by_delimited_field(
         )
         merged_df = merged_df.drop(columns="row_id")
         merged_df.index = df.index
-        df[merged_df.columns] = merged_df
+        df.loc[:, merged_df.columns] = merged_df
     else:
         merged_df = df_with_row_idx.merge(merged_df, on="row_id", how="left")
         merged_df = merged_df.drop(columns="row_id")
@@ -287,7 +287,7 @@ def calculate_confidence_score(df: pd.DataFrame) -> pd.DataFrame:
         df_temp = (
             df[["num_pep", "Z-score"]].copy().apply(pd.to_numeric, errors="coerce")
         )
-        df_temp["confidence_score"] = df_temp["num_pep"] * df_temp["Z-score"]
+        df["confidence_score"] = df_temp["num_pep"] * df_temp["Z-score"]
         return df
     except:
         print("some thing wrong with confidence scoring")
