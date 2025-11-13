@@ -8,7 +8,7 @@ import topas_portal.utils as utils
 
 if TYPE_CHECKING:
     from topas_portal.databases.data_provider import DataProvider
-    from config import CohortConfig
+    from topas_portal.config import CohortConfig
     from logger import CohortLogger
 
 

@@ -3,7 +3,7 @@ import sys
 from topas_portal.data_api.sql import SQLCohortDataAPI
 from topas_portal.data_api.in_memory import InMemoryCohortDataAPI
 from topas_portal import settings
-from config import get_config_path
+from topas_portal.config import get_config_path
 
 
 debug = settings.DEBUG_MODE

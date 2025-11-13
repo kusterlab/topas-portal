@@ -5,7 +5,7 @@ from typing import Protocol, List, TYPE_CHECKING
 import pandas as pd
 
 if TYPE_CHECKING:
-    from config import CohortConfig
+    from topas_portal.config import CohortConfig
 
 
 class DataProvider(Protocol):

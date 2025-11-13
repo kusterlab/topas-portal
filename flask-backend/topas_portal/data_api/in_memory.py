@@ -6,7 +6,7 @@ import pandas as pd
 from topas_portal import settings
 from topas_portal import utils
 from topas_portal.databases.in_memory import InMemoryProvider
-from config import CohortConfig
+from topas_portal.config import CohortConfig
 from logger import CohortLogger
 from topas_portal.data_api.exceptions import IntensityUnitUnavailableError
 

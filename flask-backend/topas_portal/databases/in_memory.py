@@ -25,7 +25,7 @@ import topas_portal.file_loaders.digest_load as digest_load
 
 if TYPE_CHECKING:
     from logger import CohortLogger
-    from config import CohortConfig
+    from topas_portal.config import CohortConfig
 
 # in memory dataframes for each cohort
 DICT_ALL_DATA = {

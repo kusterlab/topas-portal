@@ -11,7 +11,6 @@ from datetime import datetime
 
 from topas_portal import settings
 import topas_portal.plotly_preprocess as plotlyprepare
-from topas_portal.config_reader import *
 
 
 # remember to update the corresponding constant in vue-frontend/src/constants.js
@@ -438,14 +437,6 @@ def df_to_json(df: pd.DataFrame):
         ),
         mimetype="application/json",
     )
-
-
-def get_cohort_names_from_config(config_path):
-    """
-    returns the list of cohorts in the config file
-    """
-    config = config_reader(config_path)
-    return list(config["patient_annotation_path"].keys())
 
 
 def intersection(lst1, lst2):

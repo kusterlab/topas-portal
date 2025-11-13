@@ -1,10 +1,26 @@
 import json
 
 from topas_portal import settings
-from topas_portal import utils
 
 # imports just for type hints
 from logger import CohortLogger
+
+
+def get_config_path():
+    config_path = settings.PORTAL_CONFIG_FILE
+    print(f"path to the config_file: {config_path}")
+    return config_path
+
+
+def load(config_path: str) -> dict:
+    with open(config_path, "r") as f:
+        config = json.load(f)
+    return config
+
+
+def write(config: dict, config_path: str) -> None:
+    with open(config_path, "w+") as config_file:
+        config_file.write(json.dumps(config, indent=4))
 
 
 class CohortConfig:
@@ -19,15 +35,15 @@ class CohortConfig:
         print(self.cohort_names)
 
     def get_cohort_names(self) -> list[str]:
-        self.config = utils.config_reader(self.config_path)
+        self.config = load(self.config_path)
         return list(self.config["report_directory"].keys())
 
     def get_cohort_index(self, cohort_name: str) -> int:
-        self.config = utils.config_reader(self.config_path)
+        self.config = load(self.config_path)
         return self.cohort_names.index(cohort_name)
 
     def get_cohort_index_from_report_directory(self, report_dir: str):
-        self.config = utils.config_reader(self.config_path)
+        self.config = load(self.config_path)
 
         # Iterate over the dictionary to find the key associated with the value
         for index, (key, value) in enumerate(self.config["report_directory"].items()):
@@ -51,31 +67,28 @@ class CohortConfig:
         return self.config.get("load_data_on_startup", False)
 
     def get_config(self):
-        self.config = utils.config_reader(self.config_path)
+        self.config = load(self.config_path)
         return self.config
 
     def add_new_cohort_placeholder(self, cohort_name: str):
-        config = utils.config_reader(self.config_path)
+        config = load(self.config_path)
         config["FP"][cohort_name] = 1
         config["PP"][cohort_name] = 1
         config["patient_annotation_path"][cohort_name] = "-"
         config["report_directory"][cohort_name] = "-"
         config["sample_annotation_path"][cohort_name] = "-"
-        with open(self.config_path, "w+") as jsonFile:
-            jsonFile.write(json.dumps(config, indent=4))
+        write(config, self.config_path)
+
         self.reload_config()
         self.logger.log_message(f"{cohort_name} added please update the config")
 
     def update_config_values(self, key: str, cohort_name: str, value: str):
         """Updates config.json on disk with newly submitted values."""
-        with open(self.config_path, "r") as jsonFile:
-            config = json.load(jsonFile)
+        config = load(self.config_path)
 
         new_value = value.replace("topas_slash", "/")
         config[key][cohort_name] = new_value
-
-        with open(self.config_path, "w+") as jsonFile:
-            jsonFile.write(json.dumps(config, indent=4))
+        write(config, self.config_path)
 
         self.reload_config()
         self.logger.log_message(
@@ -97,9 +110,3 @@ class CohortConfig:
 
     def get_drug_annotation_path(self) -> str:
         return self.config["drug_annotation_path"]
-
-
-def get_config_path():
-    config_path = settings.PORTAL_CONFIG_FILE
-    print(f"path to the config_file: {config_path}")
-    return config_path

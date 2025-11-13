@@ -22,7 +22,7 @@ import topas_portal.settings as settings
 
 if TYPE_CHECKING:
     from logger import CohortLogger
-    from config import CohortConfig
+    from topas_portal.config import CohortConfig
 
 if settings.DATABASE_MODE:
     import models

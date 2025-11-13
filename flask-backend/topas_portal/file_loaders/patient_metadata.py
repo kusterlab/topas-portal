@@ -4,7 +4,7 @@ from topas_portal import utils
 from topas_portal import settings
 
 
-@utils.check_path_exist
+# @utils.check_path_exist
 def load_patient_table(patient_annotation_path):
     """Patients meta data"""
     patients_df = pd.read_excel(patient_annotation_path)
