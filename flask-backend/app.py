@@ -232,7 +232,7 @@ def get_patient_reports_as_attachment(cohort_index: int, patients: str):
     def get_patient_report_path(patient_identifier: str):
         return reports_dir / f"{patient_identifier}_proteomics_results.xlsx"
 
-    patients = patients.split(";")
+    patients = patients.split(",")
     for patient in patients:
         path_to_patient_results = get_patient_report_path(patient)
         patient_report_excel.generate_patient_report(

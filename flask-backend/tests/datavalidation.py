@@ -8,7 +8,7 @@ import pandas as pd
 from topas_portal import settings
 from topas_portal import utils
 from topas_portal import config
-import topas_portal.databases.in_memory as cl
+from topas_portal.databases import table_loaders
 
 
 def check_portal_main_config_exist(config_path):
@@ -23,7 +23,7 @@ def check_integretability_cohort(cohort):
 
     configs = config.load(settings.PORTAL_CONFIG_FILE)
     try:
-        all_data = cl._load_all_tables(cohort, configs)
+        all_data = table_loaders.load_all_tables(cohort, configs)
         if len(all_data[utils.DataType.PATIENT_METADATA].columns) > 0 & set(
             all_data[utils.DataType.PATIENT_METADATA].columns
         ).issubset(settings.PATIENTS_META_DATA):
