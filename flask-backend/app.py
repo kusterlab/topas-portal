@@ -94,7 +94,6 @@ with app.app_context():
     from compartments.drug_app import drug_page
 
     # from compartments.drugscore_app import drugscore_page # under development
-    from compartments.proteinscore_app import proteinscore_page
     from compartments.kinasescores_app import kinasescore_page
     from compartments.integration_log import integration_page
     from compartments.entityscore_app import entityscore_page
@@ -110,7 +109,6 @@ with app.app_context():
 app.register_blueprint(config_page)
 app.register_blueprint(qc_page)
 # app.register_blueprint(drugscore_page) # under development
-app.register_blueprint(proteinscore_page)
 app.register_blueprint(kinasescore_page)
 app.register_blueprint(drug_page)
 app.register_blueprint(integration_page)
