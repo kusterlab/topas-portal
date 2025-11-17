@@ -325,7 +325,7 @@ export default {
       //  value: 'important_phosphorylation'
       // },
       {
-        text: 'Protein Poshphorylation scores',
+        text: 'Protein Phoshphorylation scores',
         value: DataType.PHOSPHO_SCORE
       },
       {
