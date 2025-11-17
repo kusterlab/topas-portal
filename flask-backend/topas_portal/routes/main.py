@@ -65,7 +65,7 @@ class ApiRoutes(ApiBase):
     TOPAS_EXPRESSION_RTK = (
         "/topas/lollipopdata/expression/<int:cohort_index>/<string:patient>/rtk"
     )
-    TOPAS_IDS = "/topas/<int:cohort_index>/topasids/<string:categories>"
+    TOPAS_IDS = "/topas/<int:cohort_index>/topasids"
     TOPAS_SUBSCORE = "/topas/subscore/<int:cohort_index>/<string:topasname>"
 
     SAMPLE_ANNOTATION = "/<int:cohort_index>/sampleanot"

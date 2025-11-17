@@ -604,9 +604,9 @@ def get_lollipopexpression_rtk(cohort_index: int, patient: str):
 
 @app.route(ApiRoutes.TOPAS_IDS)
 # http://localhost:3832/topas/0/topasids
-def topas_unique(cohort_index: int, categories: str):
+def topas_unique(cohort_index: int):
     return bp.get_topas_unique(
-        cohorts_db.get_topas_rtk_scores_df(cohort_index), categories
+        cohorts_db.get_topas_rtk_scores_df(cohort_index)
     )
 
 

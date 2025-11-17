@@ -94,7 +94,7 @@ def get_topas_subscore_data(
     return utils.df_to_json(topas_sub_df)
 
 
-def get_topas_unique(topas_df: pd.DataFrame, categories: str):
+def get_topas_unique(topas_df: pd.DataFrame):
     """
     Retrieves unique topas names for a cohort, optionally filtered by specified categories.
 
@@ -117,12 +117,6 @@ def get_topas_unique(topas_df: pd.DataFrame, categories: str):
 
     ids = topas_df.index.unique().tolist()
     ids.append("IFN_sig")
-    if categories != "all":
-        ids = [
-            topas_id
-            for topas_id in ids
-            if topas.TOPAS_CATEGORIES.get(topas_id, None) in categories.split(",")
-        ]
     ids = pd.DataFrame(ids, columns=["ids"])
     return utils.df_to_json(ids)
 
