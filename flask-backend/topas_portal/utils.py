@@ -71,6 +71,7 @@ class IntensityUnit(str, Enum):
     Z_SCORE = "z_scored"
     FOLD_CHANGE = "fc"
     RANK = "rank"
+    BATCH_RANK = "batchrank"
     SCORE = "score"
     IDENTIFICATION_METADATA = "identification_metadata"
 
@@ -80,6 +81,7 @@ INTENSITY_UNIT_SUFFIXES = {
     IntensityUnit.Z_SCORE: " Z-score",
     IntensityUnit.FOLD_CHANGE: " FC",
     IntensityUnit.RANK: " Rank",
+    IntensityUnit.BATCH_RANK: " BatchRank",
     IntensityUnit.SCORE: " Score",
     IntensityUnit.IDENTIFICATION_METADATA: " Identification metadata",
 }

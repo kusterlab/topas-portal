@@ -88,6 +88,7 @@ class InMemoryProvider:
         """
         self.logger.log_message(f"loading ############ {cohort_name}")
         cohort_data = table_loaders.load_all_tables(cohort_name, config.get_config())
+        self._add_within_batch_ranks(cohort_data)
         self._add_annotations(cohort_data)
         for data_layer in cohort_data.keys():
             data_layer_cohort_name = self.dict_all_data[data_layer][cohort_index][
@@ -160,12 +161,32 @@ class InMemoryProvider:
             utils.DataType.PHOSPHO_PROTEOME,
             utils.DataType.PHOSPHO_SCORE,
         ]:
-            self.logger.log_message(f"adding Protein of Interest (POI) annotations for {data_type.value}.") 
+            self.logger.log_message(
+                f"Adding Protein of Interest (POI) annotations for {data_type.value}."
+            )
             merge_with_poi_annotations_inplace(
                 cohort_data[data_type], self.poi_annotation_df
             )
         self.logger.log_message("Protein of Interest (POI) annotations added")
-        
+
+    def _add_within_batch_ranks(self, cohort_data: dict):
+        """Adds rank of sample within its own TMT batch based on its z-score.
+
+        Takes 1.5 minutes for 2000 samples and 200k p-sites.
+
+        Args:
+            cohort_data (dict): _description_
+        """        
+        for data_type in [
+            utils.DataType.FULL_PROTEOME,
+            utils.DataType.PHOSPHO_PROTEOME,
+            utils.DataType.PHOSPHO_SCORE,
+        ]:
+            self.logger.log_message(f"Adding within batch ranks for {data_type.value}.")
+            add_within_batch_ranks_inplace(
+                cohort_data[data_type], cohort_data[utils.DataType.SAMPLE_ANNOTATION]
+            )
+        self.logger.log_message("Within batch ranks metrics added")
 
     def get_dataframe(
         self, cohort_index: Union[str, None], data_layer: utils.DataType
@@ -193,4 +214,28 @@ def merge_with_poi_annotations_inplace(
         ],
         field_name="Gene names",
         inplace=True,
+    )
+
+
+def add_within_batch_ranks_inplace(
+    df: pd.DataFrame, sample_annotation_df: pd.DataFrame
+):
+    z_score_df = df.filter(
+        like=utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.Z_SCORE]
+    )
+    sample_to_batch_mapping = sample_annotation_df.set_index("Sample name")["Batch_No"]
+    sample_to_batch_mapping.index = (
+        sample_to_batch_mapping.index
+        + utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.Z_SCORE]
+    )
+    batch_rank_columns = z_score_df.columns.str.replace(
+        utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.Z_SCORE],
+        utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.BATCH_RANK],
+    )
+    df.loc[:, batch_rank_columns] = (
+        z_score_df.groupby(
+            by=z_score_df.columns.map(sample_to_batch_mapping),
+            axis=1,
+        ).rank(method="min", ascending=False)
+        .values
     )
