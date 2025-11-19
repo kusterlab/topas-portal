@@ -1,3 +1,5 @@
+import traceback
+
 import pandas as pd
 
 from topas_portal import settings
@@ -111,16 +113,19 @@ def load_topas_ck_scores(cohort_name: str, config: CohortConfig) -> pd.DataFrame
 
 
 @cacheable(utils.DataType.KINASE_SCORE)
-def load_kinase_scores(cohort_name: str, config: CohortConfig) -> pd.DataFrame:
+def load_substrate_phos_scores(cohort_name: str, config: CohortConfig) -> pd.DataFrame:
+    topas_rtk_substrate_phos_path, topas_ck_scores_path = (
+        config.get_topas_substrate_phos_paths(cohort_name)
+    )
     rtk_df = topas_loader.load_topas_scores_df(
-        config.get_topas_rtk_substrate_phos_scores_path(cohort_name),
+        topas_rtk_substrate_phos_path,
         index_col="Sample name",
         intensity_unit_suffix=utils.INTENSITY_UNIT_SUFFIXES[
             utils.IntensityUnit.Z_SCORE
         ],
     )
     ck_df = topas_loader.load_topas_scores_df(
-        config.get_topas_ck_scores_path(cohort_name),
+        topas_ck_scores_path,
         index_col="Sample name",
         intensity_unit_suffix=utils.INTENSITY_UNIT_SUFFIXES[
             utils.IntensityUnit.Z_SCORE
@@ -132,7 +137,7 @@ def load_kinase_scores(cohort_name: str, config: CohortConfig) -> pd.DataFrame:
 
 
 @cacheable(utils.DataType.PHOSPHO_SCORE)
-def load_phospho_scores(cohort_name: str, config: CohortConfig) -> pd.DataFrame:
+def load_protein_phos_scores(cohort_name: str, config: CohortConfig) -> pd.DataFrame:
     return phospho_score_loader.load_phosphorylation_scores(
         config.get_protein_phosphorylation_scores_path(cohort_name),
         intensity_unit_suffix=utils.INTENSITY_UNIT_SUFFIXES[
@@ -161,8 +166,8 @@ def load_all_tables(cohort_name: str, config: CohortConfig):
         utils.DataType.PHOSPHO_PROTEOME: load_pp_data,
         utils.DataType.TOPAS_RTK_SCORE: load_topas_rtk_scores,
         utils.DataType.TOPAS_CK_SCORE: load_topas_ck_scores,
-        utils.DataType.KINASE_SCORE: load_kinase_scores,
-        utils.DataType.PHOSPHO_SCORE: load_phospho_scores,
+        utils.DataType.KINASE_SCORE: load_substrate_phos_scores,
+        utils.DataType.PHOSPHO_SCORE: load_protein_phos_scores,
     }
 
     results = {}
@@ -172,6 +177,7 @@ def load_all_tables(cohort_name: str, config: CohortConfig):
             results[key] = df
         except Exception as e:
             print(f"[WARN] Could not load {key}: {e}")
+            traceback.print_exc()
             results[key] = pd.DataFrame()
 
     return results

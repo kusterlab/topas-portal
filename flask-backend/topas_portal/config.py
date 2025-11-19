@@ -125,7 +125,7 @@ class CohortConfig:
             / settings.PREPROCESSED_FP_INTENSITY
         )
 
-    def get_fp_data_paths(self, cohort_name: str) -> Path:
+    def get_fp_data_paths(self, cohort_name: str) -> tuple[Path, Path, Path, Path]:
         fp_data_paths = [self.get_fp_annotated_intensity_path(cohort_name)]
         report_dir = self.get_report_directory(cohort_name)
         for intensity_unit in [
@@ -137,7 +137,7 @@ class CohortConfig:
                 report_dir
                 / f"full_proteome_measures{utils.INTENSITY_UNIT_FILE_SUFFIXES[intensity_unit]}.tsv"
             )
-        return fp_data_paths
+        return tuple(fp_data_paths)
 
     def get_pp_annotated_intensity_path(self, cohort_name: str) -> Path:
         if not self.has_pp(cohort_name):
@@ -148,7 +148,7 @@ class CohortConfig:
             / settings.PREPROCESSED_PP_INTENSITY
         )
 
-    def get_pp_data_paths(self, cohort_name: str) -> Path:
+    def get_pp_data_paths(self, cohort_name: str) -> tuple[Path, Path, Path, Path]:
         pp_data_paths = [self.get_pp_annotated_intensity_path(cohort_name)]
         report_dir = self.get_report_directory(cohort_name)
         for intensity_unit in [
@@ -160,7 +160,7 @@ class CohortConfig:
                 report_dir
                 / f"phospho_measures{utils.INTENSITY_UNIT_FILE_SUFFIXES[intensity_unit]}.tsv"
             )
-        return pp_data_paths
+        return tuple(pp_data_paths)
 
     def has_pp(self, cohort_name: str) -> bool:
         return self.config["PP"].get(cohort_name, 0) == 1
@@ -186,6 +186,11 @@ class CohortConfig:
         report_dir = self.get_report_directory(cohort_name)
         return report_dir / settings.KINASE_SCORES_FILE
 
+    def get_topas_substrate_phos_paths(self, cohort_name: str) -> tuple[Path, Path]:
+        return self.get_topas_rtk_substrate_phos_scores_path(
+            cohort_name
+        ), self.get_topas_ck_scores_path(cohort_name)
+
     def get_protein_phosphorylation_scores_path(self, cohort_name: str) -> Path:
         report_dir = self.get_report_directory(cohort_name)
         return report_dir / settings.PHOSPHORYLATION_SCORES
@@ -204,3 +209,22 @@ class CohortConfig:
 
     def get_drug_annotation_path(self) -> Path:
         return Path(self.config["drug_annotation_path"])
+
+    def get_input_file_paths(
+        self, cohort_name: str, data_type: utils.DataType
+    ) -> list[Path]:
+        """For the caching functionality"""
+        input_file_dict = {
+            utils.DataType.TRANSCRIPTOMICS: self.get_transcriptomics_paths,
+            utils.DataType.GENOMICS: self.get_genomics_path,
+            utils.DataType.FULL_PROTEOME: self.get_fp_data_paths,
+            utils.DataType.PHOSPHO_PROTEOME: self.get_pp_data_paths,
+            utils.DataType.TOPAS_RTK_SCORE: self.get_topas_rtk_scores_paths,
+            utils.DataType.TOPAS_CK_SCORE: self.get_topas_ck_scores_path,
+            utils.DataType.KINASE_SCORE: self.get_topas_substrate_phos_paths,
+            utils.DataType.PHOSPHO_SCORE: self.get_protein_phosphorylation_scores_path,
+        }
+        input_files = input_file_dict[data_type](cohort_name)
+        if isinstance(input_files, tuple):
+            return [Path(p) for p in input_files]
+        return [Path(input_files)]

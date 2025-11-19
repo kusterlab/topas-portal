@@ -21,8 +21,15 @@ def cacheable(data_type_key: utils.DataType):
                 cohort_name, cache_dir, data_type_key
             )
 
+            input_files = config.get_input_file_paths(cohort_name, data_type_key)
+
             # Try loading from cache
-            if cache_dir.is_dir() and feather_path.exists() and meta_path.exists():
+            if (
+                cache_dir.is_dir()
+                and feather_path.exists()
+                and meta_path.exists()
+                and _cache_matches_inputs(meta_path, input_files)
+            ):
                 print(f"[CACHE HIT] {data_type_key} for {cohort_name}")
                 return _load_cache(feather_path, meta_path)
 
@@ -31,7 +38,7 @@ def cacheable(data_type_key: utils.DataType):
 
             # Save to cache if directory exists
             if cache_dir.is_dir() and isinstance(df, pd.DataFrame):
-                _save_cache(df, feather_path, meta_path)
+                _save_cache(df, feather_path, meta_path, input_files)
                 print(f"[CACHE SAVED] {data_type_key} for {cohort_name}")
 
             return df
@@ -48,7 +55,9 @@ def _get_cache_paths(cohort_name: str, cache_dir: Path, data_type_key: utils.Dat
     return feather_path, meta_path
 
 
-def _save_cache(df: pd.DataFrame, feather_path: Path, meta_path: Path):
+def _save_cache(
+    df: pd.DataFrame, feather_path: Path, meta_path: Path, input_files: list[Path]
+):
     """Save DataFrame and metadata to Feather and JSON, flattening MultiIndexes."""
     feather_path.parent.mkdir(exist_ok=True, parents=True)
 
@@ -65,10 +74,22 @@ def _save_cache(df: pd.DataFrame, feather_path: Path, meta_path: Path):
 
     df.to_feather(feather_path)
 
-    # Save metadata
+    # Gather file metadata
+    file_info = []
+    for f in input_files:
+        if Path(f).exists():
+            file_info.append(
+                {
+                    "path": str(f),
+                    "size": Path(f).stat().st_size,
+                    "mtime": Path(f).stat().st_mtime,
+                }
+            )
+
     meta = {
         "index_columns": index_names,
         "columns_index_name": columns_index_name,
+        "input_files": file_info,
     }
     with open(meta_path, "w") as f:
         json.dump(meta, f, indent=2)
@@ -87,3 +108,24 @@ def _load_cache(feather_path: Path, meta_path: Path):
         df = df.set_index(meta["index_columns"])
 
     return df
+
+
+def _cache_matches_inputs(meta_path: Path, input_files):
+    """Return True if all input files match size and mtime stored in meta JSON."""
+    with open(meta_path, "r") as f:
+        meta = json.load(f)
+
+    cached_files = {entry["path"]: entry for entry in meta.get("input_files", [])}
+
+    for f in input_files:
+        f = str(f)
+        if f not in cached_files:
+            return False  # new file
+        if not Path(f).exists():
+            return False
+        stat = Path(f).stat()
+        cached = cached_files[f]
+        if cached["size"] != stat.st_size or cached["mtime"] != stat.st_mtime:
+            return False  # modified file
+
+    return True
