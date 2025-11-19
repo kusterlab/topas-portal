@@ -54,8 +54,8 @@ class SQLProvider:
         # these are stored in memory for now
         self._load_FPKM(config.get_config())
         self._load_genomics(config.get_config())
-        self._load_onkoKB_annotations(config.get_config())
-        self._load_topas_annotation_tables(config.get_config())
+        self._load_onkoKB_annotations(config.get_oncokb_annotation_path())
+        self._load_topas_annotation_tables(config.get_topas_annotation_path())
 
     def load_single_cohort(
         self, cohort_name: str, cohort_index: int, config: CohortConfig
@@ -147,11 +147,12 @@ class SQLProvider:
         patient_meta_file=True,
     ):
         """For importing the meta_data to the DB"""
+        cohort_name = config.get_cohort_name(cohort_index)
         if patient_meta_file:
-            meta_data_path = config.get_patients_metadata_path(cohort_index)
+            meta_data_path = config.get_patients_metadata_path(cohort_name)
             meta_data_df = patient_metadata_loader.load_patient_table(meta_data_path)
         else:  # for sample annotation_df
-            meta_data_path = config.get_sample_annotation_path(cohort_index)
+            meta_data_path = config.get_sample_annotation_path(cohort_name)
             meta_data_df = sample_annotation_loader.load_sample_annotation_table(
                 meta_data_path
             )
@@ -245,9 +246,10 @@ class SQLProvider:
         data_type,
         id_key="protein_name",
     ):
+        cohort_name = config.get_cohort_name(cohort_index)
 
         cohort_report_dir = config.get_report_directory(cohort_index)
-        meta_data_path = config.get_sample_annotation_path(cohort_index)
+        meta_data_path = config.get_sample_annotation_path(cohort_name)
         meta_data_df = sample_annotation_loader.load_sample_annotation_table(
                 meta_data_path
             )
@@ -265,7 +267,7 @@ class SQLProvider:
             intensity_file = settings.PHOSPHORYLATION_SCORES
             key = settings.FP_KEY
             df_to_insert = phospho_score_loader.load_phosphorylation_scores(
-                Path(os.path.join(cohort_report_dir, intensity_file)), add_suffix=False
+                Path(os.path.join(cohort_report_dir, intensity_file)), add_intensity_suffix=False
             )
 
         else:

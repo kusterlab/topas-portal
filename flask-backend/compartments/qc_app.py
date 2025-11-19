@@ -85,7 +85,8 @@ def main(
     
     # the column names of the two pc vectors
     pc_cols = settings.QC_PCS
-    reports_dir = cohorts_db.config.get_report_directory(cohort_index)
+    cohort_name = cohorts_db.config.get_cohort_name(cohort_index)
+    reports_dir = cohorts_db.config.get_report_directory(cohort_name)
     sample_annotation_df = cohorts_db.get_sample_annotation_df(cohort_index)
     
     # example: custom_list_patients = 'H021-UQBN7H-T2,H021-E381AV-T2-E2,H021-S1WQZ5-M1,H021-YTWLBM-T3-E1,H021-9DVBZG-M1-E2,H021-3P7FPW-T1-E1'

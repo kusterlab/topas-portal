@@ -1,6 +1,8 @@
 import json
+from pathlib import Path
 
 from topas_portal import settings
+from topas_portal import utils
 
 # imports just for type hints
 from logger import CohortLogger
@@ -41,6 +43,9 @@ class CohortConfig:
     def get_cohort_index(self, cohort_name: str) -> int:
         self.config = load(self.config_path)
         return self.cohort_names.index(cohort_name)
+
+    def get_cohort_name(self, cohort_index: int) -> str:
+        return self.get_cohort_names()[cohort_index]
 
     def get_cohort_index_from_report_directory(self, report_dir: str):
         self.config = load(self.config_path)
@@ -95,18 +100,107 @@ class CohortConfig:
             f"{key} for {cohort_name} updated with value {new_value}"
         )
 
-    def get_report_directory(self, cohort_index) -> str:
+    def get_cache_directory(self) -> Path:
+        return Path(self.config.get("cache_dir", "non_existent_path"))
+
+    def get_report_directory(self, cohort_name: str) -> Path:
         """return path to the results folder"""
-        return list(self.config["report_directory"].values())[int(cohort_index)]
+        return Path(self.config["report_directory"][cohort_name])
 
-    def get_patients_metadata_path(self, cohort_index) -> str:
-        return list(self.config["patient_annotation_path"].values())[int(cohort_index)]
+    def get_patients_metadata_path(self, cohort_name: str) -> Path:
+        return Path(self.config["patient_annotation_path"][cohort_name])
 
-    def get_sample_annotation_path(self, cohort_index) -> str:
-        return list(self.config["sample_annotation_path"].values())[int(cohort_index)]
+    def get_sample_annotation_path(self, cohort_name: str) -> Path:
+        return Path(self.config["sample_annotation_path"][cohort_name])
 
-    def get_basket_annotation_path(self) -> str:
-        return self.config["basket_annotation_path"]
+    def has_fp(self, cohort_name: str) -> bool:
+        return self.config["FP"].get(cohort_name, 0) == 1
 
-    def get_drug_annotation_path(self) -> str:
-        return self.config["drug_annotation_path"]
+    def get_fp_annotated_intensity_path(self, cohort_name: str) -> Path:
+        if not self.has_fp(cohort_name):
+            return None
+
+        return (
+            Path(self.config["report_directory"][cohort_name])
+            / settings.PREPROCESSED_FP_INTENSITY
+        )
+
+    def get_fp_data_paths(self, cohort_name: str) -> Path:
+        fp_data_paths = [self.get_fp_annotated_intensity_path(cohort_name)]
+        report_dir = self.get_report_directory(cohort_name)
+        for intensity_unit in [
+            utils.IntensityUnit.FOLD_CHANGE,
+            utils.IntensityUnit.Z_SCORE,
+            utils.IntensityUnit.RANK,
+        ]:
+            fp_data_paths.append(
+                report_dir
+                / f"full_proteome_measures{utils.INTENSITY_UNIT_FILE_SUFFIXES[intensity_unit]}.tsv"
+            )
+        return fp_data_paths
+
+    def get_pp_annotated_intensity_path(self, cohort_name: str) -> Path:
+        if not self.has_pp(cohort_name):
+            return None
+
+        return (
+            Path(self.config["report_directory"][cohort_name])
+            / settings.PREPROCESSED_PP_INTENSITY
+        )
+
+    def get_pp_data_paths(self, cohort_name: str) -> Path:
+        pp_data_paths = [self.get_pp_annotated_intensity_path(cohort_name)]
+        report_dir = self.get_report_directory(cohort_name)
+        for intensity_unit in [
+            utils.IntensityUnit.FOLD_CHANGE,
+            utils.IntensityUnit.Z_SCORE,
+            utils.IntensityUnit.RANK,
+        ]:
+            pp_data_paths.append(
+                report_dir
+                / f"phospho_measures{utils.INTENSITY_UNIT_FILE_SUFFIXES[intensity_unit]}.tsv"
+            )
+        return pp_data_paths
+
+    def has_pp(self, cohort_name: str) -> bool:
+        return self.config["PP"].get(cohort_name, 0) == 1
+
+    def get_transcriptomics_paths(self, cohort_name: str) -> tuple[Path, Path]:
+        return (
+            Path(self.config["transcriptomics_path_z_scored"]),
+            Path(self.config["transcriptomics_path_not_z_scored"]),
+        )
+
+    def get_topas_rtk_scores_paths(self, cohort_name: str) -> tuple[Path, Path]:
+        report_dir = self.get_report_directory(cohort_name)
+        return (
+            report_dir / settings.TOPAS_RTK_SCORES_FILE,
+            report_dir / settings.TOPAS_RTK_Z_SCORES_FILE,
+        )
+
+    def get_topas_ck_scores_path(self, cohort_name: str) -> Path:
+        report_dir = self.get_report_directory(cohort_name)
+        return report_dir / settings.TOPAS_CK_SCORES_FILE
+
+    def get_topas_rtk_substrate_phos_scores_path(self, cohort_name: str) -> Path:
+        report_dir = self.get_report_directory(cohort_name)
+        return report_dir / settings.KINASE_SCORES_FILE
+
+    def get_protein_phosphorylation_scores_path(self, cohort_name: str) -> Path:
+        report_dir = self.get_report_directory(cohort_name)
+        return report_dir / settings.PHOSPHORYLATION_SCORES
+
+    def get_genomics_path(self, cohort_name: str) -> Path:
+        return Path(self.config["genomics_path"])
+
+    def get_poi_annotation_path(self) -> Path:
+        return Path(self.config["poi_annotation_path"])
+
+    def get_topas_annotation_path(self) -> Path:
+        return Path(self.config["basket_annotation_path"])
+
+    def get_oncokb_annotation_path(self) -> Path:
+        return Path(self.config["oncokb_path"])
+
+    def get_drug_annotation_path(self) -> Path:
+        return Path(self.config["drug_annotation_path"])

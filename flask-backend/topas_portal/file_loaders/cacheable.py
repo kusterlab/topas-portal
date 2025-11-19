@@ -4,6 +4,7 @@ from functools import wraps
 import pandas as pd
 
 from .. import utils
+from ..config import CohortConfig
 
 
 def cacheable(data_type_key: utils.DataType):
@@ -14,8 +15,8 @@ def cacheable(data_type_key: utils.DataType):
 
     def decorator(func):
         @wraps(func)
-        def wrapper(cohort_name: str, config: dict):
-            cache_dir = Path(config.get("cache_dir", "non_existent_path"))
+        def wrapper(cohort_name: str, config: CohortConfig):
+            cache_dir = Path(config.get_cache_directory())
             feather_path, meta_path = _get_cache_paths(
                 cohort_name, cache_dir, data_type_key
             )

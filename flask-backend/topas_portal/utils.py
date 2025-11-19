@@ -75,6 +75,12 @@ class IntensityUnit(str, Enum):
     SCORE = "score"
     IDENTIFICATION_METADATA = "identification_metadata"
 
+INTENSITY_UNIT_PREFIXES = {
+    IntensityUnit.Z_SCORE: "zscore_",
+    IntensityUnit.FOLD_CHANGE: "fc_",
+    IntensityUnit.RANK: "rank_",
+    IntensityUnit.IDENTIFICATION_METADATA: "Identification metadata ",
+}
 
 INTENSITY_UNIT_SUFFIXES = {
     IntensityUnit.INTENSITY: " Intensity",
@@ -86,6 +92,11 @@ INTENSITY_UNIT_SUFFIXES = {
     IntensityUnit.IDENTIFICATION_METADATA: " Identification metadata",
 }
 
+INTENSITY_UNIT_FILE_SUFFIXES = {
+    IntensityUnit.Z_SCORE: "_z",
+    IntensityUnit.FOLD_CHANGE: "_fc",
+    IntensityUnit.RANK: "_rank",
+}
 
 class ImputationMode(str, Enum):
     NO_IMPUTE = "noimpute"

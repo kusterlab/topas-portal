@@ -69,11 +69,11 @@ class InMemoryProvider:
         if cohort_names is None:
             cohort_names = config.get_cohort_names()
 
-        self._load_poi_annotations(config.get_config())
-        self._load_topas_annotation_tables(config.get_config())
-        self._load_onkoKB_annotations(config.get_config())
-        self._load_FPKM(config.get_config())
-        self._load_genomics(config.get_config())
+        self._load_poi_annotations(config.get_poi_annotation_path())
+        self._load_topas_annotation_tables(config.get_topas_annotation_path())
+        self._load_onkoKB_annotations(config.get_oncokb_annotation_path())
+        self._load_FPKM(config)
+        self._load_genomics(config)
 
         for cohort_name in cohort_names:
             cohort_index = config.get_cohort_index(cohort_name)
@@ -87,7 +87,7 @@ class InMemoryProvider:
         We pass both the cohort_name and cohort_index to check for consistency.
         """
         self.logger.log_message(f"loading ############ {cohort_name}")
-        cohort_data = table_loaders.load_all_tables(cohort_name, config.get_config())
+        cohort_data = table_loaders.load_all_tables(cohort_name, config)
         self._add_within_batch_ranks(cohort_data)
         self._add_annotations(cohort_data)
         for data_layer in cohort_data.keys():
@@ -111,31 +111,29 @@ class InMemoryProvider:
             ]
             self.logger.log_message(f"{data_layer} of {cohort_name} was Updated ##")
 
-    def _load_topas_annotation_tables(self, config: Dict):
+    def _load_topas_annotation_tables(self, topas_annotation_path: Path):
         """Topas table is independent of cohorts and will be treated as a single global variable separately"""
         self.logger.log_message("Loading topas tables")
-        basket_annotation_path = Path(config["basket_annotation_path"])
         self.topas_complete_df = topas_loader.load_topas_annotation_df(
-            basket_annotation_path
+            topas_annotation_path
         )
         self.logger.log_message("Topas tables loaded")
 
-    def _load_poi_annotations(self, config: Dict):
+    def _load_poi_annotations(self, poi_annotation_path: Path):
         """The protein of interest (POI) table is independent of cohorts and will be treated as a single global variable separately"""
         self.logger.log_message("Loading POI annotation table")
-        poi_annotation_path = Path(config["poi_annotation_path"])
         self.poi_annotation_df = topas_loader.load_poi_annotation_df(
             poi_annotation_path
         )
         self.logger.log_message("POI annotation tables loaded")
 
-    def _load_FPKM(self, config: Dict):
+    def _load_FPKM(self, config: CohortConfig):
         """FPKM table is independent of cohorts and will be treated as a single global variable separately"""
         self.logger.log_message("Loading FPKM data")
         self.FPKM = table_loaders.load_transcriptomics_data(SHARED_COHORT, config)
         self.logger.log_message("FPKM data loaded")
 
-    def _load_genomics(self, config: Dict):
+    def _load_genomics(self, config: CohortConfig):
         """Genomics table is independent of cohorts and will be treated as a single global variable separately"""
         self.logger.log_message("Loading Genomics data")
         self.genomics_data = table_loaders.load_genomics_data(SHARED_COHORT, config)
@@ -147,11 +145,11 @@ class InMemoryProvider:
         self.digest_data = digest_load.load_in_silico_digestion(config["fasta_file"])
         self.logger.log_message("Digestion of fasta data loaded")
 
-    def _load_onkoKB_annotations(self, config: Dict):
+    def _load_onkoKB_annotations(self, oncokb_annotation_path: Path):
         """oncoKB annotations table is independent of cohorts and will be treated as a single global variable separately"""
         self.logger.log_message("Loading oncoKB annotations data")
         self.oncoKB_data = genomics_preprocess.load_onkoKB_dictionary(
-            config["oncokb_path"]
+            oncokb_annotation_path
         )
         self.logger.log_message("oncoKB annotations data loaded")
 
