@@ -186,7 +186,7 @@ export default {
         level: DataType.FULL_PROTEOME,
         patients: this.selectedSamples,
         identifier: this.proteinCheck,
-        cnv_type: 'amplification',
+        cnv_type: 'AMPLIFICATION',
         level_2: DataType.TOPAS_RTK_SCORE,
         intensity_unit: 'fpkm',
         patients_list: 'P001,P002',
@@ -208,7 +208,6 @@ export default {
         field_interest: '40',
         modality: 'rna',
         batchlists: 'b1,b2',
-        patientslists: 'p1,p2',
         include_ref: IncludeRef.INCLUDE_REF,
         imputation: 'noimpute'
       }

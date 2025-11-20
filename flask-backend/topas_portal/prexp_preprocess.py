@@ -369,7 +369,7 @@ def get_patients_proteins_as_json(
     cohorts_db: data_api.CohortDataAPI,
     cohort_index: int,
     level: utils.DataType,
-    patientslists,
+    patientslists: str,
 ):
     if level == utils.DataType.FULL_PROTEOME:
         df = cohorts_db.get_protein_abundance_df(
@@ -385,7 +385,7 @@ def get_patients_proteins_as_json(
     samples_list = sample_annotation["Sample name"].unique().tolist()
     sample_names = utils.intersection(samples_list, df.columns)
     df = df[sample_names]
-    list_patients = patientslists.split(";")
+    list_patients = patientslists.split(",")
     df_list = []
     for patient in list_patients:
         df_list.append(get_protein_list_per_patient(patient, df))

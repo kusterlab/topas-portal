@@ -460,10 +460,8 @@ def get_all_modality_possibilities(cohort_index: int, modality: str):
 
 @app.route(ApiRoutes.VENN_PATIENT_COMPARE)
 # http://localhost:3832/venn/0/patientcompare/fp/C3L-00032-1
-def get_patients_proteins(cohort_index: int, level: utils.DataType, patientslists: str):
-    return pp.get_patients_proteins_as_json(
-        cohorts_db, cohort_index, level, patientslists
-    )
+def get_patients_proteins(cohort_index: int, level: utils.DataType, patients: str):
+    return pp.get_patients_proteins_as_json(cohorts_db, cohort_index, level, patients)
 
 
 @app.route(ApiRoutes.VENN_BATCH_COMPARE)
@@ -500,7 +498,7 @@ def get_sum_intensities_pp_level(cohort_index: int, level: utils.DataType):
 
 @app.route(ApiRoutes.PATIENT_CENTRIC_COUNTS)
 @cache.cached(timeout=50)
-# http://localhost:3832/patientcenteric/proteincounts/0/fp
+# http://localhost:3832/patientcentric/counts/0/fp
 def get_identifications_frequency(cohort_index: int, level: utils.DataType):
     if settings.DATABASE_MODE:
         return {}  # this query is too slow in the database

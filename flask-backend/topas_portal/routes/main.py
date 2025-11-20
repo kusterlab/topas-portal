@@ -39,7 +39,7 @@ class ApiRoutes(ApiBase):
 
     ANNOTATION_MODALITY = "/annotation/<int:cohort_index>/<string:modality>"
     VENN_PATIENT_COMPARE = (
-        "/venn/<int:cohort_index>/patientcompare/<data_type:level>/<string:patientslists>"
+        "/venn/<int:cohort_index>/patientcompare/<data_type:level>/<string:patients>"
     )
     VENN_BATCH_COMPARE = (
         "/venn/<int:cohort_index>/batchcompare/<data_type:level>/<string:batchlists>"
