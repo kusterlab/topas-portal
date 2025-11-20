@@ -27,7 +27,6 @@ class DataType(str, Enum):
     KINASE_SUBSTRATE = "kinase_substrate"
     TOPAS_KINASE_SCORE = "topas_kinase"
     TOPAS_KINASE_SUBSTRATE = "topas_kinase_substrate"
-    TOPAS_IMPORTANT_PHOSPHO = "important_phosphorylation"
     TOPAS_PHOSPHO_SCORE = "topas_phospho"
     TOPAS_PHOSPHO_SCORE_PSITE = (
         "topas_phospho_psite"  # p-sites making up a phosphoprotein score

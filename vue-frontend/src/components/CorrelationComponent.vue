@@ -24,18 +24,11 @@
           />
           <v-radio-group
             v-model="intensityUnit"
+            :items="intensityUnits"
             class="mt-4"
             label="Intensity unit"
             hide-details
           >
-            <v-radio
-              label="Z-scores"
-              value="z_scored"
-            />
-            <v-radio
-              label="Intensity"
-              value="intensity"
-            />
           </v-radio-group>
         </v-card-text>
       </v-card>
@@ -242,7 +235,7 @@ import topasSelect from '@/components/partials/TopasSelect'
 import ProteinSelect from '@/components/partials/ProteinSelect'
 import densityPlot from '@/components/plots/BarhistPlot'
 
-import { DataType, IncludeRef } from '@/constants'
+import { DataType, IncludeRef, IntensityUnit } from '@/constants'
 import { api } from '@/routes.ts'
 
 export default {
@@ -274,7 +267,7 @@ export default {
     expressionData1: [],
     xaxisTable: 'Scores1',
     yaxisTable: 'Scores2',
-    intensityUnit: 'z_scored',
+    intensityUnit: IntensityUnit.Z_SCORE,
     phospho: 'FP',
     labelX: '',
     labelY: '',
@@ -303,6 +296,16 @@ export default {
     selectedSamples: [],
     selectedDotsInPlot: '',
     plotScoreType: 'Z-score',
+    intensityUnits: [
+      {
+        text: 'Z-scores',
+        value: IntensityUnit.Z_SCORE
+      },
+      {
+        text: 'Intensity',
+        value: IntensityUnit.INTENSITY
+      }
+    ],
     dataTypes: [
       {
         text: 'Proteins',
@@ -320,10 +323,6 @@ export default {
         text: 'TOPAS scores',
         value: DataType.TOPAS_RTK_SCORE
       },
-      // {
-      //  text: 'Important Phosphorylation',
-      //  value: 'important_phosphorylation'
-      // },
       {
         text: 'Protein Phoshphorylation scores',
         value: DataType.PHOSPHO_SCORE
@@ -411,10 +410,7 @@ export default {
       this.labelY = this.plotScoreType
       const modality = (identifierNumber === 1) ? this.correlationInputType : this.correlationType
       let url = ''
-      if (modality === DataType.TOPAS_IMPORTANT_PHOSPHO) {
-        url = api.IMPORTANT_PHOSPHO({ cohort_index: this.cohortIndex, identifier: key })
-        this.yaxisTable = 'ImportantPhosphorylation'
-      } else if (modality === DataType.TOPAS_SCORE) {
+      if (modality === DataType.TOPAS_SCORE) {
         this.xaxisTable = 'TOPAS Scores'
         this.yaxisTable = 'TOPAS Scores'
         this.labelX = ''

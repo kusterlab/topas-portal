@@ -19,7 +19,6 @@ def compute_correlation_df(
     level: utils.DataType,
     level_2: utils.DataType,
     intensity_unit: utils.IntensityUnit,
-    topas_subscore_type: str = "important phosphorylation",
     patients_list=None,
 ):
     """
@@ -27,7 +26,7 @@ def compute_correlation_df(
     or phospho-proteins vs total proteome.
 
     This function handles the retrieval of data for different modalities and computes the correlation 
-    between them. It can work with different levels such as `TOPAS_IMPORTANT_PHOSPHO`, `TOPAS_SCORE`, 
+    between them. It can work with different levels such as `TOPAS_SCORE`, 
     `PHOSPHO_PROTEOME`, etc. It also handles merging additional annotations like topas weights or psite abundances.
 
     Args:
@@ -37,8 +36,6 @@ def compute_correlation_df(
         level (ef.DataType): The first data type to correlate (e.g., protein, FPKM).
         level_2 (ef.DataType): The second data type to correlate (e.g., phospho-proteins, total proteome).
         intensity_unit (ef.IntensityUnit): The intensity unit to use for the data (e.g., SCORE, Z_SCORE).
-        topas_subscore_type (str, optional): The type of topas subscore data to use if level is `TOPAS_IMPORTANT_PHOSPHO`. 
-                                        Defaults to "important phosphorylation".
         patients_list (list, optional): List of patients to consider for correlation computation. Defaults to None.
 
     Returns:
@@ -63,19 +60,13 @@ def compute_correlation_df(
     if not cohorts_db.provider:
         return "", "500 Cohort data not loaded"
 
-    if level == utils.DataType.TOPAS_IMPORTANT_PHOSPHO:
-        report_dir = cohorts_db.get_report_dir(cohort_index)
-        abundances = topas_utils.get_topas_subscore_data_per_type(
-            report_dir, identifier, sub_type=topas_subscore_type
-        )
-    else:
-        abundances = data.fetch_data_matrix(
-            cohorts_db,
-            cohort_index,
-            utils.DataType(level),
-            identifiers=[identifier],
-            intensity_unit=intensity_unit,
-        )
+    abundances = data.fetch_data_matrix(
+        cohorts_db,
+        cohort_index,
+        utils.DataType(level),
+        identifiers=[identifier],
+        intensity_unit=intensity_unit,
+    )
 
     if len(abundances.index) != 1:
         return "", f'400 {level} "{identifier}" not found in dataset'

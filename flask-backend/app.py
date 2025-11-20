@@ -630,10 +630,10 @@ def patients(cohort_index: int):
 # http://localhost:3832/0/patients/genomics_annotations/EGFR
 def patients_genomics_annotations(cohort_index: int, identifier: str):
     patients_meta_df = cohorts_db.get_patient_metadata_df(cohort_index).copy()
-    patients_meta_df = genomics_process._merge_data_with_genomics_alterations(
+    patients_meta_df = genomics_process.merge_data_with_genomics_alterations(
         cohorts_db, patients_meta_df, identifier, annotation_type="genomics_annotations"
     )
-    patients_meta_df = genomics_process._merge_data_with_genomics_alterations(
+    patients_meta_df = genomics_process.merge_data_with_genomics_alterations(
         cohorts_db, patients_meta_df, identifier, annotation_type="oncoKB_annotations"
     )
     return utils.df_to_json(patients_meta_df)
@@ -702,16 +702,6 @@ def get_genomes(identifier: str):
     return utils.df_to_json(genomics_df)
 
 
-# http://localhost:3832/oncokb/EGFR
-@app.route(ApiRoutes.ONCOKB_IDENTIFIER)
-def get_oncokb(identifier: str):
-    genomics_df = genomics_process.get_genomics_alterations_per_identifier(
-        cohorts_db, identifier, annotation_type="oncoKB_annotations"
-    )
-    genomics_df[utils.ColumnNames.SAMPLE_NAME] = genomics_df.index
-    return utils.df_to_json(genomics_df)
-
-
 @app.route(ApiRoutes.DENSITY_FPKM)
 # http://localhost:3832/density/fpkm/EGFR/z_scored
 def density_calc_fpkm(identifier: str, intensity_unit: utils.IntensityUnit):
@@ -725,17 +715,6 @@ def density_calc_protein(
 ):
     return pp.get_density_calc_protein(
         cohorts_db, cohort_index, identifier, intensity_unit
-    )
-
-
-@app.route(ApiRoutes.IMPORTANT_PHOSPHO)
-# http://localhost:3832/0/important_phospho/EGFR
-def get_important_phospho(cohort_index: int, identifier: str):
-    return bp.get_topas_subscore_data_per_type(
-        cohorts_db.get_report_dir(cohort_index),
-        identifier,
-        sub_type="important phosphorylation",
-        return_json=True,
     )
 
 
@@ -768,7 +747,6 @@ def abundance(
 # http://localhost:3832/0/topas_score/correlation/protein/EGFR/z_scored
 # http://localhost:3832/0/phospho_score/correlation/protein/EGFR/intensity
 # http://localhost:3832/0/fpkm/correlation/protein/EGFR/z_scored
-# http://localhost:3832/0/important_phosphorylation/correlation/protein/EGFR/z_scored
 def correlation(
     cohort_index: int,
     level: utils.DataType,
