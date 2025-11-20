@@ -1,43 +1,42 @@
-from pathlib import Path
-from typing import Dict
+import traceback
+
 import pandas as pd
 
-
-from topas_portal import settings
-from topas_portal import utils
-from topas_portal.file_loaders.cacheable import cacheable
-import topas_portal.file_loaders.topas as topas_loader
-import topas_portal.file_loaders.transcriptomics as tp
-import topas_portal.file_loaders.genomics as genomics_preprocess
-import topas_portal.file_loaders.phospho_score as phospho_score_loader
-import topas_portal.file_loaders.expression as expression_loader
-import topas_portal.file_loaders.sample_annotation as sample_annotation_loader
-import topas_portal.file_loaders.patient_metadata as patient_metadata_loader
-
+from .. import settings
+from .. import utils
+from ..config import CohortConfig
+from ..file_loaders.cacheable import cacheable
+from ..file_loaders import topas as topas_loader
+from ..file_loaders import transcriptomics as tp
+from ..file_loaders import genomics as genomics_preprocess
+from ..file_loaders import phospho_score as phospho_score_loader
+from ..file_loaders import expression as expression_loader
+from ..file_loaders import sample_annotation as sample_annotation_loader
+from ..file_loaders import patient_metadata as patient_metadata_loader
+from ..file_loaders import search_qc as search_qc_loader
 
 # -------------------------------------------------------------------
 # Loader functions (one per output key)
 # -------------------------------------------------------------------
 
 
-def load_patient_metadata(cohort_name: str, config: Dict) -> pd.DataFrame:
+def load_patient_metadata(cohort_name: str, config: CohortConfig) -> pd.DataFrame:
     return patient_metadata_loader.load_patient_table(
-        Path(config["patient_annotation_path"][cohort_name])
+        config.get_patients_metadata_path(cohort_name)
     )
 
 
-def load_sample_annotation(cohort_name: str, config: Dict) -> pd.DataFrame:
+def load_sample_annotation(cohort_name: str, config: CohortConfig) -> pd.DataFrame:
     return sample_annotation_loader.load_sample_annotation_table(
-        Path(config["sample_annotation_path"][cohort_name])
+        config.get_sample_annotation_path(cohort_name)
     )
 
 
 @cacheable(utils.DataType.TRANSCRIPTOMICS)
-def load_transcriptomics_data(cohort_name: str, config: Dict) -> pd.DataFrame:
-    fpkm_df = tp.load_FPKM_table(config["transcriptomics_path_z_scored"])
-    fpkm_not_zscored_df = tp.load_FPKM_table(
-        config["transcriptomics_path_not_z_scored"]
-    )
+def load_transcriptomics_data(cohort_name: str, config: CohortConfig) -> pd.DataFrame:
+    fpkm_path, fpkm_zscored_path = config.get_transcriptomics_paths(cohort_name)
+    fpkm_df = tp.load_FPKM_table(fpkm_zscored_path)
+    fpkm_not_zscored_df = tp.load_FPKM_table(fpkm_path)
     return fpkm_df.join(
         fpkm_not_zscored_df,
         lsuffix=utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.Z_SCORE],
@@ -46,59 +45,53 @@ def load_transcriptomics_data(cohort_name: str, config: Dict) -> pd.DataFrame:
 
 
 @cacheable(utils.DataType.GENOMICS)
-def load_genomics_data(cohort_name: str, config: Dict) -> pd.DataFrame:
-    return genomics_preprocess.load_genomics_table(config["genomics_path"])
+def load_genomics_data(cohort_name: str, config: CohortConfig) -> pd.DataFrame:
+    return genomics_preprocess.load_genomics_table(
+        config.get_genomics_path(cohort_name)
+    )
 
 
 @cacheable(utils.DataType.FULL_PROTEOME)
-def load_fp_data(cohort_name: str, config: Dict) -> pd.DataFrame:
-    if not config["FP"].get(cohort_name, 0):
+def load_fp_data(cohort_name: str, config: CohortConfig) -> pd.DataFrame:
+    fp_annotated_intensity_path, *fp_measures_paths = config.get_fp_data_paths(
+        cohort_name
+    )
+    if fp_annotated_intensity_path is None:
         return pd.DataFrame()
 
-    report_dir = Path(config["report_directory"][cohort_name])
-    sample_df = load_sample_annotation(cohort_name, config)
-    patients_list = sample_df["Sample name"].unique().tolist()
-
     fp_intensity = expression_loader.load_annotated_intensity_file(
-        report_dir / settings.PREPROCESSED_FP_INTENSITY,
+        fp_annotated_intensity_path,
         settings.FP_KEY,
-        patients_list,
     )
-    fp_df = expression_loader.load_expression_data(
-        report_dir, settings.FP_KEY, "full_proteome"
-    )
+    fp_df = expression_loader.load_expression_data(fp_measures_paths, settings.FP_KEY)
     return fp_df.join(fp_intensity, how="right")
 
 
 @cacheable(utils.DataType.PHOSPHO_PROTEOME)
-def load_pp_data(cohort_name: str, config: Dict) -> pd.DataFrame:
-    if not config["PP"].get(cohort_name, 0):
+def load_pp_data(cohort_name: str, config: CohortConfig) -> pd.DataFrame:
+    pp_annotated_intensity_path, *pp_measures_paths = config.get_pp_data_paths(
+        cohort_name
+    )
+    if pp_annotated_intensity_path is None:
         return pd.DataFrame()
 
-    report_dir = Path(config["report_directory"][cohort_name])
-    sample_df = load_sample_annotation(cohort_name, config)
-    patients_list = sample_df["Sample name"].unique().tolist()
-
     pp_intensity = expression_loader.load_annotated_intensity_file(
-        report_dir / settings.PREPROCESSED_PP_INTENSITY,
+        pp_annotated_intensity_path,
         settings.PP_KEY,
-        patients_list,
         extra_columns=list(settings.ANNOTATION_COLUMNS.keys()),
     )
-    pp_df = expression_loader.load_expression_data(
-        report_dir, settings.PP_KEY, "phospho"
-    )
+    pp_df = expression_loader.load_expression_data(pp_measures_paths, settings.PP_KEY)
     return pp_df.join(pp_intensity, how="right")
 
 
 @cacheable(utils.DataType.TOPAS_RTK_SCORE)
-def load_topas_rtk_scores(cohort_name: str, config: Dict) -> pd.DataFrame:
-    report_dir = Path(config["report_directory"][cohort_name])
-    df = topas_loader.load_topas_scores_df(report_dir / settings.TOPAS_RTK_SCORES_FILE)
+def load_topas_rtk_scores(cohort_name: str, config: CohortConfig) -> pd.DataFrame:
+    topas_rtk_scores_path, topas_rtk_scores_zscored_path = (
+        config.get_topas_rtk_scores_paths(cohort_name)
+    )
+    df = topas_loader.load_topas_scores_df(topas_rtk_scores_path)
     if isinstance(df, pd.DataFrame):
-        z_df = topas_loader.load_topas_scores_df(
-            report_dir / settings.TOPAS_RTK_Z_SCORES_FILE
-        )
+        z_df = topas_loader.load_topas_scores_df(topas_rtk_scores_zscored_path)
         df = df.join(
             z_df,
             lsuffix=utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.SCORE],
@@ -109,10 +102,9 @@ def load_topas_rtk_scores(cohort_name: str, config: Dict) -> pd.DataFrame:
 
 
 @cacheable(utils.DataType.TOPAS_CK_SCORE)
-def load_topas_ck_scores(cohort_name: str, config: Dict) -> pd.DataFrame:
-    report_dir = Path(config["report_directory"][cohort_name])
+def load_topas_ck_scores(cohort_name: str, config: CohortConfig) -> pd.DataFrame:
     return topas_loader.load_topas_scores_df(
-        report_dir / settings.TOPAS_CK_SCORES_FILE,
+        config.get_topas_ck_scores_path(cohort_name),
         index_col="Sample name",
         intensity_unit_suffix=utils.INTENSITY_UNIT_SUFFIXES[
             utils.IntensityUnit.Z_SCORE
@@ -121,17 +113,19 @@ def load_topas_ck_scores(cohort_name: str, config: Dict) -> pd.DataFrame:
 
 
 @cacheable(utils.DataType.KINASE_SCORE)
-def load_kinase_scores(cohort_name: str, config: Dict) -> pd.DataFrame:
-    report_dir = Path(config["report_directory"][cohort_name])
+def load_substrate_phos_scores(cohort_name: str, config: CohortConfig) -> pd.DataFrame:
+    topas_rtk_substrate_phos_path, topas_ck_scores_path = (
+        config.get_topas_substrate_phos_paths(cohort_name)
+    )
     rtk_df = topas_loader.load_topas_scores_df(
-        report_dir / settings.KINASE_SCORES_FILE,
+        topas_rtk_substrate_phos_path,
         index_col="Sample name",
         intensity_unit_suffix=utils.INTENSITY_UNIT_SUFFIXES[
             utils.IntensityUnit.Z_SCORE
         ],
     )
     ck_df = topas_loader.load_topas_scores_df(
-        report_dir / settings.TOPAS_CK_SCORES_FILE,
+        topas_ck_scores_path,
         index_col="Sample name",
         intensity_unit_suffix=utils.INTENSITY_UNIT_SUFFIXES[
             utils.IntensityUnit.Z_SCORE
@@ -143,12 +137,23 @@ def load_kinase_scores(cohort_name: str, config: Dict) -> pd.DataFrame:
 
 
 @cacheable(utils.DataType.PHOSPHO_SCORE)
-def load_phospho_scores(cohort_name: str, config: Dict) -> pd.DataFrame:
-    report_dir = Path(config["report_directory"][cohort_name])
+def load_protein_phos_scores(cohort_name: str, config: CohortConfig) -> pd.DataFrame:
     return phospho_score_loader.load_phosphorylation_scores(
-        report_dir / settings.PHOSPHORYLATION_SCORES,
-        add_suffix=True,
+        config.get_protein_phosphorylation_scores_path(cohort_name),
+        intensity_unit_suffix=utils.INTENSITY_UNIT_SUFFIXES[
+            utils.IntensityUnit.Z_SCORE
+        ],
     )
+
+
+def load_search_qc(cohort_name: str, config: CohortConfig) -> pd.DataFrame:
+    search_qc_path_fp, search_qc_path_pp = config.get_search_qc_paths(cohort_name)
+    search_qc_df_fp = search_qc_loader.load_search_qc_table(search_qc_path_fp)
+    search_qc_df_pp = search_qc_loader.load_search_qc_table(search_qc_path_pp)
+    search_qc_df = search_qc_df_fp.merge(
+        search_qc_df_pp, on=["Sample", "Channel", "Experiment"], suffixes=("_fp", "_pp")
+    )
+    return search_qc_df.set_index("Sample")
 
 
 # -------------------------------------------------------------------
@@ -156,7 +161,7 @@ def load_phospho_scores(cohort_name: str, config: Dict) -> pd.DataFrame:
 # -------------------------------------------------------------------
 
 
-def load_all_tables(cohort_name: str, config: Dict):
+def load_all_tables(cohort_name: str, config: CohortConfig):
     """
     Load all required tables for a cohort.
     Uses per-dataset caching if 'cache_dir' is defined in config.
@@ -171,8 +176,9 @@ def load_all_tables(cohort_name: str, config: Dict):
         utils.DataType.PHOSPHO_PROTEOME: load_pp_data,
         utils.DataType.TOPAS_RTK_SCORE: load_topas_rtk_scores,
         utils.DataType.TOPAS_CK_SCORE: load_topas_ck_scores,
-        utils.DataType.KINASE_SCORE: load_kinase_scores,
-        utils.DataType.PHOSPHO_SCORE: load_phospho_scores,
+        utils.DataType.KINASE_SCORE: load_substrate_phos_scores,
+        utils.DataType.PHOSPHO_SCORE: load_protein_phos_scores,
+        utils.DataType.SEARCH_QC: load_search_qc,
     }
 
     results = {}
@@ -182,6 +188,7 @@ def load_all_tables(cohort_name: str, config: Dict):
             results[key] = df
         except Exception as e:
             print(f"[WARN] Could not load {key}: {e}")
+            traceback.print_exc()
             results[key] = pd.DataFrame()
 
     return results

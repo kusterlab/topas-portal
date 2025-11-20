@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <explorer-component />
+    <score-tabs-component />
     <v-row class="pa-4 grey lighten-3">
       <v-col
         sm="12"
@@ -115,7 +115,7 @@ import CohortSelect from './partials/CohortSelect.vue'
 import proteinscoreTable from '@/components/tables/ProteinscoreTable.vue'
 import SwarmPlot from '@/components/plots/SwarmPlot'
 import ProteinSelect from '@/components/partials/ProteinSelect'
-import explorerComponent from './partials/scoresComponent.vue'
+import ScoreTabsComponent from './partials/scoresComponent.vue'
 
 import { DataType, IncludeRef } from '@/constants'
 import { api } from '@/routes.ts'
@@ -126,34 +126,19 @@ export default {
     proteinscoreTable,
     SwarmPlot,
     CohortSelect,
-    explorerComponent,
+    ScoreTabsComponent,
     ProteinSelect
   },
   data: () => ({
     proteinidentifier: '',
-    patientidentifier: '',
     cohortIndex: 0,
-    inputType: 'per_protein',
     swarmShow: false,
     loading: false,
     plotData: [],
     url: '',
-    allPatients: [],
     plotSelIds: [],
-    selectedData: [],
-    place_holder: 'Imatinib',
-    identifierLbl: 'Protein Name'
+    selectedData: []
   }),
-  computed: {
-    activeCohortIndex () {
-      return this.cohortIndex
-    }
-  },
-  watch: {
-    activeCohortIndex: function () {
-      this.getPatientslist()
-    }
-  },
   mounted () {
     this.plotData = null
     this.plotSelIds = []
@@ -166,18 +151,6 @@ export default {
     updateCohort ({ dataSource, cohortIndex }) {
       this.cohortIndex = cohortIndex
       this.updateProtein()
-    },
-    async getPatientslist () {
-      try {
-        const response = await axios.get(`${process.env.VUE_APP_API_HOST}/proteinscore/${this.cohortIndex}/patients_list`)
-        this.allPatients = response.data
-      } catch (error) {
-        this.addNotification({
-          color: 'error',
-          message: `Error: unable to load patients list for this cohort ${error}`
-        })
-        this.allPatients = []
-      }
     },
     updateProtein ({ dataSource, identifier }) {
       this.proteinidentifier = identifier
@@ -193,7 +166,6 @@ export default {
     },
     getProteindata (key) {
       this.loading = true
-      this.patientidentifier = ''
       this.plotData = []
       const query = api.ABUNDANCE({ cohort_index: this.cohortIndex, level: DataType.PHOSPHO_SCORE, identifier: key, imputation: 'noimpute', include_ref: IncludeRef.EXCLUDE_REF })
       this.url = query

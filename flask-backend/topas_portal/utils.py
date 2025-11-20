@@ -11,7 +11,6 @@ from datetime import datetime
 
 from topas_portal import settings
 import topas_portal.plotly_preprocess as plotlyprepare
-from topas_portal.config_reader import *
 
 
 # remember to update the corresponding constant in vue-frontend/src/constants.js
@@ -42,6 +41,7 @@ class DataType(str, Enum):
 
     PATIENT_METADATA = "patients_df"
     SAMPLE_ANNOTATION = "sample_annotation_df"
+    SEARCH_QC = "search_qc"
 
     TRANSCRIPTOMICS = "fpkm"
     GENOMICS = "genomics"
@@ -72,19 +72,32 @@ class IntensityUnit(str, Enum):
     Z_SCORE = "z_scored"
     FOLD_CHANGE = "fc"
     RANK = "rank"
+    BATCH_RANK = "batchrank"
     SCORE = "score"
     IDENTIFICATION_METADATA = "identification_metadata"
 
+INTENSITY_UNIT_PREFIXES = {
+    IntensityUnit.Z_SCORE: "zscore_",
+    IntensityUnit.FOLD_CHANGE: "fc_",
+    IntensityUnit.RANK: "rank_",
+    IntensityUnit.IDENTIFICATION_METADATA: "Identification metadata ",
+}
 
 INTENSITY_UNIT_SUFFIXES = {
     IntensityUnit.INTENSITY: " Intensity",
     IntensityUnit.Z_SCORE: " Z-score",
     IntensityUnit.FOLD_CHANGE: " FC",
     IntensityUnit.RANK: " Rank",
+    IntensityUnit.BATCH_RANK: " BatchRank",
     IntensityUnit.SCORE: " Score",
     IntensityUnit.IDENTIFICATION_METADATA: " Identification metadata",
 }
 
+INTENSITY_UNIT_FILE_SUFFIXES = {
+    IntensityUnit.Z_SCORE: "_z",
+    IntensityUnit.FOLD_CHANGE: "_fc",
+    IntensityUnit.RANK: "_rank",
+}
 
 class ImputationMode(str, Enum):
     NO_IMPUTE = "noimpute"
@@ -438,14 +451,6 @@ def df_to_json(df: pd.DataFrame):
         ),
         mimetype="application/json",
     )
-
-
-def get_cohort_names_from_config(config_path):
-    """
-    returns the list of cohorts in the config file
-    """
-    config = config_reader(config_path)
-    return list(config["patient_annotation_path"].keys())
 
 
 def intersection(lst1, lst2):

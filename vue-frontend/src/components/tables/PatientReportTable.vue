@@ -187,7 +187,7 @@ export default {
         color: 'info',
         message: 'Downloading patient reports, this may take a while.'
       })
-      axios.get(this.patientReportUrl.replace(':patients', patientIdentifiers.join(';')), { responseType: 'arraybuffer' })
+      axios.get(this.patientReportUrl.replace(':patients', patientIdentifiers.join(',')), { responseType: 'arraybuffer' })
         .then((response) => {
           this.forceFileDownload(response, outputFilename)
         })

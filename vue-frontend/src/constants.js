@@ -22,6 +22,7 @@ export const DataType = Object.freeze({
   TOPAS_SUBSCORE: 'topas_subscore',
   BIOMARKER: 'biomarker',
   REPORT_SUMMARY: 'report_summary',
+  SEARCH_QC: 'search_qc',
   FP_PP: 'FP_PP'
 })
 

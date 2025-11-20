@@ -1,7 +1,6 @@
 import os
 import datetime
-from topas_portal.config_reader import *
-
+import json
 
 DATABASE_MODE = False  # True means using Postgres, False means in-memory
 DEBUG_MODE = False
@@ -67,6 +66,8 @@ TOPAS_SUBSCORE_FILES_PREFIX = "topas_scores/subbasket_scores_"
 TOPAS_RTK_SCORES_FILE = "topas_scores/topas_rtk_scores.tsv"
 TOPAS_RTK_Z_SCORES_FILE = "topas_scores/topas_rtk_scores_zscored.tsv"
 
+SEARCH_QC_FILE_FP = "maxquant_qc_table_fp.tsv"
+SEARCH_QC_FILE_PP = "maxquant_qc_table_pp.tsv"
 
 # pp z_scores
 PHOSPHO_MEASURES = "phospho_measures_z.tsv"
@@ -92,9 +93,16 @@ SAMPLE_ANNOTATION = {
 }
 
 
+# TODO: refactor this, if they need to be loaded from a config it means they are not constants...
+def load_json(config_path: str) -> dict:
+    with open(config_path, "r") as f:
+        config = json.load(f)
+    return config
+
+
 # getting the list of meta data columns for devextreme table
-main_config = config_reader(PORTAL_CONFIG_FILE)
-meta_columns_json = config_reader(main_config["meta_data_columns_config"])
+main_config = load_json(PORTAL_CONFIG_FILE)
+meta_columns_json = load_json(main_config["meta_data_columns_config"])
 front_end_col_names = meta_columns_json["front_end_col_names"]
 COMMON_META_DATA = [x["dataField"] for x in front_end_col_names]
 

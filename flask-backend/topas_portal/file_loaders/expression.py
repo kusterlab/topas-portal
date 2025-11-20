@@ -7,92 +7,79 @@ from topas_portal import settings
 from topas_portal import utils
 
 
-def load_expression_data(report_directory: Path, key_col: str, modality: str):
+def load_expression_data(measure_paths: list[Path], key_col: str):
     """
     reads in TSV files created during/before report generation
     """
-
-    def filter_columns(x: str):
-        return (
-            x.startswith("fc_")
-            or x.startswith("zscore_")
-            or x.startswith("rank_")
-            or x == key_col
-        )
-
-    def rename_columns(x: str):
-        if x.startswith("fc_"):
-            return "_".join(x.split("_")[1:]).strip() + " FC"
-        elif x.startswith("zscore_"):
-            return "_".join(x.split("_")[1:]).strip() + " Z-score"
-        elif x.startswith("rank_"):
-            return "_".join(x.split("_")[1:]).strip() + " Rank"
-        else:
-            return x
-
-    if not (
-        os.path.exists(report_directory / f"{modality}_measures_fc.tsv")
-        and os.path.exists(report_directory / f"{modality}_measures_z.tsv")
-        and os.path.exists(report_directory / f"{modality}_measures_rank.tsv")
-    ):
-        print("Some or all of the measures files are unavailable")
-        return
-
-    df_patient_expressions_fc = pd.read_csv(
-        report_directory / f"{modality}_measures_fc.tsv",
-        sep="\t",
-        usecols=filter_columns,
-        dtype={key_col: "string"},
-        index_col=key_col,
-        low_memory=False,
-    )
-    print(report_directory / f"{modality}_measures_fc.tsv  finished")
-
-    df_patient_expressions_zscore = pd.read_csv(
-        report_directory / f"{modality}_measures_z.tsv",
-        sep="\t",
-        usecols=filter_columns,
-        dtype={key_col: "string"},
-        index_col=key_col,
-        low_memory=False,
-    )
-    print(report_directory / f"{modality}_measures_z.tsv  finished")
-
-    df_patient_expressions_rank = pd.read_csv(
-        report_directory / f"{modality}_measures_rank.tsv",
-        sep="\t",
-        usecols=filter_columns,
-        dtype={key_col: "string"},
-        index_col=key_col,
-        low_memory=False,
-    )
-    df_patient_expressions_rank = df_patient_expressions_rank.rename(
-        columns={"rank_max": "Occurrence"}
-    )
-    print(report_directory / f"{modality}_measures_rank.tsv  finished")
-
-    df_patient_expressions = df_patient_expressions_fc.join(
-        df_patient_expressions_zscore
-    ).join(df_patient_expressions_rank)
-
-    df_patient_expressions = df_patient_expressions.rename(columns=rename_columns)
-    if modality == "phospho":
-        df_patient_expressions.index = df_patient_expressions.index.str.replace(
-            re.compile(r"([STY])\(Phospho \(STY\)\)"),
-            lambda pat: f"p{pat.group(1)}",
-            regex=True,
-        )
+    df_patient_measures = []
+    for measure_path in measure_paths:
+        if not measure_path.is_file():
+            print("Some or all of the measures files are unavailable")
+            return
+        df_patient_measures.append(load_measures(measure_path, key_col))
+    df_patient_expressions = pd.concat(df_patient_measures, axis=1)
     df_patient_expressions = utils.remove_patient_prefix(df_patient_expressions)
     print("Expression data loaded")
 
     return df_patient_expressions
 
 
+def load_measures(
+    measures_path: Path,
+    key_col: str,
+):
+    """
+    reads in TSV files created during/before report generation
+    """
+    intensity_unit = None
+    for (
+        intensity_unit_candidate,
+        file_suffix,
+    ) in utils.INTENSITY_UNIT_FILE_SUFFIXES.items():
+        if measures_path.stem.endswith(file_suffix):
+            intensity_unit = intensity_unit_candidate
+            break
+    else:
+        raise ValueError(
+            f"Could not determine intensity unit from measures file name {measures_path}"
+        )
+
+    def filter_columns(x: str):
+        return (
+            x.startswith(utils.INTENSITY_UNIT_PREFIXES[intensity_unit]) or x == key_col
+        )
+
+    def rename_columns(x: str):
+        if x.startswith(utils.INTENSITY_UNIT_PREFIXES[intensity_unit]):
+            return (
+                "_".join(x.split("_")[1:]).strip()
+                + utils.INTENSITY_UNIT_SUFFIXES[intensity_unit]
+            )
+        return x
+
+    df_patient_measures = pd.read_csv(
+        measures_path,
+        sep="\t",
+        usecols=filter_columns,
+        dtype={key_col: "string"},
+        index_col=key_col,
+        low_memory=False,
+    )
+    print(f"{measures_path} finished")
+    if intensity_unit == utils.IntensityUnit.RANK:
+        df_patient_measures = df_patient_measures.rename(
+            columns={"rank_max": "Occurrence"}
+        )
+
+    df_patient_measures = df_patient_measures.rename(columns=rename_columns)
+
+    return df_patient_measures
+
+
 @utils.check_path_exist
 def load_annotated_intensity_file(
     annotated_intensity_file: os.PathLike,
     index_col: str,
-    patients_list: list[str],
     extra_columns=None,
 ):
     if extra_columns is None:
@@ -101,6 +88,10 @@ def load_annotated_intensity_file(
     annot_df = pd.read_csv(
         annotated_intensity_file, low_memory=False, index_col=index_col
     )
+
+    patients_list: pd.Index = annot_df.filter(regex=r"^pat_|^ref_").columns
+    patients_list = patients_list.str.replace(pat=r"^pat_|^ref_", repl="", regex=True)
+    patients_list = patients_list.tolist()
 
     patient_list_prefixed = utils.add_patient_prefix(patients_list)
     identification_metadata_columns = utils.add_identification_metadata_prefix(

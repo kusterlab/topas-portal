@@ -212,7 +212,7 @@ export default {
         if (this.modalityType === 'batchcompare') {
           response = await axios.get(api.VENN_BATCH_COMPARE({ cohort_index: this.cohortIndex, level: this.dataType, batchlists: query }))
         } else {
-          response = await axios.get(api.VENN_PATIENT_COMPARE({ cohort_index: this.cohortIndex, level: this.dataType, patientslists: query }))
+          response = await axios.get(api.VENN_PATIENT_COMPARE({ cohort_index: this.cohortIndex, level: this.dataType, patients: query }))
         }
         this.vennData = response.data
         this.loading = false

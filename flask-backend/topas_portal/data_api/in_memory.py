@@ -6,7 +6,7 @@ import pandas as pd
 from topas_portal import settings
 from topas_portal import utils
 from topas_portal.databases.in_memory import InMemoryProvider
-from config import CohortConfig
+from topas_portal.config import CohortConfig
 from logger import CohortLogger
 from topas_portal.data_api.exceptions import IntensityUnitUnavailableError
 
@@ -57,6 +57,12 @@ class InMemoryCohortDataAPI:
         """in patient meta_df the replicates are not included"""
         return self.provider.get_dataframe(
             cohort_index, utils.DataType.PATIENT_METADATA
+        )
+    
+    def get_search_qc_df(self, cohort_index: str) -> pd.DataFrame:
+        """MaxQuant search QC statistics, e.g. #peptides, summed intensity"""
+        return self.provider.get_dataframe(
+            cohort_index, utils.DataType.SEARCH_QC
         )
 
     def _filter_expression_df(

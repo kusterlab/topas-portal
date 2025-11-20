@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 import re
 
 import pandas as pd
+import numpy as np
 
 from topas_portal import utils
 from topas_portal import settings
@@ -368,7 +369,7 @@ def get_patients_proteins_as_json(
     cohorts_db: data_api.CohortDataAPI,
     cohort_index: int,
     level: utils.DataType,
-    patientslists,
+    patientslists: str,
 ):
     if level == utils.DataType.FULL_PROTEOME:
         df = cohorts_db.get_protein_abundance_df(
@@ -384,7 +385,7 @@ def get_patients_proteins_as_json(
     samples_list = sample_annotation["Sample name"].unique().tolist()
     sample_names = utils.intersection(samples_list, df.columns)
     df = df[sample_names]
-    list_patients = patientslists.split(";")
+    list_patients = patientslists.split(",")
     df_list = []
     for patient in list_patients:
         df_list.append(get_protein_list_per_patient(patient, df))
@@ -410,61 +411,52 @@ def get_list_by_selected_modality_per_cohort(
     return utils.df_to_json(df)
 
 
-def identifications_across_all_patients(
+def num_identifications_per_patient(
     cohorts_db: data_api.CohortDataAPI, cohort_index: int, level: utils.DataType
 ):
+    num_ids_df = cohorts_db.get_search_qc_df(cohort_index)
     if level == utils.DataType.FULL_PROTEOME:
-        df = cohorts_db.get_protein_abundance_df(
-            cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
-        )
-        nan_count = pd.DataFrame(df.notna().sum())
+        num_ids_df = num_ids_df[["Proteins_fp"]]
     elif level == utils.DataType.PHOSPHO_PROTEOME:
-        df = cohorts_db.get_psite_abundance_df(
-            cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
-        )
-        nan_count = pd.DataFrame(df.notna().sum())
+        num_ids_df = num_ids_df[["Mod_peptides_pp"]]
     elif level == utils.DataType.FULL_PROTEOME_NUM_PEPTIDES:
-        df = cohorts_db.get_protein_abundance_df(
-            cohort_index, intensity_unit=utils.IntensityUnit.IDENTIFICATION_METADATA
-        )
-        df = df.apply(
-            lambda col: col.str.extract(settings.NUM_PEPTIDES_REGEX)[0]
-            .fillna(0)
-            .astype(int)
-        )
-        nan_count = pd.DataFrame(df.sum())
+        num_ids_df = num_ids_df[["Mod_peptides_fp"]]
     else:
-        raise ValueError(
-            f"Cannot compute peptide/protein counts for data type {level.value}"
-        )
-    nan_count.columns = ["identified"]
-    nan_count["patients"] = df.columns
-    return nan_count
+        raise ValueError(f"Unsupported data type for num identifications {level}")
+
+    num_ids_df = num_ids_df.drop(
+        index=num_ids_df.filter(regex=f"^{settings.REF_CHANNEL_PREFIX}", axis=0).index
+    )
+    num_ids_df = num_ids_df.reset_index()
+    num_ids_df = num_ids_df.dropna()
+    num_ids_df.columns = ["patients", "identified"]
+    return num_ids_df
 
 
-def sum_intensities_across_all_patients(
+def summed_intensities_per_patient(
     cohorts_db: data_api.CohortDataAPI, cohort_index: int, level: utils.DataType
 ):
     """
     Getting the sum of intensities accross all patients for the PP for the Patient centric tab
     """
+    summed_intensity_df = cohorts_db.get_search_qc_df(cohort_index)
     if level == utils.DataType.FULL_PROTEOME:
-        df = cohorts_db.get_psite_abundance_df(
-            cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
-        )
+        summed_intensity_df = summed_intensity_df[["Summed peptide intensity_fp"]]
     elif level == utils.DataType.PHOSPHO_PROTEOME:
-        df = cohorts_db.get_protein_abundance_df(
-            cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
-        )
+        summed_intensity_df = summed_intensity_df[["Summed phosphopeptide intensity"]]
     else:
-        raise ValueError(
-            f"Cannot compute summed intensities for data type {level.value}"
-        )
+        raise ValueError(f"Unsupported data type for summed intensity {level}")
 
-    sum_intensities = pd.DataFrame(df.sum())
-    sum_intensities.columns = ["sumIntensities"]
-    sum_intensities["patients"] = df.columns
-    return sum_intensities
+    summed_intensity_df: pd.DataFrame = np.log10(summed_intensity_df)
+    summed_intensity_df = summed_intensity_df.drop(
+        index=summed_intensity_df.filter(
+            regex=f"^{settings.REF_CHANNEL_PREFIX}", axis=0
+        ).index
+    )
+    summed_intensity_df = summed_intensity_df.reset_index()
+    summed_intensity_df = summed_intensity_df.dropna()
+    summed_intensity_df.columns = ["patients", "sumIntensities"]
+    return summed_intensity_df
 
 
 def get_reports_per_patient(

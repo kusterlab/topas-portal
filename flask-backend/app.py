@@ -94,7 +94,6 @@ with app.app_context():
     from compartments.drug_app import drug_page
 
     # from compartments.drugscore_app import drugscore_page # under development
-    from compartments.proteinscore_app import proteinscore_page
     from compartments.kinasescores_app import kinasescore_page
     from compartments.integration_log import integration_page
     from compartments.entityscore_app import entityscore_page
@@ -110,7 +109,6 @@ with app.app_context():
 app.register_blueprint(config_page)
 app.register_blueprint(qc_page)
 # app.register_blueprint(drugscore_page) # under development
-app.register_blueprint(proteinscore_page)
 app.register_blueprint(kinasescore_page)
 app.register_blueprint(drug_page)
 app.register_blueprint(integration_page)
@@ -232,7 +230,7 @@ def get_patient_reports_as_attachment(cohort_index: int, patients: str):
     def get_patient_report_path(patient_identifier: str):
         return reports_dir / f"{patient_identifier}_proteomics_results.xlsx"
 
-    patients = patients.split(";")
+    patients = patients.split(",")
     for patient in patients:
         path_to_patient_results = get_patient_report_path(patient)
         patient_report_excel.generate_patient_report(
@@ -462,10 +460,8 @@ def get_all_modality_possibilities(cohort_index: int, modality: str):
 
 @app.route(ApiRoutes.VENN_PATIENT_COMPARE)
 # http://localhost:3832/venn/0/patientcompare/fp/C3L-00032-1
-def get_patients_proteins(cohort_index: int, level: utils.DataType, patientslists: str):
-    return pp.get_patients_proteins_as_json(
-        cohorts_db, cohort_index, level, patientslists
-    )
+def get_patients_proteins(cohort_index: int, level: utils.DataType, patients: str):
+    return pp.get_patients_proteins_as_json(cohorts_db, cohort_index, level, patients)
 
 
 @app.route(ApiRoutes.VENN_BATCH_COMPARE)
@@ -489,26 +485,26 @@ def get_error_log():
 
 
 @app.route(ApiRoutes.PATIENT_CENTRIC_SUMMED_INTENSITY)
-# http://localhost:3832/patientcentric/ppintensity/0/fp
-# http://localhost:3832/patientcentric/ppintensity/0/pp
+# http://localhost:3832/patientcentric/summed_intensity/0/fp
+# http://localhost:3832/patientcentric/summed_intensity/0/pp
 def get_sum_intensities_pp_level(cohort_index: int, level: utils.DataType):
     if settings.DATABASE_MODE:
-        return {}  # this query is too slow in the database
+        return {}  # this query is not implemented yet in the database
 
     return utils.df_to_json(
-        pp.sum_intensities_across_all_patients(cohorts_db, cohort_index, level)
+        pp.summed_intensities_per_patient(cohorts_db, cohort_index, level)
     )
 
 
 @app.route(ApiRoutes.PATIENT_CENTRIC_COUNTS)
 @cache.cached(timeout=50)
-# http://localhost:3832/patientcenteric/proteincounts/0/fp
+# http://localhost:3832/patientcentric/counts/0/fp
 def get_identifications_frequency(cohort_index: int, level: utils.DataType):
     if settings.DATABASE_MODE:
         return {}  # this query is too slow in the database
 
     return utils.df_to_json(
-        pp.identifications_across_all_patients(cohorts_db, cohort_index, level)
+        pp.num_identifications_per_patient(cohorts_db, cohort_index, level)
     )
 
 
@@ -606,10 +602,8 @@ def get_lollipopexpression_rtk(cohort_index: int, patient: str):
 
 @app.route(ApiRoutes.TOPAS_IDS)
 # http://localhost:3832/topas/0/topasids
-def topas_unique(cohort_index: int, categories: str):
-    return bp.get_topas_unique(
-        cohorts_db.get_topas_rtk_scores_df(cohort_index), categories
-    )
+def topas_unique(cohort_index: int):
+    return bp.get_topas_unique(cohorts_db.get_topas_rtk_scores_df(cohort_index))
 
 
 @app.route(ApiRoutes.TOPAS_SUBSCORE)

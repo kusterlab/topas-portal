@@ -1,20 +1,20 @@
 <template>
   <div>
     <v-autocomplete
-      v-model="topasName"
+      v-model="selectedTopasIds"
       class="topas mt-1"
       dense
       outlined
       hide-details
       prepend-icon="mdi-filter"
       auto-select-first
-      :items="allTopass"
+      :items="allTopasIds"
       :multiple="multiple"
       :clearable="multiple"
       :small-chips="multiple"
       :deletable-chips="multiple"
       label="Select kinase"
-      @change="updateTopas"
+      @change="updateSelectedTopasIds"
     >
       <template #prepend-item>
         <v-list-item
@@ -35,14 +35,6 @@
         <v-divider v-show="multiple" />
       </template>
     </v-autocomplete>
-    <v-checkbox
-      v-if="scoreType"
-      v-model="showTopasRtkOnly"
-      class="ml-8"
-      label="TOPAS RTKs only"
-      hide-details
-      dense
-    />
     <v-radio-group
       v-if="scoreType"
       v-model="dataSource"
@@ -63,6 +55,7 @@
 <script>
 import axios from 'axios'
 import { mapMutations } from 'vuex'
+import { api } from '@/routes.ts'
 
 export default {
   name: 'TopasSelect',
@@ -81,25 +74,21 @@ export default {
     }
   },
   data: () => ({
-    topasName: null,
-    allTopass: [],
-    dataSource: 'z_score',
-    showTopasRtkOnly: true
+    selectedTopasIds: [],
+    allTopasIds: [],
+    dataSource: 'z_score'
   }),
   computed: {
     allSelected: function () {
-      return this.topasName && this.allTopass.length === this.topasName.length
+      return this.selectedTopasIds && this.allTopasIds.length === this.selectedTopasIds.length
     }
   },
   watch: {
     cohortIndex: function () {
       this.topasComboupdater()
     },
-    showTopasRtkOnly: function () {
-      this.topasComboupdater()
-    },
     dataSource: function () {
-      this.updateTopas()
+      this.updateSelectedTopasIds()
     }
   },
   mounted () {
@@ -112,14 +101,13 @@ export default {
     async topasComboupdater () { // retrieving different topas types RTK or main from the backend
       if (this.cohortIndex < 0) return
 
-      const categories = this.showTopasRtkOnly ? 'RTK' : 'all'
-      const topass = []
+      const allTopasIds = []
       try {
-        const response = await axios.get(`${process.env.VUE_APP_API_HOST}/topas/${this.cohortIndex}/topasids/${categories}`)
+        const response = await axios.get(api.TOPAS_IDS({ cohort_index: this.cohortIndex }))
 
         response.data.forEach(element => {
           if (element.ids !== 'num_identified' && element.ids !== 'num_annotated') {
-            topass.push(element.ids)
+            allTopasIds.push(element.ids)
           }
         })
       } catch (error) {
@@ -129,19 +117,19 @@ export default {
         })
       }
 
-      this.allTopass = topass
+      this.allTopasIds = allTopasIds
     },
-    updateTopas () {
-      if (!this.topasName || this.topasName.length === 0) return
-      this.$emit('select-topas', { dataSource: this.dataSource, identifier: this.topasName })
+    updateSelectedTopasIds () {
+      if (!this.selectedTopasIds || this.selectedTopasIds.length === 0) return
+      this.$emit('select-topas', { dataSource: this.dataSource, identifier: this.selectedTopasIds })
     },
     selectAll () {
       if (this.allSelected) {
-        this.topasName = null
+        this.selectedTopasIds = []
       } else {
-        this.topasName = this.allTopass
+        this.selectedTopasIds = this.allTopasIds
       }
-      this.updateTopas()
+      this.updateSelectedTopasIds()
     }
   }
 }

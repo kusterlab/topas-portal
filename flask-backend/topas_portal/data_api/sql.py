@@ -9,7 +9,7 @@ import topas_portal.file_loaders.expression as expression_loader
 from topas_portal import settings
 from topas_portal import utils
 from topas_portal.databases.sql import SQLProvider
-from config import CohortConfig
+from topas_portal.config import CohortConfig
 from logger import CohortLogger
 
 if settings.DATABASE_MODE:

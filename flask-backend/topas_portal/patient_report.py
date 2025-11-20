@@ -107,6 +107,7 @@ def _load_proteome(
             utils.IntensityUnit.RANK,
             utils.IntensityUnit.Z_SCORE,
             utils.IntensityUnit.FOLD_CHANGE,
+            utils.IntensityUnit.BATCH_RANK,
             utils.IntensityUnit.INTENSITY,
             utils.IntensityUnit.IDENTIFICATION_METADATA,
         ]
@@ -167,21 +168,16 @@ def _kinase_score(
 def _phospho_score(
     cohorts_db: data_api.CohortDataAPI, cohort_index: int, patient: str
 ) -> pd.DataFrame:
-    extra_columns = settings.ANNOTATION_COLUMNS.keys()
-    sub_df = cohorts_db.get_phosphorylation_scores_df(
+    intensity_units = [
+        utils.IntensityUnit.Z_SCORE,
+        utils.IntensityUnit.BATCH_RANK,
+    ]
+    return _load_proteome(
         cohort_index,
-        intensity_unit=utils.IntensityUnit.Z_SCORE,
-        extra_columns=extra_columns,
+        patient,
+        cohorts_db.get_phosphorylation_scores_df,
+        intensity_units,
     )
-    extra_columns = sub_df.columns.intersection(extra_columns).to_list()
-
-    sub_df["Gene names"] = sub_df.index
-    sub_df = sub_df[["Gene names", patient] + extra_columns].dropna()
-    zscore_col = utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.Z_SCORE].strip()
-    sub_df = sub_df.rename(columns={patient: zscore_col}).sort_values(
-        by=zscore_col, ascending=False
-    )
-    return sub_df
 
 
 def _transcriptomics(
@@ -190,19 +186,3 @@ def _transcriptomics(
     sub_df = cohorts_db.get_fpkm_df(intensity_unit=utils.IntensityUnit.Z_SCORE)
     sub_df["Gene names"] = sub_df.index
     return sub_df[["Gene names", patient]]
-
-
-def _get_sheetname_from_level(level: utils.DataType) -> str:
-    level_to_sheetname = {
-        utils.DataType.PHOSPHO_PROTEOME: "Phospho proteome",
-        utils.DataType.FULL_PROTEOME: "Global proteome",
-        utils.DataType.TOPAS_RTK_SCORE: "Topas",
-        utils.DataType.PHOSPHO_SCORE: "Protein phosphorylation",
-        utils.DataType.KINASE_SCORE: "Kinase",
-        utils.DataType.BIOMARKER: "Biomarkers",
-    }
-
-    if level not in level_to_sheetname:
-        raise ValueError(f"No sheet name specified for data type '{level.name}'")
-
-    return level_to_sheetname.get(level)

@@ -318,14 +318,14 @@ export default {
       },
       {
         text: 'TOPAS scores',
-        value: DataType.TOPAS_SCORE
+        value: DataType.TOPAS_RTK_SCORE
       },
       // {
       //  text: 'Important Phosphorylation',
       //  value: 'important_phosphorylation'
       // },
       {
-        text: 'Protein Poshphorylation scores',
+        text: 'Protein Phoshphorylation scores',
         value: DataType.PHOSPHO_SCORE
       },
       {
@@ -394,9 +394,9 @@ export default {
       if (this.Showdensity) {
         let url = ''
         if (this.correlationInputType === 'fpkm') {
-          url = `${process.env.VUE_APP_API_HOST}/density/fpkm/${this.identifier1}/intensity`
+          url = api.DENSITY_FPKM({ identifier: this.identifier1, intensity_unit: 'intensity' })
         } else {
-          url = `${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/density/protein/${this.identifier1}/intensity`
+          url = api.DENSITY_PROTEIN({ cohort_index: this.cohortIndex, identifier: this.identifier1, intensity_unit: 'intensity' })
         }
         const response = await axios.get(url)
         this.histPlottitleVariables = [{ name: 'All intensities', color: 'blue' }, { name: this.identifier1, color: 'red' }]
@@ -412,7 +412,7 @@ export default {
       const modality = (identifierNumber === 1) ? this.correlationInputType : this.correlationType
       let url = ''
       if (modality === DataType.TOPAS_IMPORTANT_PHOSPHO) {
-        url = `${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/important_phospho/${key}`
+        url = api.IMPORTANT_PHOSPHO({ cohort_index: this.cohortIndex, identifier: key })
         this.yaxisTable = 'ImportantPhosphorylation'
       } else if (modality === DataType.TOPAS_SCORE) {
         this.xaxisTable = 'TOPAS Scores'
@@ -420,7 +420,7 @@ export default {
         this.labelX = ''
         this.labelY = ''
         identifierNumber === 1 ? this.labelX = this.topasType : this.labelY = this.topasType
-        url = `${process.env.VUE_APP_API_HOST}/topas/${this.cohortIndex}/${key}/${this.topasType}`
+        url = api.TOPAS({ cohort_index: this.cohortIndex, topas_names: key, score_type: this.topasType })
       } else {
         const imputeString = this.doImpute ? 'impute' : 'noimpute'
         url = api.ABUNDANCE({ cohort_index: this.cohortIndex, level: modality, identifier: key, imputation: imputeString, include_ref: IncludeRef.EXCLUDE_REF })
@@ -464,7 +464,7 @@ export default {
     getCorrelation (level, inputLevel, key) {
       if (this.cohortIndex >= 0) {
         const customGroup = this.allPatients === 'cohort' ? 'all' : this.customGroup
-        this.jsonUrl = `${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/${inputLevel}/correlation/${level}/${key}/${this.intensityUnit}/${customGroup}`
+        this.jsonUrl = api.CORRELATION({ cohort_index: this.cohortIndex, level: inputLevel, level_2: level, identifier: key, intensity_unit: this.intensityUnit, patients_list: customGroup })
       }
     },
     updateSelectedRowsSample (selectedIds, selectedData) {

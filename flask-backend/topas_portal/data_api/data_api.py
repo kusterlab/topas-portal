@@ -8,7 +8,7 @@ import topas_portal.utils as utils
 
 if TYPE_CHECKING:
     from topas_portal.databases.data_provider import DataProvider
-    from config import CohortConfig
+    from topas_portal.config import CohortConfig
     from logger import CohortLogger
 
 
@@ -27,6 +27,9 @@ class CohortDataAPI(Protocol):
 
     def get_patient_metadata_df(self, cohort_index: str) -> pd.DataFrame:
         """in patient_metadata_df the replicates are not included"""
+    
+    def get_search_qc_df(self, cohort_index: str) -> pd.DataFrame:
+        """MaxQuant search QC statistics, e.g. #peptides, summed intensity"""
 
     def get_protein_abundance_df(
         self,
