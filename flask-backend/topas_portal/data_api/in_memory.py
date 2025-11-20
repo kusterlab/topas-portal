@@ -58,6 +58,12 @@ class InMemoryCohortDataAPI:
         return self.provider.get_dataframe(
             cohort_index, utils.DataType.PATIENT_METADATA
         )
+    
+    def get_search_qc_df(self, cohort_index: str) -> pd.DataFrame:
+        """MaxQuant search QC statistics, e.g. #peptides, summed intensity"""
+        return self.provider.get_dataframe(
+            cohort_index, utils.DataType.SEARCH_QC
+        )
 
     def _filter_expression_df(
         self,

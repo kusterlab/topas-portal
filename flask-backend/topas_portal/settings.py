@@ -66,6 +66,8 @@ TOPAS_SUBSCORE_FILES_PREFIX = "topas_scores/subbasket_scores_"
 TOPAS_RTK_SCORES_FILE = "topas_scores/topas_rtk_scores.tsv"
 TOPAS_RTK_Z_SCORES_FILE = "topas_scores/topas_rtk_scores_zscored.tsv"
 
+SEARCH_QC_FILE_FP = "maxquant_qc_table_fp.tsv"
+SEARCH_QC_FILE_PP = "maxquant_qc_table_pp.tsv"
 
 # pp z_scores
 PHOSPHO_MEASURES = "phospho_measures_z.tsv"

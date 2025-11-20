@@ -41,6 +41,7 @@ class DataType(str, Enum):
 
     PATIENT_METADATA = "patients_df"
     SAMPLE_ANNOTATION = "sample_annotation_df"
+    SEARCH_QC = "search_qc"
 
     TRANSCRIPTOMICS = "fpkm"
     GENOMICS = "genomics"

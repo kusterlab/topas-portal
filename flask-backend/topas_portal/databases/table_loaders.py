@@ -2,18 +2,18 @@ import traceback
 
 import pandas as pd
 
-from topas_portal import settings
-from topas_portal import utils
-from topas_portal.config import CohortConfig
-from topas_portal.file_loaders.cacheable import cacheable
-import topas_portal.file_loaders.topas as topas_loader
-import topas_portal.file_loaders.transcriptomics as tp
-import topas_portal.file_loaders.genomics as genomics_preprocess
-import topas_portal.file_loaders.phospho_score as phospho_score_loader
-import topas_portal.file_loaders.expression as expression_loader
-import topas_portal.file_loaders.sample_annotation as sample_annotation_loader
-import topas_portal.file_loaders.patient_metadata as patient_metadata_loader
-
+from .. import settings
+from .. import utils
+from ..config import CohortConfig
+from ..file_loaders.cacheable import cacheable
+from ..file_loaders import topas as topas_loader
+from ..file_loaders import transcriptomics as tp
+from ..file_loaders import genomics as genomics_preprocess
+from ..file_loaders import phospho_score as phospho_score_loader
+from ..file_loaders import expression as expression_loader
+from ..file_loaders import sample_annotation as sample_annotation_loader
+from ..file_loaders import patient_metadata as patient_metadata_loader
+from ..file_loaders import search_qc as search_qc_loader
 
 # -------------------------------------------------------------------
 # Loader functions (one per output key)
@@ -146,6 +146,16 @@ def load_protein_phos_scores(cohort_name: str, config: CohortConfig) -> pd.DataF
     )
 
 
+def load_search_qc(cohort_name: str, config: CohortConfig) -> pd.DataFrame:
+    search_qc_path_fp, search_qc_path_pp = config.get_search_qc_paths(cohort_name)
+    search_qc_df_fp = search_qc_loader.load_search_qc_table(search_qc_path_fp)
+    search_qc_df_pp = search_qc_loader.load_search_qc_table(search_qc_path_pp)
+    search_qc_df = search_qc_df_fp.merge(
+        search_qc_df_pp, on=["Sample", "Channel", "Experiment"], suffixes=("_fp", "_pp")
+    )
+    return search_qc_df.set_index("Sample")
+
+
 # -------------------------------------------------------------------
 # Orchestrator
 # -------------------------------------------------------------------
@@ -168,6 +178,7 @@ def load_all_tables(cohort_name: str, config: CohortConfig):
         utils.DataType.TOPAS_CK_SCORE: load_topas_ck_scores,
         utils.DataType.KINASE_SCORE: load_substrate_phos_scores,
         utils.DataType.PHOSPHO_SCORE: load_protein_phos_scores,
+        utils.DataType.SEARCH_QC: load_search_qc,
     }
 
     results = {}

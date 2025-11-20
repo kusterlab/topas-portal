@@ -113,6 +113,13 @@ class CohortConfig:
     def get_sample_annotation_path(self, cohort_name: str) -> Path:
         return Path(self.config["sample_annotation_path"][cohort_name])
 
+    def get_search_qc_paths(self, cohort_name: str) -> tuple[Path, Path]:
+        report_dir = self.get_report_directory(cohort_name)
+        return (
+            report_dir / settings.SEARCH_QC_FILE_FP,
+            report_dir / settings.SEARCH_QC_FILE_PP,
+        )
+
     def has_fp(self, cohort_name: str) -> bool:
         return self.config["FP"].get(cohort_name, 0) == 1
 

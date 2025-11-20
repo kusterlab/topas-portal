@@ -27,6 +27,9 @@ class CohortDataAPI(Protocol):
 
     def get_patient_metadata_df(self, cohort_index: str) -> pd.DataFrame:
         """in patient_metadata_df the replicates are not included"""
+    
+    def get_search_qc_df(self, cohort_index: str) -> pd.DataFrame:
+        """MaxQuant search QC statistics, e.g. #peptides, summed intensity"""
 
     def get_protein_abundance_df(
         self,

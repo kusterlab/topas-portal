@@ -487,14 +487,14 @@ def get_error_log():
 
 
 @app.route(ApiRoutes.PATIENT_CENTRIC_SUMMED_INTENSITY)
-# http://localhost:3832/patientcentric/ppintensity/0/fp
-# http://localhost:3832/patientcentric/ppintensity/0/pp
+# http://localhost:3832/patientcentric/summed_intensity/0/fp
+# http://localhost:3832/patientcentric/summed_intensity/0/pp
 def get_sum_intensities_pp_level(cohort_index: int, level: utils.DataType):
     if settings.DATABASE_MODE:
-        return {}  # this query is too slow in the database
+        return {}  # this query is not implemented yet in the database
 
     return utils.df_to_json(
-        pp.sum_intensities_across_all_patients(cohorts_db, cohort_index, level)
+        pp.summed_intensities_per_patient(cohorts_db, cohort_index, level)
     )
 
 
@@ -506,7 +506,7 @@ def get_identifications_frequency(cohort_index: int, level: utils.DataType):
         return {}  # this query is too slow in the database
 
     return utils.df_to_json(
-        pp.identifications_across_all_patients(cohorts_db, cohort_index, level)
+        pp.num_identifications_per_patient(cohorts_db, cohort_index, level)
     )
 
 
@@ -605,9 +605,7 @@ def get_lollipopexpression_rtk(cohort_index: int, patient: str):
 @app.route(ApiRoutes.TOPAS_IDS)
 # http://localhost:3832/topas/0/topasids
 def topas_unique(cohort_index: int):
-    return bp.get_topas_unique(
-        cohorts_db.get_topas_rtk_scores_df(cohort_index)
-    )
+    return bp.get_topas_unique(cohorts_db.get_topas_rtk_scores_df(cohort_index))
 
 
 @app.route(ApiRoutes.TOPAS_SUBSCORE)

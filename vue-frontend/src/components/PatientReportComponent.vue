@@ -156,10 +156,10 @@
                         :selected-lines="selectedLineppintensity"
                         :min-height="minHeight"
                         :min-width="minWidth"
-                        xlabel="Sum of Normalized PP intensities all patients"
+                        xlabel="log10(Summed PP intensities)"
                         :margin="histogramMargin"
                         :min-dose="0"
-                        :max-dose="500000"
+                        :max-dose="12"
                         dose-unit="standard deviations"
                       />
                     </v-col>
@@ -177,10 +177,10 @@
                         :selected-lines="selectedLinefpintensity"
                         :min-height="minHeight"
                         :min-width="minWidth"
-                        xlabel="Sum of Normalized FP intensities all patients"
+                        xlabel="log10(Summed FP intensities)"
                         :margin="histogramMargin"
                         :min-dose="0"
-                        :max-dose="300000"
+                        :max-dose="12"
                         dose-unit="standard deviations"
                       />
                     </v-col>

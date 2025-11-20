@@ -37,6 +37,7 @@ DICT_ALL_DATA = {
     utils.DataType.TOPAS_CK_SCORE: [],
     utils.DataType.KINASE_SCORE: [],
     utils.DataType.PHOSPHO_SCORE: [],
+    utils.DataType.SEARCH_QC: [],
 }
 
 SHARED_COHORT = "shared"
