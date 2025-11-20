@@ -148,7 +148,8 @@ export default {
       { text: 'Endpoint', value: 'name' },
       { text: 'URL', value: 'url' },
       { text: 'Status', value: 'status' },
-      { text: 'Time (ms)', value: 'ms' }
+      { text: 'Time (ms)', value: 'ms' },
+      { text: 'Bytes', value: 'bytes' }
     ],
     results: [],
     errorLogs: ''
@@ -270,17 +271,22 @@ export default {
           const res = await fetch(ep.url, { method: 'GET' })
           const end = performance.now()
 
+          const buffer = await res.arrayBuffer()
+          const byteLength = buffer.byteLength
+
           // Update this one endpoint in-place
           this.$set(this.results, i, {
             ...ep,
             status: res.status,
-            ms: Math.round(end - start)
+            ms: Math.round(end - start),
+            bytes: byteLength
           })
         } catch (err) {
           this.$set(this.results, i, {
             ...ep,
             status: 'ERR',
-            ms: null
+            ms: null,
+            bytes: null
           })
         }
       })
