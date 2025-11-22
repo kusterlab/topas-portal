@@ -94,3 +94,6 @@ class ApiRoutes(ApiBase):
 
     PROTEIN_LIST = "/<int:cohort_index>/<string:level>/list"
 
+    # qc_app.py
+    PCA_UMAP = "/qc/<string:selected_genes_mode>/<data_type:level>/<int:cohort_index>/<string:dimensionality_reduction_method>/<include_ref:include_ref>/<string:use_replicate>/<string:custom_patients>/<float:imputation_ratio>"
+

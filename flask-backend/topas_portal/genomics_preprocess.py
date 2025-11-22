@@ -250,7 +250,7 @@ def merge_data_with_genomics_alterations(
     """
     try:
         genomics_alterations_df = get_genomics_alterations_per_identifier(
-            cohorts_db, identifier, annotation_type=annotation_type
+            cohorts_db, identifier
         )
 
         annotated_abundance_df = abundances_df.merge(

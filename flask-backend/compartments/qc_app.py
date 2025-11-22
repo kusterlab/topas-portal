@@ -10,6 +10,8 @@ import db
 from topas_portal import utils
 from topas_portal import settings
 import topas_portal.pca_umap as qc_meta
+from topas_portal import fetch_data_matrix as data
+from topas_portal.routes import ApiRoutes
 
 from sklearn.metrics import silhouette_samples
 
@@ -20,23 +22,22 @@ qc_page = Blueprint(
 cohorts_db = db.cohorts_db
 
 
-def main(
+def pca_umap(
     input_data_type: utils.DataType,
     cohort_index: str,
     dimensionality_reduction_method: str,
-    use_ref: str,
+    include_ref: utils.IncludeRef,
     use_replicate: str,
-    topas_genes: Optional[List[str]] = None,
+    selected_genes: Optional[List[str]] = None,
     meta_col_silhoutte: str = "Paper Entity",
     do_only_silhouette: bool = False,
     min_num_patients: int = 4,
     before_cluster: bool = True,
-    custom_list_patients = [],
-    min_sample_occurrence_ratio = 0.9,
-    
+    custom_list_patients=[],
+    min_sample_occurrence_ratio=0.9,
 ):
     """
-    Performs PCA or UMAP dimensionality reduction on proteomics or phospho-proteomics data 
+    Performs PCA or UMAP dimensionality reduction on proteomics or phospho-proteomics data
     for a given cohort and returns the transformed data along with variance information.
 
     Args:
@@ -45,7 +46,7 @@ def main(
         dimensionality_reduction_method (str): The method used for dimensionality reduction (e.g., PCA, UMAP).
         use_ref (str): Whether to include reference channels in the analysis ("ref" for True).
         use_replicate (str): Whether to include replicates in the analysis ("replicate" for True).
-        topas_genes (Optional[List[str]]): A list of selected genes for analysis. Defaults to None.
+        selected_genes (Optional[List[str]]): A list of selected genes for analysis. Defaults to None.
         meta_col_silhoutte (str): Metadata column used for silhouette score calculation. Defaults to "Paper Entity".
         do_only_silhouette (bool): If True, only calculates silhouette scores. Defaults to False.
         min_num_patients (int): Minimum number of patients required for silhouette calculation. Defaults to 4.
@@ -68,49 +69,40 @@ def main(
         - If `do_only_silhouette` is True, returns silhouette scores instead of dimensionality reduction results.
         - Scales the principal components between -1 and 1 for consistency.
     """
-    cohort_index = int(cohort_index)
-    only_ref_channels = use_ref == "onlyref"
-    if only_ref_channels and dimensionality_reduction_method == 'ppca':
-        dimensionality_reduction_method = 'pca'
-
-    use_ref = use_ref == "ref"
-    if only_ref_channels:
-        use_ref = True
-        
     use_replicate = use_replicate == "replicate"
-    if topas_genes is None:
-        print('No custom set of genes are selelcted')
-        topas_genes = []
+    if selected_genes is None:
+        print("No custom set of genes are selected")
+        selected_genes = []
 
-    
-    # the column names of the two pc vectors
-    pc_cols = settings.QC_PCS
-    cohort_name = cohorts_db.config.get_cohort_name(cohort_index)
-    reports_dir = cohorts_db.config.get_report_directory(cohort_name)
     sample_annotation_df = cohorts_db.get_sample_annotation_df(cohort_index)
-    
+
     # example: custom_list_patients = 'H021-UQBN7H-T2,H021-E381AV-T2-E2,H021-S1WQZ5-M1,H021-YTWLBM-T3-E1,H021-9DVBZG-M1-E2,H021-3P7FPW-T1-E1'
-    custom_list_patients = 'all' if custom_list_patients== 'all' else (custom_list_patients).split(',')
-    if not custom_list_patients == 'all':
-        sample_annotation_df = sample_annotation_df[sample_annotation_df['Sample name'].isin(custom_list_patients)]
+    if custom_list_patients != "all":
+        sample_annotation_df = sample_annotation_df[
+            sample_annotation_df["Sample name"].isin(custom_list_patients.split(","))
+        ]
 
     if len(sample_annotation_df.index) == 0:
         raise ValueError("No samples available to perform PCA/UMAP on.")
     patients_df = cohorts_db.get_patient_metadata_df(cohort_index)
-    if not custom_list_patients == 'all':
-        patients_df = patients_df[patients_df['Sample name'].isin(custom_list_patients)]
+    if custom_list_patients != "all":
+        patients_df = patients_df[
+            patients_df["Sample name"].isin(custom_list_patients.split(","))
+        ]
+
+    df = load_pca_data(cohort_index, input_data_type, include_ref)
+    df = df.loc[:, df.columns.isin(sample_annotation_df["Sample name"])]
+
     all_principal_dfs, all_principal_variances, imputed_data, metadata_df = (
         qc_meta.do_pca(
-            topas_genes,
-            reports_dir,
-            [input_data_type],
+            df,
+            selected_genes,
             sample_annotation_df,
             patients_df,
             min_sample_occurrence_ratio=min_sample_occurrence_ratio,
-            include_reference_channels=use_ref,
+            include_ref=include_ref,
             dimensionality_reduction_method=dimensionality_reduction_method,
             include_replicates=use_replicate,
-            only_ref_channels=only_ref_channels
         )
     )
 
@@ -143,6 +135,7 @@ def main(
     pcs_vars = all_principal_variances[0]
     string_cols = settings.QC_STRING_META  # meta data with string values
     int_cols = settings.QC_INT_META  # meta data with number values
+    pc_cols = settings.QC_PCS  # the column names of the two pc vectors
     sel_cols = [*pc_cols, *string_cols, *int_cols]
     sel_cols = utils.intersection(sel_cols, pc_df.columns)
     pc_df = pc_df[sel_cols]
@@ -155,6 +148,7 @@ def main(
         ].apply(lambda x: x.split("Batch")[1])
 
     pc_df[int_cols] = pc_df[int_cols].fillna(-1)
+    pc_df = pc_df.fillna("n.d.")
 
     var1 = 0
     var2 = 0
@@ -164,16 +158,76 @@ def main(
 
     # SCALING THE PCS BETWEEN -1 AND 1
     pc_df[pc_cols[0]] = np.interp(
-        pc_df[pc_cols[0]], (pc_df[pc_cols[0]].min(), pc_df[pc_cols[0]].max()), (-0.95, 0.95)
+        pc_df[pc_cols[0]],
+        (pc_df[pc_cols[0]].min(), pc_df[pc_cols[0]].max()),
+        (-0.95, 0.95),
     )
     pc_df[pc_cols[1]] = np.interp(
-        pc_df[pc_cols[1]], (pc_df[pc_cols[1]].min(), pc_df[pc_cols[1]].max()), (-0.95, 0.95)
+        pc_df[pc_cols[1]],
+        (pc_df[pc_cols[1]].min(), pc_df[pc_cols[1]].max()),
+        (-0.95, 0.95),
     )
     pc_df["index"] = pc_df.index
     pcs_dict = pc_df.to_dict(orient="records")
     pcs_dict = {"dataFrame": pcs_dict, "pcVars": [var1, var2]}
 
     return pcs_dict
+
+
+def load_pca_data(
+    cohort_index: int, input_data_type: utils.DataType, include_ref: utils.IncludeRef
+):
+    if input_data_type != utils.DataType.FP_PP:
+        return load_pca_data_single(
+            cohort_index,
+            input_data_type,
+            include_ref=include_ref,
+        )
+
+    list_dfs = []
+    for plot_type in [utils.DataType.FULL_PROTEOME, utils.DataType.PHOSPHO_PROTEOME]:
+        df = load_pca_data_single(
+            cohort_index,
+            plot_type,
+            include_ref=include_ref,
+        )
+        list_dfs.append(df)
+
+    fp_df = list_dfs[0]
+    pp_df = list_dfs[1]
+    pp_df = pp_df.set_index(pp_df.index.get_level_values("Modified sequence"))
+    print("Running multi level FP and PP")
+    return pd.concat([fp_df, pp_df])
+
+
+def load_pca_data_single(
+    cohort_index: int,
+    plot_type: utils.DataType,
+    include_ref: utils.IncludeRef,
+):
+    intensity_unit = utils.IntensityUnit.Z_SCORE
+    if plot_type in [
+        utils.DataType.FULL_PROTEOME,
+        utils.DataType.FULL_PROTEOME_ANNOTATED,
+        utils.DataType.PHOSPHO_PROTEOME,
+        utils.DataType.PHOSPHO_PROTEOME_ANNOTATED,
+    ]:
+        intensity_unit = utils.IntensityUnit.INTENSITY
+
+    df = data.fetch_data_matrix(
+        cohorts_db,
+        cohort_index,
+        level=plot_type,
+        intensity_unit=intensity_unit,
+        include_ref=include_ref,
+    )
+    df = _remove_prefix_from_columns(df)
+    return df
+
+
+def _remove_prefix_from_columns(df):
+    df.columns = df.columns.str.replace(settings.PATIENT_PREFIX, "")
+    return df
 
 
 def calculate_silhouette_scores(
@@ -233,30 +287,31 @@ def metadata():
     return jsonify(list_of_metadataTypes)
 
 
-@qc_page.route(
-    "/qc/all/<input_data_type>/<cohort_index>/<dimensionality_reduction_method>/<use_ref>/<use_replicate>/<custom_patients>/<imputation_ratio>"
-)
+@qc_page.route(ApiRoutes.PCA_UMAP)
 # http://localhost:3832/qc/all/fp/Intensity/0/ppca/noref/replicate/0.9
-def quality_control_all_genes(
-    input_data_type,
-    cohort_index,
-    dimensionality_reduction_method,
-    use_ref,
-    use_replicate,
-    custom_patients,
-    imputation_ratio
+def dimensionality_reduction(
+    selected_genes_mode: str,
+    level: utils.DataType,
+    cohort_index: int,
+    dimensionality_reduction_method: str,
+    include_ref: utils.IncludeRef,
+    use_replicate: str,
+    custom_patients: str,
+    imputation_ratio: float,
 ):
-    selected_genes = []  # if empty considers all genes
-    imputation_ratio = float(imputation_ratio)
-    PCA_umap_dic = main(
-        utils.DataType(input_data_type),
+    selected_genes = None
+    if selected_genes_mode == "selected":
+        selected_genes = _get_selected_genes()
+
+    PCA_umap_dic = pca_umap(
+        level,
         cohort_index,
         dimensionality_reduction_method,
-        use_ref,
+        include_ref,
         use_replicate,
-        topas_genes=selected_genes,
-        custom_list_patients = custom_patients,
-        min_sample_occurrence_ratio=imputation_ratio
+        selected_genes=selected_genes,
+        custom_list_patients=custom_patients,
+        min_sample_occurrence_ratio=imputation_ratio,
     )
     return Response(json.dumps(PCA_umap_dic), mimetype="application/json")
 
@@ -281,7 +336,6 @@ def useruploadGenes():
         return Response(f"{type(err).__name__}: {err}")
 
 
-
 def _get_selected_genes():
     curr_dir = os.getcwd()
     selected_proteins_file = os.path.join(curr_dir, "selected_proteins.csv")
@@ -290,42 +344,6 @@ def _get_selected_genes():
         os.remove(selected_proteins_file)
         selected_genes = list(df["selected_genes"])
         return selected_genes
-
-
-
-@qc_page.route(
-    "/qc/selected/<input_data_type>/<cohort_index>/<dimensionality_reduction_method>/<use_ref>/<use_replicate>/<custom_patients>/<imputation_ratio>"
-)
-def quality_control_selected_genes(
-    input_data_type,
-    cohort_index,
-    dimensionality_reduction_method,
-    use_ref,
-    use_replicate,
-    custom_patients,
-    imputation_ratio
-):
-    """
-    get the list of the selected proteins and perform PCA or UMAP with the selected list of Proteins
-    bk_genes = topas_annotation_dfs.values()
-    topas_genes = []
-    for genes in bk_genes:
-        topas_genes = [*topas_genes,*genes.gene]
-    """
-    selected_genes = _get_selected_genes()
-    imputation_ratio = float(imputation_ratio)
-
-    PCA_umap_dic = main(
-        utils.DataType(input_data_type),
-        cohort_index,
-        dimensionality_reduction_method,
-        use_ref,
-        use_replicate,
-        topas_genes=selected_genes,
-        custom_list_patients = custom_patients,
-        min_sample_occurrence_ratio = imputation_ratio
-    )
-    return Response(json.dumps(PCA_umap_dic), mimetype="application/json")
 
 
 @qc_page.route(
@@ -343,11 +361,11 @@ def sil_df_all_genes(
     min_num,
     imputation_ratio,
     beforeCluster="beforeCluster",
-    allorselected='all',
+    allorselected="all",
     custom_patients=[],
 ):
     beforeCluster = beforeCluster == "beforeCluster"
-    allgenes = (allorselected == 'all')
+    allgenes = allorselected == "all"
     imputation_ratio = float(imputation_ratio)
 
     if allgenes:
@@ -355,20 +373,20 @@ def sil_df_all_genes(
     else:
         selected_genes = _get_selected_genes()
     print(selected_genes)
-    #selected_genes = []  # if empty conssiders all genes
-    sil_df = main(
+    # selected_genes = []  # if empty conssiders all genes
+    sil_df = pca_umap(
         utils.DataType(input_data_type),
         cohort_index,
         dimensionality_reduction_method,
         use_ref,
         use_replicate,
-        topas_genes=selected_genes,
+        selected_genes=selected_genes,
         do_only_silhouette=True,
         meta_col_silhoutte=meta_col,
         min_num_patients=min_num,
         before_cluster=beforeCluster,
-        custom_list_patients = custom_patients,
-        min_sample_occurrence_ratio=imputation_ratio
+        custom_list_patients=custom_patients,
+        min_sample_occurrence_ratio=imputation_ratio,
     )
 
     return utils.df_to_json(sil_df)

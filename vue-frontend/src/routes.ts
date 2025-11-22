@@ -62,6 +62,7 @@ export const api = {
     BATCH_EFFECT: ({level, cohort_index, identifier, sample_ids, data_type}) => `${API_HOST}/batcheffect/${level}/${cohort_index}/${identifier}/${sample_ids}/${data_type}`,
     DIFFERENTIAL: ({cohort_index, level, grp1_ind, grp2_ind, y_axis_type}) => `${API_HOST}/differential/${cohort_index}/${level}/${grp1_ind}/${grp2_ind}/${y_axis_type}`,
     PROTEIN_LIST: ({cohort_index, level}) => `${API_HOST}/${cohort_index}/${level}/list`,
+    PCA_UMAP: ({selected_genes_mode, level, cohort_index, dimensionality_reduction_method, include_ref, use_replicate, custom_patients, imputation_ratio}) => `${API_HOST}/qc/${selected_genes_mode}/${level}/${cohort_index}/${dimensionality_reduction_method}/${include_ref}/${use_replicate}/${custom_patients}/${imputation_ratio}`,
     CANONICAL_PATHWAYS: ({taxcode, protein_search}) => `${API_HOST}/canonical_pathways/${taxcode}?protein_search=${protein_search}`,
     PATHWAY_SKELETONS: ({taxcode, link}) => `${API_HOST}/pathway_skeletons/${taxcode}?link=${link}`,
     ENRICHMENTS: ({cohort_index, grp_ind, method}) => `${API_HOST}/cohorts/${cohort_index}/enrichments/${grp_ind}?method=${method}`,
