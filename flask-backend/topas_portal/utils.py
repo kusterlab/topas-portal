@@ -75,10 +75,12 @@ class IntensityUnit(str, Enum):
     SCORE = "score"
     IDENTIFICATION_METADATA = "identification_metadata"
 
+
 INTENSITY_UNIT_PREFIXES = {
     IntensityUnit.Z_SCORE: "zscore_",
     IntensityUnit.FOLD_CHANGE: "fc_",
     IntensityUnit.RANK: "rank_",
+    IntensityUnit.BATCH_RANK: "batchrank_",
     IntensityUnit.IDENTIFICATION_METADATA: "Identification metadata ",
 }
 
@@ -96,7 +98,9 @@ INTENSITY_UNIT_FILE_SUFFIXES = {
     IntensityUnit.Z_SCORE: "_z",
     IntensityUnit.FOLD_CHANGE: "_fc",
     IntensityUnit.RANK: "_rank",
+    IntensityUnit.BATCH_RANK: "_batchrank",
 }
+
 
 class ImputationMode(str, Enum):
     NO_IMPUTE = "noimpute"
@@ -105,10 +109,13 @@ class ImputationMode(str, Enum):
 
 def add_patient_prefix(patient_list: list[str]):
     return [
-        settings.PATIENT_PREFIX + x
+        (
+            settings.PATIENT_PREFIX + x
+            if not x.startswith(settings.REF_CHANNEL_PREFIX)
+            else x
+        )
         for x in patient_list
-        if not x.startswith(settings.REF_CHANNEL_PREFIX)
-    ] + [x for x in patient_list if x.startswith(settings.REF_CHANNEL_PREFIX)]
+    ]
 
 
 def add_identification_metadata_prefix(patient_list: list[str]):

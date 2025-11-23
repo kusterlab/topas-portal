@@ -88,6 +88,10 @@ def load_annotated_intensity_file(
     annot_df = pd.read_csv(
         annotated_intensity_file, low_memory=False, index_col=index_col
     )
+    extra_columns_intersection = annot_df.columns.intersection(extra_columns)
+    annot_df.loc[:, extra_columns_intersection] = annot_df.loc[
+        :, extra_columns_intersection
+    ].fillna("")
 
     patients_list: pd.Index = annot_df.filter(regex=r"^pat_|^ref_").columns
     patients_list = patients_list.str.replace(pat=r"^pat_", repl="", regex=True)
