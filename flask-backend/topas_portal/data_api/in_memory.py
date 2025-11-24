@@ -154,8 +154,10 @@ class InMemoryCohortDataAPI:
         identifier: str = None,
         patient_name: str = None,
         extra_columns: Optional[list[str]] = None,
+        include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF
     ) -> pd.DataFrame:
         df = self.provider.get_dataframe(cohort_index, utils.DataType.PHOSPHO_SCORE)
+        df = _filter_for_ref(df, include_ref)
         return self._filter_expression_df(
             df, intensity_unit, identifier, patient_name, extra_columns
         )
