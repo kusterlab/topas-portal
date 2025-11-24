@@ -270,7 +270,7 @@ def get_abundance(
         )
     elif level == utils.DataType.PHOSPHO_SCORE:
         abundances = cohorts_db.get_phosphorylation_scores_df(
-            cohort_index, identifier=identifier
+            cohort_index, identifier=identifier, include_ref=include_ref
         )
     else:
         raise ValueError(f"Unknown data type for get_abundance: {level.value}")
