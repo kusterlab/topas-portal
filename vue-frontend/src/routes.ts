@@ -65,7 +65,7 @@ export const api = {
     CANONICAL_PATHWAYS: ({taxcode, protein_search}) => `${API_HOST}/canonical_pathways/${taxcode}?protein_search=${protein_search}`,
     PATHWAY_SKELETONS: ({taxcode, link}) => `${API_HOST}/pathway_skeletons/${taxcode}?link=${link}`,
     ENRICHMENTS: ({cohort_index, grp_ind, method}) => `${API_HOST}/cohorts/${cohort_index}/enrichments/${grp_ind}?method=${method}`,
-    PATIENT_REPORT_TABLE: ({cohort_index, patient, level, downloadmethod}) => `${API_HOST}/${cohort_index}/patient_reports/${patient}/${level}/${downloadmethod}`,
+    PATIENT_REPORT_TABLE: ({cohort_index, patient, level}) => `${API_HOST}/${cohort_index}/patient_reports/${patient}/${level}`,
     PATIENT_REPORT_TABLE_XLSX: ({cohort_index, patients}) => `${API_HOST}/${cohort_index}/patient_reports/${patients}`,
     TUMOR_ANTIGENS_SWARM_PLOT: ({cohort_index, patient}) => `${API_HOST}/${cohort_index}/patients/${patient}/tumor-antigens/swarm`,
     RTKS_SWARM_PLOT: ({cohort_index, patient}) => `${API_HOST}/${cohort_index}/patients/${patient}/rtks/swarm`,
