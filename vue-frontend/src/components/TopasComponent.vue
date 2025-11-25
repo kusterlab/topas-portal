@@ -172,6 +172,7 @@ export default {
     fixedDomain: false,
     topasData: [],
     allTopass: [],
+    lastDataSource: '',
     swarmPlotData: [],
     topasSubscoreData: [],
     showTopasSubscore: false,
@@ -203,8 +204,8 @@ export default {
     },
     getSelectedCells (value) {
       const selectedPatients = []
-      value.selectedPatiens.forEach(element => {
-        selectedPatients.push(this.topasData[element]['Sample name'])
+      value.selectedSamples.forEach(element => {
+        selectedPatients.push(this.swarmPlotData[element].index)
       })
       this.multiGroupPlotSelectedPatients = selectedPatients
       this.multiGroupPlotSelectedColor = value.colorCode
@@ -212,18 +213,20 @@ export default {
     updateCohort ({ dataSource, cohortIndex }) {
       this.cohortIndex = cohortIndex
     },
-    loadSwarmplot () {
-    },
     async getTopasData () {
       if (this.topasName.length === 0) return
+
       this.loading = true
       this.swarmPlotData = []
       this.swarmSelIds = []
-      this.topasData = []
-      const dataSource = api.TOPAS({ cohort_index: this.cohortIndex, topas_names: this.topasName, score_type: this.topasType })
+      this.topasData = api.TOPAS({ cohort_index: this.cohortIndex, topas_names: this.topasName, score_type: this.topasType })
+    },
+    async loadSwarmplot ({ dataSource }) {
+      if (dataSource.length === 0 || this.lastDataSource === dataSource) return
+
+      this.lastDataSource = dataSource
       let response = await axios.get(dataSource)
       if (response.data.length > 0) {
-        this.topasData = response.data
         this.swarmPlotData = response.data
         this.loading = false
         this.swarmField = 'Z-score'

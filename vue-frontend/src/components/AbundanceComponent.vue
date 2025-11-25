@@ -135,7 +135,7 @@
                 md="7"
               >
                 <expression-table
-                  :data-source="zScoreHistogramData"
+                  :data-source="abundanceQuery"
                   :selected-patient="selectedDotsInPlot"
                   @onRowSelect="updateSelectedRows"
                   @table-ready="loadSwarmplot"
@@ -156,8 +156,9 @@
                       class="ma-2"
                       color="primary"
                       @click="plotSelectedRows"
+                      :disabled="swarmSelIds.length===0"
                     >
-                      Render Selected samples
+                      Plot selected samples only
                     </v-btn>
                     <swarm-plot
                       v-show="swarmPlotData.length>0"
@@ -297,7 +298,8 @@ export default {
     allProteins: [],
     swarmPlotData: [],
     swarmSelIds: [],
-    zScoreHistogramData: [],
+    abundanceQuery: '',
+    lastDataSource: '',
     histogramMargin: { top: 20, right: 10, bottom: 50, left: 70 },
     selectedLines: [],
     selectedLinesConfidence: [],
@@ -353,7 +355,7 @@ export default {
       this.updateId()
     },
     mode: function (newMode, oldMode) {
-      this.zScoreHistogramData = []
+      this.abundanceQuery = ''
       this.swarmPlotData = []
       this.swarmSelIds = []
       if (newMode === DataType.PHOSPHO_PROTEOME || oldMode === DataType.PHOSPHO_PROTEOME) {
@@ -390,17 +392,17 @@ export default {
     },
     getExpression (mode, key) {
       this.loading = true
-      this.zScoreHistogramData = []
       this.swarmPlotData = []
       this.swarmSelIds = []
 
       const includeRef = this.includeRefChannels ? IncludeRef.INCLUDE_REF : IncludeRef.EXCLUDE_REF
       const query = api.ABUNDANCE({ cohort_index: this.cohortIndex, level: mode, identifier: key, imputation: 'noimpute', include_ref: includeRef })
-      this.zScoreHistogramData = query
+      this.abundanceQuery = query
     },
     async loadSwarmplot ({ dataSource }) {
-      if (dataSource.length === 0) return
+      if (dataSource.length === 0 || this.lastDataSource === dataSource) return
 
+      this.lastDataSource = dataSource
       const response = await axios.get(dataSource)
       this.swarmPlotData = response.data
       this.loading = false

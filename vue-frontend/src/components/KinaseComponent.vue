@@ -129,6 +129,7 @@ export default {
     selectedData: [],
     singleswarmData: [],
     url: '',
+    lastDataSource: '',
     plotSelIds: [],
     loading: false,
     activeKinase: ''
@@ -152,8 +153,9 @@ export default {
       this.selectedData = selectedData
     },
     async loadSwarmplot ({ dataSource }) {
-      if (dataSource.length === 0) return
+      if (dataSource.length === 0 || this.lastDataSource === dataSource) return
 
+      this.lastDataSource = dataSource
       const singleSwarm = await axios.get(dataSource)
       this.loading = false
       this.swarmShow = true
