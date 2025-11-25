@@ -29,7 +29,7 @@
             <v-checkbox
               v-model="showCorrelation"
               label="Show FPKM/protein correlation histogram"
-              @change="getpatientData"
+              @change="getPatientData"
             />
           </v-card-text>
         </v-card>
@@ -64,7 +64,7 @@
                 class="mt-4"
               >
                 <v-card-text>
-                  <patientscore-table :data-source="patientscoresDataurl" />
+                  <patientscore-table :data-source="patientScoresDataURL" />
                 </v-card-text>
               </v-card>
             </v-col>
@@ -219,131 +219,51 @@
             >
               <v-card flat>
                 <v-card-text>
-                  <v-btn-toggle
+                  <v-tabs
                     v-model="type"
                   >
-                    <v-btn
-                      value="rtk"
-                    >
-                      RTK Downstream
-                    </v-btn>
-                    <v-btn
-                      value="tumor"
-                    >
-                      Tumor Antigens
-                    </v-btn>
-                    <v-btn
-                      value="lollipop"
-                    >
-                      RTKs TOPAS vs Expression
-                    </v-btn>
-                  </v-btn-toggle>
-                  <!-- Lollipop and Circular Plots -->
-                  <v-row>
-                    <v-col
-                      sm="12"
-                      md="7"
-                      lg="7"
-                    >
-                      <Lollipop-plot
-                        v-if="lollipopData && displayrtkBar"
-                        :width="800"
-                        lollipop-id="topas2Lollipop"
-                        lolli-title="TOPAS Z-scores"
-                        :fixed-domain="fixedDomain"
-                        :vline="2"
-                        :lolliradian="1"
-                        :plot-data="lollipopData"
-                        :show-legends="true"
-                      />
-                    </v-col>
-                    <v-col
-                      sm="12"
-                      md="5"
-                      lg="5"
-                    >
-                      <Circularbar-plot
-                        v-if="lollipopData && displayrtkBar"
-                        plot-id="circular2Patway"
-                        :plot-data="lollipopData"
-                        :patient-name="firstPatient"
-                      />
-                    </v-col>
-                  </v-row>
-                  <v-row>
-                    <v-col
-                      sm="12"
-                      md="7"
-                      lg="7"
-                    >
-                      <Lollipop-plot
-                        v-if="lollipopDataTumor && displayTumorbar"
-                        :width="800"
-                        lollipop-id="topas2LollipopTumorantigen"
-                        lolli-title="Expression Z-scores"
-                        :fixed-domain="fixedDomain"
-                        :vline="2"
-                        :lolliradian="1"
-                        :plot-data="lollipopDataTumor"
-                        :show-legends="true"
-                      />
-                    </v-col>
-                    <v-col
-                      sm="12"
-                      md="5"
-                      lg="5"
-                    >
-                      <Circularbar-plot
-                        v-if="lollipopDataTumor && displayTumorbar"
-                        plot-id="circular2Tumor"
-                        :plot-data="lollipopDataTumor"
-                        :patient-name="firstPatient"
-                      />
-                    </v-col>
-                  </v-row>
-                  <!-- Full-Width Lollipop Plots -->
-                  <v-row>
-                    <v-col
-                      sm="12"
-                      md="6"
-                      lg="6"
-                    >
-                      <Lollipop-plot
-                        v-if="expressionDataRTK && displaylollipop"
-                        :width="1600"
-                        :height="400"
-                        :fixed-domain="fixedDomain"
-                        lolli-mode="true"
-                        lolliradian="4"
-                        lolli-title="Topas Z-scores | EXPRESSION Z-scores"
-                        lollipop-id="topas2ExpressionplotRTk"
-                        :plot-data="expressionDataRTK"
-                        overlapping-y="true"
-                        show-legends="true"
-                      />
-                    </v-col>
-                  </v-row>
-                  <v-row>
-                    <v-col
-                      sm="12"
-                      md="6"
-                      lg="6"
-                    >
-                      <Lollipop-plot
-                        v-if="expressionDataDownstream && displaylollipop"
-                        :width="1600"
-                        :height="400"
-                        :fixed-domain="fixedDomain"
-                        lolli-mode="true"
-                        lolliradian="2"
-                        lolli-title="TOPAS Z-scores | EXPRESSION Z-scores"
-                        lollipop-id="topas2ExpressionplotDownSignaling"
-                        :plot-data="expressionDataDownstream"
-                        overlapping-y="true"
-                        show-legends="true"
-                      />
-                    </v-col>
-                  </v-row>
+                    <v-tab href="#tumor">TUMOR ANTIGENS</v-tab>
+                    <v-tab href="#rtk">RTK</v-tab>
+                    <v-tab href="#cknk">CK / NK</v-tab>
+                    <v-tab href="#immune">IMMUNE STATUS</v-tab>
+                  </v-tabs>
+
+                  <v-divider></v-divider>
+
+                  <v-tabs-items v-model="type" v-if="firstPatient" class="min-height-1000">
+                    <v-tab-item value="tumor">
+                      <v-card flat>
+                        <v-card-text>
+                          <img :src="api.TUMOR_ANTIGENS_SWARM_PLOT({cohort_index: this.cohortIndex, patient: this.firstPatient})" />
+                        </v-card-text>
+                      </v-card>
+                    </v-tab-item>
+
+                    <v-tab-item value="rtk">
+                      <v-card flat>
+                        <v-card-text>
+                          <img :src="api.RTKS_SWARM_PLOT({cohort_index: this.cohortIndex, patient: this.firstPatient})" />
+                        </v-card-text>
+                      </v-card>
+                    </v-tab-item>
+
+                    <v-tab-item value="cknk">
+                      <v-card flat>
+                        <v-card-text>
+                          <img :src="api.CKS_NKS_SWARM_PLOT({cohort_index: this.cohortIndex, patient: this.firstPatient})" />
+                        </v-card-text>
+                      </v-card>
+                    </v-tab-item>
+
+                    <v-tab-item value="immune">
+                      <v-card flat>
+                        <v-card-text>
+                          <img :src="api.IMMUNE_STATUS_HEATMAP({cohort_index: this.cohortIndex, patient: this.firstPatient})" />
+                        </v-card-text>
+                      </v-card>
+                    </v-tab-item>
+
+                  </v-tabs-items>
                 </v-card-text>
               </v-card>
             </v-col>
@@ -361,8 +281,8 @@ import { mapMutations } from 'vuex'
 import CohortSelect from './partials/CohortSelect.vue'
 import patientscoreTable from '@/components/tables/PatientscoreTable.vue'
 import PatientReportTable from '@/components/tables/PatientReportTable.vue'
-import LollipopPlot from '@/components/plots/LollipopPlot'
-import CircularbarPlot from '@/components/plots/CircularbarPlot'
+// import LollipopPlot from '@/components/plots/LollipopPlot'
+// import CircularbarPlot from '@/components/plots/CircularbarPlot'
 import histogram from '@/components/plots/GenericHistogram.vue'
 import { DataType } from '@/constants'
 import { api } from '@/routes.ts'
@@ -372,9 +292,9 @@ export default {
   components: {
     CohortSelect,
     PatientReportTable,
-    LollipopPlot,
+    // LollipopPlot,
     histogram,
-    CircularbarPlot,
+    // CircularbarPlot,
     patientscoreTable
   },
   props: {
@@ -408,15 +328,17 @@ export default {
     ppeptideCounts: [],
     correlationStatistics: [],
     firstPatient: '',
-    patientscoresDataurl: '',
+    patientScoresDataURL: '',
     expressionDataRTK: false,
     expressionDataDownstream: false,
     type: 'tumor',
+    tumorAntigenSwarmPlot: null,
     selectedFPLines: [],
     selectedLinecorrelation: [],
     selectedpepLines: [],
     selectedfppepLines: [],
     selectedData: [],
+    api,
     allInputDataTypes: [
       {
         text: 'Report summary',
@@ -475,23 +397,19 @@ export default {
     fpintensitySum () {
       return this.summedIntensitiesFull.map(d => d.sumIntensities)
     },
-    displayrtkBar () {
-      return this.type === 'rtk'
-    },
-    displayTumorbar () {
-      return this.type === 'tumor'
-    },
-    displaylollipop () {
-      return this.type === 'lollipop'
-    },
     patientReportUrl () {
       return api.PATIENT_REPORT_TABLE_XLSX({ cohort_index: this.cohortIndex, patients: ':patients' })
     }
   },
   watch: {
     cohortIndex () {
-      this.getpatientData()
+      this.getPatientData()
     }
+    // async type (newType) {
+    //   if (newType === "tumor") {
+    //       const res = await axios.get(api.TUMOR_ANTIGENS_SWARM_PLOT(this.cohortIndex, this.firstPatient))
+    //   }
+    // }
   },
   methods: {
     ...mapMutations({
@@ -503,7 +421,7 @@ export default {
     toggleDiv (type) {
       this.type = type
     },
-    async getpatientData () {
+    async getPatientData () {
       this.patientData = null
       const requests = [
         {
@@ -587,7 +505,7 @@ export default {
     getscoresTable () {
       if (this.firstPatient.length === 0) return
 
-      this.patientscoresDataurl = api.PATIENT_REPORT_TABLE({
+      this.patientScoresDataURL = api.PATIENT_REPORT_TABLE({
         cohort_index: this.cohortIndex,
         patient: this.firstPatient,
         level: this.scoreType

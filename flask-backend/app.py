@@ -2,10 +2,7 @@ import traceback
 import sys
 import os
 import logging
-import shutil
 import threading
-from pathlib import Path
-import zipfile
 
 from flask import (
     Flask,
@@ -16,7 +13,6 @@ from flask import (
     request,
 )
 from flask_cors import CORS
-from flask_caching import Cache
 from flask_compress import Compress
 from flask_jwt_extended import (
     JWTManager,
@@ -27,7 +23,7 @@ from flask_jwt_extended import (
 
 import db
 import routing_converters
-
+from extensions import cache
 from topas_portal.routes import ApiRoutes
 from topas_portal.data_api.exceptions import (
     CohortDataNotLoadedError,
@@ -46,7 +42,6 @@ from topas_portal import correlations_preprocess as cp
 from topas_portal import fetch_data_matrix as hp
 from topas_portal import differential_expression as differential_test
 from topas_portal import genomics_preprocess as genomics_process
-from topas_portal import patient_report_excel
 
 debug = settings.DEBUG_MODE
 if len(sys.argv) > 1 and sys.argv[1] == "test":
@@ -77,7 +72,7 @@ app.url_map.converters["data_type"] = routing_converters.DataTypeConverter
 app.url_map.converters["intensity_unit"] = routing_converters.IntensityUnitConverter
 app.url_map.converters["include_ref"] = routing_converters.IncludeRefConverter
 
-cache = Cache(app)
+cache.init_app(app)
 jwt = JWTManager(app)
 Compress(app)
 
@@ -100,6 +95,7 @@ with app.app_context():
     from compartments.overview_app import overview_page
     from compartments.z_scoring_app import zscoring_page
     from compartments.ptmnavigator_app import ptmnavigator_page
+    from compartments.patient_report_app import patient_report_page
 
     if cohorts_db.config.do_load_data_on_startup() and (
         os.environ.get("WERKZEUG_RUN_MAIN") == "true" or not debug
@@ -116,6 +112,7 @@ app.register_blueprint(entityscore_page)
 app.register_blueprint(overview_page)
 app.register_blueprint(zscoring_page)
 app.register_blueprint(ptmnavigator_page)
+app.register_blueprint(patient_report_page)
 
 CORS(app)
 
@@ -183,91 +180,6 @@ def cohort_names():
 # http://localhost:3832/colnames
 def column_names():
     return jsonify(settings.front_end_col_names)
-
-
-@cache.cached(timeout=50)
-@app.route(ApiRoutes.PATIENT_REPORT_TABLE)
-def get_patient_report_table(cohort_index: int, patient: str, level: utils.DataType):
-    """Returns tables from the patient reports.
-
-    Example: http://localhost:3832/0/patient_reports/I007-031-108742/protein
-
-    Args:
-        cohort_index (int): cohort index
-        patient (str): patient identifier
-        level (utils.DataType): modality (e.g. full proteome, topas, etc.) to get
-            reports for, see utils.DataType.
-
-    Returns:
-        Response: jsonified dataframe with patient report table.
-    """
-    return utils.df_to_json(
-        pp.get_reports_per_patient(
-            cohorts_db,
-            cohort_index,
-            patient,
-            utils.DataType(level),
-        )
-    )
-
-
-@cache.cached(timeout=50)
-@app.route(ApiRoutes.PATIENT_REPORT_TABLE_XLSX)
-# http://localhost:3832/0/patient_reports/I007-031-108742
-def get_patient_reports_as_attachment(cohort_index: int, patients: str):
-    """Returns patient report excel files. For multiple reports, a zip file is returned.
-
-    Args:
-        cohort_index (int): cohort index
-        patient (str): patient identifiers separated by semicolons
-
-    Returns:
-        Response: excel or zip file with patient report(s)
-    """
-    reports_dir = Path(cohorts_db.get_report_dir(cohort_index)) / "Reports"
-    reports_dir.mkdir(exist_ok=True)
-
-    def get_patient_report_path(patient_identifier: str):
-        return reports_dir / f"{patient_identifier}_proteomics_results.xlsx"
-
-    patients = patients.split(",")
-    for patient in patients:
-        path_to_patient_results = get_patient_report_path(patient)
-        patient_report_excel.generate_patient_report(
-            cohorts_db, cohort_index, patient, path_to_patient_results
-        )
-
-    if len(patients) == 1:
-        path_to_patient_results = get_patient_report_path(patients[0])
-        if not os.path.exists(path_to_patient_results):
-            return f"Unable to download report for {patients[0]}", 400
-        shutil.copy(path_to_patient_results, app.config["UPLOAD_FOLDER"])
-        return send_from_directory(
-            app.config["UPLOAD_FOLDER"],
-            Path(path_to_patient_results).name,
-            as_attachment=True,
-        )
-    elif len(patients) > 1:
-        paths_to_patient_results = []
-        for patient in patients:
-            path_to_patient_results = get_patient_report_path(patient)
-            if not os.path.exists(path_to_patient_results):
-                return f"Unable to download report for {patient}", 400
-            paths_to_patient_results.append(path_to_patient_results)
-
-        output_zipfile = os.path.join(
-            app.config["UPLOAD_FOLDER"], "patient_reports.zip"
-        )
-        with zipfile.ZipFile(output_zipfile, "w") as zipFile:
-            for path_to_patient_results in paths_to_patient_results:
-                zipFile.write(
-                    path_to_patient_results,
-                    Path(path_to_patient_results).name,
-                    compress_type=zipfile.ZIP_STORED,
-                )  # no compression, because Excel files are already binary
-        return send_from_directory(
-            app.config["UPLOAD_FOLDER"], Path(output_zipfile).name, as_attachment=True
-        )
 
 
 # http://localhost:3832/entityscore/status

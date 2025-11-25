@@ -1,4 +1,4 @@
-from . import ApiRoutes, PtmNavigatorApiRoutes
+from . import ApiRoutes, PtmNavigatorApiRoutes, PatientReportApiRoutes
 import re
 
 
@@ -55,6 +55,6 @@ def generate_ts_file(enum_class):
 
 
 if __name__ == "__main__":
-    apis = [ ApiRoutes, PtmNavigatorApiRoutes ]
+    apis = [ ApiRoutes, PtmNavigatorApiRoutes, PatientReportApiRoutes ]
     with open("../vue-frontend/src/routes.ts", "w") as f:
         f.write(generate_ts_file(apis))

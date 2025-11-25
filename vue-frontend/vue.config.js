@@ -3,6 +3,7 @@ module.exports = defineConfig({
   transpileDependencies: [
     'vuetify'
   ],
+
   outputDir: '../dist',
 
   // relative to outputDir
