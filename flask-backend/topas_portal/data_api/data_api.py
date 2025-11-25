@@ -73,6 +73,7 @@ class CohortDataAPI(Protocol):
         intensity_unit: Optional[utils.IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
+        include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF
     ) -> pd.DataFrame:
         """Protein phosphorylation scores per sample"""
 
