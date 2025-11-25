@@ -139,6 +139,7 @@ class CohortConfig:
             utils.IntensityUnit.FOLD_CHANGE,
             utils.IntensityUnit.Z_SCORE,
             utils.IntensityUnit.RANK,
+            utils.IntensityUnit.BATCH_RANK,
         ]:
             fp_data_paths.append(
                 report_dir
@@ -162,6 +163,7 @@ class CohortConfig:
             utils.IntensityUnit.FOLD_CHANGE,
             utils.IntensityUnit.Z_SCORE,
             utils.IntensityUnit.RANK,
+            utils.IntensityUnit.BATCH_RANK,
         ]:
             pp_data_paths.append(
                 report_dir

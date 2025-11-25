@@ -79,12 +79,9 @@ class ApiRoutes(ApiBase):
     PATIENTS_ALL_ENTITIES = "/patients/<int:cohort_index>/all_entities"
 
     GENOMICS_IDENTIFIER = "/genomics/<string:identifier>"
-    ONCOKB_IDENTIFIER = "/oncokb/<string:identifier>"
 
     DENSITY_FPKM = "/density/fpkm/<string:identifier>/<intensity_unit:intensity_unit>"
     DENSITY_PROTEIN = "/<int:cohort_index>/density/protein/<string:identifier>/<intensity_unit:intensity_unit>"
-
-    IMPORTANT_PHOSPHO = "/<int:cohort_index>/important_phospho/<string:identifier>"
 
     ABUNDANCE = "/<int:cohort_index>/<data_type:level>/abundance/<string:identifier>/<string:imputation>/<include_ref:include_ref>"
     CORRELATION = "/<int:cohort_index>/<data_type:level>/correlation/<data_type:level_2>/<string:identifier>/<intensity_unit:intensity_unit>/<string:patients_list>"
@@ -93,4 +90,7 @@ class ApiRoutes(ApiBase):
     DIFFERENTIAL = "/differential/<int:cohort_index>/<data_type:level>/<string:grp1_ind>/<string:grp2_ind>/<string:y_axis_type>"
 
     PROTEIN_LIST = "/<int:cohort_index>/<string:level>/list"
+
+    # qc_app.py
+    PCA_UMAP = "/qc/<string:selected_genes_mode>/<data_type:level>/<int:cohort_index>/<string:dimensionality_reduction_method>/<include_ref:include_ref>/<string:use_replicate>/<string:custom_patients>/<float:imputation_ratio>"
 

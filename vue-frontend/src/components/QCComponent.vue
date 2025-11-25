@@ -363,8 +363,8 @@ export default {
           const dimReductionMethod = this.dimReductionMethod
           const numPatient = parseInt(this.minNumPatients)
           const inputDataType = this.inputDataType
-          let referenceChannel = this.includeReferenceChannels ? 'ref' : 'noref'
-          referenceChannel = this.onlyReferenceChannels ? 'onlyref' : referenceChannel
+          let referenceChannel = this.includeReferenceChannels ? 'include_ref' : 'exclude_ref'
+          referenceChannel = this.onlyReferenceChannels ? 'only_ref' : referenceChannel
           const replicate = (this.includeReplicates & !this.onlyReferenceChannels) ? 'replicate' : 'noreplicate'
           const silInputType = this.silhouetteInputType
           this.allorSelectedgenes = 'all' // running with all genes
@@ -454,8 +454,8 @@ export default {
       const customGroup = this.customGroup.length === 0 ? 'all' : this.customGroup
       const inputDataType = this.inputDataType
       const dimReductionMethod = this.dimReductionMethod
-      let referenceChannel = this.includeReferenceChannels ? 'ref' : 'noref'
-      referenceChannel = this.onlyReferenceChannels ? 'onlyref' : referenceChannel
+      let referenceChannel = this.includeReferenceChannels ? 'include_ref' : 'exclude_ref'
+      referenceChannel = this.onlyReferenceChannels ? 'only_ref' : referenceChannel
       const allSelected = this.allorSelectedgenes
       const replicate = this.includeReplicates ? 'replicate' : 'noreplicate'
       const imputationRatio = this.imputationRatio / 100.0

@@ -308,7 +308,7 @@ def get_abundance(
     ]:
         # adding genomics data
         try:
-            abundances_table = genomics_prep._merge_data_with_genomics_alterations(
+            abundances_table = genomics_prep.merge_data_with_genomics_alterations(
                 cohorts_db,
                 abundances_table,
                 identifier,
@@ -356,7 +356,7 @@ def get_batches_proteins_as_json(
     samples_list = sample_annotation["Sample name"].unique().tolist()
     sample_names = utils.intersection(samples_list, df.columns)
     df = df[sample_names]
-    list_batches = batchlists.split(";")
+    list_batches = batchlists.split(",")
     df_list = []
     for batch in list_batches:
         df_list.append(_get_protein_list_per_batch(batch, sample_annotation, df))

@@ -57,13 +57,13 @@ def get_enrichments(cohort_index: str, grp_ind: str):
             cohort_index,
             grp_ind,
             "index",
-            utils.DataType.PHOSPHO_PROTEOME,
+            utils.DataType.FULL_PROTEOME,
             "p_values",
         )
         data_list = []
 
         for _, row in t_test_df.iterrows():
-            genes = row["Genes"].split(";")
+            genes = row["Gene Names"].split(";")
             for g in genes:
                 data_list.append({
                     "id": g,

@@ -12,7 +12,6 @@ export const DataType = Object.freeze({
   KINASE_SUBSTRATE: 'kinase_substrate',
   TOPAS_KINASE_SCORE: 'topas_kinase',
   TOPAS_KINASE_SUBSTRATE: 'topas_kinase_substrate',
-  TOPAS_IMPORTANT_PHOSPHO: 'important_phosphorylation',
   TOPAS_PHOSPHO_SCORE: 'topas_phospho',
   TOPAS_PHOSPHO_SCORE_PSITE: 'topas_phospho_psite',
   TOPAS_PROTEIN: 'topas_expression',
@@ -29,4 +28,14 @@ export const DataType = Object.freeze({
 export const IncludeRef = Object.freeze({
   INCLUDE_REF: 'include_ref',
   EXCLUDE_REF: 'exclude_ref'
+})
+
+export const IntensityUnit = Object.freeze({
+  INTENSITY: 'intensity',
+  Z_SCORE: 'z_scored',
+  FOLD_CHANGE: 'fc',
+  RANK: 'rank',
+  BATCH_RANK: 'batchrank',
+  SCORE: 'score',
+  IDENTIFICATION_METADATA: 'identification_metadata'
 })

@@ -190,8 +190,10 @@ import PatientSelectTable from './tables/DifferentialmetaTable.vue'
 import ScatterPlot from './plots/ScatterPlot.vue'
 import StatisticTable from './tables/StatisticsTable.vue'
 import SampleSelect from './partials/SampleSelect.vue'
-import { DataType } from '@/constants'
 import { proteinTypes } from './plots/proteinTypes'
+
+import { DataType } from '@/constants'
+import { api } from '@/routes.ts'
 
 export default {
   name: 'TopasComponent',
@@ -293,7 +295,7 @@ export default {
         }
 
         const modality = this.modality
-        const response = await axios.get(`${process.env.VUE_APP_API_HOST}/differential/${this.cohortIndex}/${modality}/${grp1}/${grp2}/${yAxistype}`)
+        const response = await axios.get(api.DIFFERENTIAL({ cohort_index: this.cohortIndex, level: modality, grp1_ind: grp1, grp2_ind: grp2, y_axis_type: yAxistype }))
         this.statisticData = response.data
         this.loading = false
       } catch (error) {

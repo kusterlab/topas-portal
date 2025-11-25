@@ -126,7 +126,7 @@ import axios from 'axios'
 import { mapGetters, mapState, mapMutations } from 'vuex'
 import CohortSelect from './CohortSelect.vue'
 import SampleSelect from './SampleSelect.vue'
-import { DataType, IncludeRef } from '@/constants'
+import { DataType, IncludeRef, IntensityUnit } from '@/constants'
 import { api } from '@/routes.ts'
 
 export default {
@@ -148,7 +148,8 @@ export default {
       { text: 'Endpoint', value: 'name' },
       { text: 'URL', value: 'url' },
       { text: 'Status', value: 'status' },
-      { text: 'Time (ms)', value: 'ms' }
+      { text: 'Time (ms)', value: 'ms' },
+      { text: 'Bytes', value: 'bytes' }
     ],
     results: [],
     errorLogs: ''
@@ -188,18 +189,18 @@ export default {
         identifier: this.proteinCheck,
         cnv_type: 'AMPLIFICATION',
         level_2: DataType.TOPAS_RTK_SCORE,
-        intensity_unit: 'fpkm',
-        patients_list: 'P001,P002',
+        intensity_unit: IntensityUnit.Z_SCORE,
+        patients_list: 'all',
         sample_ids: 'S001,S002',
         data_type: 'rna',
-        grp1_ind: 'grp1',
-        grp2_ind: 'grp2',
-        y_axis_type: 'linear',
+        grp1_ind: this.selectedSamples,
+        grp2_ind: 'index',
+        y_axis_type: 'fdr',
         taxcode: '9606',
         protein_search: this.proteinCheck,
         link: 'kegg/hsa04010.json',
-        grp_ind: 'grp1',
-        method: 'gsea',
+        grp_ind: this.selectedSamples,
+        method: 'gc',
         topas_names: this.topasCheck,
         score_type: 'score',
         categories: 'cat1,cat2',
@@ -248,18 +249,16 @@ export default {
         { name: 'PATIENTS_BY_FIELD_INTEREST', url: api.PATIENTS_BY_FIELD_INTEREST(testArguments) },
         { name: 'PATIENTS_ALL_ENTITIES', url: api.PATIENTS_ALL_ENTITIES(testArguments) },
         { name: 'GENOMICS_IDENTIFIER', url: api.GENOMICS_IDENTIFIER(testArguments) },
-        { name: 'ONCOKB_IDENTIFIER', url: api.ONCOKB_IDENTIFIER(testArguments) },
         { name: 'DENSITY_FPKM', url: api.DENSITY_FPKM(testArguments) },
         { name: 'DENSITY_PROTEIN', url: api.DENSITY_PROTEIN(testArguments) },
-        { name: 'IMPORTANT_PHOSPHO', url: api.IMPORTANT_PHOSPHO(testArguments) },
         { name: 'ABUNDANCE', url: api.ABUNDANCE(testArguments) },
         { name: 'CORRELATION', url: api.CORRELATION(testArguments) },
-        { name: 'BATCH_EFFECT', url: api.BATCH_EFFECT(testArguments) },
+        { name: 'BATCH_EFFECT', url: api.BATCH_EFFECT(testArguments) }, // TODO: fix this
         { name: 'DIFFERENTIAL', url: api.DIFFERENTIAL(testArguments) },
         { name: 'PROTEIN_LIST', url: api.PROTEIN_LIST(testArguments) },
         { name: 'CANONICAL_PATHWAYS', url: api.CANONICAL_PATHWAYS(testArguments) },
-        { name: 'PATHWAY_SKELETONS', url: api.PATHWAY_SKELETONS(testArguments) },
-        { name: 'ENRICHMENTS', url: api.ENRICHMENTS(testArguments) }
+        { name: 'PATHWAY_SKELETONS', url: api.PATHWAY_SKELETONS(testArguments) }
+        // { name: 'ENRICHMENTS', url: api.ENRICHMENTS(testArguments) }  // too slow and currently not used
       ]
 
       // Immediately display table
@@ -272,17 +271,22 @@ export default {
           const res = await fetch(ep.url, { method: 'GET' })
           const end = performance.now()
 
+          const buffer = await res.arrayBuffer()
+          const byteLength = buffer.byteLength
+
           // Update this one endpoint in-place
           this.$set(this.results, i, {
             ...ep,
             status: res.status,
-            ms: Math.round(end - start)
+            ms: Math.round(end - start),
+            bytes: byteLength
           })
         } catch (err) {
           this.$set(this.results, i, {
             ...ep,
             status: 'ERR',
-            ms: null
+            ms: null,
+            bytes: null
           })
         }
       })

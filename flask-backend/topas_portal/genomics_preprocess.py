@@ -180,33 +180,24 @@ def get_cnv_from_the_ONKOKB_api(gene_name, cnv_type, oncokb_api_token):
 def get_genomics_alterations_per_identifier(
     cohorts_db: data_api.CohortDataAPI,
     identifier: str,
-    annotation_type="genomics_annotations",
 ):
-    if annotation_type == "genomics_annotations":
-        genomics_df = cohorts_db.get_genomics()
-    else:
-        genomics_df = cohorts_db.get_oncoKB_annotations()
+    genomics_df = cohorts_db.get_genomics()
 
     identifiers_list = identifier.split(";")
     # this is to cover if only one protein of a protein group matches to the genomics data
     identifiers_list = utils.intersection(identifiers_list, genomics_df.columns)
-    try:
-        sub_df = genomics_df[[*["Sample name"], *identifiers_list]].set_index(
-            "Sample name"
-        )
-        sub_df = sub_df.dropna()
-        genomics_annotation_list = []
 
-        for i in range(len(sub_df)):
-            temp = sub_df.iloc[i, :].tolist()
-            temp = (";").join(temp)
-            genomics_annotation_list.append(temp)
+    sub_df = genomics_df[[*["Sample name"], *identifiers_list]].set_index("Sample name")
+    sub_df = sub_df.dropna()
+    genomics_annotation_list = []
 
-        sub_df[annotation_type] = genomics_annotation_list
-        return sub_df[[annotation_type]]
-    except Exception as err:
-        print(f"{type(err).__name__}: {err} in getting Genomics data")
-        return f"Unexpected {err=}, {type(err)=}"
+    for i in range(len(sub_df)):
+        temp = sub_df.iloc[i, :].tolist()
+        temp = (";").join(temp)
+        genomics_annotation_list.append(temp)
+
+    sub_df["genomics_annotations"] = genomics_annotation_list
+    return sub_df[["genomics_annotations"]]
 
 
 def _clean_annotation(x):
@@ -246,7 +237,7 @@ def make_final_genomics_annotation(df):
     return df
 
 
-def _merge_data_with_genomics_alterations(
+def merge_data_with_genomics_alterations(
     cohorts_db: data_api.CohortDataAPI,
     abundances_df: pd.DataFrame,
     identifier: str,
@@ -259,7 +250,7 @@ def _merge_data_with_genomics_alterations(
     """
     try:
         genomics_alterations_df = get_genomics_alterations_per_identifier(
-            cohorts_db, identifier, annotation_type=annotation_type
+            cohorts_db, identifier
         )
 
         annotated_abundance_df = abundances_df.merge(

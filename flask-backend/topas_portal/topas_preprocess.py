@@ -164,7 +164,7 @@ def get_topas_data(
     topas_subset_df = topas_subset_df[selected_columns]
     
     try:
-        topas_subset_df = gp._merge_data_with_genomics_alterations(
+        topas_subset_df = gp.merge_data_with_genomics_alterations(
             cohorts_db,
             topas_subset_df,
             topas_names,
@@ -491,20 +491,17 @@ def get_topas_subscore_data_per_type(
         # To get the same data in JSON format
         json_data = get_topas_subscore_data_per_type(report_dir="path/to/reports", topas_name="Topas1", return_json=True)
     """
-    try:
-        df = topas_loader.load_topas_subscore_table(
-            report_dir, topas_name, return_wide=True
-        )
-        df = df.set_index("Sample name")
-        df = df.filter(regex=sub_type)
-        if return_json:
-            df.columns = ["Z-score"]
-            df["Sample name"] = df.index
-            df = df.dropna()
-            return utils.df_to_json(df)
+    df = topas_loader.load_topas_subscore_table(
+        report_dir, topas_name, return_wide=True
+    )
+    df = df.set_index("Sample name")
+    df = df.filter(regex=sub_type)
+    if return_json:
+        df.columns = ["Z-score"]
+        df["Sample name"] = df.index
+        df = df.dropna()
+        return utils.df_to_json(df)
 
-        df = df.T
-        df.columns = df.columns + " Z-score"
-    except:
-        raise ValueError(f"no data found for the TOPAS subscore {topas_name}")
+    df = df.T
+    df.columns = df.columns + " Z-score"
     return df

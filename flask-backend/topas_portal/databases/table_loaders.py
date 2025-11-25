@@ -53,15 +53,17 @@ def load_genomics_data(cohort_name: str, config: CohortConfig) -> pd.DataFrame:
 
 @cacheable(utils.DataType.FULL_PROTEOME)
 def load_fp_data(cohort_name: str, config: CohortConfig) -> pd.DataFrame:
+    if not config.has_fp(cohort_name):
+        return pd.DataFrame()
+
     fp_annotated_intensity_path, *fp_measures_paths = config.get_fp_data_paths(
         cohort_name
     )
-    if fp_annotated_intensity_path is None:
-        return pd.DataFrame()
 
     fp_intensity = expression_loader.load_annotated_intensity_file(
         fp_annotated_intensity_path,
         settings.FP_KEY,
+        extra_columns=list(settings.ANNOTATION_COLUMNS.keys()),
     )
     fp_df = expression_loader.load_expression_data(fp_measures_paths, settings.FP_KEY)
     return fp_df.join(fp_intensity, how="right")
@@ -69,11 +71,12 @@ def load_fp_data(cohort_name: str, config: CohortConfig) -> pd.DataFrame:
 
 @cacheable(utils.DataType.PHOSPHO_PROTEOME)
 def load_pp_data(cohort_name: str, config: CohortConfig) -> pd.DataFrame:
+    if not config.has_pp(cohort_name):
+        return pd.DataFrame()
+
     pp_annotated_intensity_path, *pp_measures_paths = config.get_pp_data_paths(
         cohort_name
     )
-    if pp_annotated_intensity_path is None:
-        return pd.DataFrame()
 
     pp_intensity = expression_loader.load_annotated_intensity_file(
         pp_annotated_intensity_path,
