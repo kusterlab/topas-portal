@@ -281,8 +281,6 @@ import { mapMutations } from 'vuex'
 import CohortSelect from './partials/CohortSelect.vue'
 import patientscoreTable from '@/components/tables/PatientscoreTable.vue'
 import PatientReportTable from '@/components/tables/PatientReportTable.vue'
-// import LollipopPlot from '@/components/plots/LollipopPlot'
-// import CircularbarPlot from '@/components/plots/CircularbarPlot'
 import histogram from '@/components/plots/GenericHistogram.vue'
 import { DataType } from '@/constants'
 import { api } from '@/routes.ts'
@@ -292,9 +290,7 @@ export default {
   components: {
     CohortSelect,
     PatientReportTable,
-    // LollipopPlot,
     histogram,
-    // CircularbarPlot,
     patientscoreTable
   },
   props: {
@@ -405,11 +401,6 @@ export default {
     cohortIndex () {
       this.getPatientData()
     }
-    // async type (newType) {
-    //   if (newType === "tumor") {
-    //       const res = await axios.get(api.TUMOR_ANTIGENS_SWARM_PLOT(this.cohortIndex, this.firstPatient))
-    //   }
-    // }
   },
   methods: {
     ...mapMutations({
