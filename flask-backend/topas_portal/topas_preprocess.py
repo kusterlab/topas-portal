@@ -181,6 +181,9 @@ def get_topas_data(
         pass
 
     topas_subset_df = topas_subset_df.sort_values(by='Z-score', ascending=False)
+    
+    topas_subset_df = topas_subset_df.reset_index(drop=True)
+    topas_subset_df["index"] = topas_subset_df.index
 
     return utils.df_to_json(topas_subset_df)
 
