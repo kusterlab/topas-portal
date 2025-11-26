@@ -432,51 +432,6 @@ def topas_annotations():
     return utils.df_to_json(cohorts_db.get_topas_annotation_df())
 
 
-@app.route(ApiRoutes.TOPAS_LOLLIPOP)
-# http://localhost:3832/topas/lollipopdata/0/I002-025-226610
-def get_circular_barplot_data(cohort_index: int, patient: str):
-    return utils.df_to_json(
-        bp.get_circular_barplot_data_pathways(
-            cohorts_db.get_topas_rtk_scores_df(
-                cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
-            ),
-            patient,
-        )
-    )
-
-
-@app.route(ApiRoutes.TOPAS_LOLLIPOP_TUMOR)
-# http://localhost:3832/topas/lollipopdata/0/I002-025-226610/tumor_antigen
-def get_circular_barplot_data_tumor(cohort_index: int, patient: str):
-    return utils.df_to_json(
-        bp.get_circular_barplot_data_tumor_antigens(
-            cohorts_db.get_protein_abundance_df(
-                cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
-            ),
-            patient,
-        )
-    )
-
-
-@app.route(ApiRoutes.TOPAS_EXPRESSION_DOWNSTREAM)
-# http://localhost:3832/topas/lollipopdata/expression/0/I002-025-226610/downstream_signaling
-def get_lollipopexpression_down_stream(cohort_index: int, patient: str):
-    return utils.df_to_json(
-        bp.get_lollipop_expression_topas(
-            cohorts_db.get_protein_abundance_df(
-                cohort_index,
-                intensity_unit=utils.IntensityUnit.Z_SCORE,
-                patient_name=patient,
-            ),
-            cohorts_db.get_topas_rtk_scores_df(
-                cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
-            ),
-            patient,
-            type_to_filter="downstream signaling",
-        )
-    )
-
-
 @app.route(ApiRoutes.PROTEIN_LIST)
 # http://localhost:3832/0/protein/list
 def get_list_proteins(cohort_index: int, level: str):
@@ -489,25 +444,6 @@ def get_list_proteins(cohort_index: int, level: str):
                 identifiers=None,
                 intensity_unit=None,
             ).index
-        )
-    )
-
-
-@app.route(ApiRoutes.TOPAS_EXPRESSION_RTK)
-# http://localhost:3832/topas/lollipopdata/expression/0/I002-025-226610/rtk
-def get_lollipopexpression_rtk(cohort_index: int, patient: str):
-    return utils.df_to_json(
-        bp.get_lollipop_expression_topas(
-            cohorts_db.get_protein_abundance_df(
-                cohort_index,
-                intensity_unit=utils.IntensityUnit.Z_SCORE,
-                patient_name=patient,
-            ),
-            cohorts_db.get_topas_rtk_scores_df(
-                cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
-            ),
-            patient,
-            type_to_filter="RTK",
         )
     )
 

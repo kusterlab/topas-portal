@@ -501,52 +501,11 @@ export default {
         patient: this.firstPatient,
         level: this.scoreType
       })
-      // this.patientscoresData = response.data
     },
     async updateSelectedRows (selectedIds, selectedData) {
       this.selectedData = selectedData
-      this.lollipopData = false
-      this.expressionDataRTK = false
-      this.expressionDataDownstream = false
-      this.lollipopDataTumor = false
       if (selectedData.length > 0) {
-        const firstPatient = selectedData[0]['Sample name']
-        this.firstPatient = firstPatient
-        const requests = [
-          {
-            name: 'lollipopData',
-            endpoint: api.TOPAS_LOLLIPOP({
-              cohort_index: this.cohortIndex,
-              patient: firstPatient
-            }),
-            errorMessage: 'Error: Could not load lollipop data'
-          },
-          {
-            name: 'lollipopDataTumor',
-            endpoint: api.TOPAS_LOLLIPOP_TUMOR({
-              cohort_index: this.cohortIndex,
-              patient: firstPatient
-            }),
-            errorMessage: 'Error: Could not load lollipop tumor data'
-          },
-          {
-            name: 'expressionDataRTK',
-            endpoint: api.TOPAS_EXPRESSION_RTK({
-              cohort_index: this.cohortIndex,
-              patient: firstPatient
-            }),
-            errorMessage: 'Error: Could not load RTK expression data'
-          },
-          {
-            name: 'expressionDataDownstream',
-            endpoint: api.TOPAS_EXPRESSION_DOWNSTREAM({
-              cohort_index: this.cohortIndex,
-              patient: firstPatient
-            }),
-            errorMessage: 'Error: Could not load downstream expression data'
-          }
-        ]
-        this.processRequestsAsync(requests)
+        this.firstPatient = selectedData[0]['Sample name']
 
         this.getscoresTable()
         const dashStyle = '5, 5'
@@ -597,7 +556,7 @@ export default {
         for (const { source, target, color, valueKey } of mappings) {
           this[target] = []
           this[source].forEach(element => {
-            if (element.patients === firstPatient) {
+            if (element.patients === this.firstPatient) {
               this[target].push({
                 color,
                 value: element[valueKey],
