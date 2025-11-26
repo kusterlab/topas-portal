@@ -235,7 +235,7 @@ import topasSelect from '@/components/partials/TopasSelect'
 import ProteinSelect from '@/components/partials/ProteinSelect'
 import densityPlot from '@/components/plots/BarhistPlot'
 
-import { DataType, IncludeRef, IntensityUnit } from '@/constants'
+import { DataType, IncludeRef, IntensityUnit, ImputationMode } from '@/constants'
 import { api } from '@/routes.ts'
 
 export default {
@@ -409,18 +409,14 @@ export default {
       this.labelX = this.plotScoreType
       this.labelY = this.plotScoreType
       const modality = (identifierNumber === 1) ? this.correlationInputType : this.correlationType
-      let url = ''
-      if (modality === DataType.TOPAS_SCORE) {
-        this.xaxisTable = 'TOPAS Scores'
-        this.yaxisTable = 'TOPAS Scores'
-        this.labelX = ''
-        this.labelY = ''
-        identifierNumber === 1 ? this.labelX = this.topasType : this.labelY = this.topasType
-        url = api.TOPAS({ cohort_index: this.cohortIndex, topas_names: key, score_type: this.topasType })
-      } else {
-        const imputeString = this.doImpute ? 'impute' : 'noimpute'
-        url = api.ABUNDANCE({ cohort_index: this.cohortIndex, level: modality, identifier: key, imputation: imputeString, include_ref: IncludeRef.EXCLUDE_REF })
-      }
+      const imputeString = this.doImpute ? ImputationMode.IMPUTE : ImputationMode.NO_IMPUTE
+      const url = api.ABUNDANCE({
+        cohort_index: this.cohortIndex,
+        level: modality,
+        identifier: key,
+        imputation: imputeString,
+        include_ref: IncludeRef.EXCLUDE_REF
+      })
       const response = await axios.get(url)
       if (response.data && response.data.length > 0) {
         response.data.forEach(element => { element.yValue = element[this.plotScoreType] })

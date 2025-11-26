@@ -272,6 +272,10 @@ def get_abundance(
         abundances = cohorts_db.get_phosphorylation_scores_df(
             cohort_index, identifier=identifier, include_ref=include_ref
         )
+    elif level == utils.DataType.TOPAS_RTK_SCORE:
+        abundances = cohorts_db.get_topas_rtk_scores_df(
+            cohort_index, identifier=identifier, include_ref=include_ref
+        )
     else:
         raise ValueError(f"Unknown data type for get_abundance: {level.value}")
 
@@ -305,6 +309,7 @@ def get_abundance(
         utils.DataType.TRANSCRIPTOMICS,
         utils.DataType.KINASE_SCORE,
         utils.DataType.PHOSPHO_SCORE,
+        utils.DataType.TOPAS_RTK_SCORE,
     ]:
         # adding genomics data
         try:

@@ -30,6 +30,11 @@ export const IncludeRef = Object.freeze({
   EXCLUDE_REF: 'exclude_ref'
 })
 
+export const ImputationMode = Object.freeze({
+  NO_IMPUTE: 'noimpute',
+  IMPUTE: 'impute'
+})
+
 export const IntensityUnit = Object.freeze({
   INTENSITY: 'intensity',
   Z_SCORE: 'z_scored',

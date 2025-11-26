@@ -58,12 +58,10 @@ class InMemoryCohortDataAPI:
         return self.provider.get_dataframe(
             cohort_index, utils.DataType.PATIENT_METADATA
         )
-    
+
     def get_search_qc_df(self, cohort_index: str) -> pd.DataFrame:
         """MaxQuant search QC statistics, e.g. #peptides, summed intensity"""
-        return self.provider.get_dataframe(
-            cohort_index, utils.DataType.SEARCH_QC
-        )
+        return self.provider.get_dataframe(cohort_index, utils.DataType.SEARCH_QC)
 
     def _filter_expression_df(
         self,
@@ -100,7 +98,6 @@ class InMemoryCohortDataAPI:
     ) -> pd.DataFrame:
         df = self.provider.get_dataframe(cohort_index, utils.DataType.FULL_PROTEOME)
         df = _filter_for_ref(df, include_ref)
-
         return self._filter_expression_df(
             df, intensity_unit, identifier, patient_name, extra_columns
         )
@@ -116,7 +113,6 @@ class InMemoryCohortDataAPI:
     ) -> pd.DataFrame:
         df = self.provider.get_dataframe(cohort_index, utils.DataType.PHOSPHO_PROTEOME)
         df = _filter_for_ref(df, include_ref)
-
         return self._filter_expression_df(
             df, intensity_unit, identifier, patient_name, extra_columns
         )
@@ -127,8 +123,10 @@ class InMemoryCohortDataAPI:
         intensity_unit: Optional[utils.IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
+        include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
     ) -> pd.DataFrame:
         df = self.provider.get_dataframe(cohort_index, utils.DataType.TOPAS_RTK_SCORE)
+        df = _filter_for_ref(df, include_ref)
         return self._filter_expression_df(df, intensity_unit, identifier, patient_name)
 
     def get_topas_ck_scores_df(
@@ -137,8 +135,10 @@ class InMemoryCohortDataAPI:
         intensity_unit: Optional[utils.IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
+        include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
     ) -> pd.DataFrame:
         df = self.provider.get_dataframe(cohort_index, utils.DataType.TOPAS_CK_SCORE)
+        df = _filter_for_ref(df, include_ref)
         return self._filter_expression_df(df, intensity_unit, identifier, patient_name)
 
     def get_report_dir(self, cohort_index: str) -> str:
@@ -154,7 +154,7 @@ class InMemoryCohortDataAPI:
         identifier: str = None,
         patient_name: str = None,
         extra_columns: Optional[list[str]] = None,
-        include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF
+        include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
     ) -> pd.DataFrame:
         df = self.provider.get_dataframe(cohort_index, utils.DataType.PHOSPHO_SCORE)
         df = _filter_for_ref(df, include_ref)

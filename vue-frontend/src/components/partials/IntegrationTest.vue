@@ -35,6 +35,14 @@
                 dense
               />
             </v-col>
+            <v-col cols="auto">
+              <v-text-field
+                v-model="ppeptideCheck"
+                style="width:100px"
+                label="P-peptide"
+                dense
+              />
+            </v-col>
 
             <v-col cols="auto">
               <v-text-field
@@ -126,7 +134,7 @@ import axios from 'axios'
 import { mapGetters, mapState, mapMutations } from 'vuex'
 import CohortSelect from './CohortSelect.vue'
 import SampleSelect from './SampleSelect.vue'
-import { DataType, IncludeRef, IntensityUnit } from '@/constants'
+import { DataType, IncludeRef, IntensityUnit, ImputationMode } from '@/constants'
 import { api } from '@/routes.ts'
 
 export default {
@@ -141,6 +149,7 @@ export default {
     showUpdateCohorts: true,
     logValue: '',
     proteinCheck: 'EGFR',
+    ppeptideCheck: 'AAAAAPAS(ph)ED',
     topasCheck: 'AXL',
     selectedSamples: [],
     loading: false,
@@ -210,7 +219,7 @@ export default {
         modality: 'rna',
         batchlists: 'b1,b2',
         include_ref: IncludeRef.INCLUDE_REF,
-        imputation: 'noimpute',
+        imputation: ImputationMode.NO_IMPUTE,
         selected_genes_mode: 'all',
         dimensionality_reduction_method: 'ppca',
         use_replicate: 'noreplicate',
@@ -237,7 +246,6 @@ export default {
         { name: 'ERROR_LOG', url: api.ERROR_LOG() },
         { name: 'PATIENT_CENTRIC_SUMMED_INTENSITY', url: api.PATIENT_CENTRIC_SUMMED_INTENSITY(testArguments) },
         { name: 'PATIENT_CENTRIC_COUNTS', url: api.PATIENT_CENTRIC_COUNTS(testArguments) },
-        { name: 'TOPAS', url: api.TOPAS(testArguments) },
         { name: 'TOPAS_ANNOTATIONS', url: api.TOPAS_ANNOTATIONS() },
         { name: 'TOPAS_IDS', url: api.TOPAS_IDS(testArguments) },
         { name: 'TOPAS_SUBSCORE', url: api.TOPAS_SUBSCORE(testArguments) },
@@ -252,7 +260,11 @@ export default {
         { name: 'GENOMICS_IDENTIFIER', url: api.GENOMICS_IDENTIFIER(testArguments) },
         { name: 'DENSITY_FPKM', url: api.DENSITY_FPKM(testArguments) },
         { name: 'DENSITY_PROTEIN', url: api.DENSITY_PROTEIN(testArguments) },
-        { name: 'ABUNDANCE', url: api.ABUNDANCE(testArguments) },
+        { name: 'ABUNDANCE/PROTEIN', url: api.ABUNDANCE(testArguments) },
+        { name: 'ABUNDANCE/PSITE', url: api.ABUNDANCE({ ...testArguments, level: DataType.PHOSPHO_PROTEOME, identifier: this.ppeptideCheck }) },
+        { name: 'ABUNDANCE/TRANSCRIPTOMICS', url: api.ABUNDANCE({ ...testArguments, level: DataType.TRANSCRIPTOMICS }) },
+        { name: 'ABUNDANCE/PHOSPHO_SCORE', url: api.ABUNDANCE({ ...testArguments, level: DataType.PHOSPHO_SCORE }) },
+        { name: 'ABUNDANCE/KINASE_SCORE', url: api.ABUNDANCE({ ...testArguments, level: DataType.KINASE_SCORE, identifier: 'EGFR(RTK-TOPAS)' }) },
         { name: 'CORRELATION', url: api.CORRELATION(testArguments) },
         { name: 'BATCH_EFFECT', url: api.BATCH_EFFECT(testArguments) }, // TODO: fix this
         { name: 'DIFFERENTIAL', url: api.DIFFERENTIAL(testArguments) },

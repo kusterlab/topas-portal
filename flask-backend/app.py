@@ -420,12 +420,6 @@ def get_identifications_frequency(cohort_index: int, level: utils.DataType):
     )
 
 
-@app.route(ApiRoutes.TOPAS)
-# http://localhost:3832/topas/0/ALK/topas_score
-def topas(cohort_index: int, topas_names: str, score_type: str):
-    return bp.get_topas_data(cohorts_db, cohort_index, topas_names, score_type)
-
-
 @app.route(ApiRoutes.TOPAS_ANNOTATIONS)
 # http://localhost:3832/topas/annotations
 def topas_annotations():
@@ -494,8 +488,10 @@ def patientsmetadata(cohort_index: int):
     sample_annotation_df = cohorts_db.get_sample_annotation_df(cohort_index)
     if "Entity" in sample_annotation_df.columns:
         sample_annotation_df = sample_annotation_df.drop(["Entity"], axis=1)
-    patien_meta_df = cohorts_db.get_patient_metadata_df(cohort_index)
-    final_df = utils.merge_with_patients_meta_df(sample_annotation_df, patien_meta_df)
+    patient_metadata_df = cohorts_db.get_patient_metadata_df(cohort_index)
+    final_df = utils.merge_with_patients_meta_df(
+        sample_annotation_df, patient_metadata_df
+    )
     return utils.df_to_json(final_df)
 
 

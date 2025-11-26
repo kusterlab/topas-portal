@@ -112,7 +112,7 @@ import kinasescoreTable from '@/components/tables/KinasescoreTable.vue'
 import SwarmPlot from '@/components/plots/SwarmPlot'
 import ProteinSelect from '@/components/partials/ProteinSelect'
 import explorerComponent from './partials/scoresComponent.vue'
-import { DataType, IncludeRef } from '@/constants'
+import { DataType, IncludeRef, ImputationMode } from '@/constants'
 import { api } from '@/routes.ts'
 
 export default {
@@ -143,7 +143,13 @@ export default {
     updateKinase ({ dataSource, identifier }) {
       this.activeKinase = identifier
       this.loading = true
-      this.url = api.ABUNDANCE({ cohort_index: this.cohortIndex, level: DataType.KINASE_SCORE, identifier: this.activeKinase, imputation: 'noimpute', include_ref: IncludeRef.EXCLUDE_REF })
+      this.url = api.ABUNDANCE({
+        cohort_index: this.cohortIndex,
+        level: DataType.KINASE_SCORE,
+        identifier: this.activeKinase,
+        imputation: ImputationMode.NO_IMPUTE,
+        include_ref: IncludeRef.EXCLUDE_REF
+      })
     },
     updateSelectedRows (selectedIds, selectedData) {
       this.plotSelIds = []

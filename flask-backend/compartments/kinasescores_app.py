@@ -34,8 +34,8 @@ def kinase_scores_plot(
     sample_annotation_df = cohorts_db.get_sample_annotation_df(cohort_index)
     if "Entity" in sample_annotation_df.columns:
         sample_annotation_df = sample_annotation_df.drop(["Entity"], axis=1)
-    patien_meta_df = cohorts_db.get_patient_metadata_df(cohort_index)
-    final_df = utils.merge_with_patients_meta_df(sample_annotation_df, patien_meta_df)
+    patient_metadata_df = cohorts_db.get_patient_metadata_df(cohort_index)
+    final_df = utils.merge_with_patients_meta_df(sample_annotation_df, patient_metadata_df)
     annotation_df = final_df.dropna()
 
     if one_vs_all == "one_vs_all":

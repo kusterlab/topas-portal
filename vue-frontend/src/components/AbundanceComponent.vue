@@ -258,7 +258,7 @@ import histogram from '@/components/plots/GenericHistogram'
 import SwarmPlot from '@/components/plots/SwarmPlot'
 import ProteinSelect from '@/components/partials/ProteinSelect.vue'
 import CohortSelect from './partials/CohortSelect.vue'
-import { DataType, IncludeRef } from '@/constants'
+import { DataType, IncludeRef, ImputationMode } from '@/constants'
 import { api } from '@/routes.ts'
 
 export default {
@@ -396,7 +396,13 @@ export default {
       this.swarmSelIds = []
 
       const includeRef = this.includeRefChannels ? IncludeRef.INCLUDE_REF : IncludeRef.EXCLUDE_REF
-      const query = api.ABUNDANCE({ cohort_index: this.cohortIndex, level: mode, identifier: key, imputation: 'noimpute', include_ref: includeRef })
+      const query = api.ABUNDANCE({
+        cohort_index: this.cohortIndex,
+        level: mode,
+        identifier: key,
+        imputation: ImputationMode.NO_IMPUTE,
+        include_ref: includeRef
+      })
       this.abundanceQuery = query
     },
     async loadSwarmplot ({ dataSource }) {

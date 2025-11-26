@@ -141,6 +141,7 @@ import TopasSelect from '@/components/partials/TopasSelect'
 import multiGroupPlot from '@/components/plots/MultiGroupPlot'
 import ExplorerComponent from '@/components/partials/scoresComponent.vue'
 import { api } from '@/routes.ts'
+import { DataType, IncludeRef, ImputationMode } from '@/constants'
 
 export default {
   name: 'TopasComponent',
@@ -219,7 +220,13 @@ export default {
       this.loading = true
       this.swarmPlotData = []
       this.swarmSelIds = []
-      this.topasData = api.TOPAS({ cohort_index: this.cohortIndex, topas_names: this.topasName, score_type: this.topasType })
+      this.topasData = api.ABUNDANCE({
+        cohort_index: this.cohortIndex,
+        level: DataType.TOPAS_RTK_SCORE,
+        identifier: this.topasName,
+        imputation: ImputationMode.NO_IMPUTE,
+        include_ref: IncludeRef.EXCLUDE_REF
+      })
     },
     async loadSwarmplot ({ dataSource }) {
       if (dataSource.length === 0 || this.lastDataSource === dataSource) return
