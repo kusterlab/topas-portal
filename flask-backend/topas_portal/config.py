@@ -202,7 +202,24 @@ class CohortConfig:
 
     def get_protein_phosphorylation_scores_path(self, cohort_name: str) -> Path:
         report_dir = self.get_report_directory(cohort_name)
-        return report_dir / settings.PHOSPHORYLATION_SCORES
+        return report_dir / settings.PHOSPHORYLATION_Z_SCORES
+
+    def get_protein_phos_data_paths(
+        self, cohort_name: str
+    ) -> tuple[Path, Path, Path, Path]:
+        protein_phos_data_paths = [
+            self.get_protein_phosphorylation_scores_path(cohort_name)
+        ]
+        report_dir = self.get_report_directory(cohort_name)
+        for intensity_unit in [
+            utils.IntensityUnit.RANK,
+            utils.IntensityUnit.BATCH_RANK,
+        ]:
+            protein_phos_data_paths.append(
+                report_dir
+                / f"phospho_score_measures{utils.INTENSITY_UNIT_FILE_SUFFIXES[intensity_unit]}.tsv"
+            )
+        return tuple(protein_phos_data_paths)
 
     def get_genomics_path(self, cohort_name: str) -> Path:
         return Path(self.config["genomics_path"])
@@ -231,7 +248,7 @@ class CohortConfig:
             utils.DataType.TOPAS_RTK_SCORE: self.get_topas_rtk_scores_paths,
             utils.DataType.TOPAS_CK_SCORE: self.get_topas_ck_scores_path,
             utils.DataType.KINASE_SCORE: self.get_topas_substrate_phos_paths,
-            utils.DataType.PHOSPHO_SCORE: self.get_protein_phosphorylation_scores_path,
+            utils.DataType.PHOSPHO_SCORE: self.get_protein_phos_data_paths,
         }
         input_files = input_file_dict[data_type](cohort_name)
         if isinstance(input_files, tuple):

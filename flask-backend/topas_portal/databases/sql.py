@@ -264,7 +264,7 @@ class SQLProvider:
             )
 
         elif data_type == "phospho_scores":  # for the phospho scores
-            intensity_file = settings.PHOSPHORYLATION_SCORES
+            intensity_file = settings.PHOSPHORYLATION_Z_SCORES
             key = settings.FP_KEY
             df_to_insert = phospho_score_loader.load_phosphorylation_scores(
                 Path(os.path.join(cohort_report_dir, intensity_file)), add_intensity_suffix=False

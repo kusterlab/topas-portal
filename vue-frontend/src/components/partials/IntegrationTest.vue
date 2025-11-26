@@ -210,7 +210,12 @@ export default {
         modality: 'rna',
         batchlists: 'b1,b2',
         include_ref: IncludeRef.INCLUDE_REF,
-        imputation: 'noimpute'
+        imputation: 'noimpute',
+        selected_genes_mode: 'all',
+        dimensionality_reduction_method: 'ppca',
+        use_replicate: 'noreplicate',
+        custom_patients: 'all',
+        imputation_ratio: '0.9'
       }
 
       const endpoints = [
@@ -257,7 +262,8 @@ export default {
         { name: 'DIFFERENTIAL', url: api.DIFFERENTIAL(testArguments) },
         { name: 'PROTEIN_LIST', url: api.PROTEIN_LIST(testArguments) },
         { name: 'CANONICAL_PATHWAYS', url: api.CANONICAL_PATHWAYS(testArguments) },
-        { name: 'PATHWAY_SKELETONS', url: api.PATHWAY_SKELETONS(testArguments) }
+        { name: 'PATHWAY_SKELETONS', url: api.PATHWAY_SKELETONS(testArguments) },
+        { name: 'PCA_UMAP', url: api.PCA_UMAP(testArguments) }
         // { name: 'ENRICHMENTS', url: api.ENRICHMENTS(testArguments) }  // too slow and currently not used
       ]
 

@@ -157,23 +157,23 @@ def check_path_exist(func):
     """
 
     def wrapper(path: str, *args, **kwargs):
-        if os.path.exists(path):
-            print("###")
-            print(f"Reading the file {path}")
-            try:
-                df = func(path, *args, **kwargs)
-                print(f"{path} loaded with success!")
-                return df
-            except Exception as err:
-                print(f"# ERROR in OPENING {path}: {type(err).__name__}: {err}.")
-                return [
-                    f"{type(err).__name__}: {err} in reading the file {path}. Check if it is opened somewhere"
-                ]
-                # raise PermissionError(f'error in reading the file {path} probably opened somewhere')
-        else:
+        if not os.path.exists(path):
             print(f"{path} does not exist")
             return [f"{path} does not exist"]
             # raise FileNotFoundError(f'{path} does not exist')
+
+        print("###")
+        print(f"Reading the file {path}")
+        try:
+            df = func(path, *args, **kwargs)
+            print(f"{path} loaded with success!")
+            return df
+        except Exception as err:
+            print(f"# ERROR in OPENING {path}: {type(err).__name__}: {err}.")
+            return [
+                f"{type(err).__name__}: {err} in reading the file {path}. Check if it is opened somewhere"
+            ]
+            # raise PermissionError(f'error in reading the file {path} probably opened somewhere')
 
     return wrapper
 

@@ -64,11 +64,12 @@ SHEET_COLUMN_FORMATS = {
     },
     utils.DataType.PHOSPHO_SCORE: {
         "Gene names": (ColumnFormats.STRING, 12),
+        "Rank": (ColumnFormats.INTEGER, 6),
+        "Occurrence": (ColumnFormats.INTEGER, 12),
         "Z-score": (ColumnFormats.TWO_DECIMALS, 8),
         "BatchRank": (ColumnFormats.INTEGER, 10),
         "POI_REPORT": (ColumnFormats.STRING, 15),
         "POI_EXPLORATORY": (ColumnFormats.STRING, 17),
-        "POI_PRODICT": (ColumnFormats.STRING, 15),
     },
 }
 

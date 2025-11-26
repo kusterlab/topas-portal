@@ -94,7 +94,7 @@
                         xlabel="No identified proteins across all patients"
                         :margin="histogramMargin"
                         :min-dose="0"
-                        :max-dose="20000"
+                        :max-dose="12000"
                         dose-unit="standard deviations"
                       />
                     </v-col>
@@ -138,7 +138,7 @@
                         xlabel="No identified p-peptides across all patients"
                         :margin="histogramMargin"
                         :min-dose="0"
-                        :max-dose="150000"
+                        :max-dose="60000"
                         dose-unit="standard deviations"
                       />
                     </v-col>
@@ -151,14 +151,14 @@
                         id="ppintensity"
                         ref="histogram"
                         :full-chart-data="ppintensitySum"
-                        :plot-histogram="false"
-                        :plot-k-d-e="true"
+                        :plot-histogram="true"
+                        :plot-k-d-e="false"
                         :selected-lines="selectedLineppintensity"
                         :min-height="minHeight"
                         :min-width="minWidth"
                         xlabel="log10(Summed PP intensities)"
                         :margin="histogramMargin"
-                        :min-dose="0"
+                        :min-dose="8"
                         :max-dose="12"
                         dose-unit="standard deviations"
                       />
@@ -172,14 +172,14 @@
                         id="fpintensity"
                         ref="histogram"
                         :full-chart-data="fpintensitySum"
-                        :plot-histogram="false"
-                        :plot-k-d-e="true"
+                        :plot-histogram="true"
+                        :plot-k-d-e="false"
                         :selected-lines="selectedLinefpintensity"
                         :min-height="minHeight"
                         :min-width="minWidth"
                         xlabel="log10(Summed FP intensities)"
                         :margin="histogramMargin"
-                        :min-dose="0"
+                        :min-dose="8"
                         :max-dose="12"
                         dose-unit="standard deviations"
                       />

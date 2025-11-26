@@ -81,6 +81,9 @@ def load_annotated_intensity_file(
     annotated_intensity_file: os.PathLike,
     index_col: str,
     extra_columns=None,
+    intensity_suffix: str = utils.INTENSITY_UNIT_SUFFIXES[
+        utils.IntensityUnit.INTENSITY
+    ],
 ):
     if extra_columns is None:
         extra_columns = []
@@ -108,7 +111,6 @@ def load_annotated_intensity_file(
         ),
     ]
 
-    intensity_suffix = utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.INTENSITY]
     identification_metadata_suffix = utils.INTENSITY_UNIT_SUFFIXES[
         utils.IntensityUnit.IDENTIFICATION_METADATA
     ]

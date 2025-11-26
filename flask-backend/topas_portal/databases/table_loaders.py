@@ -141,12 +141,20 @@ def load_substrate_phos_scores(cohort_name: str, config: CohortConfig) -> pd.Dat
 
 @cacheable(utils.DataType.PHOSPHO_SCORE)
 def load_protein_phos_scores(cohort_name: str, config: CohortConfig) -> pd.DataFrame:
-    return phospho_score_loader.load_phosphorylation_scores(
-        config.get_protein_phosphorylation_scores_path(cohort_name),
-        intensity_unit_suffix=utils.INTENSITY_UNIT_SUFFIXES[
-            utils.IntensityUnit.Z_SCORE
-        ],
+    protein_phos_path, *protein_phos_measures_paths = (
+        config.get_protein_phos_data_paths(cohort_name)
     )
+
+    protein_phos_df = expression_loader.load_annotated_intensity_file(
+        protein_phos_path,
+        settings.FP_KEY,
+        extra_columns=list(settings.ANNOTATION_COLUMNS.keys()),
+        intensity_suffix=utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.Z_SCORE],
+    )
+    protein_measures_df = expression_loader.load_expression_data(
+        protein_phos_measures_paths, settings.FP_KEY
+    )
+    return protein_phos_df.join(protein_measures_df, how="right")
 
 
 def load_search_qc(cohort_name: str, config: CohortConfig) -> pd.DataFrame:

@@ -49,9 +49,9 @@ NUM_PEPTIDES_REGEX = r"num_peptides=(\d+)"
 # includes topas (FP, PP) and PSP annotations (PP)
 PREPROCESSED_FP_INTENSITY = "annot_fp.csv"
 PREPROCESSED_PP_INTENSITY = "annot_pp.csv"
-
-# phosphorylation scores from wp2 pipeline (FH)
-PHOSPHORYLATION_SCORES = "topas_scores/protein_phosphorylation_scores.tsv"
+PHOSPHORYLATION_Z_SCORES = (
+    "annot_phospho_score.csv"  # phosphorylation scores from wp2 pipeline (FH)
+)
 
 # Drug scores from wp2 pipeline (FH)
 DRUG_SCORES = "drug_results/drug_scores.tsv"
@@ -107,7 +107,7 @@ front_end_col_names = meta_columns_json["front_end_col_names"]
 COMMON_META_DATA = [x["dataField"] for x in front_end_col_names]
 
 # add number type columns for -1 replacement of NaN values
-PATIENT_TABLE_NAN_INT = ["FC", "Batch_No", "TMT_channel", "AH_PGE2 signature score"]
+PATIENT_TABLE_NAN_INT = ["FC", "Batch_No", "TMT_channel"]
 
 
 # add string columns for n.d. replacement of NaN values
@@ -174,6 +174,7 @@ ANNOTATION_COLUMNS = {
     "Proteins": "Proteins",
     "Occurrence": "Occurrence",
     "PSP Kinases": "Kinases (PSP)",
+    "Kinases (TOPAS)": "Kinases (TOPAS)",
     "POI_REPORT": "POI_REPORT",
     "POI_EXPLORATORY": "POI_EXPLORATORY",
     "POI_PRODICT": "POI_PRODICT",

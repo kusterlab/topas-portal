@@ -169,6 +169,7 @@ def _phospho_score(
     cohorts_db: data_api.CohortDataAPI, cohort_index: int, patient: str
 ) -> pd.DataFrame:
     intensity_units = [
+        utils.IntensityUnit.RANK,
         utils.IntensityUnit.Z_SCORE,
         utils.IntensityUnit.BATCH_RANK,
     ]
