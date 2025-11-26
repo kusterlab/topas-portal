@@ -50,7 +50,6 @@
             />
             <topas-select
               v-if="mode=== 'topas'"
-              :score-type="false"
               :cohort-index="cohortIndex"
               @select-topas="updateTopas"
             />

@@ -61,7 +61,6 @@
           <topas-select
             v-if="String(inputDataType).startsWith('topas')"
             :cohort-index="cohortIndex"
-            :score-type="false"
             :multiple="true"
             @select-topas="updateIdentifier"
           />

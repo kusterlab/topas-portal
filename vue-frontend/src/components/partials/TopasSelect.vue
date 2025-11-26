@@ -35,20 +35,6 @@
         <v-divider v-show="multiple" />
       </template>
     </v-autocomplete>
-    <v-radio-group
-      v-if="scoreType"
-      v-model="dataSource"
-      label="Score type"
-    >
-      <v-radio
-        label="TOPAS Z-scores"
-        value="z_score"
-      />
-      <v-radio
-        label="TOPAS raw scores"
-        value="topas_score"
-      />
-    </v-radio-group>
   </div>
 </template>
 
@@ -60,10 +46,6 @@ import { api } from '@/routes.ts'
 export default {
   name: 'TopasSelect',
   props: {
-    scoreType: {
-      type: Boolean,
-      default: true
-    },
     cohortIndex: {
       type: Number,
       default: -1

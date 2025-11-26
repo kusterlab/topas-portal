@@ -169,7 +169,6 @@ export default {
     cohortIndex: 0,
     firstPatient: '',
     selectedDotsInPlot: '',
-    topasType: '',
     fixedDomain: false,
     topasData: [],
     allTopass: [],
@@ -185,16 +184,13 @@ export default {
   }),
   computed: {
     swarmPrefix () {
-      return this.topasType === 'topas_score' ? 'TOPAS score' : 'TOPAS Z-score'
+      return 'TOPAS Z-score'
     },
     activeCohortIndex () {
       return this.cohortIndex
     }
   },
   watch: {
-    topasType: function () {
-      this.getTopasData()
-    },
     activeCohortIndex: function () {
       this.getTopasData()
     }
@@ -257,7 +253,6 @@ export default {
       }
     },
     updateTopas ({ dataSource, identifier }) {
-      this.topasType = dataSource
       this.topasName = identifier
       this.swarmField = dataSource
       this.getTopasData()

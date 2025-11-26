@@ -24,11 +24,15 @@
           />
           <v-radio-group
             v-model="intensityUnit"
-            :items="intensityUnits"
-            class="mt-4"
             label="Intensity unit"
             hide-details
           >
+            <v-radio
+              v-for="u in intensityUnits"
+              :key="u.value"
+              :label="u.text"
+              :value="u.value"
+            />
           </v-radio-group>
         </v-card-text>
       </v-card>
@@ -350,7 +354,7 @@ export default {
     },
     placeholder () {
       if (this.correlationInputType === DataType.PHOSPHO_PROTEOME) {
-        return '_AAAAAPApSED_'
+        return 'AAAAAPAS(ph)ED'
       } else {
         return 'EGFR'
       }
@@ -358,7 +362,7 @@ export default {
   },
   watch: {
     intensityUnit () {
-      this.plotScoreType = (this.intensityUnit === 'z_scored') ? 'Z-score' : 'Intensity'
+      this.plotScoreType = (this.intensityUnit === IntensityUnit.Z_SCORE) ? 'Z-score' : 'Intensity'
     }
   },
   methods: {

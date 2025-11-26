@@ -113,9 +113,7 @@ def _load_proteome(
         ]
 
     extra_columns = settings.ANNOTATION_COLUMNS.keys()
-    print("Hello")
     cohort_df = get_abundance_df(cohort_index, extra_columns=extra_columns)
-    print("Hello2")
     extra_columns = cohort_df.columns.intersection(extra_columns).to_list()
 
     patient_columns = {
@@ -125,13 +123,11 @@ def _load_proteome(
         ].strip()
         for intensity_unit in intensity_units
     }
-    print("Hello3")
 
     proteome_df = cohort_df[list(patient_columns.keys()) + extra_columns]
     proteome_df = proteome_df.rename(columns=patient_columns)
     proteome_df = proteome_df.reset_index()  # make "Gene names" a regular column
     zscore_col = utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.Z_SCORE].strip()
-    print("Hello4")
 
     return proteome_df.dropna(subset=zscore_col).sort_values(
         by=zscore_col, ascending=False
