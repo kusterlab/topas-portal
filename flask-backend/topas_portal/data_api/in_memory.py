@@ -47,11 +47,19 @@ class InMemoryCohortDataAPI:
         df["Entity"] = df["Entity"].str.replace(r"[ ,;]", "_", regex=True)
         return df
 
-    def get_sample_annotation_df(self, cohort_index: str) -> pd.DataFrame:
+    def get_sample_annotation_df(
+        self,
+        cohort_index: str,
+        include_ref: utils.IncludeRef = utils.IncludeRef.INCLUDE_REF,
+    ) -> pd.DataFrame:
         """in sample annotaton df the replicates are included"""
-        return self.provider.get_dataframe(
+        sample_annotation_df = self.provider.get_dataframe(
             cohort_index, utils.DataType.SAMPLE_ANNOTATION
         )
+        sample_annotation_df = _filter_for_ref_sample_annotation(
+            sample_annotation_df, include_ref
+        )
+        return sample_annotation_df
 
     def get_patient_metadata_df(self, cohort_index: str) -> pd.DataFrame:
         """in patient meta_df the replicates are not included"""
@@ -206,4 +214,14 @@ def _filter_for_ref(df: pd.DataFrame, include_ref: utils.IncludeRef) -> pd.DataF
         df = df.loc[:, ~df.columns.str.startswith(settings.REF_CHANNEL_PREFIX)]
     elif include_ref == utils.IncludeRef.ONLY_REF:
         df = df.loc[:, df.columns.str.startswith(settings.REF_CHANNEL_PREFIX)]
+    return df
+
+
+def _filter_for_ref_sample_annotation(
+    df: pd.DataFrame, include_ref: utils.IncludeRef
+) -> pd.DataFrame:
+    if include_ref == utils.IncludeRef.EXCLUDE_REF:
+        df = df.loc[~df["Sample name"].str.startswith(settings.REF_CHANNEL_PREFIX)]
+    elif include_ref == utils.IncludeRef.ONLY_REF:
+        df = df.loc[df["Sample name"].str.startswith(settings.REF_CHANNEL_PREFIX)]
     return df

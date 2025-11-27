@@ -15,6 +15,12 @@
             <cohort-select
               @select-cohort="updateCohort"
             />
+            <v-checkbox
+              v-model="includeRefChannels"
+              label="Include ref channels"
+              dense
+              hide-details
+            />
             <v-select
               v-model="scoreType"
               class="input_data_type mb-2 mt-4"
@@ -282,7 +288,7 @@ import CohortSelect from './partials/CohortSelect.vue'
 import patientscoreTable from '@/components/tables/PatientscoreTable.vue'
 import PatientReportTable from '@/components/tables/PatientReportTable.vue'
 import histogram from '@/components/plots/GenericHistogram.vue'
-import { DataType } from '@/constants'
+import { DataType, IncludeRef } from '@/constants'
 import { api } from '@/routes.ts'
 
 export default {
@@ -305,6 +311,7 @@ export default {
   },
   data: () => ({
     cohortIndex: -1,
+    includeRefChannels: false,
     topasName: '',
     isCollapsed: true,
     fixedDomain: false,
@@ -314,10 +321,7 @@ export default {
     selectedLineppintensity: [],
     selectedLinefpintensity: [],
     scoreType: DataType.REPORT_SUMMARY,
-    Showcircular: true,
-    lollipopData: false,
     showCorrelation: false,
-    lollipopDataTumor: false,
     histogramMargin: { top: 20, right: 10, bottom: 50, left: 70 },
     proteinCounts: [],
     peptideCounts: [],
@@ -325,10 +329,6 @@ export default {
     correlationStatistics: [],
     firstPatient: '',
     patientScoresDataURL: '',
-    expressionDataRTK: false,
-    expressionDataDownstream: false,
-    type: 'tumor',
-    tumorAntigenSwarmPlot: null,
     selectedFPLines: [],
     selectedLinecorrelation: [],
     selectedpepLines: [],
@@ -395,10 +395,16 @@ export default {
     },
     patientReportUrl () {
       return api.PATIENT_REPORT_TABLE_XLSX({ cohort_index: this.cohortIndex, patients: ':patients' })
+    },
+    includeRef () {
+      return this.includeRefChannels ? IncludeRef.INCLUDE_REF : IncludeRef.EXCLUDE_REF
     }
   },
   watch: {
     cohortIndex () {
+      this.getPatientData()
+    },
+    includeRefChannels () {
       this.getPatientData()
     }
   },
@@ -409,16 +415,14 @@ export default {
     updateCohort ({ dataSource, cohortIndex }) {
       this.cohortIndex = cohortIndex
     },
-    toggleDiv (type) {
-      this.type = type
-    },
     async getPatientData () {
       this.patientData = null
       const requests = [
         {
           name: 'patientData',
           endpoint: api.PATIENTS_METADATA({
-            cohort_index: this.cohortIndex
+            cohort_index: this.cohortIndex,
+            include_ref: this.includeRef
           }),
           errorMessage: 'Error: Could not load patient metadata'
         },
@@ -426,7 +430,8 @@ export default {
           name: 'summedIntensitiesPhospho',
           endpoint: api.PATIENT_CENTRIC_SUMMED_INTENSITY({
             cohort_index: this.cohortIndex,
-            level: DataType.PHOSPHO_PROTEOME
+            level: DataType.PHOSPHO_PROTEOME,
+            include_ref: this.includeRef
           }),
           errorMessage: 'Error: could not load phospho intensities data'
         },
@@ -434,7 +439,8 @@ export default {
           name: 'summedIntensitiesFull',
           endpoint: api.PATIENT_CENTRIC_SUMMED_INTENSITY({
             cohort_index: this.cohortIndex,
-            level: DataType.FULL_PROTEOME
+            level: DataType.FULL_PROTEOME,
+            include_ref: this.includeRef
           }),
           errorMessage: 'Error: could not load full proteome intensities data'
         },
@@ -442,7 +448,8 @@ export default {
           name: 'proteinCounts',
           endpoint: api.PATIENT_CENTRIC_COUNTS({
             cohort_index: this.cohortIndex,
-            level: DataType.FULL_PROTEOME
+            level: DataType.FULL_PROTEOME,
+            include_ref: this.includeRef
           }),
           errorMessage: 'Error: could not load protein counts data'
         },
@@ -450,7 +457,8 @@ export default {
           name: 'ppeptideCounts',
           endpoint: api.PATIENT_CENTRIC_COUNTS({
             cohort_index: this.cohortIndex,
-            level: DataType.PHOSPHO_PROTEOME
+            level: DataType.PHOSPHO_PROTEOME,
+            include_ref: this.includeRef
           }),
           errorMessage: 'Error: could not load phosphoproteome peptide counts data'
         },
@@ -458,7 +466,8 @@ export default {
           name: 'peptideCounts',
           endpoint: api.PATIENT_CENTRIC_COUNTS({
             cohort_index: this.cohortIndex,
-            level: DataType.FULL_PROTEOME_NUM_PEPTIDES
+            level: DataType.FULL_PROTEOME_NUM_PEPTIDES,
+            include_ref: this.includeRef
           }),
           errorMessage: 'Error: could not load full proteome peptide counts data'
         }

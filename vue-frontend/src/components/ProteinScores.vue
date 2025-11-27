@@ -163,6 +163,11 @@ export default {
       this.updateId()
     }
   },
+  computed: {
+    includeRef () {
+      return this.includeRefChannels ? IncludeRef.INCLUDE_REF : IncludeRef.EXCLUDE_REF
+    }
+  },
   methods: {
     ...mapMutations({
       addNotification: 'notifications/addNotification'
@@ -179,13 +184,12 @@ export default {
       this.plotSelIds = []
       if (this.proteinidentifier.length > 0) {
         this.loading = true
-        const includeRef = this.includeRefChannels ? IncludeRef.INCLUDE_REF : IncludeRef.EXCLUDE_REF
         this.url = api.ABUNDANCE({
           cohort_index: this.cohortIndex,
           level: DataType.PHOSPHO_SCORE,
           identifier: this.proteinidentifier,
           imputation: ImputationMode.NO_IMPUTE,
-          include_ref: includeRef
+          include_ref: this.includeRef
         })
       }
     },

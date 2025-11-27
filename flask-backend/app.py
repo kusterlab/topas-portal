@@ -399,7 +399,11 @@ def get_error_log():
 @app.route(ApiRoutes.PATIENT_CENTRIC_SUMMED_INTENSITY)
 # http://localhost:3832/patientcentric/summed_intensity/0/fp
 # http://localhost:3832/patientcentric/summed_intensity/0/pp
-def get_sum_intensities_pp_level(cohort_index: int, level: utils.DataType):
+def get_sum_intensities_pp_level(
+    cohort_index: int,
+    level: utils.DataType,
+    include_ref: utils.IncludeRef,
+):
     if settings.DATABASE_MODE:
         return {}  # this query is not implemented yet in the database
 
@@ -411,9 +415,13 @@ def get_sum_intensities_pp_level(cohort_index: int, level: utils.DataType):
 @app.route(ApiRoutes.PATIENT_CENTRIC_COUNTS)
 @cache.cached(timeout=50)
 # http://localhost:3832/patientcentric/counts/0/fp
-def get_identifications_frequency(cohort_index: int, level: utils.DataType):
+def get_identifications_frequency(
+    cohort_index: int,
+    level: utils.DataType,
+    include_ref: utils.IncludeRef,
+):
     if settings.DATABASE_MODE:
-        return {}  # this query is too slow in the database
+        return {}  # this query is not implemented yet in the database
 
     return utils.df_to_json(
         pp.num_identifications_per_patient(cohorts_db, cohort_index, level)
@@ -484,8 +492,10 @@ def patients_genomics_annotations(cohort_index: int, identifier: str):
 @app.route(ApiRoutes.PATIENTS_METADATA)
 @cache.cached(timeout=50)
 # http://localhost:3832/0/metadata
-def patientsmetadata(cohort_index: int):
-    sample_annotation_df = cohorts_db.get_sample_annotation_df(cohort_index)
+def patientsmetadata(cohort_index: int, include_ref: utils.IncludeRef):
+    sample_annotation_df = cohorts_db.get_sample_annotation_df(
+        cohort_index, include_ref
+    )
     if "Entity" in sample_annotation_df.columns:
         sample_annotation_df = sample_annotation_df.drop(["Entity"], axis=1)
     patient_metadata_df = cohorts_db.get_patient_metadata_df(cohort_index)

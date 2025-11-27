@@ -342,6 +342,9 @@ export default {
       } else {
         return '_AAAAAPApSED_'
       }
+    },
+    includeRef () {
+      return this.includeRefChannels ? IncludeRef.INCLUDE_REF : IncludeRef.EXCLUDE_REF
     }
   },
   watch: {
@@ -394,14 +397,12 @@ export default {
       this.loading = true
       this.swarmPlotData = []
       this.swarmSelIds = []
-
-      const includeRef = this.includeRefChannels ? IncludeRef.INCLUDE_REF : IncludeRef.EXCLUDE_REF
       this.abundanceQuery = api.ABUNDANCE({
         cohort_index: this.cohortIndex,
         level: mode,
         identifier: key,
         imputation: ImputationMode.NO_IMPUTE,
-        include_ref: includeRef
+        include_ref: this.includeRef
       })
     },
     async loadSwarmplot ({ dataSource }) {

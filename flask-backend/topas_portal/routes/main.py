@@ -45,23 +45,8 @@ class ApiRoutes(ApiBase):
     UPDATE_LOG = "/update/logs"
     ERROR_LOG = "/error/logs"
 
-    PATIENT_CENTRIC_SUMMED_INTENSITY = (
-        "/patientcentric/summed_intensity/<int:cohort_index>/<data_type:level>"
-    )
-    PATIENT_CENTRIC_COUNTS = (
-        "/patientcentric/counts/<int:cohort_index>/<data_type:level>"
-    )
-
     TOPAS = "/topas/<int:cohort_index>/<string:topas_names>/<string:score_type>"
     TOPAS_ANNOTATIONS = "/topas/annotations"
-    TOPAS_LOLLIPOP = "/topas/lollipopdata/<int:cohort_index>/<string:patient>"
-    TOPAS_LOLLIPOP_TUMOR = (
-        "/topas/lollipopdata/<int:cohort_index>/<string:patient>/tumor_antigen"
-    )
-    TOPAS_EXPRESSION_DOWNSTREAM = "/topas/lollipopdata/expression/<int:cohort_index>/<string:patient>/downstream_signaling"
-    TOPAS_EXPRESSION_RTK = (
-        "/topas/lollipopdata/expression/<int:cohort_index>/<string:patient>/rtk"
-    )
     TOPAS_IDS = "/topas/<int:cohort_index>/topasids"
     TOPAS_SUBSCORE = "/topas/subscore/<int:cohort_index>/<string:topasname>"
 
@@ -70,7 +55,13 @@ class ApiRoutes(ApiBase):
     PATIENTS_GENOMICS_ANNOTATIONS = (
         "/<int:cohort_index>/patients/genomics_annotations/<string:identifier>"
     )
-    PATIENTS_METADATA = "/<int:cohort_index>/metadata"
+    PATIENTS_METADATA = "/<int:cohort_index>/metadata/<include_ref:include_ref>"
+    PATIENT_CENTRIC_SUMMED_INTENSITY = (
+        "/patientcentric/summed_intensity/<int:cohort_index>/<data_type:level>/<include_ref:include_ref>"
+    )
+    PATIENT_CENTRIC_COUNTS = (
+        "/patientcentric/counts/<int:cohort_index>/<data_type:level>/<include_ref:include_ref>"
+    )
     PATIENTS_METADATA_FIELDS = "/<int:cohort_index>/metadata/fields"
     PATIENTS_METADATA_FIELD_VALUES = (
         "/<int:cohort_index>/metadata/fields/<string:fieldname>"
