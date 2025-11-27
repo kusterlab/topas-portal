@@ -329,6 +329,7 @@ export default {
     correlationStatistics: [],
     firstPatient: '',
     patientScoresDataURL: '',
+    type: 'tumor',
     selectedFPLines: [],
     selectedLinecorrelation: [],
     selectedpepLines: [],
@@ -414,6 +415,9 @@ export default {
     }),
     updateCohort ({ dataSource, cohortIndex }) {
       this.cohortIndex = cohortIndex
+    },
+    toggleDiv (type) {
+      this.type = type
     },
     async getPatientData () {
       this.patientData = null
