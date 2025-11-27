@@ -144,6 +144,7 @@ QC_PCS = ["pc1", "pc2"]
 
 # expression tab
 EXPRESSION_TAB_DATA = [
+    "index",
     "Sample name",
     "Z-score",
     "Intensity",

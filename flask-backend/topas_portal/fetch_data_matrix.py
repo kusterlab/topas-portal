@@ -47,6 +47,7 @@ def fetch_data_matrix(
         topas_df = cohorts_db.get_topas_annotation_df()
         level, identifiers = _update_level_and_identifiers(topas_df, level, identifiers)
 
+    # TODO: refactor using prexp_preprocess.get_abundance()
     if level == utils.DataType.FULL_PROTEOME:
         df = cohorts_db.get_protein_abundance_df(
             cohort_index, intensity_unit=intensity_unit, include_ref=include_ref

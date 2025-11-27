@@ -265,6 +265,7 @@ export default {
         { name: 'ABUNDANCE/TRANSCRIPTOMICS', url: api.ABUNDANCE({ ...testArguments, level: DataType.TRANSCRIPTOMICS }) },
         { name: 'ABUNDANCE/PHOSPHO_SCORE', url: api.ABUNDANCE({ ...testArguments, level: DataType.PHOSPHO_SCORE }) },
         { name: 'ABUNDANCE/KINASE_SCORE', url: api.ABUNDANCE({ ...testArguments, level: DataType.KINASE_SCORE, identifier: 'EGFR(RTK-TOPAS)' }) },
+        { name: 'ABUNDANCE/TOPAS_RTK_SCORE', url: api.ABUNDANCE({ ...testArguments, level: DataType.TOPAS_RTK_SCORE, identifier: 'EGFR' }) },
         { name: 'CORRELATION', url: api.CORRELATION(testArguments) },
         { name: 'BATCH_EFFECT', url: api.BATCH_EFFECT(testArguments) }, // TODO: fix this
         { name: 'DIFFERENTIAL', url: api.DIFFERENTIAL(testArguments) },

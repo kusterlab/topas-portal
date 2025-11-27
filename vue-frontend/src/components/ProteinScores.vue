@@ -17,6 +17,12 @@
             <cohort-select
               @select-cohort="updateCohort"
             />
+            <v-checkbox
+              v-model="includeRefChannels"
+              label="Include ref channels"
+              dense
+              hide-details
+            />
             <protein-select
               :cohort-index="cohortIndex"
               label-override="Phosphoprotein"
@@ -131,6 +137,7 @@ export default {
   },
   data: () => ({
     proteinidentifier: '',
+    includeRefChannels: false,
     cohortIndex: 0,
     swarmShow: false,
     loading: false,
@@ -145,37 +152,42 @@ export default {
     this.plotSelIds = []
     this.swarmSelIds = []
   },
+  watch: {
+    cohortIndex: function () {
+      this.updateId()
+    },
+    includeRefChannels: function () {
+      this.updateId()
+    },
+    proteinidentifier: function () {
+      this.updateId()
+    }
+  },
   methods: {
     ...mapMutations({
       addNotification: 'notifications/addNotification'
     }),
     updateCohort ({ dataSource, cohortIndex }) {
       this.cohortIndex = cohortIndex
-      this.updateProtein()
     },
     updateProtein ({ dataSource, identifier }) {
       this.proteinidentifier = identifier
-      this.updateId('protein')
     },
-    updateId (type) {
+    updateId () {
       this.swarmShow = false
       this.plotData = []
       this.plotSelIds = []
       if (this.proteinidentifier.length > 0) {
-        this.getProteindata(this.proteinidentifier)
+        this.loading = true
+        const includeRef = this.includeRefChannels ? IncludeRef.INCLUDE_REF : IncludeRef.EXCLUDE_REF
+        this.url = api.ABUNDANCE({
+          cohort_index: this.cohortIndex,
+          level: DataType.PHOSPHO_SCORE,
+          identifier: this.proteinidentifier,
+          imputation: ImputationMode.NO_IMPUTE,
+          include_ref: includeRef
+        })
       }
-    },
-    getProteindata (key) {
-      this.loading = true
-      this.plotData = []
-      const query = api.ABUNDANCE({
-        cohort_index: this.cohortIndex,
-        level: DataType.PHOSPHO_SCORE,
-        identifier: key,
-        imputation: ImputationMode.NO_IMPUTE,
-        include_ref: IncludeRef.EXCLUDE_REF
-      })
-      this.url = query
     },
     async loadSwarmplot ({ dataSource }) {
       if (dataSource.length === 0 || this.lastDataSource === dataSource) return

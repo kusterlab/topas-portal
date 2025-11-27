@@ -413,7 +413,6 @@ export default {
       this.$emit('selectedCells', { colorCode: this.colorCode, selectedPatiens: this.swarmSelIds })
       if (this.swarmSelIds.length > 0) {
         this.swarmSelIds.forEach(element => {
-          console.log(element, dataSet.length)
           if (element < dataSet.length) {
             dataSet[element].colorID = this.colorCode
             dataSet[element].sizeR = 4

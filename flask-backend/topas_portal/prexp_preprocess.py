@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import Callable, TYPE_CHECKING
 import re
 
 import pandas as pd
@@ -25,29 +25,6 @@ def get_protein_list_per_patient(patient_identifier, intensity_df):
         patient_proteins["group"] = str(patient_identifier)
         return patient_proteins
     else:
-        pass
-
-
-def get_pep_number_from_protein_name(
-    num_pep_meta_df: pd.DataFrame, protein_name: str, regex_pattern
-) -> pd.DataFrame:
-    """
-    Get the number of the identified peptides from a protein across all patients.
-    :intensity_df: A pandas dataframe of the intensities with Identification metadata columns for each patient
-    :protein_name: the name of the protein
-    :USAGE :
-        get_pep_number_from_protein_name(fp_df,'EGFR')
-
-    """
-    try:
-        premeta_df = num_pep_meta_df.T.filter(regex=regex_pattern, axis=0)
-        premeta_df[protein_name] = pd.to_numeric(premeta_df[protein_name])
-        premeta_df["Sample name"] = premeta_df.index.str.replace(
-            "Identification metadata ", "", regex=True
-        )
-        premeta_df.columns = ["num_pep", "Sample name"]
-        return premeta_df
-    except:
         pass
 
 
@@ -77,28 +54,6 @@ def _get_protein_list_per_batch(batchNo, sample_annotation, df_intensity):
         pass
 
 
-def merge_data_with_num_pep(
-    abundances_df: pd.DataFrame, num_pep_meta_df: pd.DataFrame, identifier: str, regex
-):
-    """
-    Merges the num_pep for a protein as a confidence measurement over all patients to the abundance table for  each protein
-    """
-    try:
-        num_pep_df = get_pep_number_from_protein_name(
-            num_pep_meta_df, identifier, regex
-        )
-        if isinstance(num_pep_df, pd.DataFrame) and (
-            "Sample name" in num_pep_df.columns.tolist()
-        ):
-            abundances_table = abundances_df.merge(num_pep_df, on="Sample name")
-            return abundances_table
-        else:
-            return abundances_df
-    except Exception as err:
-        print(f"{err} in merging with Num identified peptides")
-        return abundances_df
-
-
 def get_expression_data_per_analyte(
     abundances,
     patients_df,
@@ -110,7 +65,7 @@ def get_expression_data_per_analyte(
     """
     abundances_table = get_expression_data_from_abundance_df(abundances)
     abundances_table = add_is_replicate_column(abundances_table)
-    abundances_table = add_occurrence_and_fill_na_ranks(abundances_table)
+    abundances_table = add_occurrence(abundances_table)
     abundances_table = utils.merge_with_sample_annotation_df(
         abundances_table, sample_annotation_df
     )
@@ -148,13 +103,20 @@ def get_expression_data_from_abundance_df(abundances: pd.DataFrame) -> pd.DataFr
         dropna=False,
     ).reset_index()
 
+    for intensity_unit in [
+        utils.IntensityUnit.INTENSITY,
+        utils.IntensityUnit.Z_SCORE,
+        utils.IntensityUnit.RANK,
+    ]:
+        column_name = utils.INTENSITY_UNIT_SUFFIXES[intensity_unit].strip()
+        if column_name in result_df.columns:
+            result_df = result_df.sort_values(by=column_name, ascending=False)
+            break
+
     # Consistent column order (Sample name first)
     ordered_cols = ["Sample name"] + [s.strip() for s in suffixes]
     result_df = result_df.reindex(columns=ordered_cols, fill_value=pd.NA)
-    return result_df.sort_values(
-        by=utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.INTENSITY].strip(),
-        ascending=False,
-    )
+    return result_df
 
 
 def add_is_replicate_column(abundance_df: pd.DataFrame):
@@ -192,7 +154,7 @@ def add_is_replicate_column(abundance_df: pd.DataFrame):
         return abundance_df
 
 
-def add_occurrence_and_fill_na_ranks(df: pd.DataFrame):
+def add_occurrence(df: pd.DataFrame):
     try:
         abundances_table = df.copy()
         abundances_table["Occurrence"] = abundances_table["Rank"].max()
@@ -254,30 +216,23 @@ def get_abundance(
     Returns:
         _type_: _description_
     """
-    if level == utils.DataType.FULL_PROTEOME:
-        abundances = cohorts_db.get_protein_abundance_df(
-            cohort_index, identifier=identifier, include_ref=include_ref
-        )
-    elif level == utils.DataType.PHOSPHO_PROTEOME:
-        abundances = cohorts_db.get_psite_abundance_df(
-            cohort_index, identifier=identifier, include_ref=include_ref
-        )
-    elif level == utils.DataType.TRANSCRIPTOMICS:
-        abundances = cohorts_db.get_fpkm_df(identifier=identifier)
-    elif level == utils.DataType.KINASE_SCORE:
-        abundances = cohorts_db.get_kinase_scores_df(
-            cohort_index, identifier=identifier
-        )
-    elif level == utils.DataType.PHOSPHO_SCORE:
-        abundances = cohorts_db.get_phosphorylation_scores_df(
-            cohort_index, identifier=identifier, include_ref=include_ref
-        )
-    elif level == utils.DataType.TOPAS_RTK_SCORE:
-        abundances = cohorts_db.get_topas_rtk_scores_df(
-            cohort_index, identifier=identifier, include_ref=include_ref
-        )
-    else:
+    get_abundance_df_dict: dict[utils.DataType, Callable[..., pd.DataFrame]] = {
+        utils.DataType.FULL_PROTEOME: cohorts_db.get_protein_abundance_df,
+        utils.DataType.PHOSPHO_PROTEOME: cohorts_db.get_psite_abundance_df,
+        utils.DataType.TRANSCRIPTOMICS: cohorts_db.get_fpkm_df,
+        utils.DataType.KINASE_SCORE: cohorts_db.get_kinase_scores_df,
+        utils.DataType.PHOSPHO_SCORE: cohorts_db.get_phosphorylation_scores_df,
+        utils.DataType.TOPAS_RTK_SCORE: cohorts_db.get_topas_rtk_scores_df,
+    }
+
+    if level not in get_abundance_df_dict:
         raise ValueError(f"Unknown data type for get_abundance: {level.value}")
+
+    abundances = get_abundance_df_dict[level](
+        cohort_index,
+        identifier=identifier,
+        include_ref=include_ref,
+    )
 
     if len(abundances.index) == 0:
         return "", f'400 {level} "{identifier}" not found in dataset'
@@ -304,31 +259,24 @@ def get_abundance(
         )
         abundances_table = utils.calculate_confidence_score(abundances_table)
 
-    if level in [
-        utils.DataType.FULL_PROTEOME,
-        utils.DataType.TRANSCRIPTOMICS,
-        utils.DataType.KINASE_SCORE,
-        utils.DataType.PHOSPHO_SCORE,
-        utils.DataType.TOPAS_RTK_SCORE,
-    ]:
-        # adding genomics data
-        try:
-            abundances_table = genomics_prep.merge_data_with_genomics_alterations(
-                cohorts_db,
-                abundances_table,
-                identifier,
-                annotation_type="genomics_annotations",
-            )
-        except:
-            pass
+    # adding genomics data
+    try:
+        abundances_table = genomics_prep.merge_data_with_genomics_alterations(
+            cohorts_db,
+            abundances_table,
+            identifier,
+            annotation_type="genomics_annotations",
+        )
+    except:
+        pass
 
-        # adding onkoKB annotations
-        try:
-            abundances_table = genomics_prep._merge_onkokb_annotation(
-                cohorts_db, abundances_table, identifier
-            )
-        except:
-            pass
+    # adding onkoKB annotations
+    try:
+        abundances_table = genomics_prep._merge_onkokb_annotation(
+            cohorts_db, abundances_table, identifier
+        )
+    except:
+        pass
 
     # filtering the columns with the settings options
     abundances_table = abundances_table[
@@ -336,7 +284,6 @@ def get_abundance(
             settings.EXPRESSION_TAB_DATA, abundances_table.columns.tolist()
         )
     ]
-    abundances_table["index"] = abundances_table.index
     return utils.df_to_json(abundances_table)
 
 

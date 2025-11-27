@@ -396,14 +396,13 @@ export default {
       this.swarmSelIds = []
 
       const includeRef = this.includeRefChannels ? IncludeRef.INCLUDE_REF : IncludeRef.EXCLUDE_REF
-      const query = api.ABUNDANCE({
+      this.abundanceQuery = api.ABUNDANCE({
         cohort_index: this.cohortIndex,
         level: mode,
         identifier: key,
         imputation: ImputationMode.NO_IMPUTE,
         include_ref: includeRef
       })
-      this.abundanceQuery = query
     },
     async loadSwarmplot ({ dataSource }) {
       if (dataSource.length === 0 || this.lastDataSource === dataSource) return

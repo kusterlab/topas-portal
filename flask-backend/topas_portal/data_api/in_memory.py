@@ -168,8 +168,10 @@ class InMemoryCohortDataAPI:
         intensity_unit: Optional[utils.IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
+        include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
     ) -> pd.DataFrame:
         df = self.provider.get_dataframe(cohort_index, utils.DataType.KINASE_SCORE)
+        df = _filter_for_ref(df, include_ref)
         return self._filter_expression_df(df, intensity_unit, identifier, patient_name)
 
     def get_topas_annotation_df(self) -> pd.DataFrame:
@@ -184,6 +186,7 @@ class InMemoryCohortDataAPI:
         intensity_unit: Optional[utils.IntensityUnit] = None,
         identifier=None,
         patient_name=None,
+        include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
     ) -> pd.DataFrame:
         df = self.provider.get_dataframe(cohort_index, utils.DataType.TRANSCRIPTOMICS)
         return self._filter_expression_df(df, intensity_unit, identifier, patient_name)
