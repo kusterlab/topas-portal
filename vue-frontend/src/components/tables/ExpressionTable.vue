@@ -120,7 +120,10 @@ export default {
 
     saveGridState (state) {
       if (this.cookieAccepted) {
-        localStorage.setItem('gridStateExpression', JSON.stringify(state))
+        const minimalState = {
+          columns: state.columns
+        }
+        localStorage.setItem('gridStateExpression', JSON.stringify(minimalState))
       }
     },
     loadGridState () {

@@ -95,7 +95,10 @@ export default {
   methods: {
     saveGridState (state) {
       if (this.cookieAccepted) {
-        localStorage.setItem('gridStateEntitytable', JSON.stringify(state))
+        const minimalState = {
+          columns: state.columns
+        }
+        localStorage.setItem('gridStateEntitytable', JSON.stringify(minimalState))
       }
     },
     loadGridState () {
