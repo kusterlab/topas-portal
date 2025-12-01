@@ -362,9 +362,9 @@ def get_immune_status_heatmap(cohort_index: int, patient: str):
 
     cmap = ListedColormap(["aliceblue", "orange", "red"])
     norm = BoundaryNorm([-10, 1.5, 2, 10], cmap.N)
-    plt.figure(figsize=(12, 3))
+    fig, ax = plt.subplots(figsize=(12, 3))
 
-    ax = sns.heatmap(
+    sns.heatmap(
         fp[new_order].T.fillna(0),
         annot=False,
         fmt="",
@@ -372,20 +372,30 @@ def get_immune_status_heatmap(cohort_index: int, patient: str):
         cbar=None,
         linewidths=0.5,
         linecolor='white',
-        norm=norm
+        norm=norm,
+        ax=ax
     )
+
     mid = len(new_order) // 2
     ax.set_yticks([mid + 0.5])
     ax.set_yticklabels([sample_order[mid]])
-    plt.xticks(rotation=60, ha='right', rotation_mode='anchor')
+
+    for label in ax.get_xticklabels():
+        label.set_rotation(60)
+        label.set_ha('right')
+        label.set_rotation_mode('anchor')
+
     ax.xaxis.label.set_visible(False)
     ax.yaxis.label.set_visible(False)
 
+    fig.tight_layout()
+
     buf = io.BytesIO()
-    plt.savefig(buf, format="svg", bbox_inches="tight")
+    fig.savefig(buf, format="svg", bbox_inches="tight")
     buf.seek(0)
     svg_data = buf.getvalue().decode("utf-8")
-    plt.close()
+
+    plt.close(fig)
     return Response(svg_data, mimetype="image/svg+xml")
 
 
@@ -773,7 +783,9 @@ def get_swarm_plot_svg(df_long, gene_order, xlabel, ylabel, figsize=(10, 4)):
         .gt(2)
     )
 
+
     fig, ax = plt.subplots(figsize=figsize)
+
     sns.stripplot(
         data=df_long[~df_long["subcohort"]],
         x="Gene names",
@@ -783,7 +795,7 @@ def get_swarm_plot_svg(df_long, gene_order, xlabel, ylabel, figsize=(10, 4)):
         alpha=0.5,
         jitter=True,
         size=3,
-        ax=ax
+        ax=ax,
     )
 
     sns.stripplot(
@@ -794,7 +806,8 @@ def get_swarm_plot_svg(df_long, gene_order, xlabel, ylabel, figsize=(10, 4)):
         color="mediumblue",
         alpha=0.5,
         jitter=True,
-        size=3
+        size=3,
+        ax=ax,
     )
 
     sns.stripplot(
@@ -804,25 +817,29 @@ def get_swarm_plot_svg(df_long, gene_order, xlabel, ylabel, figsize=(10, 4)):
         order=gene_order,
         color="red",
         jitter=True,
-        size=5
+        size=5,
+        ax=ax,
     )
 
-    for tick in plt.gca().get_xticklabels():
+    for tick in ax.get_xticklabels():
         gene = tick.get_text()
         if highlight_genes.get(gene, False):
             tick.set_color("red")
 
+    ax.axhline(y=2, linestyle='--', color='red', zorder=10)
 
-    plt.axhline(y=2, linestyle='--', color='red', zorder=10)
-    plt.xticks(rotation=60, ha='right', rotation_mode='anchor')
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
-    plt.tight_layout()
-    plt.tick_params(axis='x', which='both', length=0)  # remove x-axis tick lines
-    plt.tick_params(axis='y', which='both', length=0)  # remove y-axis tick lines
+    ax.set_xticks(ax.get_xticks())
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=60, ha='right', rotation_mode='anchor')
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+
+    ax.tick_params(axis='x', which='both', length=0)
+    ax.tick_params(axis='y', which='both', length=0)
+
+    fig.tight_layout()
 
     buf = io.BytesIO()
-    plt.savefig(buf, format="svg")
+    fig.savefig(buf, format="svg")
     buf.seek(0)
     svg_data = buf.getvalue().decode("utf-8")
     plt.close(fig)

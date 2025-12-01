@@ -237,53 +237,43 @@
 
                   <v-divider></v-divider>
 
-                  <v-tabs-items v-model="type" v-if="firstPatient" class="min-height-1000">
+                  <v-tabs-items v-model="type">
                     <v-tab-item value="tumor">
-                      <v-card flat>
+                      <v-card flat min-height="400px">
                         <v-card-text>
-                          <img
-                           :key="`tumor-${firstPatient}-${cohortIndex}`"
-                           :src="api.TUMOR_ANTIGENS_SWARM_PLOT({cohort_index: this.cohortIndex, patient: this.firstPatient})"/>
+                          <img v-if="firstPatient" :src="api.TUMOR_ANTIGENS_SWARM_PLOT({cohort_index: this.cohortIndex, patient: this.firstPatient})" />
                         </v-card-text>
                       </v-card>
                     </v-tab-item>
 
                     <v-tab-item value="rtk">
-                      <v-card flat>
+                      <v-card flat min-height="400px">
                         <v-card-text>
-                          <img
-                           :key="`rtk-${firstPatient}-${cohortIndex}`"
-                           :src="api.RTKS_SWARM_PLOT({cohort_index: this.cohortIndex, patient: this.firstPatient})"/>
+                          <img v-if="firstPatient" :src="api.RTKS_SWARM_PLOT({cohort_index: this.cohortIndex, patient: this.firstPatient})" />
                         </v-card-text>
                       </v-card>
                     </v-tab-item>
 
                     <v-tab-item value="cknk">
-                      <v-card flat>
+                      <v-card flat min-height="400px">
                         <v-card-text>
-                          <img
-                           :key="`cknk-${firstPatient}-${cohortIndex}`"
-                           :src="api.CKS_NKS_SWARM_PLOT({cohort_index: this.cohortIndex, patient: this.firstPatient})"/>
+                          <img v-if="firstPatient" :src="api.CKS_NKS_SWARM_PLOT({cohort_index: this.cohortIndex, patient: this.firstPatient})" />
                         </v-card-text>
                       </v-card>
                     </v-tab-item>
 
                     <v-tab-item value="immune">
-                      <v-card flat>
+                      <v-card flat min-height="400px">
                         <v-card-text>
-                          <img
-                           :key="`immune-${firstPatient}-${cohortIndex}`"
-                           :src="api.IMMUNE_STATUS_HEATMAP({cohort_index: this.cohortIndex, patient: this.firstPatient})"/>
+                          <img v-if="firstPatient" :src="api.IMMUNE_STATUS_HEATMAP({cohort_index: this.cohortIndex, patient: this.firstPatient})" />
                         </v-card-text>
                       </v-card>
                     </v-tab-item>
 
                     <v-tab-item value="prodict">
-                      <v-card flat>
+                      <v-card flat min-height="400px">
                         <v-card-text>
-                          <img
-                           :key="`prodict-${firstPatient}-${cohortIndex}`"
-                           :src="api.PRODICT_PROBABILITES_UMAP({cohort_index: this.cohortIndex, patient: this.firstPatient})"/>
+                          <img v-if="firstPatient" :src="api.PRODICT_PROBABILITES_UMAP({cohort_index: this.cohortIndex, patient: this.firstPatient})" />
                         </v-card-text>
                       </v-card>
                     </v-tab-item>
