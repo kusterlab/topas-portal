@@ -66,4 +66,5 @@ export const api = {
     RTKS_SWARM_PLOT: ({cohort_index, patient}) => `${API_HOST}/${cohort_index}/patients/${patient}/rtks/swarm`,
     CKS_NKS_SWARM_PLOT: ({cohort_index, patient}) => `${API_HOST}/${cohort_index}/patients/${patient}/cks-nks/swarm`,
     IMMUNE_STATUS_HEATMAP: ({cohort_index, patient}) => `${API_HOST}/${cohort_index}/patients/${patient}/immune-status/heatmap`,
+    PRODICT_PROBABILITES_UMAP: ({cohort_index, patient}) => `${API_HOST}/${cohort_index}//patients/${patient}/prodict/score`,
 };

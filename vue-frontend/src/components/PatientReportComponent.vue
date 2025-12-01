@@ -232,6 +232,7 @@
                     <v-tab href="#rtk">RTK</v-tab>
                     <v-tab href="#cknk">CK / NK</v-tab>
                     <v-tab href="#immune">IMMUNE STATUS</v-tab>
+                    <v-tab href="#prodict">PRODICT</v-tab>
                   </v-tabs>
 
                   <v-divider></v-divider>
@@ -240,7 +241,9 @@
                     <v-tab-item value="tumor">
                       <v-card flat>
                         <v-card-text>
-                          <img :src="api.TUMOR_ANTIGENS_SWARM_PLOT({cohort_index: this.cohortIndex, patient: this.firstPatient})" />
+                          <img
+                           :key="`tumor-${firstPatient}-${cohortIndex}`"
+                           :src="api.TUMOR_ANTIGENS_SWARM_PLOT({cohort_index: this.cohortIndex, patient: this.firstPatient})"/>
                         </v-card-text>
                       </v-card>
                     </v-tab-item>
@@ -248,7 +251,9 @@
                     <v-tab-item value="rtk">
                       <v-card flat>
                         <v-card-text>
-                          <img :src="api.RTKS_SWARM_PLOT({cohort_index: this.cohortIndex, patient: this.firstPatient})" />
+                          <img
+                           :key="`rtk-${firstPatient}-${cohortIndex}`"
+                           :src="api.RTKS_SWARM_PLOT({cohort_index: this.cohortIndex, patient: this.firstPatient})"/>
                         </v-card-text>
                       </v-card>
                     </v-tab-item>
@@ -256,7 +261,9 @@
                     <v-tab-item value="cknk">
                       <v-card flat>
                         <v-card-text>
-                          <img :src="api.CKS_NKS_SWARM_PLOT({cohort_index: this.cohortIndex, patient: this.firstPatient})" />
+                          <img
+                           :key="`cknk-${firstPatient}-${cohortIndex}`"
+                           :src="api.CKS_NKS_SWARM_PLOT({cohort_index: this.cohortIndex, patient: this.firstPatient})"/>
                         </v-card-text>
                       </v-card>
                     </v-tab-item>
@@ -264,7 +271,19 @@
                     <v-tab-item value="immune">
                       <v-card flat>
                         <v-card-text>
-                          <img :src="api.IMMUNE_STATUS_HEATMAP({cohort_index: this.cohortIndex, patient: this.firstPatient})" />
+                          <img
+                           :key="`immune-${firstPatient}-${cohortIndex}`"
+                           :src="api.IMMUNE_STATUS_HEATMAP({cohort_index: this.cohortIndex, patient: this.firstPatient})"/>
+                        </v-card-text>
+                      </v-card>
+                    </v-tab-item>
+
+                    <v-tab-item value="prodict">
+                      <v-card flat>
+                        <v-card-text>
+                          <img
+                           :key="`prodict-${firstPatient}-${cohortIndex}`"
+                           :src="api.PRODICT_PROBABILITES_UMAP({cohort_index: this.cohortIndex, patient: this.firstPatient})"/>
                         </v-card-text>
                       </v-card>
                     </v-tab-item>
