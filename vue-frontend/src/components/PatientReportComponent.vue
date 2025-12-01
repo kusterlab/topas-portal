@@ -236,35 +236,35 @@
 
                   <v-divider></v-divider>
 
-                  <v-tabs-items v-model="type" v-if="firstPatient" class="min-height-1000">
+                  <v-tabs-items v-model="type">
                     <v-tab-item value="tumor">
-                      <v-card flat>
+                      <v-card flat min-height="400px">
                         <v-card-text>
-                          <img :src="api.TUMOR_ANTIGENS_SWARM_PLOT({cohort_index: this.cohortIndex, patient: this.firstPatient})" />
+                          <img v-if="firstPatient" :src="api.TUMOR_ANTIGENS_SWARM_PLOT({cohort_index: this.cohortIndex, patient: this.firstPatient})" />
                         </v-card-text>
                       </v-card>
                     </v-tab-item>
 
                     <v-tab-item value="rtk">
-                      <v-card flat>
+                      <v-card flat min-height="400px">
                         <v-card-text>
-                          <img :src="api.RTKS_SWARM_PLOT({cohort_index: this.cohortIndex, patient: this.firstPatient})" />
+                          <img v-if="firstPatient" :src="api.RTKS_SWARM_PLOT({cohort_index: this.cohortIndex, patient: this.firstPatient})" />
                         </v-card-text>
                       </v-card>
                     </v-tab-item>
 
                     <v-tab-item value="cknk">
-                      <v-card flat>
+                      <v-card flat min-height="400px">
                         <v-card-text>
-                          <img :src="api.CKS_NKS_SWARM_PLOT({cohort_index: this.cohortIndex, patient: this.firstPatient})" />
+                          <img v-if="firstPatient" :src="api.CKS_NKS_SWARM_PLOT({cohort_index: this.cohortIndex, patient: this.firstPatient})" />
                         </v-card-text>
                       </v-card>
                     </v-tab-item>
 
                     <v-tab-item value="immune">
-                      <v-card flat>
+                      <v-card flat min-height="400px">
                         <v-card-text>
-                          <img :src="api.IMMUNE_STATUS_HEATMAP({cohort_index: this.cohortIndex, patient: this.firstPatient})" />
+                          <img v-if="firstPatient" :src="api.IMMUNE_STATUS_HEATMAP({cohort_index: this.cohortIndex, patient: this.firstPatient})" />
                         </v-card-text>
                       </v-card>
                     </v-tab-item>
