@@ -51,6 +51,7 @@ SHEET_COLUMN_FORMATS = {
         "Identification metadata": (ColumnFormats.STRING, 25),
         "Site positions (MQ identified - PSP)": (ColumnFormats.STRING, 32),
         "Site positions (PSP)": (ColumnFormats.STRING, 25),
+        "Kinases (TOPAS)": (ColumnFormats.STRING, 15),
         "Kinases (PSP)": (ColumnFormats.STRING, 15),
         "POI_REPORT": (ColumnFormats.STRING, 15),
         "POI_EXPLORATORY": (ColumnFormats.STRING, 17),
