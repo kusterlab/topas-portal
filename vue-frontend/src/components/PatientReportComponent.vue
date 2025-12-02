@@ -273,7 +273,7 @@
                     <v-tab-item value="prodict">
                       <v-card flat min-height="400px">
                         <v-card-text>
-                          <img v-if="firstPatient" :src="api.PRODICT_PROBABILITES_UMAP({cohort_index: this.cohortIndex, patient: this.firstPatient})" />
+                          <img v-if="firstPatient" :src="api.PRODICT_PATIENT_PROBABILITES({cohort_index: this.cohortIndex, patient: this.firstPatient})" />
                         </v-card-text>
                       </v-card>
                     </v-tab-item>

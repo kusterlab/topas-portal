@@ -8,4 +8,5 @@ class PatientReportApiRoutes(ApiBase):
     RTKS_SWARM_PLOT = "/<int:cohort_index>/patients/<string:patient>/rtks/swarm"    
     CKS_NKS_SWARM_PLOT = "/<int:cohort_index>/patients/<string:patient>/cks-nks/swarm"
     IMMUNE_STATUS_HEATMAP = "/<int:cohort_index>/patients/<string:patient>/immune-status/heatmap"
-    PRODICT_PROBABILITES_UMAP = "/<int:cohort_index>//patients/<string:patient>/prodict/score"
+    PRODICT_PATIENT_PROBABILITES = "/<int:cohort_index>//patients/<string:patient>/prodict/score"
+    PRODICT_PATIENT_UMAP = "/<int:cohort_index>//patients/<string:patient>/prodict/umap"
