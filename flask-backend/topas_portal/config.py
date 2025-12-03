@@ -254,3 +254,9 @@ class CohortConfig:
         if isinstance(input_files, tuple):
             return [Path(p) for p in input_files]
         return [Path(input_files)]
+
+    def get_models_folder(self) -> Path:
+        return Path(self.config["models_folder"])
+
+    def get_signatures_folder(self) -> Path:
+        return Path(self.config["signatures_folder"])

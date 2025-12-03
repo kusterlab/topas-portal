@@ -4,6 +4,8 @@ import db
 import pandas as pd
 import zipfile
 from pathlib import Path
+import traceback
+import sys
 import shutil
 import os
 import io
@@ -11,6 +13,7 @@ import io
 from extensions import cache
 from topas_portal import utils
 from topas_portal.routes import PatientReportApiRoutes
+from topas_portal.config import CohortConfig
 from topas_portal import prexp_preprocess as pp
 import matplotlib
 matplotlib.use('svg')
@@ -40,6 +43,7 @@ patient_report_page = Blueprint(
 )
 
 cohorts_db = db.cohorts_db
+config = cohorts_db.config
 
 
 antigens = [
@@ -477,13 +481,6 @@ def get_swarm_plot_svg(df_long, gene_order, xlabel, ylabel, figsize=(10, 4)):
 
 # PRODICT
 
-
-MODELS_FOLDER = "/media/kusterlab/internal_projects/active/TOPAS/WP31/Playground/LE_PROdict/paper_classifier_results/03_selected_classifiers_models/model_file"
-SIGNATURES_FOLDER = "/media/kusterlab/internal_projects/active/TOPAS/WP31/Playground/CANCER_CLASSIFICATION"
-
-
-# ===================== HELPER FUNCTIONS =====================
-
 # Load necessary files - Classification models and Tumor Type Signatues
 def load_signatures_from_folder(folder_path):
     folder = Path(folder_path)
@@ -496,9 +493,6 @@ def load_signatures_from_folder(folder_path):
         signatures_dict[key] = lines
 
     return signatures_dict
-
-
-SIGNATURES_DICT = load_signatures_from_folder(SIGNATURES_FOLDER)
 
 
 def load_sklearn_models(folder_path):
@@ -514,8 +508,6 @@ def load_sklearn_models(folder_path):
                 print(f"{filename} not loaded: {e}")
     return models
 
-
-models = load_sklearn_models(MODELS_FOLDER)
 
 
 def impute_normal_down_shift_distribution(
@@ -737,7 +729,7 @@ def generate_prodict_visualization(predictions: dict):
 def get_probabilities(cohort_index, patient):
     """Returns entity scores for a given patient"""
     try:
-
+        models = load_sklearn_models(config.get_models_folder())
         data_clean = get_imputed_df(cohort_index)
         patient_input_data = pd.DataFrame(data_clean.loc[patient]).T
 
@@ -764,9 +756,11 @@ def get_patient_umap(
     try:
 
         # Loading necessary data. Intensity, metadata and signatures
+        signatures_dict = load_signatures_from_folder(config.get_signatures_folder())
+        
         # Modifying metadata, extracting only oncotree classification
         metadata = cohorts_db.get_patient_metadata_df(cohort_index)
-        metadata.index = metadata['Patient_Identifier']
+        metadata = metadata.set_index('Patient_Identifier')
         metadata_oncotree = metadata['code_oncotree']
 
 
@@ -775,7 +769,7 @@ def get_patient_umap(
         data_clean['code_oncotree'] = metadata_oncotree
 
         #Defining the oncotree for the patient
-        signatures = SIGNATURES_DICT
+        signatures = signatures_dict
         signature_key = metadata_oncotree.loc[patient]
 
         print(data_clean.head())
@@ -793,15 +787,21 @@ def get_patient_umap(
 
         # Save figure to bytes buffer
         buf = io.BytesIO()
-        fig.savefig(buf, format='svg', bbox_inches='tight') 
+        fig.savefig(buf, format='svg', bbox_inches='tight')
         buf.seek(0)
+
+        svg_string = buf.getvalue().decode('utf-8')
         plt.close(fig)
-
-        svg_string = buf.getvalue().decode('utf-8')  
-
         return Response(svg_string, mimetype='image/svg+xml')
 
     except KeyError as e:
-        return {"error": f"Missing required parameter: {str(e)}"}, 400
+        return {
+            "error": f"Missing required parameter: {str(e)}",
+            "traceback": traceback.format_exc()
+        }, 400
+
     except Exception as e:
-        return {"error": str(e)}, 500
+        return {
+            "error": str(e),
+            "traceback": traceback.format_exc()
+        }, 500

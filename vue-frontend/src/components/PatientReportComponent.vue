@@ -284,7 +284,6 @@
                         </v-card-text>
                       </v-card>
                     </v-tab-item>
-
                   </v-tabs-items>
                 </v-card-text>
               </v-card>
