@@ -496,6 +496,8 @@ def load_signatures_from_folder(folder_path):
 
 
 def load_sklearn_models(folder_path):
+
+    """ Loads pickelized sklearn classification models from folder"""
     models = {}
     for filename in os.listdir(folder_path):
         if filename.endswith('.pkl'):
@@ -520,8 +522,6 @@ def impute_normal_down_shift_distribution(
     """
     Performs imputation across a matrix columnswise
     """
-    print('The size of the data Frame before imputation')
-    print(unimputerd_dataframe.shape)
     
     unimputerd_df = unimputerd_dataframe.copy()
     unimputerd_df.replace({pd.NA: np.nan}, inplace=True)
@@ -566,7 +566,8 @@ def impute_normal_down_shift_distribution(
 
 @cache.cached(timeout=300, key_prefix='imputed_cohort_')
 def get_imputed_df(cohort_index: int):
-
+    """Collescts intensity dataframe and impute it to further process"""
+    
     fp = cohorts_db.get_protein_abundance_df(
                 cohort_index, 
                 intensity_unit=utils.IntensityUnit.INTENSITY
@@ -621,7 +622,7 @@ def generate_umap_visualization(
     colors = []
     for idx in data_clean.index:
         if idx == sample_name:
-            colors.append('#B3001B')
+            colors.append('#FF0000')
         elif data_clean.loc[idx, 'code_oncotree'] == signature_key:
             colors.append('#0468BF')
         else:
@@ -634,7 +635,7 @@ def generate_umap_visualization(
     for color_code, label in [
         ('silver', 'Other Entities'),
         ('#0468BF', f'{signature_key}'),
-        ('#B3001B', sample_name)
+        ('#FF0000', sample_name)
     ]:
         mask = np.array(colors) == color_code
         if np.any(mask):
@@ -643,10 +644,10 @@ def generate_umap_visualization(
                 embedding[mask, 1],
                 c=color_code,
                 label=label,
-                alpha=0.7 if color_code != '#B3001B' else 1.0,
-                s=70 if color_code == '#B3001B' else (75 if color_code == '#0468BF' else 50),
-                edgecolors='black' if color_code == '#B3001B' else 'white',
-                linewidths=1 if color_code == '#B3001B' else 0.5,
+                alpha=0.7 if color_code != '#FF0000' else 1.0,
+                s=70 if color_code == '#FF0000' else (75 if color_code == '#0468BF' else 50),
+                edgecolors='black' if color_code == '#FF0000' else 'white',
+                linewidths=1 if color_code == '#FF0000' else 0.5,
                 zorder=1 if color_code == 'silver' else (2 if color_code == '#0468BF' else 3)
             )
 
@@ -665,7 +666,8 @@ def generate_umap_visualization(
 
 def probabilities_calculator(models: dict, input_data: pd.DataFrame) -> dict:
     """
-    models: dict of tumor models
+    Calculates the probability of a sample for every classifier avaialeble
+    models: dict of classifier models
     input_data: dict with protein:value pairs (one sample)
     """
     input_df = input_data.copy()  # Convert single sample to DataFrame
@@ -690,7 +692,9 @@ def probabilities_calculator(models: dict, input_data: pd.DataFrame) -> dict:
 
 
 def generate_prodict_visualization(predictions: dict):
-
+    """Lollipopo graph to visualize the probabilities of 
+    each classifier applied to a sample"""
+    
     row = pd.Series(predictions)
 
     fig, ax = plt.subplots(figsize=(4, 6))
@@ -698,8 +702,12 @@ def generate_prodict_visualization(predictions: dict):
 
     # Plot each dot with conditional color
     for feature, value in row.items():
-        color = 'red' if value > 0.9 else 'steelblue' if value > 0.5 else 'grey'
+        color = 'red' if value > 0.9 else 'steelblue' if value > 0.5 else 'silver'
         ax.plot(value, feature, 'o', color=color, markersize=8)
+        
+        if value > 0.1:
+            ax.text(value + 0.03, feature, f'{value:.2f}', 
+                   va='center', ha='left', fontsize=9)
 
     # Add threshold lines
     ax.axvline(x=0.5, color='grey', lw=1, linestyle='--')
@@ -766,23 +774,12 @@ def get_patient_umap(
 
         #Loading imputed intensities
         data_clean = get_imputed_df(cohort_index)
-        print('#'*41)
-        print("Duplicates in data_clean:", data_clean.index.duplicated().sum())
-        print("Duplicates in metadata_oncotree:", metadata_oncotree.index.duplicated().sum())
-        
-        print(data_clean.index[data_clean.index.duplicated()])
-        print(metadata_oncotree.index[metadata_oncotree.index.duplicated()])
-        print('#'*41)
-
-
         data_clean['code_oncotree'] = metadata_oncotree
 
         #Defining the oncotree for the patient
         signatures = signatures_dict
         signature_key = metadata_oncotree.loc[patient]
 
-        print(data_clean.head())
-        print('debug1')
         # Generate UMAP figure
         fig = generate_umap_visualization(
             data_clean=data_clean,
