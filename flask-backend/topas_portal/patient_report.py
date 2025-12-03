@@ -113,7 +113,11 @@ def _load_proteome(
         ]
 
     extra_columns = settings.ANNOTATION_COLUMNS.keys()
-    cohort_df = get_abundance_df(cohort_index, extra_columns=extra_columns)
+    cohort_df = get_abundance_df(
+        cohort_index,
+        extra_columns=extra_columns,
+        include_ref=utils.IncludeRef.INCLUDE_REF,
+    )  # use IncludeRef.INCLUDE_REF to skip expensive filtering step
     extra_columns = cohort_df.columns.intersection(extra_columns).to_list()
 
     patient_columns = {

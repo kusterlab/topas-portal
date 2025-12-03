@@ -35,8 +35,37 @@
             <v-checkbox
               v-model="showCorrelation"
               label="Show FPKM/protein correlation histogram"
+              dense
+              hide-details
               @change="getPatientData"
             />
+          </v-card-text>
+        </v-card>
+        <!-- Collapsible Help Box -->
+        <v-card
+          flat
+          class="mt-4"
+        >
+          <v-card-title>Help</v-card-title>
+          <v-card-text>
+            <v-expansion-panels>
+              <v-expansion-panel>
+                <v-expansion-panel-header class="mb-0">
+                  Tab info
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  In this tab you can browse and download patient-specific reports. It also shows QC statistics and detailed plots regarding tumor antigens, RTKs, cytoplasmic kinases and immune status.
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+              <v-expansion-panel>
+                <v-expansion-panel-header class="mb-0">
+                  How to use
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  Use the dropdown menu to select a cohort, then select a sample by checking the corresponding checkbox in the table to the right to interactively explore the patient report for that sample. You can download the patient report(s) in Excel format by selecting one or more samples in the patient table and clicking the 'Download report(s)' button.
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+            </v-expansion-panels>
           </v-card-text>
         </v-card>
       </v-col>
@@ -68,7 +97,18 @@
               <v-card
                 flat
                 class="mt-4"
+                v-if="!firstPatient"
               >
+                <v-card-text>
+                  Please select a patient in the table above
+                </v-card-text>
+              </v-card>
+              <v-card
+                flat
+                class="mt-4"
+                v-if="firstPatient"
+              >
+                <v-card-title>{{firstPatient}} - {{scoreTypeText}}</v-card-title>
                 <v-card-text>
                   <patientscore-table :data-source="patientScoresDataURL" />
                 </v-card-text>
@@ -342,7 +382,6 @@ export default {
     peptideCounts: [],
     ppeptideCounts: [],
     correlationStatistics: [],
-    firstPatient: '',
     patientScoresDataURL: '',
     type: 'tumor',
     selectedFPLines: [],
@@ -414,6 +453,18 @@ export default {
     },
     includeRef () {
       return this.includeRefChannels ? IncludeRef.INCLUDE_REF : IncludeRef.EXCLUDE_REF
+    },
+    firstPatient () {
+      if (this.selectedData.length > 0) {
+        return this.selectedData[0]['Sample name']
+      }
+      return ''
+    },
+    scoreTypeText () {
+      const found = this.allInputDataTypes.find(
+        item => item.value === this.scoreType
+      )
+      return found ? found.text : ''
     }
   },
   watch: {
@@ -533,8 +584,6 @@ export default {
     async updateSelectedRows (selectedIds, selectedData) {
       this.selectedData = selectedData
       if (selectedData.length > 0) {
-        this.firstPatient = selectedData[0]['Sample name']
-
         this.getscoresTable()
         const dashStyle = '5, 5'
 

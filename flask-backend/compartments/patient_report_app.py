@@ -270,7 +270,7 @@ def get_tumor_antigens_swarm_plot(cohort_index: int, patient: str):
             .tolist()
     )
 
-    svg_data = get_swarm_plot_svg(df_long, gene_order, "", "Protein abundance (z-score)")    
+    svg_data = get_swarm_plot_svg(df_long, gene_order, "", "Protein abundance (z-score)", f"{patient} tumor antigens")
 
     return Response(svg_data, mimetype="image/svg+xml")
 
@@ -303,7 +303,7 @@ def get_rtk_swarm_plot(cohort_index: int, patient: str):
             .tolist()
     )
 
-    svg_data = get_swarm_plot_svg(df_long, gene_order, "", "RTK-TOPAS (z-score)")    
+    svg_data = get_swarm_plot_svg(df_long, gene_order, "", "RTK-TOPAS (z-score)", f"{patient} RTK")    
 
     return Response(svg_data, mimetype="image/svg+xml")
 
@@ -336,7 +336,7 @@ def get_ck_nk_swarm_plot(cohort_index: int, patient: str):
             .sort_values("Expression", ascending=False)["Gene names"]
             .tolist()
     )
-    svg_data = get_swarm_plot_svg(df_long, gene_order, "", "CK/NK-TOPAS (z-score)")    
+    svg_data = get_swarm_plot_svg(df_long, gene_order, "", "CK/NK-TOPAS (z-score)", f"{patient} CK/NK")    
     return Response(svg_data, mimetype="image/svg+xml")
 
 
@@ -379,7 +379,8 @@ def get_immune_status_heatmap(cohort_index: int, patient: str):
 
     mid = len(new_order) // 2
     ax.set_yticks([mid + 0.5])
-    ax.set_yticklabels([sample_order[mid]])
+    ax.set_yticklabels([new_order[mid]])
+    ax.set_title(f"{patient} immune status")
 
     for label in ax.get_xticklabels():
         label.set_rotation(60)
@@ -405,8 +406,7 @@ def get_subcohort_index(samples_df, column, sample_name):
         samples_df[column] == samples_df.loc[samples_df["Sample name"] == sample_name, column].iloc[0]
     ]["Sample name"].to_list() if column in samples_df.columns else []
 
-
-def get_swarm_plot_svg(df_long, gene_order, xlabel, ylabel, figsize=(10, 4)):
+def get_swarm_plot_svg(df_long, gene_order, xlabel, ylabel, title="", figsize=(10, 4)):
     highlight_genes = (
         df_long[df_long["highlight"]].groupby("Gene names")["Expression"]
         .max()
@@ -462,6 +462,7 @@ def get_swarm_plot_svg(df_long, gene_order, xlabel, ylabel, figsize=(10, 4)):
     ax.set_xticklabels(ax.get_xticklabels(), rotation=60, ha='right', rotation_mode='anchor')
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
+    ax.set_title(title)
 
     ax.tick_params(axis='x', which='both', length=0)
     ax.tick_params(axis='y', which='both', length=0)
