@@ -318,27 +318,12 @@ def reload_transcripts():
     cohorts_db.provider._load_onkoKB_annotations(cohorts_db.config.get_config())
 
 
-@app.route(ApiRoutes.RELOAD_DIGEST)
-@jwt_required()
-def reload_insilico_digest():
-    cohorts_db.config.reload_config()
-    cohorts_db.provider._load_insilicodigest(cohorts_db.config.get_config())
-    return Response("Uploaded digesetd peptide map to db!")
-
-
 @app.route(ApiRoutes.RELOAD_TOPAS_ANNOTATIONS)
 @jwt_required()
 # http://localhost:3832/reload/topasannotations
 def reload_topas_annotations():
     cohorts_db.config.reload_config()
     cohorts_db.provider._load_topas_annotation_tables(cohorts_db.config.get_config())
-
-
-@app.route(ApiRoutes.RELOAD_DIGEST)
-@jwt_required()
-# this function is not used at the moment; it can be used to calculate iBAQ in case needed
-def get_the_insilico_peptide_digested():
-    return utils.df_to_json(cohorts_db.get_digestes_peptides_maps())
 
 
 @app.route(ApiRoutes.RELOAD_COHORT)

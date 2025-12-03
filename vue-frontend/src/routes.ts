@@ -25,7 +25,6 @@ export const api = {
     RELOAD_MAPPING_PROTEIN_SEQ: () => `${API_HOST}/reloadmapping`,
     RELOAD_TOPAS: () => `${API_HOST}/reloadtopass`,
     RELOAD_TRANSCRIPTS: () => `${API_HOST}/reload/transcripts`,
-    RELOAD_DIGEST: () => `${API_HOST}/reload/digest`,
     RELOAD_TOPAS_ANNOTATIONS: () => `${API_HOST}/reload/topasannotations`,
     RELOAD_COHORT: ({cohort}) => `${API_HOST}/reload/${cohort}`,
     PATH_CHECK: ({path}) => `${API_HOST}/path/check/${path}`,

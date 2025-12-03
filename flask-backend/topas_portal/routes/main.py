@@ -28,7 +28,6 @@ class ApiRoutes(ApiBase):
     RELOAD_MAPPING_PROTEIN_SEQ = "/reloadmapping"
     RELOAD_TOPAS = "/reloadtopass"
     RELOAD_TRANSCRIPTS = "/reload/transcripts"
-    RELOAD_DIGEST = "/reload/digest"
     RELOAD_TOPAS_ANNOTATIONS = "/reload/topasannotations"
     RELOAD_COHORT = "/reload/<string:cohort>"
 
