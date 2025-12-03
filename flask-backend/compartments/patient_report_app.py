@@ -644,7 +644,7 @@ def generate_umap_visualization(
                 c=color_code,
                 label=label,
                 alpha=0.7 if color_code != '#B3001B' else 1.0,
-                s=60 if color_code != '#B3001B' else 70,
+                s=70 if color_code == '#B3001B' else (75 if color_code == '#0468BF' else 50),
                 edgecolors='black' if color_code == '#B3001B' else 'white',
                 linewidths=1 if color_code == '#B3001B' else 0.5,
                 zorder=1 if color_code == 'silver' else (2 if color_code == '#0468BF' else 3)
@@ -760,12 +760,21 @@ def get_patient_umap(
         
         # Modifying metadata, extracting only oncotree classification
         metadata = cohorts_db.get_patient_metadata_df(cohort_index)
-        metadata = metadata.set_index('Patient_Identifier')
+        metadata = metadata.set_index('Sample name')
         metadata_oncotree = metadata['code_oncotree']
 
 
         #Loading imputed intensities
         data_clean = get_imputed_df(cohort_index)
+        print('#'*41)
+        print("Duplicates in data_clean:", data_clean.index.duplicated().sum())
+        print("Duplicates in metadata_oncotree:", metadata_oncotree.index.duplicated().sum())
+        
+        print(data_clean.index[data_clean.index.duplicated()])
+        print(metadata_oncotree.index[metadata_oncotree.index.duplicated()])
+        print('#'*41)
+
+
         data_clean['code_oncotree'] = metadata_oncotree
 
         #Defining the oncotree for the patient
