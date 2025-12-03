@@ -406,6 +406,7 @@ def get_subcohort_index(samples_df, column, sample_name):
         samples_df[column] == samples_df.loc[samples_df["Sample name"] == sample_name, column].iloc[0]
     ]["Sample name"].to_list() if column in samples_df.columns else []
 
+
 def get_swarm_plot_svg(df_long, gene_order, xlabel, ylabel, title="", figsize=(10, 4)):
     highlight_genes = (
         df_long[df_long["highlight"]].groupby("Gene names")["Expression"]
@@ -507,7 +508,6 @@ def load_sklearn_models(folder_path):
             except Exception as e:
                 print(f"{filename} not loaded: {e}")
     return models
-
 
 
 def impute_normal_down_shift_distribution(
@@ -631,7 +631,7 @@ def generate_umap_visualization(
 
     # Plot points in order
     for color_code, label in [
-        ('silver', 'Other Entities'),
+        ('silver', 'Other'),
         ('#0468BF', f'{signature_key}'),
         ('#FF0000', sample_name)
     ]:
@@ -643,14 +643,14 @@ def generate_umap_visualization(
                 c=color_code,
                 label=label,
                 alpha=0.7 if color_code != '#FF0000' else 1.0,
-                s=70 if color_code == '#FF0000' else (75 if color_code == '#0468BF' else 50),
+                s=60 if color_code == '#FF0000' else (75 if color_code == '#0468BF' else 50),
                 edgecolors='black' if color_code == '#FF0000' else 'white',
                 linewidths=1 if color_code == '#FF0000' else 0.5,
                 zorder=1 if color_code == 'silver' else (2 if color_code == '#0468BF' else 3)
             )
 
-    ax.set_xlabel('UMAP 1', fontsize=6)
-    ax.set_ylabel('UMAP 2', fontsize=6)
+    ax.set_xlabel('UMAP 1')
+    ax.set_ylabel('UMAP 2')
     ax.set_title(f'UMAP Visualization - {sample_name}', fontsize=10, fontweight='bold')
     ax.legend(loc='best', framealpha=0.9)
 
@@ -689,13 +689,22 @@ def probabilities_calculator(models: dict, input_data: pd.DataFrame) -> dict:
     return predictions
 
 
-def generate_prodict_visualization(predictions: dict):
+def generate_prodict_visualization(predictions: dict, sample_name: str):
     """Lollipopo graph to visualize the probabilities of 
     each classifier applied to a sample"""
     
-    row = pd.Series(predictions)
+    row = pd.Series(predictions).sort_index(ascending=False)
+    
+    rename_map = {
+        "PLEMESO_PEMESO": "P(L)EMESO",
+        "BA_ANGS": "(B)ANGS",
+        "LMS_ULMS": "(U)LMS",
+        "MEL_UM": "(U)MEL",
+        
+    }
+    row.index = row.index.to_series().replace(rename_map)
 
-    fig, ax = plt.subplots(figsize=(4, 6))
+    fig, ax = plt.subplots(figsize=(5, 6))
     ax.hlines(y=row.index, xmin=0, xmax=row.values, color='lightgrey', lw=2)
 
     # Plot each dot with conditional color
@@ -713,6 +722,8 @@ def generate_prodict_visualization(predictions: dict):
 
     # Labels
     ax.set_xlabel("Probability")
+    ax.set_xticks([0.0, 0.5, 0.9, 1.0])
+    ax.set_title(f'PROdict Classification - {sample_name}', fontsize=10, fontweight='bold')
 
     # Remove frame box (keep only x & y axes)
     ax.spines['top'].set_visible(False)
@@ -741,7 +752,7 @@ def get_probabilities(cohort_index, patient):
 
         predictions = probabilities_calculator(models, patient_input_data)
 
-        svg_output = generate_prodict_visualization(predictions)
+        svg_output = generate_prodict_visualization(predictions, patient)
         plt.close('all')
 
         return Response(svg_output, mimetype='image/svg+xml')
