@@ -26,9 +26,6 @@ from topas_portal import patient_report_excel
 import numpy as np
 import joblib
 import json
-
-
-from pydantic import BaseModel
 from typing import Dict, List, Optional
 from umap import UMAP
 from pathlib import Path
