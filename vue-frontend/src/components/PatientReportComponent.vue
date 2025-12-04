@@ -276,8 +276,127 @@
                   </v-tabs>
 
                   <v-divider></v-divider>
-
                   <v-tabs-items v-model="type">
+                    <v-tab-item value="tumor">
+                      <v-card flat min-height="400px">
+                        <v-card-text>
+                          <div class="chart-container">
+                            <div v-if="loadingTumor" class="loader">
+                              <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+                              <p class="mt-4">Loading tumor antigens...</p>
+                            </div>
+                            <img
+                              v-if="firstPatient"
+                              v-show="!loadingTumor"
+                              :src="getTumorUrl()"
+                              @load="loadingTumor = false"
+                              @error="loadingTumor = false"
+                            />
+                          </div>
+                        </v-card-text>
+                      </v-card>
+                    </v-tab-item>
+
+                    <v-tab-item value="rtk">
+                      <v-card flat min-height="400px">
+                        <v-card-text>
+                          <div class="chart-container">
+                            <div v-if="loadingRtk" class="loader">
+                              <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+                              <p class="mt-4">Loading RTK...</p>
+                            </div>
+                            <img
+                              v-if="firstPatient"
+                              v-show="!loadingRtk"
+                              :src="getRtkUrl()"
+                              @load="loadingRtk = false"
+                              @error="loadingRtk = false"
+                            />
+                          </div>
+                        </v-card-text>
+                      </v-card>
+                    </v-tab-item>
+
+                    <v-tab-item value="cknk">
+                      <v-card flat min-height="400px">
+                        <v-card-text>
+                          <div class="chart-container">
+                            <div v-if="loadingCknk" class="loader">
+                              <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+                              <p class="mt-4">Loading CK/NK...</p>
+                            </div>
+                            <img
+                              v-if="firstPatient"
+                              v-show="!loadingCknk"
+                              :src="getCknkUrl()"
+                              @load="loadingCknk = false"
+                              @error="loadingCknk = false"
+                            />
+                          </div>
+                        </v-card-text>
+                      </v-card>
+                    </v-tab-item>
+
+                    <v-tab-item value="immune">
+                      <v-card flat min-height="400px">
+                        <v-card-text>
+                          <div class="chart-container">
+                            <div v-if="loadingImmune" class="loader">
+                              <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+                              <p class="mt-4">Loading immune status...</p>
+                            </div>
+                            <img
+                              v-if="firstPatient"
+                              v-show="!loadingImmune"
+                              :src="getImmuneUrl()"
+                              @load="loadingImmune = false"
+                              @error="loadingImmune = false"
+                            />
+                          </div>
+                        </v-card-text>
+                      </v-card>
+                    </v-tab-item>
+
+                    <v-tab-item value="prodict">
+                      <v-card flat min-height="400px">
+                        <v-card-text>
+                          <v-row>
+                            <v-col cols="12" md="6">
+                              <div class="chart-container">
+                                <div v-if="loadingProdictProb" class="loader">
+                                  <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+                                  <p class="mt-4">Loading PROdictions...</p>
+                                </div>
+                                <img
+                                  v-if="firstPatient"
+                                  v-show="!loadingProdictProb"
+                                  :src="getProdictProbUrl()"
+                                  @load="loadingProdictProb = false"
+                                  @error="loadingProdictProb = false"
+                                />
+                              </div>
+                            </v-col>
+                            <v-col cols="12" md="6">
+                              <div class="chart-container">
+                                <div v-if="loadingProdictUmap" class="loader">
+                                  <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+                                  <p class="mt-4">Loading UMAP...</p>
+                                </div>
+                                <img
+                                  v-if="firstPatient"
+                                  v-show="!loadingProdictUmap"
+                                  :src="getProdictUmapUrl()"
+                                  @load="loadingProdictUmap = false"
+                                  @error="loadingProdictUmap = false"
+                                />
+                              </div>
+                            </v-col>
+                          </v-row>
+                        </v-card-text>
+                      </v-card>
+                    </v-tab-item>
+                  </v-tabs-items>
+                  <!-- <v-tabs-items v-model="type">
                     <v-tab-item value="tumor">
                       <v-card flat min-height="400px">
                         <v-card-text>
@@ -324,7 +443,7 @@
                         </v-card-text>
                       </v-card>
                     </v-tab-item>
-                  </v-tabs-items>
+                  </v-tabs-items> -->
                 </v-card-text>
               </v-card>
             </v-col>
@@ -427,7 +546,13 @@ export default {
         text: 'Biomarker',
         value: DataType.BIOMARKER
       }
-    ]
+    ],
+    loadingTumor: false,
+    loadingRtk: false,
+    loadingCknk: false,
+    loadingImmune: false,
+    loadingProdictProb: false,
+    loadingProdictUmap: false
   }),
   computed: {
     proteinCount () {
@@ -583,7 +708,15 @@ export default {
     },
     async updateSelectedRows (selectedIds, selectedData) {
       this.selectedData = selectedData
+
       if (selectedData.length > 0) {
+        this.loadingTumor = true
+        this.loadingRtk = true
+        this.loadingCknk = true
+        this.loadingImmune = true
+        this.loadingProdictProb = true
+        this.loadingProdictUmap = true
+
         this.getscoresTable()
         const dashStyle = '5, 5'
 
@@ -644,6 +777,47 @@ export default {
           })
         }
       }
+    },
+    getTumorUrl () {
+      return api.TUMOR_ANTIGENS_SWARM_PLOT({
+        cohort_index: this.cohortIndex,
+        patient: this.firstPatient
+      })
+    },
+
+    getRtkUrl () {
+      return api.RTKS_SWARM_PLOT({
+        cohort_index: this.cohortIndex,
+        patient: this.firstPatient
+      })
+    },
+
+    getCknkUrl () {
+      return api.CKS_NKS_SWARM_PLOT({
+        cohort_index: this.cohortIndex,
+        patient: this.firstPatient
+      })
+    },
+
+    getImmuneUrl () {
+      return api.IMMUNE_STATUS_HEATMAP({
+        cohort_index: this.cohortIndex,
+        patient: this.firstPatient
+      })
+    },
+
+    getProdictProbUrl () {
+      return api.PRODICT_PATIENT_PROBABILITES({
+        cohort_index: this.cohortIndex,
+        patient: this.firstPatient
+      })
+    },
+
+    getProdictUmapUrl () {
+      return api.PRODICT_PATIENT_UMAP({
+        cohort_index: this.cohortIndex,
+        patient: this.firstPatient
+      })
     }
   }
 }
@@ -675,5 +849,21 @@ button {
   border-radius: 8px;
   box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2), -3px -3px 6px rgba(255, 255, 255, 0.7);
   transition: box-shadow 0.2s ease-in-out;
+}
+
+.chart-container {
+  position: relative;
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
 }
 </style>
