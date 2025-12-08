@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 import math
-import numpy as np
 from typing import TYPE_CHECKING
+
+import numpy as np
+import pandas as pd
+from scipy.stats import ttest_ind
+from statsmodels.stats.multitest import fdrcorrection
 
 from topas_portal import utils
 from topas_portal import settings
-from topas_portal.signature_function import one_vs_all_t_test
 import topas_portal.fetch_data_matrix as data
 import topas_portal.topas_scores_meta as topas
 
@@ -100,6 +103,60 @@ def get_data_for_t_test(
     return t_test_df
 
 
+def one_vs_all_t_test(
+    inputDF: pd.DataFrame,
+    protein_peptide: list,
+    favoriteentity: str,
+    metaDataColumn: str,
+) -> pd.DataFrame:
+    """
+    Performs a one vs all T_test per each protein/peptide for the patients with the favorite entity vs all other entities
+    to find out the signature protein for that specific entity
+
+    :inputDF: a dataframe where the patients are the rows and
+                               the proteins/peptides are the columns
+    :protein_peptide: the list of the columns to do the t_test based on
+    :favoriteentity: the main group for the t_test i.e: chordoma
+    :metaDatacolumns: the column in the inputDf which contains the subtypes for grouping
+
+    """
+    in_entity = inputDF.loc[:, metaDataColumn] == favoriteentity
+    not_entity = inputDF.loc[:, metaDataColumn] != favoriteentity
+
+    df = inputDF.loc[:, protein_peptide]
+
+    g1_all = df[in_entity]  # first group for the test
+    g2_all = df[not_entity]  # second group for the test
+
+    F_tests, p_values = ttest_ind(g1_all, g2_all, nan_policy="omit")
+    p_df = pd.DataFrame(list(zip(F_tests, p_values)))
+    p_df.columns = ["t_statistics", "p_values"]
+    p_df["Gene Names"] = protein_peptide
+
+    g1_mean = list(g1_all.mean())
+    g2_mean = list(g2_all.mean())
+
+    g1_count = list(g1_all.count())
+    g2_count = list(g2_all.count())
+
+    p_df["means_group1"] = g1_mean
+    p_df["means_group2"] = g2_mean
+
+    p_df["num_samples_groups_interest"] = g1_count
+    p_df["num_sample_other_groups"] = g2_count
+    p_df = p_df[p_df["p_values"].notna()]
+    p_df = p_df[p_df["Gene Names"].notna()]
+    fdr_multi_correction = fdrcorrection(
+        p_df.p_values, alpha=0.01, method="indep", is_sorted=False
+    )
+    p_df["fdr"] = list(fdr_multi_correction[1])
+    p_df = p_df[p_df["fdr"].notna()]
+    p_df["up_down"] = "up"
+    p_df["up_down"][(p_df["means_group1"] < p_df["means_group2"])] = "down"
+
+    return p_df
+
+
 def _add_PSP_annotation(cohorts_db, t_test_df, cohort_index: int):
     """
     Adds PhosphoSitePlus (PSP) annotations to the t-test results dataframe.
@@ -175,13 +232,11 @@ def _preparare_input_for_t_test(
         - Only the patients that exist in both `patients_list` and the data matrix columns
           are retained.
     """
-    identifiers = None
-
     input_df = data.fetch_data_matrix(
         cohorts_db,
         cohort_index,
         level,
-        identifiers=identifiers,
+        identifiers=None,
         intensity_unit=topas.TOPAS_DIFFERENTIAL_INTENSITY_UNITS[level],
     )
     protein_list = input_df.index.unique().tolist()
