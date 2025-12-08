@@ -165,44 +165,44 @@ export default {
       //   text: 'Phosphopeptides abundance',
       //   value: DataType.PHOSPHO_PROTEOME
       // },
+      // {
+      //   text: 'Substrate Phosphorylation scores',
+      //   value: DataType.KINASE_SCORE
+      // },
+      // {
+      //   text: 'Kinase substrate abundances',
+      //   value: DataType.KINASE_SUBSTRATE
+      // },
       {
-        text: 'Kinase scores',
-        value: DataType.KINASE_SCORE
-      },
-      {
-        text: 'Substrate Phosphorylation scores',
-        value: DataType.KINASE_SUBSTRATE
-      },
-      {
-        text: 'Protein Phosphorylation scores ',
+        text: 'Protein phosphorylation scores',
         value: DataType.PHOSPHO_SCORE
       },
       {
-        text: 'Phosphoproteins p-sites',
+        text: 'Phosphoprotein p-peptides',
         value: DataType.PHOSPHO_SCORE_PSITE
       },
       {
         text: 'TOPAS scores',
-        value: DataType.TOPAS_SCORE
+        value: DataType.TOPAS_RTK_SCORE
       },
       {
         text: 'TOPAS subscores (protein expression)',
         value: DataType.TOPAS_PROTEIN
       },
       {
-        text: 'TOPAS subscores (kinase activity)',
+        text: 'TOPAS subscores (substrate phos. scores)',
         value: DataType.TOPAS_KINASE_SCORE
       },
       {
-        text: 'TOPAS subscores (kinsase substrate)',
+        text: 'TOPAS subscores (kinase substrates)',
         value: DataType.TOPAS_KINASE_SUBSTRATE
       },
       {
-        text: 'TOPAS subscores (protein phosphorylation scores)',
+        text: 'TOPAS subscores (protein phos. scores)',
         value: DataType.TOPAS_PHOSPHO_SCORE
       },
       {
-        text: 'TOPAS subscores  (p-sites)',
+        text: 'TOPAS subscores (phosphoprotein p-peptides)',
         value: DataType.TOPAS_PHOSPHO_SCORE_PSITE
       }
     ],

@@ -38,6 +38,7 @@ class CohortDataAPI(Protocol):
         identifier: str = None,
         patient_name: str = None,
         include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+        extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         """Z-scored protein intensities per sample on full proteome level"""
 
@@ -47,6 +48,8 @@ class CohortDataAPI(Protocol):
         intensity_unit: Optional[utils.IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
+        include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+        extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         """Z-scored p-site intensities per sample on phospho proteome level"""
 
