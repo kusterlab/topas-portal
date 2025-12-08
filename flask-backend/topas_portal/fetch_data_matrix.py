@@ -119,8 +119,9 @@ def _get_kinase_substrates_df(
     if kinases is not None:
         regex_match_string = "|".join(re.escape(k) for k in kinases)
     kinase_substrates = z_scores_df.index[
-        z_scores_df["PSP Kinases"]
+        z_scores_df["Kinases (TOPAS)"]
         .fillna("")
+        .str.replace("/", "_", regex=False)
         .str.contains(regex_match_string, regex=True)
     ].tolist()
     z_scores_df = z_scores_df.filter(like=" Z-score")
