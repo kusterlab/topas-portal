@@ -46,7 +46,7 @@ def get_piechart(
     Returns:
         JSON pie chart object for vue plotly on the frontend
     Inputs:
-        
+
         :labels: list object with the names of the labels
         :values: list object with the values
     """
@@ -117,6 +117,9 @@ def get_simple_heatmap(df: pd.DataFrame, title: str = "Scores"):
             title=title,
             xaxis_nticks=len(df.columns),
             yaxis_nticks=len(df.index),
+            plot_bgcolor="#CCCCCC",  # fills NaN values with lightgrey
+            xaxis_showgrid=False,
+            yaxis_showgrid=False,
         )
 
         figure_data = pltio.to_json(fig)
@@ -178,7 +181,12 @@ def get_heatmap(df: pd.DataFrame):
 
     # Edit Layout
     fig.update_layout(
-        {"width": 800, "height": 800, "showlegend": False, "hovermode": "closest",}
+        {
+            "width": 800,
+            "height": 800,
+            "showlegend": False,
+            "hovermode": "closest",
+        }
     )
     # Edit xaxis
 

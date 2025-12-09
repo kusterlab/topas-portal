@@ -81,7 +81,9 @@
       md="4"
       lg="4"
     >
-      <v-card flat>
+      <v-card
+        flat
+      >
         <v-card-text>
           <patient-select-table
             :cohort-index="cohortIndex"
@@ -96,7 +98,6 @@
       lg="6"
     >
       <v-card
-        v-if="heatmapData.data"
         flat
       >
         <v-card-text>

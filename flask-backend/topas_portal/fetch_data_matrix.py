@@ -75,7 +75,9 @@ def fetch_data_matrix(
             identifiers,
         )
     elif level == utils.DataType.TOPAS_RTK_SCORE:
-        df = cohorts_db.get_topas_rtk_scores_df(cohort_index, intensity_unit=intensity_unit)
+        df = cohorts_db.get_topas_rtk_scores_df(
+            cohort_index, intensity_unit=intensity_unit
+        )
     elif level == utils.DataType.TRANSCRIPTOMICS:
         df = cohorts_db.get_fpkm_df(intensity_unit=intensity_unit)
     else:
@@ -109,7 +111,7 @@ def _get_kinase_substrates_df(
     The substrates do not have to be unique substrates for a kinase.
 
     Args:
-        z_scores_df (pd.DataFrame): dataframe with p-site abundances and a column with upstream kinases called "PSP Kinases".
+        z_scores_df (pd.DataFrame): dataframe with p-site abundances and a column with upstream kinases called "Kinases (TOPAS)".
         kinases (list[str]): list of kinases
 
     Returns:
@@ -188,7 +190,13 @@ def _get_topas_proteins(
         topas_proteins = topas_proteins[
             topas_proteins["TOPAS_SUBSCORE"].isin(topas_names)
         ]
-    
+
+    # deal with naming difference between TOPAS kinase-substrate file and TOPAS annotation file
+    # TODO: make this uniform between these two files
+    topas_proteins["GENE NAME"] = topas_proteins["GENE NAME"].str.replace(
+        "(TOPAS)", "(RTK-TOPAS)", regex=False
+    )
+
     identifier_column = "GENE NAME"
     if level == utils.DataType.PHOSPHO_PROTEOME:
         identifier_column = "MODIFIED SEQUENCE"
