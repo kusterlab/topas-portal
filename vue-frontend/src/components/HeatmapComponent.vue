@@ -101,6 +101,25 @@
         flat
       >
         <v-card-text>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                class="ma-2"
+                color="primary"
+                @click="downloadCSV"
+                :disabled="!heatmapHasData"
+                v-bind="attrs"
+                v-on="on"
+              >
+                <v-icon
+                  dark
+                >
+                  mdi-cloud-download
+                </v-icon>
+              </v-btn>
+            </template>
+            <span>Download as CSV</span>
+          </v-tooltip>
           <Plotly
             :data="heatmapData.data"
             :layout="heatmapData.layout"
@@ -113,6 +132,7 @@
 </template>
 <script>
 import axios from 'axios'
+import utils from '@/plugins/DownloadUtils'
 import CohortSelect from './partials/CohortSelect.vue'
 import PatientSelectTable from './tables/DifferentialmetaTable.vue'
 import TopasSelect from '@/components/partials/TopasSelect'
@@ -120,6 +140,7 @@ import ProteinSelect from '@/components/partials/ProteinSelect'
 import SampleSelect from './partials/SampleSelect.vue'
 import { Plotly } from 'vue-plotly'
 import { DataType } from '@/constants'
+import { api } from '@/routes.ts'
 
 export default {
   name: 'HeatmapComponent',
@@ -166,14 +187,14 @@ export default {
       //   text: 'Phosphopeptides abundance',
       //   value: DataType.PHOSPHO_PROTEOME
       // },
-      // {
-      //   text: 'Substrate Phosphorylation scores',
-      //   value: DataType.KINASE_SCORE
-      // },
-      // {
-      //   text: 'Kinase substrate abundances',
-      //   value: DataType.KINASE_SUBSTRATE
-      // },
+      {
+        text: 'Substrate Phosphorylation scores',
+        value: DataType.KINASE_SCORE
+      },
+      {
+        text: 'Kinase substrate abundances',
+        value: DataType.KINASE_SUBSTRATE
+      },
       {
         text: 'Protein phosphorylation scores',
         value: DataType.PHOSPHO_SCORE
@@ -182,28 +203,32 @@ export default {
         text: 'Phosphoprotein p-peptides',
         value: DataType.PHOSPHO_SCORE_PSITE
       },
+      // {
+      //   text: 'TOPAS-CK scores',
+      //   value: DataType.TOPAS_CK_SCORE
+      // },
       {
-        text: 'TOPAS scores',
+        text: 'TOPAS-RTK scores',
         value: DataType.TOPAS_RTK_SCORE
       },
       {
-        text: 'TOPAS subscores (protein expression)',
+        text: 'TOPAS-RTK subscores (protein expression)',
         value: DataType.TOPAS_PROTEIN
       },
       {
-        text: 'TOPAS subscores (substrate phos. scores)',
+        text: 'TOPAS-RTK subscores (substrate phos. scores)',
         value: DataType.TOPAS_KINASE_SCORE
       },
       {
-        text: 'TOPAS subscores (kinase substrates)',
+        text: 'TOPAS-RTK subscores (kinase substrates)',
         value: DataType.TOPAS_KINASE_SUBSTRATE
       },
       {
-        text: 'TOPAS subscores (protein phos. scores)',
+        text: 'TOPAS-RTK subscores (protein phos. scores)',
         value: DataType.TOPAS_PHOSPHO_SCORE
       },
       {
-        text: 'TOPAS subscores (phosphoprotein p-peptides)',
+        text: 'TOPAS-RTK subscores (phosphoprotein p-peptides)',
         value: DataType.TOPAS_PHOSPHO_SCORE_PSITE
       }
     ],
@@ -213,6 +238,9 @@ export default {
     }
   }),
   computed: {
+    heatmapHasData: function () {
+      return this.cohortIndex >= 0 && this.identifier !== null && this.selectedSamples !== null && this.selectedSamples.length > 0
+    }
   },
   watch: {
     cohortChange: function () {
@@ -246,12 +274,33 @@ export default {
       this.updateHeatmap()
     },
     async updateHeatmap () {
-      if (this.cohortIndex >= 0 && this.identifier !== null && this.selectedSamples !== null && this.selectedSamples.length > 0) {
-        const response = await axios.get(`${process.env.VUE_APP_API_HOST}/batcheffect/${this.inputDataType}/${this.cohortIndex}/${this.identifier}/${this.selectedSamples}/plot`)
+      if (this.heatmapHasData) {
+        const response = await axios.get(api.HEATMAP({
+          level: this.inputDataType,
+          cohort_index: this.cohortIndex,
+          identifier: this.identifier,
+          sample_ids: this.selectedSamples,
+          output_format: 'plot'
+        }))
         this.showPlot = true
         this.heatmapData = response.data
-        this.patientData = `${process.env.VUE_APP_API_HOST}/batcheffect/${this.inputDataType}/${this.cohortIndex}/${this.identifier}/${this.selectedSamples}/meta`
         this.componentKey = this.componentKey + 1
+      }
+    },
+    async downloadCSV () {
+      const response = await axios.get(api.HEATMAP({
+        level: this.inputDataType,
+        cohort_index: this.cohortIndex,
+        identifier: this.identifier,
+        sample_ids: this.selectedSamples,
+        output_format: 'table'
+      }))
+      const heatmapData = response.data
+      if (heatmapData.length > 0) {
+        utils.downloadCSV(
+          utils.jsonToCsvRows(heatmapData),
+          `heatmap_${this.inputDataType}`
+        )
       }
     }
   }

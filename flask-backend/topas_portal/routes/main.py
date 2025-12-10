@@ -76,7 +76,7 @@ class ApiRoutes(ApiBase):
     ABUNDANCE = "/<int:cohort_index>/<data_type:level>/abundance/<string:identifier>/<string:imputation>/<include_ref:include_ref>"
     CORRELATION = "/<int:cohort_index>/<data_type:level>/correlation/<data_type:level_2>/<string:identifier>/<intensity_unit:intensity_unit>/<string:patients_list>"
 
-    BATCH_EFFECT = "/batcheffect/<data_type:level>/<int:cohort_index>/<string:identifier>/<string:sample_ids>/<string:data_type>"
+    HEATMAP = "/heatmap/<int:cohort_index>/<data_type:level>/<string:identifier>/<string:sample_ids>/<string:output_format>"
     DIFFERENTIAL = "/differential/<int:cohort_index>/<data_type:level>/<string:grp1_ind>/<string:grp2_ind>/<string:y_axis_type>"
 
     PROTEIN_LIST = "/<int:cohort_index>/<string:level>/list"

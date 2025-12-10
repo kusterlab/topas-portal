@@ -203,6 +203,25 @@ const utils = {
       oLink.click()
       document.body.removeChild(oLink)
     }
+  },
+
+  jsonToCsvRows: function (jsonArray) {
+    if (!jsonArray.length) return []
+
+    // Header row
+    const headers = Object.keys(jsonArray[0])
+    const rows = [headers.join(',')]
+
+    // Data rows
+    for (const obj of jsonArray) {
+      const row = headers
+        .map(h => obj[h])
+        .map(v => v === null || v === undefined ? '' : v)
+        .join(',')
+      rows.push(row)
+    }
+
+    return rows
   }
 }
 

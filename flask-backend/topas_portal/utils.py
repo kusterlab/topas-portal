@@ -10,7 +10,6 @@ from typing import List
 from datetime import datetime
 
 from topas_portal import settings
-import topas_portal.plotly_preprocess as plotlyprepare
 
 
 # remember to update the corresponding constant in vue-frontend/src/constants.js
@@ -480,24 +479,6 @@ def check_complete_or_fp_or_pp(
         else:
             cohort_type = "pp_only"
     return cohort_type
-
-
-def merged_df_to_json(data_type: str, merged_df: pd.DataFrame, title="Scores"):
-    sample_annot_cols = [
-        x
-        for x in merged_df.columns.tolist()
-        if x in list(settings.SAMPLE_ANNOTATION.values())
-    ]
-    if data_type == "plot":
-        merged_df.index = (
-            merged_df["Sample name"] + "_" + merged_df["TMT_channel"].astype(str)
-        )
-
-        plot_df = merged_df.drop(sample_annot_cols, axis=1)
-        return plotlyprepare.get_simple_heatmap(plot_df, title)
-    else:
-        meta_data = merged_df[sample_annot_cols]
-        return df_to_json(meta_data)
 
 
 def calculate_z_scores(df: pd.DataFrame, col_name="sum"):

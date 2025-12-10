@@ -63,7 +63,7 @@ def compute_correlation_df(
     abundances = data.fetch_data_matrix(
         cohorts_db,
         cohort_index,
-        utils.DataType(level),
+        level,
         identifiers=[identifier],
         intensity_unit=intensity_unit,
     )
@@ -74,7 +74,7 @@ def compute_correlation_df(
     all_abundances = data.fetch_data_matrix(
         cohorts_db,
         cohort_index,
-        utils.DataType(level_2),
+        level_2,
         identifiers=None,
         intensity_unit=intensity_unit,
     )

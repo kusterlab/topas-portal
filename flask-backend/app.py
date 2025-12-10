@@ -42,6 +42,7 @@ from topas_portal import correlations_preprocess as cp
 from topas_portal import fetch_data_matrix as hp
 from topas_portal import differential_expression as differential_test
 from topas_portal import genomics_preprocess as genomics_process
+from topas_portal import plotly_preprocess as plotlyprepare
 
 debug = settings.DEBUG_MODE
 if len(sys.argv) > 1 and sys.argv[1] == "test":
@@ -606,25 +607,32 @@ def correlation(
     )
 
 
-@app.route(ApiRoutes.BATCH_EFFECT)
-# http://localhost:3832/batcheffect/expression_level/0/ABL/1,23,24/plot
-# http://localhost:3832/batcheffect/phospho_level/0/ABL/1,23,24/plot
-# http://localhost:3832/batcheffect/kinase_level/0/ALK/1,23,24/plot
-def batch_effect(
-    cohort_index: str,
+@app.route(ApiRoutes.HEATMAP)
+def heatmap(
+    cohort_index: int,
+    level: utils.DataType,
     identifier: str,
     sample_ids: str,
-    data_type: str,
-    level: utils.DataType,
+    output_format: str,
 ):
     merged_df = hp.fetch_data_matrix_with_sample_annotations(
         cohorts_db,
         cohort_index,
+        level,
         identifier.split(","),
         sample_ids.split(","),
-        level,
     )
-    return utils.merged_df_to_json(data_type, merged_df, level.value)
+    if output_format == "plot":
+        merged_df.index = merged_df["Sample name"]
+        sample_annot_cols = merged_df.columns.intersection(
+            settings.SAMPLE_ANNOTATION.values()
+        )
+        plot_df = merged_df.drop(sample_annot_cols, axis=1)
+        return plotlyprepare.get_simple_heatmap(plot_df, level.value)
+    elif output_format == "table":
+        return utils.df_to_json(merged_df)
+    else:
+        raise ValueError(f"Unknown output format {output_format}")
 
 
 @app.route(ApiRoutes.DIFFERENTIAL)

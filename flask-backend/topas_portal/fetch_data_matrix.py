@@ -15,9 +15,9 @@ if TYPE_CHECKING:
 def fetch_data_matrix_with_sample_annotations(
     cohorts_db: data_api.CohortDataAPI,
     cohort_index: str,
+    level: utils.DataType,
     identifiers: list[str],
     sample_ids: list[str],
-    level: utils.DataType,
     intensity_unit: utils.IntensityUnit = utils.IntensityUnit.Z_SCORE,
 ) -> pd.DataFrame:
     z_scores_df = fetch_data_matrix(
@@ -73,6 +73,10 @@ def fetch_data_matrix(
         df, identifiers = _get_kinase_substrates_df(
             cohorts_db.get_psite_abundance_df(cohort_index),
             identifiers,
+        )
+    elif level == utils.DataType.TOPAS_CK_SCORE:
+        df = cohorts_db.get_topas_ck_scores_df(
+            cohort_index, intensity_unit=intensity_unit
         )
     elif level == utils.DataType.TOPAS_RTK_SCORE:
         df = cohorts_db.get_topas_rtk_scores_df(
