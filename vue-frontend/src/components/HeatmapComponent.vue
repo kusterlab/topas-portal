@@ -99,6 +99,8 @@
     >
       <v-card
         flat
+        :loading="heatmapIsLoading"
+        :disabled="heatmapIsLoading"
       >
         <v-card-text>
           <v-tooltip bottom>
@@ -114,7 +116,7 @@
                 <v-icon
                   dark
                 >
-                  mdi-cloud-download
+                  mdi-table-arrow-down
                 </v-icon>
               </v-btn>
             </template>
@@ -174,7 +176,7 @@ export default {
     componentKey: 0,
     inputDataType: DataType.FULL_PROTEOME,
     identifier: null,
-    showPlot: false,
+    heatmapIsLoading: false,
     layout: {
       title: 'plotlyHeatMap'
     },
@@ -275,6 +277,7 @@ export default {
     },
     async updateHeatmap () {
       if (this.heatmapHasData) {
+        this.heatmapIsLoading = true
         const response = await axios.get(api.HEATMAP({
           level: this.inputDataType,
           cohort_index: this.cohortIndex,
@@ -282,7 +285,7 @@ export default {
           sample_ids: this.selectedSamples,
           output_format: 'plot'
         }))
-        this.showPlot = true
+        this.heatmapIsLoading = false
         this.heatmapData = response.data
         this.componentKey = this.componentKey + 1
       }
