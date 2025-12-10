@@ -572,7 +572,7 @@ def abundance(
     imputation: str,
     include_ref: utils.IncludeRef,
 ):
-    return pp.get_abundance(
+    return pp.get_abundance_with_annotations(
         cohorts_db,
         cohort_index,
         level,
@@ -621,6 +621,7 @@ def heatmap(
         level,
         identifier.split(","),
         sample_ids.split(","),
+        include_ref=utils.IncludeRef.INCLUDE_REF,
     )
     if output_format == "plot":
         merged_df.index = merged_df["Sample name"]

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Callable, TYPE_CHECKING
+from typing import Callable, Optional, TYPE_CHECKING
 import re
 
 import pandas as pd
@@ -193,7 +193,7 @@ def get_density_calc_protein(
     return utils.df_to_json(count_df_protein)
 
 
-def get_abundance(
+def get_abundance_with_annotations(
     cohorts_db: data_api.CohortDataAPI,
     cohort_index: int,
     level: utils.DataType,
@@ -216,20 +216,10 @@ def get_abundance(
     Returns:
         _type_: _description_
     """
-    get_abundance_df_dict: dict[utils.DataType, Callable[..., pd.DataFrame]] = {
-        utils.DataType.FULL_PROTEOME: cohorts_db.get_protein_abundance_df,
-        utils.DataType.PHOSPHO_PROTEOME: cohorts_db.get_psite_abundance_df,
-        utils.DataType.TRANSCRIPTOMICS: cohorts_db.get_fpkm_df,
-        utils.DataType.KINASE_SCORE: cohorts_db.get_kinase_scores_df,
-        utils.DataType.PHOSPHO_SCORE: cohorts_db.get_phosphorylation_scores_df,
-        utils.DataType.TOPAS_RTK_SCORE: cohorts_db.get_topas_rtk_scores_df,
-    }
-
-    if level not in get_abundance_df_dict:
-        raise ValueError(f"Unknown data type for get_abundance: {level.value}")
-
-    abundances = get_abundance_df_dict[level](
+    abundances = get_abundance_df(
+        cohorts_db,
         cohort_index,
+        level=level,
         identifier=identifier,
         include_ref=include_ref,
     )
@@ -285,6 +275,52 @@ def get_abundance(
         )
     ]
     return utils.df_to_json(abundances_table)
+
+
+def get_abundance_df(
+    cohorts_db: data_api.CohortDataAPI,
+    cohort_index: int,
+    level: utils.DataType,
+    intensity_unit: Optional[utils.IntensityUnit] = None,
+    identifier: str = None,
+    patient_name: str = None,
+    include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+    extra_columns: Optional[list[str]] = None,
+):
+    """_summary_
+
+    Args:
+        cohorts_db (data_api.CohortDataAPI): _description_
+        cohort_index (int): _description_
+        level (ef.DataType): _description_
+        identifier (str): _description_
+
+    Raises:
+        ValueError: _description_
+
+    Returns:
+        _type_: _description_
+    """
+    get_abundance_df_dict: dict[utils.DataType, Callable[..., pd.DataFrame]] = {
+        utils.DataType.FULL_PROTEOME: cohorts_db.get_protein_abundance_df,
+        utils.DataType.PHOSPHO_PROTEOME: cohorts_db.get_psite_abundance_df,
+        utils.DataType.TRANSCRIPTOMICS: cohorts_db.get_fpkm_df,
+        utils.DataType.KINASE_SCORE: cohorts_db.get_kinase_scores_df,
+        utils.DataType.PHOSPHO_SCORE: cohorts_db.get_phosphorylation_scores_df,
+        utils.DataType.TOPAS_RTK_SCORE: cohorts_db.get_topas_rtk_scores_df,
+    }
+
+    if level not in get_abundance_df_dict:
+        raise ValueError(f"Unknown data type for get_abundance: {level.value}")
+
+    return get_abundance_df_dict[level](
+        cohort_index,
+        intensity_unit=intensity_unit,
+        identifier=identifier,
+        patient_name=patient_name,
+        include_ref=include_ref,
+        extra_columns=extra_columns,
+    )
 
 
 def get_batches_proteins_as_json(

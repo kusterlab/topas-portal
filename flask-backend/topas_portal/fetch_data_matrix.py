@@ -19,13 +19,15 @@ def fetch_data_matrix_with_sample_annotations(
     identifiers: list[str],
     sample_ids: list[str],
     intensity_unit: utils.IntensityUnit = utils.IntensityUnit.Z_SCORE,
+    include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
 ) -> pd.DataFrame:
     z_scores_df = fetch_data_matrix(
-        cohorts_db,
-        cohort_index,
-        level,
-        identifiers,
-        intensity_unit,
+        cohorts_db=cohorts_db,
+        cohort_index=cohort_index,
+        level=level,
+        identifiers=identifiers,
+        intensity_unit=intensity_unit,
+        include_ref=include_ref,
     )
 
     sample_annotation_df = cohorts_db.get_sample_annotation_df(cohort_index)
