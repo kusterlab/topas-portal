@@ -131,6 +131,7 @@ class InMemoryCohortDataAPI:
         identifier: str = None,
         patient_name: str = None,
         include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+        extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         return self._get_filtered_df(
             cohort_index,
@@ -139,6 +140,7 @@ class InMemoryCohortDataAPI:
             identifier,
             patient_name,
             include_ref,
+            extra_columns,
         )
 
     def get_topas_ck_scores_df(
@@ -148,6 +150,7 @@ class InMemoryCohortDataAPI:
         identifier: str = None,
         patient_name: str = None,
         include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+        extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         return self._get_filtered_df(
             cohort_index,
@@ -156,6 +159,7 @@ class InMemoryCohortDataAPI:
             identifier,
             patient_name,
             include_ref,
+            extra_columns,
         )
 
     def get_phosphorylation_scores_df(
@@ -164,8 +168,8 @@ class InMemoryCohortDataAPI:
         intensity_unit: Optional[utils.IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
-        extra_columns: Optional[list[str]] = None,
         include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+        extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         return self._get_filtered_df(
             cohort_index,
@@ -184,6 +188,7 @@ class InMemoryCohortDataAPI:
         identifier: str = None,
         patient_name: str = None,
         include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+        extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         return self._get_filtered_df(
             cohort_index,
@@ -192,6 +197,7 @@ class InMemoryCohortDataAPI:
             identifier,
             patient_name,
             include_ref,
+            extra_columns,
         )
 
     def get_fpkm_df(
@@ -201,6 +207,7 @@ class InMemoryCohortDataAPI:
         identifier=None,
         patient_name=None,
         include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+        extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         return self._get_filtered_df(
             cohort_index,
@@ -209,6 +216,7 @@ class InMemoryCohortDataAPI:
             identifier,
             patient_name,
             include_ref,
+            extra_columns,
         )
 
     def get_genomics(self) -> pd.DataFrame:

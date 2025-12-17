@@ -105,6 +105,7 @@ class SQLCohortDataAPI:
         identifier=None,
         patient_name=None,
         include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+        extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
 
         if intensity_unit == utils.IntensityUnit.INTENSITY:
@@ -155,6 +156,7 @@ class SQLCohortDataAPI:
         identifier=None,
         patient_name=None,
         include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+        extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         if intensity_unit == utils.IntensityUnit.INTENSITY:
             if identifier:
@@ -219,6 +221,7 @@ class SQLCohortDataAPI:
         identifier: str = None,
         patient_name: str = None,
         include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+        extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         if intensity_unit == utils.IntensityUnit.SCORE:
             return self._general_topas_query_obtainer(
@@ -240,6 +243,7 @@ class SQLCohortDataAPI:
         identifier: str = None,
         patient_name: str = None,
         include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+        extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         raise NotImplementedError(f"Cannot return topas CK scores from SQL database")
 
@@ -257,6 +261,7 @@ class SQLCohortDataAPI:
         identifier: str = None,
         patient_name: str = None,
         include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+        extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         query = f"""SELECT patient_name,protein_name,value FROM phosphoscores WHERE cohort_id={cohort_index} """
         df = self._convert_query_to_df(models.Phosphoscores.raw(query))
@@ -271,6 +276,7 @@ class SQLCohortDataAPI:
         identifier: str = None,
         patient_name: str = None,
         include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+        extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         cohort_report_dir = self.get_report_dir(cohort_index)
         return self.provider.get_kinase_scores_dataframe(cohort_report_dir)
@@ -293,6 +299,7 @@ class SQLCohortDataAPI:
         identifier: str = None,
         patient_name: str = None,
         include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+        extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         fpkm_df = self.provider.FPKM
         if intensity_unit is not None:

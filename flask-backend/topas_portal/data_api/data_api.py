@@ -60,6 +60,7 @@ class CohortDataAPI(Protocol):
         identifier: str = None,
         patient_name: str = None,
         include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+        extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         """Topas RTK scores per sample"""
 
@@ -70,6 +71,7 @@ class CohortDataAPI(Protocol):
         identifier: str = None,
         patient_name: str = None,
         include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+        extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         """Topas CK scores per sample"""
 
@@ -79,7 +81,8 @@ class CohortDataAPI(Protocol):
         intensity_unit: Optional[utils.IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
-        include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF
+        include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+        extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         """Protein phosphorylation scores per sample"""
 
@@ -90,6 +93,7 @@ class CohortDataAPI(Protocol):
         identifier: str = None,
         patient_name: str = None,
         include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+        extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         """Protein Kinase scores per sample"""
 
@@ -100,6 +104,7 @@ class CohortDataAPI(Protocol):
         identifier: str = None,
         patient_name: str = None,
         include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+        extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         """"""
 
