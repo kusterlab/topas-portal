@@ -34,11 +34,11 @@ def load_sample_annotation(cohort_name: str, config: CohortConfig) -> pd.DataFra
 
 @cacheable(utils.DataType.TRANSCRIPTOMICS)
 def load_transcriptomics_data(cohort_name: str, config: CohortConfig) -> pd.DataFrame:
-    fpkm_path, fpkm_zscored_path = config.get_transcriptomics_paths(cohort_name)
-    fpkm_df = tp.load_FPKM_table(fpkm_zscored_path)
-    fpkm_not_zscored_df = tp.load_FPKM_table(fpkm_path)
-    return fpkm_df.join(
-        fpkm_not_zscored_df,
+    zscore_path, fpkm_path = config.get_transcriptomics_paths(cohort_name)
+    zscore_df = tp.load_FPKM_table(zscore_path)
+    fpkm_df = tp.load_FPKM_table(fpkm_path)
+    return zscore_df.join(
+        fpkm_df,
         lsuffix=utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.Z_SCORE],
         rsuffix=utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.INTENSITY],
     )
