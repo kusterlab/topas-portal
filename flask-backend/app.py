@@ -212,8 +212,10 @@ def get_protein_fpkm_correlation(cohort_index: int):
         - Converts the resulting correlation DataFrame to JSON format before returning.
     """
     transcript_df = cohorts_db.get_fpkm_df(intensity_unit=utils.IntensityUnit.INTENSITY)
-    protein_intensity_df = cohorts_db.get_protein_abundance_df(cohort_index).copy()
-    correlation_df = cp.wrapper_get_correlation_across_patients(
+    protein_intensity_df = cohorts_db.get_protein_abundance_df(
+        cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
+    )
+    correlation_df = cp.get_correlation_across_patients(
         protein_intensity_df, transcript_df
     )
     return utils.df_to_json(correlation_df)

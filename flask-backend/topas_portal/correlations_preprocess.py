@@ -313,7 +313,7 @@ def _get_correlation_for_one_patient(
     return ans, len(all_df)
 
 
-def wrapper_get_correlation_across_patients(
+def get_correlation_across_patients(
     protein_df: pd.DataFrame, transcripts_df: pd.DataFrame
 ):
     """
@@ -339,33 +339,28 @@ def wrapper_get_correlation_across_patients(
         correlation_df = wrapper_get_correlation_across_patients(protein_df, transcripts_df)
         # correlation_df will contain correlations for each patient between protein and transcript data.
     """
-    transcripts_df.columns = transcripts_df.columns.str.replace(
-        " Z-score", " Intensity"
-    )
-    protein_df = protein_df.filter(regex='Intensity')
-    protein_df.columns = protein_df.columns.str.replace(' Intensity','')
     unested_protein_df = utils.unnest_proteingroups(protein_df)
 
-    overlappling_patients = [
+    overlapping_patients = [
         x for x in transcripts_df.columns if x in unested_protein_df.columns
     ]
     overlapping_proteins = [
         x for x in transcripts_df.index if x in unested_protein_df.index
     ]
 
-    Z_SCORES_df_proteome = unested_protein_df.loc[
-        overlapping_proteins, overlappling_patients
+    proteome_df = unested_protein_df.loc[
+        overlapping_proteins, overlapping_patients
     ]
-    transcripts_z_scores = transcripts_df.loc[
-        overlapping_proteins, overlappling_patients
+    transcriptome_df = transcripts_df.loc[
+        overlapping_proteins, overlapping_patients
     ]
 
-    correlation_df = pd.DataFrame(overlappling_patients, columns=["patients"])
+    correlation_df = pd.DataFrame(overlapping_patients, columns=["patients"])
     correlation_df["correlation"] = None
     correlation_df["num_proteins"] = None
     for i in range(len(correlation_df)):
         protein_correlaiton, num_proteins = _get_correlation_for_one_patient(
-            correlation_df["patients"][i], Z_SCORES_df_proteome, transcripts_z_scores
+            correlation_df["patients"][i], proteome_df, transcriptome_df
         )
         correlation_df["correlation"][i] = protein_correlaiton
         correlation_df["num_proteins"][i] = num_proteins
