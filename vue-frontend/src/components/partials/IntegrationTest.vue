@@ -224,7 +224,8 @@ export default {
         dimensionality_reduction_method: 'ppca',
         use_replicate: 'noreplicate',
         custom_patients: 'all',
-        imputation_ratio: '0.9'
+        imputation_ratio: '0.9',
+        output_format: 'plot'
       }
 
       const endpoints = [
@@ -267,7 +268,7 @@ export default {
         { name: 'ABUNDANCE/KINASE_SCORE', url: api.ABUNDANCE({ ...testArguments, level: DataType.KINASE_SCORE, identifier: 'EGFR(RTK-TOPAS)' }) },
         { name: 'ABUNDANCE/TOPAS_RTK_SCORE', url: api.ABUNDANCE({ ...testArguments, level: DataType.TOPAS_RTK_SCORE, identifier: 'EGFR' }) },
         { name: 'CORRELATION', url: api.CORRELATION(testArguments) },
-        { name: 'BATCH_EFFECT', url: api.BATCH_EFFECT(testArguments) }, // TODO: fix this
+        { name: 'HEATMAP', url: api.HEATMAP(testArguments) },
         { name: 'DIFFERENTIAL', url: api.DIFFERENTIAL(testArguments) },
         { name: 'PROTEIN_LIST', url: api.PROTEIN_LIST(testArguments) },
         { name: 'CANONICAL_PATHWAYS', url: api.CANONICAL_PATHWAYS(testArguments) },

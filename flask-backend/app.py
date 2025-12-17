@@ -612,7 +612,7 @@ def heatmap(
     cohort_index: int,
     level: utils.DataType,
     identifier: str,
-    sample_ids: str,
+    patients: str,
     output_format: str,
 ):
     merged_df = hp.fetch_data_matrix_with_sample_annotations(
@@ -620,7 +620,7 @@ def heatmap(
         cohort_index,
         level,
         identifier.split(","),
-        sample_ids.split(","),
+        patients.split(","),
         include_ref=utils.IncludeRef.INCLUDE_REF,
     )
     if output_format == "plot":

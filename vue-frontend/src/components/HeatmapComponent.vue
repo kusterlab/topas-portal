@@ -282,7 +282,7 @@ export default {
           level: this.inputDataType,
           cohort_index: this.cohortIndex,
           identifier: this.identifier,
-          sample_ids: this.selectedSamples,
+          patients: this.selectedSamples,
           output_format: 'plot'
         }))
         this.heatmapIsLoading = false
@@ -295,7 +295,7 @@ export default {
         level: this.inputDataType,
         cohort_index: this.cohortIndex,
         identifier: this.identifier,
-        sample_ids: this.selectedSamples,
+        patients: this.selectedSamples,
         output_format: 'table'
       }))
       const heatmapData = response.data
