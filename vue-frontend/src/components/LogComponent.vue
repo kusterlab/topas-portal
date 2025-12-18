@@ -90,7 +90,7 @@
 import ConfigUpdate from './partials/ConfigUpdate.vue'
 import IntegrationTest from './partials/IntegrationTest.vue'
 import ErrorLog from './partials/ErrorLog.vue'
-import configTable from '@/components/tables/configTable.vue'
+import configTable from '@/components/tables/ConfigTable.vue'
 import axios from 'axios'
 import { api } from '@/routes.ts'
 

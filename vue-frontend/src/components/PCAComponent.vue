@@ -214,7 +214,7 @@
               md="5"
               lg="5"
             >
-              <silhouetteTable
+              <silhouette-scores-table
                 v-if="silData.length > 0"
                 :data-source="silData"
               />
@@ -250,7 +250,7 @@ import axios from 'axios'
 import { mapMutations } from 'vuex'
 
 import QcTable from '@/components/tables/QCTable'
-import silhouetteTable from '@/components/tables/silhouetteTable'
+import SilhouetteScoresTable from '@/components/tables/SilhouetteScoresTable'
 import QcPlot from '@/components/plots/QCPlot.vue'
 import LollipopPlot from './plots/LollipopPlot.vue'
 import { DataType } from '@/constants'
@@ -263,7 +263,7 @@ export default {
     QcTable,
     QcPlot,
     LollipopPlot,
-    silhouetteTable,
+    SilhouetteScoresTable,
     CohortSelect,
     SubcohortSelect
   },

@@ -7,13 +7,13 @@ import AdminToolsComponent from '@/components/AdminToolsComponent.vue'
 
 import ScoresView from '@/views/ScoresView.vue'
 import TopasComponent from '@/components/TopasComponent.vue'
-import KinaseComponent from '@/components/KinaseComponent.vue'
-import PproteinComponent from '@/components/ProteinScores.vue'
-import EntityComponent from '@/components/entitymodelComponent.vue'
+import KinaseComponent from '@/components/KinaseScoresComponent.vue'
+import PproteinComponent from '@/components/ProteinScoresComponent.vue'
+import EntityComponent from '@/components/EntityScoresComponent.vue'
 import ZscoringComponent from '@/components/ZscoringComponent.vue'
 
 import AnalyticsView from '@/views/AnalyticsView.vue'
-import PCAComponent from '@/components/QCComponent.vue'
+import PCAComponent from '@/components/PCAComponent.vue'
 import CorrelationComponent from '@/components/CorrelationComponent.vue'
 import DifferentialComponent from '@/components/DifferentialComponent.vue'
 import VennComponent from '@/components/VennComponent.vue'
@@ -23,7 +23,7 @@ import PTMNavigatorComponent from '@/components/PTMNavigatorComponent.vue'
 
 import PatientView from '@/views/PatientView.vue'
 import PatientReportComponent from '@/components/PatientReportComponent.vue'
-import OverviewComponent from '@/components/OverviewComponent.vue'
+import CohortStatsComponent from '@/components/CohortStatsComponent.vue'
 
 Vue.use(Router)
 
@@ -69,7 +69,7 @@ export default new Router({
       children:
         [
           { path: '/patient_report', component: PatientReportComponent },
-          { path: '/cohort_stats', component: OverviewComponent }
+          { path: '/cohort_stats', component: CohortStatsComponent }
         ]
     },
     { path: '/admin-tools', component: AdminToolsComponent }

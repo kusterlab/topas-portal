@@ -46,7 +46,7 @@
       md="9"
       lg="10"
     >
-      <entityscore-table
+      <entity-scores-table
         :data-source="jsonUrl"
       />
     </v-col>
@@ -54,14 +54,13 @@
 </template>
 
 <script>
-// import axios from 'axios'
 import CohortSelect from './partials/CohortSelect.vue'
-import entityscoreTable from '@/components/tables/entityscoreTable'
+import EntityScoresTable from '@/components/tables/EntityScoresTable'
 
 export default {
-  name: 'EntityComponent',
+  name: 'EntityScoresComponent',
   components: {
-    entityscoreTable,
+    EntityScoresTable,
     CohortSelect
   },
   props: {

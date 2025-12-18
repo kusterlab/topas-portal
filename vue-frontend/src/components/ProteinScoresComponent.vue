@@ -115,7 +115,7 @@ import axios from 'axios'
 import { mapMutations } from 'vuex'
 
 import CohortSelect from './partials/CohortSelect.vue'
-import proteinscoreTable from '@/components/tables/ProteinscoreTable.vue'
+import proteinscoreTable from '@/components/tables/ProteinScoresTable.vue'
 import SwarmPlot from '@/components/plots/SwarmPlot'
 import ProteinSelect from '@/components/partials/ProteinSelect'
 

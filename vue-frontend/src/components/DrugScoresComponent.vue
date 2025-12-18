@@ -108,7 +108,7 @@
 </template>
 <script>
 import axios from 'axios'
-import DrugscoreTable from '@/components/tables/DrugscoreTable.vue'
+import DrugscoreTable from '@/components/tables/DrugScoresTable.vue'
 import SwarmPlot from '@/components/plots/SwarmPlot'
 
 export default {

@@ -459,7 +459,7 @@ import axios from 'axios'
 import { mapMutations } from 'vuex'
 
 import CohortSelect from './partials/CohortSelect.vue'
-import patientscoreTable from '@/components/tables/PatientscoreTable.vue'
+import patientscoreTable from '@/components/tables/PatientScoresTable.vue'
 import PatientReportTable from '@/components/tables/PatientReportTable.vue'
 import histogram from '@/components/plots/GenericHistogram.vue'
 import { DataType, IncludeRef } from '@/constants'
