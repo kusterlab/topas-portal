@@ -3,8 +3,6 @@ import Router from 'vue-router'
 import LandingPage from '@/components/LandingPage.vue'
 import AbundanceComponent from '@/components/AbundanceComponent.vue'
 
-import AdminToolsComponent from '@/components/AdminToolsComponent.vue'
-
 import ScoresView from '@/views/ScoresView.vue'
 import TopasComponent from '@/components/TopasComponent.vue'
 import KinaseComponent from '@/components/KinaseScoresComponent.vue'
@@ -24,6 +22,9 @@ import PTMNavigatorComponent from '@/components/PTMNavigatorComponent.vue'
 import PatientView from '@/views/PatientView.vue'
 import PatientReportComponent from '@/components/PatientReportComponent.vue'
 import CohortStatsComponent from '@/components/CohortStatsComponent.vue'
+
+import SettingsView from '@/views/SettingsView.vue'
+import AdminToolsComponent from '@/components/AdminToolsComponent.vue'
 
 Vue.use(Router)
 
@@ -65,13 +66,21 @@ export default new Router({
     {
       path: '/patient',
       component: PatientView,
-      redirect: '/patient_report',
+      redirect: '/patient-report',
       children:
         [
-          { path: '/patient_report', component: PatientReportComponent },
-          { path: '/cohort_stats', component: CohortStatsComponent }
+          { path: '/patient-report', component: PatientReportComponent },
+          { path: '/cohort-stats', component: CohortStatsComponent }
         ]
     },
-    { path: '/admin-tools', component: AdminToolsComponent }
+    {
+      path: '/settings',
+      component: SettingsView,
+      redirect: '/admin-tools',
+      children:
+        [
+          { path: '/admin-tools', component: AdminToolsComponent }
+        ]
+    }
   ]
 })

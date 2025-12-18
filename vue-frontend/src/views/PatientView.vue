@@ -1,8 +1,8 @@
 <template>
   <v-main>
     <v-tabs>
-      <v-tab to="/patient_report" exact>Patient report</v-tab>
-      <v-tab to="/cohort_stats">Cohort statistics</v-tab>
+      <v-tab to="/patient-report" exact>Patient report</v-tab>
+      <v-tab to="/cohort-stats">Cohort statistics</v-tab>
     </v-tabs>
 
     <router-view />
@@ -11,7 +11,7 @@
 
 <script>
 export default {
-  name: 'PatientComponent'
+  name: 'PatientView'
 }
 </script>
 

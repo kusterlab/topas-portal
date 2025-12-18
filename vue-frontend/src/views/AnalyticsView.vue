@@ -16,7 +16,7 @@
 
 <script>
 export default {
-  name: 'AnalyticsComponent'
+  name: 'AnalyticsView'
 }
 </script>
 
