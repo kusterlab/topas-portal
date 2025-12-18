@@ -422,6 +422,14 @@ def topas_annotations():
     return utils.df_to_json(cohorts_db.get_topas_annotation_df())
 
 
+@app.route(ApiRoutes.ANALYTES_ANNOTATION_TABLE)
+# http://localhost:3832/0/protein/annotations
+def get_annotation_table(cohort_index: int, level: utils.DataType):
+    return utils.df_to_json(
+        pp.get_annotation_df(cohorts_db, cohort_index, level).reset_index()
+    )
+
+
 @app.route(ApiRoutes.PROTEIN_LIST)
 # http://localhost:3832/0/protein/list
 def get_list_proteins(cohort_index: int, level: str):

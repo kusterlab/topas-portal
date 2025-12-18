@@ -323,6 +323,50 @@ def get_abundance_df(
     )
 
 
+def get_annotation_df(
+    cohorts_db: data_api.CohortDataAPI,
+    cohort_index: int,
+    level: utils.DataType,
+):
+    """_summary_
+
+    Args:
+        cohorts_db (data_api.CohortDataAPI): _description_
+        cohort_index (int): _description_
+        level (ef.DataType): _description_
+        identifier (str): _description_
+
+    Raises:
+        ValueError: _description_
+
+    Returns:
+        _type_: _description_
+    """
+    get_abundance_df_dict: dict[utils.DataType, Callable[..., pd.DataFrame]] = {
+        utils.DataType.FULL_PROTEOME: cohorts_db.get_protein_abundance_df,
+        utils.DataType.PHOSPHO_PROTEOME: cohorts_db.get_psite_abundance_df,
+        utils.DataType.TRANSCRIPTOMICS: cohorts_db.get_fpkm_df,
+        utils.DataType.KINASE_SCORE: cohorts_db.get_kinase_scores_df,
+        utils.DataType.PHOSPHO_SCORE: cohorts_db.get_phosphorylation_scores_df,
+        utils.DataType.TOPAS_RTK_SCORE: cohorts_db.get_topas_rtk_scores_df,
+    }
+
+    if level not in get_abundance_df_dict:
+        raise ValueError(f"Unknown data type for get_abundance: {level.value}")
+
+    extra_columns = settings.ANNOTATION_COLUMNS.keys()
+    annotation_df = get_abundance_df_dict[level](
+        cohort_index,
+        extra_columns=extra_columns,
+        include_ref=utils.IncludeRef.INCLUDE_REF,
+    )  # use IncludeRef.INCLUDE_REF to skip expensive filtering step
+    extra_columns = [col for col in extra_columns if col in annotation_df.columns]
+
+    annotation_df = annotation_df[extra_columns]
+
+    return annotation_df
+
+
 def get_batches_proteins_as_json(
     cohorts_db: data_api.CohortDataAPI,
     cohort_index: int,

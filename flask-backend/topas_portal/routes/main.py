@@ -74,6 +74,7 @@ class ApiRoutes(ApiBase):
     DENSITY_PROTEIN = "/<int:cohort_index>/density/protein/<string:identifier>/<intensity_unit:intensity_unit>"
 
     ABUNDANCE = "/<int:cohort_index>/<data_type:level>/abundance/<string:identifier>/<string:imputation>/<include_ref:include_ref>"
+    ANALYTES_ANNOTATION_TABLE = "/<int:cohort_index>/<data_type:level>/annotations"
     CORRELATION = "/<int:cohort_index>/<data_type:level>/correlation/<data_type:level_2>/<string:identifier>/<intensity_unit:intensity_unit>/<string:patients_list>"
 
     HEATMAP = "/heatmap/<int:cohort_index>/<data_type:level>/<string:identifier>/<string:patients>/<string:output_format>"

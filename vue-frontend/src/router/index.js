@@ -1,7 +1,10 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import LandingPage from '@/components/LandingPage.vue'
+
+import AnalytesView from '@/views/AnalytesView.vue'
 import AbundanceComponent from '@/components/AbundanceComponent.vue'
+import AnnotationsComponent from '@/components/AnnotationsComponent.vue'
 
 import ScoresView from '@/views/ScoresView.vue'
 import TopasComponent from '@/components/TopasComponent.vue'
@@ -35,7 +38,16 @@ export default new Router({
     : '/',
   routes: [
     { path: '/', component: LandingPage },
-    { path: '/abundance', component: AbundanceComponent },
+    {
+      path: '/analytes',
+      component: AnalytesView,
+      redirect: '/abundance',
+      children:
+        [
+          { path: '/abundance', component: AbundanceComponent },
+          { path: '/annotations', component: AnnotationsComponent }
+        ]
+    },
     {
       path: '/scores',
       component: ScoresView,

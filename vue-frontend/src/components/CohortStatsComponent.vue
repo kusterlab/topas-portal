@@ -51,7 +51,7 @@
                 Tab info
               </v-expansion-panel-header>
               <v-expansion-panel-content>
-                In this tab you can visualize meta dtata and number of detected modifications per type for each cohort.
+                In this tab you can visualize metadata and number of detected modifications per type for each cohort.
               </v-expansion-panel-content>
             </v-expansion-panel>
             <v-expansion-panel>

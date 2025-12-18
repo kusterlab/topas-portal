@@ -51,6 +51,7 @@ export const api = {
     DENSITY_FPKM: ({identifier, intensity_unit}) => `${API_HOST}/density/fpkm/${identifier}/${intensity_unit}`,
     DENSITY_PROTEIN: ({cohort_index, identifier, intensity_unit}) => `${API_HOST}/${cohort_index}/density/protein/${identifier}/${intensity_unit}`,
     ABUNDANCE: ({cohort_index, level, identifier, imputation, include_ref}) => `${API_HOST}/${cohort_index}/${level}/abundance/${identifier}/${imputation}/${include_ref}`,
+    ANALYTES_ANNOTATION_TABLE: ({cohort_index, level}) => `${API_HOST}/${cohort_index}/${level}/annotations`,
     CORRELATION: ({cohort_index, level, level_2, identifier, intensity_unit, patients_list}) => `${API_HOST}/${cohort_index}/${level}/correlation/${level_2}/${identifier}/${intensity_unit}/${patients_list}`,
     HEATMAP: ({cohort_index, level, identifier, patients, output_format}) => `${API_HOST}/heatmap/${cohort_index}/${level}/${identifier}/${patients}/${output_format}`,
     DIFFERENTIAL: ({cohort_index, level, grp1_ind, grp2_ind, y_axis_type}) => `${API_HOST}/differential/${cohort_index}/${level}/${grp1_ind}/${grp2_ind}/${y_axis_type}`,
