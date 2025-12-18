@@ -31,7 +31,7 @@ PATIENT_PREFIX = "pat_"
 REF_CHANNEL_PREFIX = "ref_"
 IDENTIFICATION_METADATA_PREFIX = "Identification metadata "
 
-PP_KEY = "Modified sequence"
+PP_KEY = "Modified sequence group"
 FP_KEY = "Gene names"
 
 # REGEX PATTERNS FOR THE PATIENTS IDS
@@ -171,6 +171,7 @@ EXPRESSION_TAB_DATA = [
 ]
 
 ANNOTATION_COLUMNS = {
+    "Modified sequence representative": "Modified sequence representative",
     "Gene names": "Gene names",
     "Proteins": "Proteins",
     "Occurrence": "Occurrence",
@@ -180,7 +181,7 @@ ANNOTATION_COLUMNS = {
     "POI_EXPLORATORY": "POI_EXPLORATORY",
     "POI_PRODICT": "POI_PRODICT",
     "Site positions identified (MQ)": "Site positions (MQ identified - PSP)",
-    "Site positions": "Site positions (PSP)",
+    "Site positions (PSP)": "Site positions (PSP)",
     "PSP_ON_FUNCTION": "Effects on Modified Protein (PSP)",
     "PSP_ON_PROCESS": "Effects on Biological Process (PSP)",
     "PSP_ON_PROT_INTERACT": "Induce interaction with protein (PSP)",

@@ -40,8 +40,9 @@ SHEET_COLUMN_FORMATS = {
         "POI_PRODICT": (ColumnFormats.STRING, 15),
     },
     utils.DataType.PHOSPHO_PROTEOME: {
-        "Modified sequence": (ColumnFormats.STRING, 40),
+        "Modified sequence representative": (ColumnFormats.STRING, 40),
         "Gene names": (ColumnFormats.STRING, 12),
+        "Site positions (MQ identified - PSP)": (ColumnFormats.STRING, 32),
         "Rank": (ColumnFormats.INTEGER, 6),
         "Occurrence": (ColumnFormats.INTEGER, 12),
         "Z-score": (ColumnFormats.TWO_DECIMALS, 8),
@@ -49,7 +50,6 @@ SHEET_COLUMN_FORMATS = {
         "BatchRank": (ColumnFormats.INTEGER, 10),
         "Intensity": (ColumnFormats.TWO_DECIMALS, 10),
         "Identification metadata": (ColumnFormats.STRING, 25),
-        "Site positions (MQ identified - PSP)": (ColumnFormats.STRING, 32),
         "Site positions (PSP)": (ColumnFormats.STRING, 25),
         "Kinases (TOPAS)": (ColumnFormats.STRING, 15),
         "Kinases (PSP)": (ColumnFormats.STRING, 15),
@@ -62,6 +62,7 @@ SHEET_COLUMN_FORMATS = {
         "Induce interaction with other (PSP)": (ColumnFormats.STRING, 15),
         "Low throughput studies (PSP)": (ColumnFormats.STRING, 15),
         "High throughput studies (PSP)": (ColumnFormats.STRING, 15),
+        "Modified sequence group": (ColumnFormats.STRING, 40),
     },
     utils.DataType.PHOSPHO_SCORE: {
         "Gene names": (ColumnFormats.STRING, 12),

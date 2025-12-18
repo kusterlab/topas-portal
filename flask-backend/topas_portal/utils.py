@@ -296,7 +296,7 @@ def merge_by_delimited_field(
 def get_index_cols(data_type: str) -> List[str]:
     index_cols = ["Gene names"]
     if data_type == "pp":
-        index_cols = ["Gene names", "Modified sequence", "Proteins"]
+        index_cols = ["Gene names", "Modified sequence group", "Proteins"]
     return index_cols
 
 

@@ -101,9 +101,9 @@ def compute_correlation_df(
         correlation_df = correlation_df.merge(
             psite_annotation_df[settings.ANNOTATION_COLUMNS.keys()].reset_index(),
             left_on="index",
-            right_on="Modified sequence",
+            right_on="Modified sequence group",
         )
-        correlation_df = correlation_df.drop(columns=["Modified sequence"])
+        correlation_df = correlation_df.drop(columns=["Modified sequence group"])
         correlation_df = correlation_df.fillna("")
 
     return utils.df_to_json(correlation_df), error_code

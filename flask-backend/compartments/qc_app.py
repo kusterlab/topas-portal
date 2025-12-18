@@ -195,7 +195,7 @@ def load_pca_data(
 
     fp_df = list_dfs[0]
     pp_df = list_dfs[1]
-    pp_df = pp_df.set_index(pp_df.index.get_level_values("Modified sequence"))
+    pp_df = pp_df.set_index(pp_df.index.get_level_values("Modified sequence group"))
     print("Running multi level FP and PP")
     return pd.concat([fp_df, pp_df])
 

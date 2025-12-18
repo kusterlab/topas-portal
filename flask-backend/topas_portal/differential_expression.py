@@ -175,7 +175,7 @@ def _add_PSP_annotation(cohorts_db, t_test_df, cohort_index: int):
 
     Notes:
         - The function renames `"Gene names"` to `"Genes"` for consistency.
-        - The merge is performed using `"Gene Names"` (from `t_test_df`) and `"Modified sequence"`
+        - The merge is performed using `"Gene Names"` (from `t_test_df`) and `"Modified sequence group"`
           (from `psite_annotation_df`).
         - If an error occurs (e.g., missing PSP data), the function returns the original `t_test_df`
           without modifications.
@@ -193,7 +193,7 @@ def _add_PSP_annotation(cohorts_db, t_test_df, cohort_index: int):
         t_test_df = t_test_df.merge(
             psite_annotation_df,
             left_on="Gene Names",  # Gene names for Phospho is the Modified sequence
-            right_on="Modified sequence",
+            right_on="Modified sequence group",
             how="left",
         )
         return t_test_df

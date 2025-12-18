@@ -62,7 +62,7 @@ def do_pca(
             df = df[df.index.isin(final_selected)]
         else:
             # this for the phospho  peptides level
-            mask = df.index.get_level_values("Modified sequence").isin(
+            mask = df.index.get_level_values("Modified sequence group").isin(
                 selected_proteins
             )
             if len(mask) > 2:
