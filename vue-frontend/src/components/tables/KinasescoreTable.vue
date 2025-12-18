@@ -56,7 +56,8 @@ import {
   DxItem
 } from 'devextreme-vue/data-grid'
 import 'devextreme/dist/css/dx.light.css'
-import axios from 'axios'
+import { mapState } from 'vuex'
+
 export default {
   components: {
     DxDataGrid,
@@ -74,8 +75,7 @@ export default {
     return {
       pageSizes: [10, 25, 50, 100],
       dataGridRefName: 'dataGrid',
-      commonField: undefined,
-      kinaseFields: [{
+      customFields: [{
         dataField: 'Sample name',
         dataType: 'string',
         visibleIndex: 0,
@@ -100,6 +100,12 @@ export default {
     }
   },
   computed: {
+    ...mapState({
+      common_fields: state => state.common_fields
+    }),
+    kinaseFields () {
+      return [...this.customFields, ...this.common_fields]
+    },
     cookieAccepted () {
       return this.$store.state.cookieAccepted
     },
@@ -113,9 +119,6 @@ export default {
       }
     }
   },
-  created () {
-    this.getCommonfield()
-  },
   methods: {
     saveGridState (state) {
       if (this.cookieAccepted) {
@@ -128,16 +131,6 @@ export default {
         return savedState ? JSON.parse(savedState) : null
       }
       return null
-    },
-    async getCommonfield () {
-      const response = await axios.get(`${process.env.VUE_APP_API_HOST}/colnames`)
-      const commonField = response.data
-      commonField.forEach(element => {
-        if (element.visible === 'false') {
-          element.visible = false
-        }
-      })
-      this.kinaseFields = [...this.kinaseFields, ...commonField]
     },
     onSelectionChanged: function (e) {
       this.$emit('onRowSelect', e.selectedRowKeys, e.selectedRowsData)

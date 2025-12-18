@@ -34,9 +34,8 @@ import {
   DxExport,
   DxFilterRow
 } from 'devextreme-vue/data-grid'
-import axios from 'axios'
 import 'devextreme/dist/css/dx.light.css'
-const gridRefKey = 'data-grid'
+import { mapState } from 'vuex'
 
 export default {
   components: {
@@ -65,9 +64,8 @@ export default {
     return {
       pageSizes: [10, 25, 50, 100],
       componentKey: 0,
-      gridRefKey,
-      commonFileds: undefined,
-      correlationFields: [{
+      dataGridRefName: 'dataGrid',
+      customFields: [{
         dataField: 'Sample name',
         dataType: 'string',
         visibleIndex: 0,
@@ -88,8 +86,14 @@ export default {
     }
   },
   computed: {
+    ...mapState({
+      common_fields: state => state.common_fields
+    }),
+    correlationFields () {
+      return [...this.customFields, ...this.common_fields]
+    },
     dataGrid: function () {
-      return this.$refs[gridRefKey].instance
+      return this.$refs[this.dataGridRefName].instance
     }
   },
   watch: {
@@ -97,20 +101,7 @@ export default {
       this.filterBySamplename()
     }
   },
-  created () {
-    this.getCommonField()
-  },
   methods: {
-    async getCommonField () {
-      const response = await axios.get(`${process.env.VUE_APP_API_HOST}/colnames`)
-      const commonField = response.data
-      commonField.forEach(element => {
-        if (element.visible === 'false') {
-          element.visible = false
-        }
-      })
-      this.correlationFields = [...this.correlationFields, ...commonField]
-    },
     filterBySamplename () {
       if (this.selectedPatient !== null) {
         this.dataGrid.filter([

@@ -4,9 +4,10 @@
       show-arrows
     >
       <v-tab
-        v-for="item in items"
+        v-for="(item, index) in items"
         :key="item.path"
         :to="item.path"
+        :exact="index === 0"
         class="tab-item"
       >
         <v-icon

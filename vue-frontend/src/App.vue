@@ -24,12 +24,14 @@ export default {
   }),
   created () {
     this.fetchAllCohorts()
+    this.fetchCommonFields()
     window.addEventListener('keydown', this.escapeListener)
   },
 
   methods: {
     ...mapActions({
-      fetchAllCohorts: 'fetchAllCohorts'
+      fetchAllCohorts: 'fetchAllCohorts',
+      fetchCommonFields: 'fetchCommonFields'
     })
   }
 }

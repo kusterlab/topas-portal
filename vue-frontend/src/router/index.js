@@ -5,9 +5,11 @@ import AbundanceComponent from '@/components/AbundanceComponent.vue'
 import AnalyticsComponent from '@/components/AnalyticsComponent.vue'
 import PatientComponent from '@/components/PatientComponent.vue'
 import AdminToolsComponent from '@/components/AdminToolsComponent.vue'
+
+import ScoresView from '@/views/ScoresView.vue'
+import TopasComponent from '@/components/TopasComponent.vue'
 import KinaseComponent from '@/components/KinaseComponent.vue'
 import PproteinComponent from '@/components/ProteinScores.vue'
-import TopasComponent from '@/components/TopasComponent.vue'
 import EntityComponent from '@/components/entitymodelComponent.vue'
 import ZscoringComponent from '@/components/ZscoringComponent.vue'
 
@@ -21,13 +23,20 @@ export default new Router({
   routes: [
     { path: '/', component: LandingPage },
     { path: '/abundance', component: AbundanceComponent },
-    { path: '/topasscores', component: TopasComponent },
+    {
+      path: '/scores',
+      component: ScoresView,
+      children:
+        [
+          { path: '/topasscores', component: TopasComponent },
+          { path: '/kinasescores', component: KinaseComponent },
+          { path: '/proteinscores', component: PproteinComponent },
+          { path: '/entityscores', component: EntityComponent },
+          { path: '/zscores', component: ZscoringComponent }
+        ]
+    },
     { path: '/analytics', component: AnalyticsComponent },
     { path: '/patient', component: PatientComponent },
-    { path: '/admin-tools', component: AdminToolsComponent },
-    { path: '/kinasescores', component: KinaseComponent },
-    { path: '/proteinscores', component: PproteinComponent },
-    { path: '/entityscores', component: EntityComponent },
-    { path: '/zscores', component: ZscoringComponent }
+    { path: '/admin-tools', component: AdminToolsComponent }
   ]
 })

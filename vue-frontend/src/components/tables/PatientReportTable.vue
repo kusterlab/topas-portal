@@ -67,7 +67,7 @@ import {
 
 import 'devextreme/dist/css/dx.light.css'
 import axios from 'axios'
-import { mapMutations } from 'vuex'
+import { mapMutations, mapState } from 'vuex'
 
 export default {
   components: {
@@ -94,7 +94,7 @@ export default {
     return {
       pageSizes: [10, 25, 50, 100],
       dataGridRefName: 'dataGrid',
-      topasFields: [{
+      customFields: [{
         dataField: 'Sample name',
         dataType: 'string',
         visibleIndex: 0,
@@ -103,6 +103,12 @@ export default {
     }
   },
   computed: {
+    ...mapState({
+      common_fields: state => state.common_fields
+    }),
+    topasFields () {
+      return [...this.customFields, ...this.common_fields]
+    },
     dataGrid: function () {
       return this.$refs[this.dataGridRefName].instance
     },
@@ -131,23 +137,10 @@ export default {
       this.filterBySamplename(this.selectedPatient)
     }
   },
-  created () {
-    this.getCommonfield()
-  },
   methods: {
     ...mapMutations({
       addNotification: 'notifications/addNotification'
     }),
-    async getCommonfield () {
-      const response = await axios.get(`${process.env.VUE_APP_API_HOST}/colnames`)
-      const commonField = response.data
-      commonField.forEach(element => {
-        if (element.visible === 'false') {
-          element.visible = false
-        }
-      })
-      this.topasFields = [...this.topasFields, ...commonField]
-    },
     filterBySamplename (sample) {
       if (sample !== null) {
         this.dataGrid.filter([

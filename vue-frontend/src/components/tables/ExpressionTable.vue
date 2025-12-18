@@ -63,7 +63,7 @@ import {
   DxItem
 } from 'devextreme-vue/data-grid'
 import 'devextreme/dist/css/dx.light.css'
-import axios from 'axios'
+import { mapState } from 'vuex'
 
 export default {
   components: {
@@ -90,6 +90,9 @@ export default {
     }
   },
   computed: {
+    ...mapState({
+      common_fields: state => state.common_fields
+    }),
     dataGrid: function () {
       return this.$refs[this.dataGridRefName].instance
     },
@@ -133,13 +136,6 @@ export default {
       }
     },
     async gettableFields () {
-      const response = await axios.get(`${process.env.VUE_APP_API_HOST}/colnames`)
-      const commonField = response.data
-      commonField.forEach(element => {
-        if (element.visible === 'false') {
-          element.visible = false
-        }
-      })
       this.expressionFields = [...[{
         dataField: 'Sample name',
         dataType: 'string',
@@ -207,7 +203,7 @@ export default {
         dataType: 'number',
         format: { type: 'fixedPoint', precision: 2 },
         width: '60'
-      }], ...commonField]
+      }], ...this.common_fields]
     },
     filterBySamplename (sample) {
       if (sample !== null) {

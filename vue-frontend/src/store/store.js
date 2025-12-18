@@ -8,7 +8,9 @@ Vue.use(Vuex)
 const store = new Vuex.Store({
   state: {
     all_cohorts: [],
+    common_fields: [],
     loading: false,
+    loading_common_fields: false,
     cohortIndex: -1,
     cohortName: '',
     // cookieAccepted: localStorage.getItem('cookieConsent') === 'accepted'   // for now we remove cookies consent, since no user personal data is saved as cookies; remove the bellow line and activate this line incase you need consent in front
@@ -47,6 +49,24 @@ const store = new Vuex.Store({
       })
       state.all_cohorts = finalIndex
       state.loading = false
+    },
+    async fetchCommonFields ({ state, rootState }) {
+      if (state.loading_common_fields) {
+        return
+      }
+
+      state.loading_common_fields = true
+      const response = await axios.get(`${process.env.VUE_APP_API_HOST}/colnames`)
+      const finalIndex = []
+
+      response.data.forEach(element => {
+        if (element.visible === 'false') {
+          element.visible = false
+        }
+        finalIndex.push(element)
+      })
+      state.common_fields = finalIndex
+      state.loading_common_fields = false
     }
   },
   modules: {

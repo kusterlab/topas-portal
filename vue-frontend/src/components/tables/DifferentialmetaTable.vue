@@ -84,8 +84,9 @@ import {
   DxItem
 } from 'devextreme-vue/data-grid'
 import 'devextreme/dist/css/dx.light.css'
+import { mapState } from 'vuex'
 import DxFilterBuilder from 'devextreme-vue/filter-builder'
-import axios from 'axios'
+
 const filter = []
 export default {
   components: {
@@ -114,19 +115,17 @@ export default {
       pageSizes: [10, 25, 50],
       dataGridRefName: 'dataGrid',
       previousDataSource: '',
-      differentialFields: [{
+      customFields: [{
         dataField: 'Sample name',
         dataType: 'string',
         visibleIndex: 0,
         width: '170'
       },
-
       {
         dataField: 'genomics_annotations',
         dataType: 'string',
         width: '120'
       }, {
-
         dataField: 'oncoKB_annotations',
         dataType: 'string',
         width: '120'
@@ -135,6 +134,12 @@ export default {
     }
   },
   computed: {
+    ...mapState({
+      common_fields: state => state.common_fields
+    }),
+    differentialFields () {
+      return [...this.customFields, ...this.common_fields]
+    },
     dataSource: function () {
       if (this.cohortIndex === -1) {
         return
@@ -160,22 +165,7 @@ export default {
       this.updatePatientTable(this.genomicAlterationsGene)
     }
   },
-  mounted () {
-  },
-  created () {
-    this.getCommonfield()
-  },
   methods: {
-    async getCommonfield () {
-      const response = await axios.get(`${process.env.VUE_APP_API_HOST}/colnames`)
-      const commonField = response.data
-      commonField.forEach(element => {
-        if (element.visible === 'false') {
-          element.visible = false
-        }
-      })
-      this.differentialFields = [...this.differentialFields, ...commonField]
-    },
     updatePatientTable (genomicAlterationsGene) {
       // do not use v-model because that triggers rerendering while typing
       this.genomicAlterationsGene = genomicAlterationsGene

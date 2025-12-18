@@ -57,7 +57,8 @@ import {
   DxItem
 } from 'devextreme-vue/data-grid'
 import 'devextreme/dist/css/dx.light.css'
-import axios from 'axios'
+import { mapState } from 'vuex'
+
 export default {
   components: {
     DxDataGrid,
@@ -75,7 +76,7 @@ export default {
     return {
       pageSizes: [10, 25, 50, 100],
       dataGridRefName: 'dataGrid',
-      phosphorylationFields: [{
+      customFields: [{
         dataField: 'Sample name',
         dataType: 'string',
         visibleIndex: 0,
@@ -101,6 +102,12 @@ export default {
     }
   },
   computed: {
+    ...mapState({
+      common_fields: state => state.common_fields
+    }),
+    phosphorylationFields () {
+      return [...this.customFields, ...this.common_fields]
+    },
     refreshButtonOptions () {
       return {
         icon: 'pulldown',
@@ -111,20 +118,7 @@ export default {
       }
     }
   },
-  created () {
-    this.getCommonfield()
-  },
   methods: {
-    async getCommonfield () {
-      const response = await axios.get(`${process.env.VUE_APP_API_HOST}/colnames`)
-      const commonField = response.data
-      commonField.forEach(element => {
-        if (element.visible === 'false') {
-          element.visible = false
-        }
-      })
-      this.phosphorylationFields = [...this.phosphorylationFields, ...commonField]
-    },
     onSelectionChanged: function (e) {
       this.$emit('onRowSelect', e.selectedRowKeys, e.selectedRowsData)
     },

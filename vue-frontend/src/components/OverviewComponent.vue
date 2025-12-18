@@ -155,8 +155,6 @@ export default {
   data: () => ({
     cohortIndex: -1,
     entityData: [],
-    topasactivityPath: '/topasscores',
-    kinasectivityPath: '/kinasescores',
     modificationData: [],
     selectedSamples: [],
     componentKey: 0,

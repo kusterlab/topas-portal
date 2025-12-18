@@ -58,9 +58,9 @@ import {
   DxToolbar,
   DxItem
 } from 'devextreme-vue/data-grid'
-
 import 'devextreme/dist/css/dx.light.css'
-import axios from 'axios'
+import { mapState } from 'vuex'
+
 export default {
   components: {
     DxDataGrid,
@@ -82,8 +82,6 @@ export default {
     return {
       pageSizes: [15, 25, 50, 100],
       dataGridRefName: 'dataGrid',
-      commonFields: undefined,
-      topasFields: undefined,
       customFields: [
         {
           dataField: 'Sample name',
@@ -142,6 +140,12 @@ export default {
     }
   },
   computed: {
+    ...mapState({
+      common_fields: state => state.common_fields
+    }),
+    topasFields () {
+      return [...this.customFields, ...this.common_fields]
+    },
     dataGrid: function () {
       return this.$refs[this.dataGridRefName].instance
     },
@@ -162,20 +166,7 @@ export default {
       this.filterBySamplename(this.selectedPatient)
     }
   },
-  created () {
-    this.getCommonfield()
-  },
   methods: {
-    async getCommonfield () {
-      const response = await axios.get(`${process.env.VUE_APP_API_HOST}/colnames`)
-      const commonField = response.data
-      commonField.forEach(element => {
-        if (element.visible === 'false') {
-          element.visible = false
-        }
-      })
-      this.topasFields = [...this.customFields, ...commonField]
-    },
     filterBySamplename (sample) {
       if (sample !== null) {
         this.dataGrid.filter([

@@ -11,7 +11,7 @@
       :show-borders="true"
       :scrolling="{ useNative: true }"
       column-resizing-mode="widget"
-      :columns="customFields"
+      :columns="zscoreFields"
       :column-chooser="{ enabled: 'true', mode: 'select' }"
       @selection-changed="onSelectionChanged"
     >
@@ -57,9 +57,9 @@ import {
   DxToolbar,
   DxItem
 } from 'devextreme-vue/data-grid'
-
 import 'devextreme/dist/css/dx.light.css'
-import axios from 'axios'
+import { mapState } from 'vuex'
+
 export default {
   components: {
     DxDataGrid,
@@ -105,6 +105,12 @@ export default {
     }
   },
   computed: {
+    ...mapState({
+      common_fields: state => state.common_fields
+    }),
+    zscoreFields () {
+      return [...this.customFields, ...this.common_fields]
+    },
     dataGrid: function () {
       return this.$refs[this.dataGridRefName].instance
     },
@@ -125,20 +131,7 @@ export default {
       this.filterBySamplename(this.selectedPatient)
     }
   },
-  created () {
-    this.getCommonfield()
-  },
   methods: {
-    async getCommonfield () {
-      const response = await axios.get(`${process.env.VUE_APP_API_HOST}/colnames`)
-      const commonField = response.data
-      commonField.forEach(element => {
-        if (element.visible === 'false') {
-          element.visible = false
-        }
-      })
-      this.customFields = [...this.customFields, ...commonField]
-    },
     filterBySamplename (sample) {
       if (sample !== null) {
         this.dataGrid.filter([
