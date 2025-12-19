@@ -56,6 +56,7 @@ export default {
       pageSizes: [10, 25, 50, 100],
       gridRefKey,
       columns: [],
+      lastColumnKeys: null,
       masterColumns: {
         'Modified sequence group': { width: 300, visible: false },
         'Site positions (PSP)': { width: 300, visible: false },
@@ -76,9 +77,15 @@ export default {
     },
     onGridReady (e) {
       const items = e.component.getDataSource().items()
-      if (!items.length || this.columns.length) return
+      if (!items.length) return
 
       const keys = Object.keys(items[0])
+      const keySignature = keys.join('|')
+
+      if (this.lastColumnKeys === keySignature) return
+
+      this.lastColumnKeys = keySignature
+
       this.columns = keys.map(key => {
         const master = this.masterColumns[key] || {}
         return {

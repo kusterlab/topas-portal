@@ -56,12 +56,12 @@
             dense
             @change="jsonUrl = ''"
           />
-          <v-text-field
+          <phosphopeptide-select
             v-if="correlationInputType === 'psite'"
-            v-model="identifier1"
-            :label="identifierLabel"
+            :cohort-index="cohortIndex"
+            :data-layer="correlationInputType"
             class="mt-4"
-            :placeholder="placeholder"
+            @select-phosphopeptide="updateIdentifier"
           />
           <topas-select
             v-if="correlationInputType === 'topas'"
@@ -230,14 +230,15 @@
 <script>
 import axios from 'axios'
 import { mapGetters, mapState } from 'vuex'
-import correlationTable from '@/components/tables/CorrelationTable'
+import CorrelationTable from '@/components/tables/CorrelationTable'
 import CohortSelect from './partials/CohortSelect.vue'
 import SubcohortSelect from './partials/SubcohortSelect.vue'
-import sampleTable from '@/components/tables/CorrelationTableSamples'
-import scatterPlot from '@/components/plots/ScatterPlot'
-import topasSelect from '@/components/partials/TopasSelect'
+import SampleTable from '@/components/tables/CorrelationTableSamples'
+import ScatterPlot from '@/components/plots/ScatterPlot'
+import TopasSelect from '@/components/partials/TopasSelect'
 import ProteinSelect from '@/components/partials/ProteinSelect'
-import densityPlot from '@/components/plots/BarhistPlot'
+import PhosphopeptideSelect from '@/components/partials/PhosphopeptideSelect'
+import DensityPlot from '@/components/plots/BarhistPlot'
 
 import { DataType, IncludeRef, IntensityUnit, ImputationMode } from '@/constants'
 import { api } from '@/routes.ts'
@@ -245,12 +246,13 @@ import { api } from '@/routes.ts'
 export default {
   name: 'CorrelationComponent',
   components: {
-    correlationTable,
-    sampleTable,
-    densityPlot,
-    scatterPlot,
-    topasSelect,
+    CorrelationTable,
+    SampleTable,
+    DensityPlot,
+    ScatterPlot,
+    TopasSelect,
     ProteinSelect,
+    PhosphopeptideSelect,
     CohortSelect,
     SubcohortSelect
   },

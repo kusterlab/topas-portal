@@ -271,6 +271,7 @@ export default {
         { name: 'HEATMAP', url: api.HEATMAP(testArguments) },
         { name: 'DIFFERENTIAL', url: api.DIFFERENTIAL(testArguments) },
         { name: 'PROTEIN_LIST', url: api.PROTEIN_LIST(testArguments) },
+        { name: 'PROTEIN_LIST/PSITE', url: api.PROTEIN_LIST({ ...testArguments, level: DataType.PHOSPHO_PROTEOME }) },
         { name: 'CANONICAL_PATHWAYS', url: api.CANONICAL_PATHWAYS(testArguments) },
         { name: 'PATHWAY_SKELETONS', url: api.PATHWAY_SKELETONS(testArguments) },
         { name: 'PCA_UMAP', url: api.PCA_UMAP(testArguments) }

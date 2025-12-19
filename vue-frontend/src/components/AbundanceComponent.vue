@@ -60,14 +60,11 @@
             Select {{ radioOptions[mode] }}
           </v-card-title>
           <v-card-text>
-            <v-text-field
+            <phosphopeptide-select
               v-if="mode === 'psite'"
-              v-model="identifier"
-              :label="identifierLabel"
-              :placeholder="placeholder"
-              hide-details
-              dense
-              @change="updateId"
+              :cohort-index="cohortIndex"
+              :data-layer="mode"
+              @select-phosphopeptide="updatePhosphopeptide"
             />
             <protein-select
               v-if="mode !== 'psite'"
@@ -257,6 +254,7 @@ import expressionTable from '@/components/tables/ExpressionTable'
 import histogram from '@/components/plots/GenericHistogram'
 import SwarmPlot from '@/components/plots/SwarmPlot'
 import ProteinSelect from '@/components/partials/ProteinSelect.vue'
+import PhosphopeptideSelect from '@/components/partials/PhosphopeptideSelect.vue'
 import CohortSelect from './partials/CohortSelect.vue'
 import { DataType, IncludeRef, ImputationMode } from '@/constants'
 import { api } from '@/routes.ts'
@@ -268,7 +266,8 @@ export default {
     histogram,
     CohortSelect,
     SwarmPlot,
-    ProteinSelect
+    ProteinSelect,
+    PhosphopeptideSelect
   },
   props: {
     minWidth: {
@@ -377,6 +376,10 @@ export default {
       this.selectedDotsInPlot = value
     },
     updateProtein ({ dataSource, identifier }) {
+      this.identifier = identifier
+      this.updateId()
+    },
+    updatePhosphopeptide ({ dataSource, identifier }) {
       this.identifier = identifier
       this.updateId()
     },

@@ -51,13 +51,11 @@
             :cohort-index="cohortIndex"
             @select-topas="updateTopas"
           />
-          <v-text-field
+          <phosphopeptide-select
             v-if="mode === 'psite'"
-            v-model="identifier"
-            :label="identifierLabel"
-            :placeholder="placeholder"
-            hide-details
-            dense
+            :cohort-index="cohortIndex"
+            :data-layer="mode"
+            @select-phosphopeptide="updatePhosphopeptide"
           />
           <protein-select
             v-if="mode === 'protein' || mode === 'kinase' || mode === 'phospho_score' "
@@ -188,7 +186,8 @@ import { mapMutations } from 'vuex'
 import CohortSelect from './partials/CohortSelect.vue'
 // import SwarmPlot from '@/components/plots/SwarmPlot'
 import MultiGroupPlot from '@/components/plots/MultiGroupPlot'
-import proteinSelect from './partials/ProteinSelect.vue'
+import ProteinSelect from './partials/ProteinSelect.vue'
+import PhosphopeptideSelect from './partials/PhosphopeptideSelect.vue'
 import SampleSelect from './partials/SampleSelect.vue'
 import ZscoreTable from './tables/ZscoreTable.vue'
 import PatientSelectTable from './tables/DifferentialmetaTable.vue'
@@ -204,7 +203,8 @@ export default {
     ZscoreTable,
     PatientSelectTable,
     SampleSelect,
-    proteinSelect,
+    ProteinSelect,
+    PhosphopeptideSelect,
     TopasSelect
   },
   props: {
@@ -269,6 +269,9 @@ export default {
       this.cohortIndex = cohortIndex
     },
     updateProtein ({ dataSource, identifier }) {
+      this.identifier = identifier
+    },
+    updatePhosphopeptide ({ dataSource, identifier }) {
       this.identifier = identifier
     },
     updateSampleGroup (selectedPatients) {

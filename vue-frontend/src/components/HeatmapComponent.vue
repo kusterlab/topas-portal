@@ -65,12 +65,20 @@
             @select-topas="updateIdentifier"
           />
           <protein-select
-            v-if="!String(inputDataType).startsWith('topas')"
+            v-if="!String(inputDataType).startsWith('topas') && inputDataType !== 'psite'"
             :cohort-index="cohortIndex"
             :multiple="true"
             :data-layer="inputDataType"
             class="mt-4"
             @select-protein="updateIdentifier"
+          />
+          <phosphopeptide-select
+            v-if="!String(inputDataType).startsWith('topas') && inputDataType === 'psite'"
+            :cohort-index="cohortIndex"
+            :multiple="true"
+            :data-layer="inputDataType"
+            class="mt-4"
+            @select-phosphopeptide="updateIdentifier"
           />
         </v-card-text>
       </v-card>
@@ -139,6 +147,7 @@ import CohortSelect from './partials/CohortSelect.vue'
 import PatientSelectTable from './tables/DifferentialmetaTable.vue'
 import TopasSelect from '@/components/partials/TopasSelect'
 import ProteinSelect from '@/components/partials/ProteinSelect'
+import PhosphopeptideSelect from '@/components/partials/PhosphopeptideSelect'
 import SampleSelect from './partials/SampleSelect.vue'
 import { Plotly } from 'vue-plotly'
 import { DataType } from '@/constants'
@@ -151,6 +160,7 @@ export default {
     PatientSelectTable,
     TopasSelect,
     ProteinSelect,
+    PhosphopeptideSelect,
     Plotly,
     SampleSelect
   },
@@ -185,10 +195,10 @@ export default {
         text: 'Full proteome',
         value: DataType.FULL_PROTEOME
       },
-      // {
-      //   text: 'Phosphopeptides abundance',
-      //   value: DataType.PHOSPHO_PROTEOME
-      // },
+      {
+        text: 'Phosphopeptides abundance',
+        value: DataType.PHOSPHO_PROTEOME
+      },
       {
         text: 'Substrate Phosphorylation scores',
         value: DataType.KINASE_SCORE

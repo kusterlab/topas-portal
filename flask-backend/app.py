@@ -423,6 +423,7 @@ def topas_annotations():
 
 
 @app.route(ApiRoutes.ANALYTES_ANNOTATION_TABLE)
+@cache.cached(timeout=3600)
 # http://localhost:3832/0/protein/annotations
 def get_annotation_table(cohort_index: int, level: utils.DataType):
     return utils.df_to_json(
@@ -431,6 +432,7 @@ def get_annotation_table(cohort_index: int, level: utils.DataType):
 
 
 @app.route(ApiRoutes.PROTEIN_LIST)
+@cache.cached(timeout=3600)
 # http://localhost:3832/0/protein/list
 def get_list_proteins(cohort_index: int, level: str):
     return jsonify(
