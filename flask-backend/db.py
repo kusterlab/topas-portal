@@ -1,4 +1,6 @@
+import os
 import sys
+from pymongo import MongoClient
 
 from topas_portal.data_api.sql import SQLCohortDataAPI
 from topas_portal.data_api.in_memory import InMemoryCohortDataAPI
@@ -15,3 +17,18 @@ if settings.DATABASE_MODE:
     cohorts_db = SQLCohortDataAPI(config_file)
 else:
     cohorts_db = InMemoryCohortDataAPI(config_file)
+
+
+try:
+    MONGODB_URI = (
+    f"mongodb://"
+    f"{os.getenv('MONGODB_USER')}:"
+    f"{os.getenv('MONGODB_PASS')}@"
+    f"{os.getenv('MONGODB_HOST')}"
+    f"?authSource=admin"
+)
+    mongodb_client = MongoClient(MONGODB_URI)
+    mongodb = mongodb_client[os.getenv('MONGODB_DB')]
+
+except:
+    print("No mongoDB connection")

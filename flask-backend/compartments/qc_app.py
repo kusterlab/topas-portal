@@ -11,7 +11,7 @@ from topas_portal import utils
 from topas_portal import settings
 import topas_portal.pca_umap as qc_meta
 from topas_portal import fetch_data_matrix as data
-from topas_portal.routes import ApiRoutes
+from routes import ApiRoutes
 
 from sklearn.metrics import silhouette_samples
 

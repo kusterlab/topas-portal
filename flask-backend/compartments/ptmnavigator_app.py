@@ -1,7 +1,9 @@
 from flask import Blueprint, jsonify, request
 from topas_portal import settings, differential_expression as differential_test, utils
-from topas_portal.routes import PtmNavigatorApiRoutes
-import db
+from routes import PtmNavigatorApiRoutes
+from db import cohorts_db, mongodb
+from repositories.pathway import PathwayRepository
+from models.pathway import PathwayModel
 import requests
 import json
 
@@ -14,7 +16,7 @@ ptmnavigator_page = Blueprint(
     template_folder="../dist",
 )
 
-cohorts_db = db.cohorts_db
+pathway_repo = PathwayRepository(mongodb)
 
 @ptmnavigator_page.route(PtmNavigatorApiRoutes.CANONICAL_PATHWAYS.path())
 def get_canonical_pathways(
@@ -81,3 +83,34 @@ def get_enrichments(cohort_index: str, grp_ind: str):
         return jsonify(response.json())
     except requests.exceptions.RequestException as e :
         return jsonify({"error": str(e)}), 500
+
+@ptmnavigator_page.post(PtmNavigatorApiRoutes.CUSTOM_PATHWAYS)
+def store_custom_pathway():
+    request_body = request.get_json(force=True)
+    id = request_body.get("id", None)
+    name = request_body["name"]
+    skeleton = request_body["skeleton"]
+
+    try:
+        existing = pathway_repo.get_by_id(id) if id is not None else None
+
+        if existing:
+            existing.skeleton = skeleton
+            pathway_repo.update(existing)
+            return jsonify({"id": id}), 200
+        else:
+            created_id = pathway_repo.create(PathwayModel.model_validate({
+                "skeleton": skeleton,
+                "name": name
+            }))
+
+            return jsonify({"id": created_id}), 201
+    except requests.exceptions.RequestException as e:
+        return jsonify({"error": str(e)}), 500
+
+@ptmnavigator_page.get(PtmNavigatorApiRoutes.CUSTOM_PATHWAYS)
+def get_custom_pathways():
+    results = pathway_repo.get_all()
+    return jsonify([r.model_dump() for r in results]), 200
+
+
