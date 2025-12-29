@@ -63,16 +63,27 @@ const ptmnApi = {
     return (await axios.get(api.CANONICAL_PATHWAYS({ taxcode, protein_search: '' }))).data
   },
 
-  async getCustomPathwayList (uuid) {
-    return []
+  async getCustomPathwayList (_) {
+    return (await axios.get(api.CUSTOM_PATHWAYS())).data.map(item => ({
+      pathwayId: item.id,
+      pathwayName: item.name,
+      pathwayJSON: item.skeleton
+    }))
   },
 
   async getPathwaySkeleton (taxcode, canonicalPathwayLink) {
     return (await axios.get(api.PATHWAY_SKELETONS({ taxcode, link: canonicalPathwayLink }))).data
   },
 
-  async storeCustomPathway (skeleton, uuid, customPathwayName, currentlyEditedPathwayId) {
-    return {}
+  async storeCustomPathway (skeleton, _, customPathwayName, currentlyEditedPathwayId) {
+    return (await axios.post(
+      api.CUSTOM_PATHWAYS(),
+      {
+        id: currentlyEditedPathwayId?._id,
+        name: customPathwayName,
+        skeleton: JSON.stringify(skeleton)
+      }
+    )).data.id
   },
 
   async getFilteredPathwayIds (searchStrings, taxcode) {

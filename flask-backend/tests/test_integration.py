@@ -6,7 +6,7 @@ import pandas as pd
 
 from topas_portal import settings
 from topas_portal import utils
-from topas_portal.routes import ApiRoutes
+from routes import ApiRoutes
 
 
 def test_portal_main_config_exist():

@@ -3,6 +3,9 @@ import sys
 import os
 import logging
 import threading
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from flask import (
     Flask,
@@ -24,7 +27,7 @@ from flask_jwt_extended import (
 import db
 import routing_converters
 from extensions import cache
-from topas_portal.routes import ApiRoutes
+from routes import ApiRoutes
 from topas_portal.data_api.exceptions import (
     CohortDataNotLoadedError,
     DataLayerUnavailableError,
@@ -99,7 +102,7 @@ with app.app_context():
     from compartments.patient_report_app import patient_report_page
 
     if cohorts_db.config.do_load_data_on_startup() and (
-        os.environ.get("WERKZEUG_RUN_MAIN") == "true" or not debug
+        os.getenv("WERKZEUG_RUN_MAIN") == "true" or not debug
     ):
         start_background_loader()
 

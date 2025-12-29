@@ -12,7 +12,7 @@ import io
 
 from extensions import cache
 from topas_portal import utils
-from topas_portal.routes import PatientReportApiRoutes
+from routes import PatientReportApiRoutes
 from topas_portal.config import CohortConfig
 from topas_portal import prexp_preprocess as pp
 import matplotlib

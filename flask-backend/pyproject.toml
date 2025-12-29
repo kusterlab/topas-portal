@@ -29,11 +29,13 @@ pyarrow = "^19.0.1"
 flask-jwt-extended = "^4.7.1"
 xlsxwriter = "^3.2.9"
 seaborn = "^0.13.2"
+pymongo = "^4.15.5"
+pydantic = "^2.12.5"
+numpy = "1.26.4"
+python-dotenv = "^1.2.1"
 
 [tool.poetry.extras]
 pgsql = ["psycopg2-binary"]
-
-[tool.poetry.dev-dependencies]
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.4.0"

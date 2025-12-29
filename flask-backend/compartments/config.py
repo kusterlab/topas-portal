@@ -3,7 +3,7 @@ import os
 from flask import Blueprint, jsonify, Response
 
 import db
-from topas_portal.routes import ApiRoutes
+from routes import ApiRoutes
 from topas_portal import utils
 
 
