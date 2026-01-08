@@ -1,119 +1,121 @@
 <template>
-  <v-row class="pa-4 grey lighten-3">
-    <v-col
-      sm="12"
-      md="3"
-      lg="2"
-    >
-      <v-card flat>
-        <v-card-title
-          tag="h1"
-        >
-          Protein/p-site overlap
-        </v-card-title>
-        <v-card-text>
-          <cohort-select
-            @select-cohort="updateCohort"
-          />
-          <v-btn-toggle
-            v-model="dataType"
-            class="mt-4"
-            dense
-            @change="getvennData"
-          >
-            <v-btn
-              v-for="option in allInputDataTypes"
-              :key="option.value"
-              :value="option.value"
-            >
-              {{ option.text }}
-            </v-btn>
-          </v-btn-toggle>
-          <v-btn-toggle
-            v-model="modalityType"
-            dense
-            hide-details
-            @change="getBatchlist"
-          >
-            <v-btn
-              value="batchcompare"
-            >
-              Batches
-            </v-btn>
-            <v-btn
-              value="patientcompare"
-            >
-              Patients
-            </v-btn>
-          </v-btn-toggle>
-          <v-select
-            v-model="activeBatches"
-            :items="allPossibleBatches"
-            outlined
-            small-chips
-            dense
-            hide-details
-            clearable
-            label="Batches/Patients"
-            multiple
-            @change="loading=false"
-          />
-          <v-btn
-            class="mt-2 mb-0"
-            color="primary"
-            :loading="loading"
-            @click="getvennData"
-          >
-            Plot venn diagram
-          </v-btn>
-        </v-card-text>
-      </v-card>
-      <v-card
-        flat
-        class="mt-4"
+  <v-container fluid>
+    <v-row class="pa-4 bg-grey-lighten-3">
+      <v-col
+        sm="12"
+        md="3"
+        lg="2"
       >
-        <v-card-title
-          tag="h1"
-        >
-          Custom input
-        </v-card-title>
-        <v-card-text>
-          <v-tooltip top>
-            <template #activator="{ on, attrs }">
-              <input
-                ref="docreader"
-                type="file"
-                v-bind="attrs"
-                @change="readFile"
-                v-on="on"
+        <v-card variant="flat">
+          <v-card-title
+            tag="h1"
+          >
+            Protein/p-site overlap
+          </v-card-title>
+          <v-card-text>
+            <cohort-select
+              @select-cohort="updateCohort"
+            />
+            <v-btn-toggle
+              v-model="dataType"
+              class="mt-4"
+              density="default"
+              @update:model-value="getvennData"
+            >
+              <v-btn
+                v-for="option in allInputDataTypes"
+                :key="option.value"
+                :value="option.value"
               >
-            </template>
-            <span>Upload a comma delimited file with two columns<br>
-              - a header row with column names: 'item' and 'group'<br>
-              - the first column is protein/peptides <br>
-              - the second columns is the group they belong to <br>
-              - If a protein belongs to multiple groups it should be in separate rows, e.g.: <br>
-              EGFR, GroupA <br>
-              EGFR, GroupB <br>
-            </span>
-          </v-tooltip>
-        </v-card-text>
-      </v-card>
-    </v-col>
-    <v-col
-      sm="12"
-      md="9"
-      lg="10"
-    >
-      <v-card flat>
-        <v-card-text>
-          <venn-plot
-            :vennplot-data="vennData"
-          />
-        </v-card-text>
-      </v-card>
-    </v-col>
-  </v-row>
+                {{ option.text }}
+              </v-btn>
+            </v-btn-toggle>
+            <v-btn-toggle
+              v-model="modalityType"
+              density="default"
+              hide-details
+              @update:model-value="getBatchlist"
+            >
+              <v-btn
+                value="batchcompare"
+              >
+                Batches
+              </v-btn>
+              <v-btn
+                value="patientcompare"
+              >
+                Patients
+              </v-btn>
+            </v-btn-toggle>
+            <v-select
+              v-model="activeBatches"
+              :items="allPossibleBatches"
+              variant="outlined"
+              small-chips
+              density="default"
+              hide-details
+              clearable
+              label="Batches/Patients"
+              multiple
+              @update:model-value="loading=false"
+            />
+            <v-btn
+              class="mt-2 mb-0"
+              color="primary"
+              :loading="loading"
+              @click="getvennData"
+            >
+              Plot venn diagram
+            </v-btn>
+          </v-card-text>
+        </v-card>
+        <v-card
+          variant="flat"
+          class="mt-4"
+        >
+          <v-card-title
+            tag="h1"
+          >
+            Custom input
+          </v-card-title>
+          <v-card-text>
+            <v-tooltip top>
+              <template #activator="{ on, attrs }">
+                <input
+                  v-bind="attrs"
+                  ref="docreader"
+                  type="file"
+                  @change="readFile"
+                  v-on="on"
+                >
+              </template>
+              <span>Upload a comma delimited file with two columns<br>
+                - a header row with column names: 'item' and 'group'<br>
+                - the first column is protein/peptides <br>
+                - the second columns is the group they belong to <br>
+                - If a protein belongs to multiple groups it should be in separate rows, e.g.: <br>
+                EGFR, GroupA <br>
+                EGFR, GroupB <br>
+              </span>
+            </v-tooltip>
+          </v-card-text>
+        </v-card>
+      </v-col>
+      <v-col
+        sm="12"
+        md="9"
+        lg="10"
+      >
+        <v-card variant="flat">
+          <v-card-text>
+            <venn-plot
+              :vennplot-data="vennData"
+            />
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
@@ -149,11 +151,11 @@ export default {
     loading: false,
     allInputDataTypes: [
       {
-        text: 'Proteins',
+        title: 'Proteins',
         value: DataType.FULL_PROTEOME
       },
       {
-        text: 'P-peptides',
+        title: 'P-peptides',
         value: DataType.PHOSPHO_PROTEOME
       }
     ]

@@ -1,248 +1,250 @@
 <template>
-  <v-row class="pa-4 grey lighten-3">
-    <v-col
-      sm="12"
-      md="2"
-      lg="2"
-    >
-      <v-card flat>
-        <v-card-title
-          tag="h1"
-        >
-          PCA/UMAP plots
-        </v-card-title>
-        <v-card-text>
-          <cohort-select
-            @select-cohort="updateCohort"
-          />
-          <subcohort-select
-            class="mt-4"
-            :cohort-index="cohortIndex"
-            :sample-ids="customGroup"
-            @update-group="updateSampleGroup"
-            @update-selection-method="updateSelectionMethodGroup"
-          />
-          <v-checkbox
-            v-if="!onlyReferenceChannels"
-            v-model="includeReplicates"
-            label="Include replicates"
-            hide-details
-            dense
-          />
-          <v-checkbox
-            v-if="!onlyReferenceChannels"
-            v-model="includeReferenceChannels"
-            label="Include reference channels"
-            hide-details
-            dense
-          />
-          <v-checkbox
-            v-model="onlyReferenceChannels"
-            label="Only reference channels"
-            hide-details
-            dense
-          />
-          <v-text-field
-            v-model="imputationRatio"
-            class="mt-4"
-            label="Min. sample occurrence [%]"
-            hint="Only use proteins/p-peptides occurring in >x% of total samples. The remaining missing values are imputed by PPCA."
-            persistent-hint
-            type="number"
-          />
-        </v-card-text>
-      </v-card>
-      <v-card
-        flat
-        class="mt-4"
+  <v-container fluid>
+    <v-row class="pa-4 bg-grey-lighten-3">
+      <v-col
+        sm="12"
+        md="2"
+        lg="2"
       >
-        <v-card-title
-          tag="h1"
+        <v-card variant="flat">
+          <v-card-title
+            tag="h1"
+          >
+            PCA/UMAP plots
+          </v-card-title>
+          <v-card-text>
+            <cohort-select
+              @select-cohort="updateCohort"
+            />
+            <subcohort-select
+              class="mt-4"
+              :cohort-index="cohortIndex"
+              :sample-ids="customGroup"
+              @update-group="updateSampleGroup"
+              @update-selection-method="updateSelectionMethodGroup"
+            />
+            <v-checkbox
+              v-if="!onlyReferenceChannels"
+              v-model="includeReplicates"
+              label="Include replicates"
+              hide-details
+              density="default"
+            />
+            <v-checkbox
+              v-if="!onlyReferenceChannels"
+              v-model="includeReferenceChannels"
+              label="Include reference channels"
+              hide-details
+              density="default"
+            />
+            <v-checkbox
+              v-model="onlyReferenceChannels"
+              label="Only reference channels"
+              hide-details
+              density="default"
+            />
+            <v-text-field
+              v-model="imputationRatio"
+              class="mt-4"
+              label="Min. sample occurrence [%]"
+              hint="Only use proteins/p-peptides occurring in >x% of total samples. The remaining missing values are imputed by PPCA."
+              persistent-hint
+              type="number"
+            />
+          </v-card-text>
+        </v-card>
+        <v-card
+          variant="flat"
+          class="mt-4"
         >
-          Select plot inputs
-        </v-card-title>
-        <v-card-text>
-          <v-btn-toggle
-            v-model="dimReductionMethod"
-            color="primary"
-            mandatory
-            dense
+          <v-card-title
+            tag="h1"
           >
-            <v-btn value="ppca">
-              PCA
-            </v-btn>
-            <v-btn value="umap">
-              UMAP
-            </v-btn>
-          </v-btn-toggle>
-          <v-select
-            v-model="inputDataType"
-            prepend-icon="mdi-filter"
-            class="input_data_type my-2"
-            dense
-            outlined
-            hide-details
-            :items="allInputDataTypes"
-            label="Input Type"
-            @change="loading=false"
-          />
-          <v-checkbox
-            v-model="geneSubsetActive"
-            label="Use custom identifier list"
-            hide-details
-            dense
-          />
-          <v-file-input
-            v-show="geneSubsetActive"
-            v-model="file"
-            class="mt-4"
-            placeholder="Upload a txt file"
-            accept="text/*,.txt"
-            hint="one gene name/p-peptide per line"
-            persistent-hint
-            dense
-          />
-
-          <v-select
-            v-model="activeMeta"
-            prepend-icon="mdi-palette"
-            class="metadata mt-4"
-            dense
-            outlined
-            hide-details
-            :items="metaData"
-            label="Color by Metadata"
-            @change="loading=false"
-          />
-          <v-btn
-            class="primary mt-4"
-            @click="updatePCA"
-          >
-            Generate plot
-          </v-btn>
-        </v-card-text>
-      </v-card>
-      <v-card
-        flat
-        class="mt-4"
-      >
-        <v-card-title
-          tag="h1"
-        >
-          Silhouette Analysis
-        </v-card-title>
-        <v-card-text>
-          <v-text-field
-            v-model="minNumPatients"
-            label="Min. #patients per group"
-            hide-details
-            type="number"
-          />
-          <v-radio-group
-            v-model="silhouetteInputType"
-            label="Input type"
-            dense
-          >
-            <v-radio
-              label="Raw data"
-              value="beforeCluster"
+            Select plot inputs
+          </v-card-title>
+          <v-card-text>
+            <v-btn-toggle
+              v-model="dimReductionMethod"
+              color="primary"
+              mandatory
+              density="default"
+            >
+              <v-btn value="ppca">
+                PCA
+              </v-btn>
+              <v-btn value="umap">
+                UMAP
+              </v-btn>
+            </v-btn-toggle>
+            <v-select
+              v-model="inputDataType"
+              prepend-icon="mdi-filter"
+              class="input_data_type my-2"
+              density="default"
+              variant="outlined"
+              hide-details
+              :items="allInputDataTypes"
+              label="Input Type"
+              @update:model-value="loading=false"
+            />
+            <v-checkbox
+              v-model="geneSubsetActive"
+              label="Use custom identifier list"
+              hide-details
+              density="default"
+            />
+            <v-file-input
+              v-show="geneSubsetActive"
+              v-model="file"
+              class="mt-4"
+              placeholder="Upload a txt file"
+              accept="text/*,.txt"
+              hint="one gene name/p-peptide per line"
+              persistent-hint
+              density="default"
             />
 
-            <v-radio
-              :label="dimReductionMethod.toUpperCase() + ' coordinates'"
-              value="afterCluster"
+            <v-select
+              v-model="activeMeta"
+              prepend-icon="mdi-palette"
+              class="metadata mt-4"
+              density="default"
+              variant="outlined"
+              hide-details
+              :items="metaData"
+              label="Color by Metadata"
+              @update:model-value="loading=false"
             />
-          </v-radio-group>
-
-          <v-btn
-            class="primary ma-2"
-            :loading="loading"
-            @click="updateSilhouette"
+            <v-btn
+              class="primary mt-4"
+              @click="updatePCA"
+            >
+              Generate plot
+            </v-btn>
+          </v-card-text>
+        </v-card>
+        <v-card
+          variant="flat"
+          class="mt-4"
+        >
+          <v-card-title
+            tag="h1"
           >
-            Generate Silhouette
-          </v-btn>
-        </v-card-text>
-      </v-card>
-    </v-col>
-    <v-col
-      sm="12"
-      md="10"
-      lg="10"
-    >
-      <v-card flat>
-        <v-card-text>
-          <v-row>
-            <v-col
-              sm="12"
-              md="5"
-              lg="5"
+            Silhouette Analysis
+          </v-card-title>
+          <v-card-text>
+            <v-text-field
+              v-model="minNumPatients"
+              label="Min. #patients per group"
+              hide-details
+              type="number"
+            />
+            <v-radio-group
+              v-model="silhouetteInputType"
+              label="Input type"
+              density="default"
             >
-              <qc-table
-                :data-source="qcData"
-                :is-loading="isLoading"
-                @onRowSelect="updateSelectedRows"
+              <v-radio
+                label="Raw data"
+                value="beforeCluster"
               />
-            </v-col>
-            <v-col
-              sm="12"
-              md="3"
-              lg="3"
+
+              <v-radio
+                :label="dimReductionMethod.toUpperCase() + ' coordinates'"
+                value="afterCluster"
+              />
+            </v-radio-group>
+
+            <v-btn
+              class="primary ma-2"
+              :loading="loading"
+              @click="updateSilhouette"
             >
-              <qc-plot
-                v-if="activeMeta"
-                :save-plot="true"
-                :qc-type="dimReductionMethod"
-                :qc-meta="activeMeta"
-                :qc-sel-ids="selIds"
-                :qcplot-data="qcData"
-                :pc-var1="variance1"
-                :pc-var2="variance2"
-              />
-            </v-col>
-          </v-row>
-        </v-card-text>
-      </v-card>
-      <v-card
-        v-if="silData.length > 0"
-        flat
-        class="mt-4"
+              Generate Silhouette
+            </v-btn>
+          </v-card-text>
+        </v-card>
+      </v-col>
+      <v-col
+        sm="12"
+        md="10"
+        lg="10"
       >
-        <v-card-text>
-          <v-row>
-            <v-col
-              sm="12"
-              md="5"
-              lg="5"
-            >
-              <silhouette-scores-table
-                v-if="silData.length > 0"
-                :data-source="silData"
-              />
-            </v-col>
-            <v-col
-              sm="12"
-              md="5"
-              lg="5"
-            >
-              <lollipop-plot
-                v-if="showPlot"
-                lollipop-id="silPlot"
-                lolli-title="Silhouette Scores"
-                :fixed-domain="fixedDomain"
-                :plot-data="silData"
-                :lolli-mode="true"
-                :lolliradian="1"
-                complete-tooltip="true"
-                show-legends="true"
-                width="1400"
-                height="400"
-              />
-            </v-col>
-          </v-row>
-        </v-card-text>
-      </v-card>
-    </v-col>
-  </v-row>
+        <v-card variant="flat">
+          <v-card-text>
+            <v-row>
+              <v-col
+                sm="12"
+                md="5"
+                lg="5"
+              >
+                <qc-table
+                  :data-source="qcData"
+                  :is-loading="isLoading"
+                  @onRowSelect="updateSelectedRows"
+                />
+              </v-col>
+              <v-col
+                sm="12"
+                md="3"
+                lg="3"
+              >
+                <qc-plot
+                  v-if="activeMeta"
+                  :save-plot="true"
+                  :qc-type="dimReductionMethod"
+                  :qc-meta="activeMeta"
+                  :qc-sel-ids="selIds"
+                  :qcplot-data="qcData"
+                  :pc-var1="variance1"
+                  :pc-var2="variance2"
+                />
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </v-card>
+        <v-card
+          v-if="silData.length > 0"
+          variant="flat"
+          class="mt-4"
+        >
+          <v-card-text>
+            <v-row>
+              <v-col
+                sm="12"
+                md="5"
+                lg="5"
+              >
+                <silhouette-scores-table
+                  v-if="silData.length > 0"
+                  :data-source="silData"
+                />
+              </v-col>
+              <v-col
+                sm="12"
+                md="5"
+                lg="5"
+              >
+                <lollipop-plot
+                  v-if="showPlot"
+                  lollipop-id="silPlot"
+                  lolli-title="Silhouette Scores"
+                  :fixed-domain="fixedDomain"
+                  :plot-data="silData"
+                  :lolli-mode="true"
+                  :lolliradian="1"
+                  complete-tooltip="true"
+                  show-legends="true"
+                  width="1400"
+                  height="400"
+                />
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
@@ -294,35 +296,35 @@ export default {
     activeMeta: 'code_oncotree',
     allInputDataTypes: [
       {
-        text: 'Full proteome',
+        title: 'Full proteome',
         value: DataType.FULL_PROTEOME
       },
       {
-        text: 'Phosphopeptides',
+        title: 'Phosphopeptides',
         value: DataType.PHOSPHO_PROTEOME
       },
       {
-        text: 'Full proteome + Phosphopeptides',
+        title: 'Full proteome + Phosphopeptides',
         value: DataType.FP_PP
       },
       {
-        text: 'Full proteome (annotated only)',
+        title: 'Full proteome (annotated only)',
         value: DataType.FULL_PROTEOME_ANNOTATED
       },
       {
-        text: 'Phosphopeptides (annotated only)',
+        title: 'Phosphopeptides (annotated only)',
         value: DataType.PHOSPHO_PROTEOME_ANNOTATED
       },
       {
-        text: 'Protein Phosphorylation scores',
+        title: 'Protein Phosphorylation scores',
         value: DataType.PHOSPHO_SCORE
       },
       {
-        text: 'Substrate Phosphorylation scores',
+        title: 'Substrate Phosphorylation scores',
         value: DataType.KINASE_SCORE
       },
       {
-        text: 'TOPAS scores',
+        title: 'TOPAS scores',
         value: DataType.TOPAS_SCORE
       }
     ],

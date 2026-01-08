@@ -11,7 +11,7 @@ import ptmNavigatorPrdbApi from '@/plugins/ptmNavigatorApi'
 export default {
   name: 'PTMNavigatorWrapper',
   components: {
-    'ptm-navigator': () => import('ptmnavigator').then(m => m.PTMNavigator)
+    'ptm-navigator': () => import('ptmnavigator-vue3').then(m => m.PTMNavigator)
   },
   data () {
     return {

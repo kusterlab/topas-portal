@@ -1,6 +1,6 @@
 <template>
   <v-container fluid>
-    <v-row class="pa-4 grey lighten-3">
+    <v-row class="pa-4 bg-grey-lighten-3">
       <v-col
         sm="12"
         md="9"
@@ -28,7 +28,7 @@
           >
             <v-card
               :to="topasactivityPath"
-              outlined
+              variant="outlined"
             >
               <v-card-title
                 class="text-h6 font-weight-bold"
@@ -60,7 +60,7 @@
           >
             <v-card
               :to="kinasectivityPath"
-              outlined
+              variant="outlined"
             >
               <v-card-title
                 class="text-h6 font-weight-bold"
@@ -92,7 +92,7 @@
           >
             <v-card
               :to="cohortAnalysis"
-              outlined
+              variant="outlined"
             >
               <v-card-title
                 class="text-h6 font-weight-bold"
@@ -124,7 +124,7 @@
           >
             <v-card
               :to="patientReport"
-              outlined
+              variant="outlined"
             >
               <v-card-title
                 class="text-h6 font-weight-bold"

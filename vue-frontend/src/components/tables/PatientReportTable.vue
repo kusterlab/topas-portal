@@ -110,15 +110,15 @@ export default {
       return [...this.customFields, ...this.common_fields]
     },
     dataGrid: function () {
-      return this.$refs[this.dataGridRefName].instance
+      return this.$refs[this.dataGridRefName]?.instance
     },
     refreshButtonOptions () {
       return {
         icon: 'pulldown',
         text: 'Reset table',
         onClick: () => {
-          this.dataGrid.clearFilter()
-          this.dataGrid.clearSelection()
+          this.dataGrid?.clearFilter()
+          this.dataGrid?.clearSelection()
         }
       }
     },
@@ -143,11 +143,11 @@ export default {
     }),
     filterBySamplename (sample) {
       if (sample !== null) {
-        this.dataGrid.filter([
+        this.dataGrid?.filter([
           ['Sample name', '=', sample]
         ])
       } else {
-        this.dataGrid.filter(null)
+        this.dataGrid?.filter(null)
       }
     },
     onSelectionChanged: function (e) {
@@ -162,7 +162,7 @@ export default {
       link.click()
     },
     downloadReports: function () {
-      const patientIdentifiers = this.dataGrid.getSelectedRowsData().map(item => item['Sample name'])
+      const patientIdentifiers = this.dataGrid?.getSelectedRowsData().map(item => item['Sample name'])
       let outputFilename = ''
       if (patientIdentifiers.length === 0) {
         this.addNotification({

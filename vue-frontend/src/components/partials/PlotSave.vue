@@ -3,7 +3,7 @@
     <v-checkbox
       v-model="savePlot"
       label="Plot export"
-      @change="changeSaveplot"
+      @update:model-value="changeSaveplot"
     />
   </div>
 </template>

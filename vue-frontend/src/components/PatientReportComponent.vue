@@ -1,13 +1,13 @@
 <template>
   <v-container fluid>
-    <v-row class="grey lighten-3">
+    <v-row class="bg-grey-lighten-3">
       <!-- Sidebar for Filters and Controls -->
       <v-col
         sm="12"
         md="3"
         lg="2"
       >
-        <v-card flat>
+        <v-card variant="flat">
           <v-card-title tag="h1">
             Patient Reports
           </v-card-title>
@@ -18,52 +18,52 @@
             <v-checkbox
               v-model="includeRefChannels"
               label="Include ref channels"
-              dense
+              density="default"
               hide-details
             />
             <v-select
               v-model="scoreType"
               class="input_data_type mb-2 mt-4"
               prepend-icon="mdi-filter"
-              dense
-              outlined
+              density="default"
+              variant="outlined"
               hide-details
               :items="allInputDataTypes"
               label="Data Type"
-              @change="getscoresTable"
+              @update:model-value="getscoresTable"
             />
             <v-checkbox
               v-model="showCorrelation"
               label="Show FPKM/protein correlation histogram"
-              dense
+              density="default"
               hide-details
-              @change="getPatientData"
+              @update:model-value="getPatientData"
             />
           </v-card-text>
         </v-card>
         <!-- Collapsible Help Box -->
         <v-card
-          flat
+          variant="flat"
           class="mt-4"
         >
           <v-card-title>Help</v-card-title>
           <v-card-text>
             <v-expansion-panels>
               <v-expansion-panel>
-                <v-expansion-panel-header class="mb-0">
+                <v-expansion-panel-title class="mb-0">
                   Tab info
-                </v-expansion-panel-header>
-                <v-expansion-panel-content>
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
                   In this tab you can browse and download patient-specific reports. It also shows QC statistics and detailed plots regarding tumor antigens, RTKs, cytoplasmic kinases and immune status.
-                </v-expansion-panel-content>
+                </v-expansion-panel-text>
               </v-expansion-panel>
               <v-expansion-panel>
-                <v-expansion-panel-header class="mb-0">
+                <v-expansion-panel-title class="mb-0">
                   How to use
-                </v-expansion-panel-header>
-                <v-expansion-panel-content>
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
                   Use the dropdown menu to select a cohort, then select a sample by checking the corresponding checkbox in the table to the right to interactively explore the patient report for that sample. You can download the patient report(s) in Excel format by selecting one or more samples in the patient table and clicking the 'Download report(s)' button.
-                </v-expansion-panel-content>
+                </v-expansion-panel-text>
               </v-expansion-panel>
             </v-expansion-panels>
           </v-card-text>
@@ -85,7 +85,7 @@
               md="6"
               lg="6"
             >
-              <v-card flat>
+              <v-card variant="flat">
                 <v-card-text>
                   <patient-report-table
                     :data-source="patientData"
@@ -95,20 +95,20 @@
                 </v-card-text>
               </v-card>
               <v-card
-                flat
-                class="mt-4"
                 v-if="!firstPatient"
+                variant="flat"
+                class="mt-4"
               >
                 <v-card-text>
                   Please select a patient in the table above
                 </v-card-text>
               </v-card>
               <v-card
-                flat
-                class="mt-4"
                 v-if="firstPatient"
+                variant="flat"
+                class="mt-4"
               >
-                <v-card-title>{{firstPatient}} - {{scoreTypeText}}</v-card-title>
+                <v-card-title>{{ firstPatient }} - {{ scoreTypeText }}</v-card-title>
                 <v-card-text>
                   <patientscore-table :data-source="patientScoresDataURL" />
                 </v-card-text>
@@ -119,7 +119,7 @@
               md="6"
               lg="6"
             >
-              <v-card flat>
+              <v-card variant="flat">
                 <v-card-text>
                   <!-- Top Row: Patient Table and Histograms -->
                   <v-row>
@@ -263,27 +263,49 @@
               md="12"
               lg="12"
             >
-              <v-card flat>
+              <v-card variant="flat">
                 <v-card-text>
                   <v-tabs
                     v-model="type"
                   >
-                    <v-tab href="#tumor">TUMOR ANTIGENS</v-tab>
-                    <v-tab href="#rtk">RTK</v-tab>
-                    <v-tab href="#cknk">CK / NK</v-tab>
-                    <v-tab href="#immune">IMMUNE STATUS</v-tab>
-                    <v-tab href="#prodict">PRODICT</v-tab>
+                    <v-tab href="#tumor">
+                      TUMOR ANTIGENS
+                    </v-tab>
+                    <v-tab href="#rtk">
+                      RTK
+                    </v-tab>
+                    <v-tab href="#cknk">
+                      CK / NK
+                    </v-tab>
+                    <v-tab href="#immune">
+                      IMMUNE STATUS
+                    </v-tab>
+                    <v-tab href="#prodict">
+                      PRODICT
+                    </v-tab>
                   </v-tabs>
 
-                  <v-divider></v-divider>
+                  <v-divider />
                   <v-tabs-items v-model="type">
                     <v-tab-item value="tumor">
-                      <v-card flat min-height="400px">
+                      <v-card
+                        variant="flat"
+                        min-height="400px"
+                      >
                         <v-card-text>
                           <div class="chart-container">
-                            <div v-if="loadingTumor" class="loader">
-                              <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
-                              <p class="mt-4">Loading tumor antigens...</p>
+                            <div
+                              v-if="loadingTumor"
+                              class="loader"
+                            >
+                              <v-progress-circular
+                                indeterminate
+                                color="primary"
+                                size="64"
+                              />
+                              <p class="mt-4">
+                                Loading tumor antigens...
+                              </p>
                             </div>
                             <img
                               v-if="firstPatient"
@@ -291,19 +313,31 @@
                               :src="getTumorUrl()"
                               @load="loadingTumor = false"
                               @error="loadingTumor = false"
-                            />
+                            >
                           </div>
                         </v-card-text>
                       </v-card>
                     </v-tab-item>
 
                     <v-tab-item value="rtk">
-                      <v-card flat min-height="400px">
+                      <v-card
+                        variant="flat"
+                        min-height="400px"
+                      >
                         <v-card-text>
                           <div class="chart-container">
-                            <div v-if="loadingRtk" class="loader">
-                              <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
-                              <p class="mt-4">Loading RTK...</p>
+                            <div
+                              v-if="loadingRtk"
+                              class="loader"
+                            >
+                              <v-progress-circular
+                                indeterminate
+                                color="primary"
+                                size="64"
+                              />
+                              <p class="mt-4">
+                                Loading RTK...
+                              </p>
                             </div>
                             <img
                               v-if="firstPatient"
@@ -311,19 +345,31 @@
                               :src="getRtkUrl()"
                               @load="loadingRtk = false"
                               @error="loadingRtk = false"
-                            />
+                            >
                           </div>
                         </v-card-text>
                       </v-card>
                     </v-tab-item>
 
                     <v-tab-item value="cknk">
-                      <v-card flat min-height="400px">
+                      <v-card
+                        variant="flat"
+                        min-height="400px"
+                      >
                         <v-card-text>
                           <div class="chart-container">
-                            <div v-if="loadingCknk" class="loader">
-                              <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
-                              <p class="mt-4">Loading CK/NK...</p>
+                            <div
+                              v-if="loadingCknk"
+                              class="loader"
+                            >
+                              <v-progress-circular
+                                indeterminate
+                                color="primary"
+                                size="64"
+                              />
+                              <p class="mt-4">
+                                Loading CK/NK...
+                              </p>
                             </div>
                             <img
                               v-if="firstPatient"
@@ -331,19 +377,31 @@
                               :src="getCknkUrl()"
                               @load="loadingCknk = false"
                               @error="loadingCknk = false"
-                            />
+                            >
                           </div>
                         </v-card-text>
                       </v-card>
                     </v-tab-item>
 
                     <v-tab-item value="immune">
-                      <v-card flat min-height="400px">
+                      <v-card
+                        variant="flat"
+                        min-height="400px"
+                      >
                         <v-card-text>
                           <div class="chart-container">
-                            <div v-if="loadingImmune" class="loader">
-                              <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
-                              <p class="mt-4">Loading immune status...</p>
+                            <div
+                              v-if="loadingImmune"
+                              class="loader"
+                            >
+                              <v-progress-circular
+                                indeterminate
+                                color="primary"
+                                size="64"
+                              />
+                              <p class="mt-4">
+                                Loading immune status...
+                              </p>
                             </div>
                             <img
                               v-if="firstPatient"
@@ -351,21 +409,36 @@
                               :src="getImmuneUrl()"
                               @load="loadingImmune = false"
                               @error="loadingImmune = false"
-                            />
+                            >
                           </div>
                         </v-card-text>
                       </v-card>
                     </v-tab-item>
 
                     <v-tab-item value="prodict">
-                      <v-card flat min-height="400px">
+                      <v-card
+                        variant="flat"
+                        min-height="400px"
+                      >
                         <v-card-text>
                           <v-row>
-                            <v-col cols="12" md="6">
+                            <v-col
+                              cols="12"
+                              md="6"
+                            >
                               <div class="chart-container">
-                                <div v-if="loadingProdictProb" class="loader">
-                                  <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
-                                  <p class="mt-4">Loading PROdictions...</p>
+                                <div
+                                  v-if="loadingProdictProb"
+                                  class="loader"
+                                >
+                                  <v-progress-circular
+                                    indeterminate
+                                    color="primary"
+                                    size="64"
+                                  />
+                                  <p class="mt-4">
+                                    Loading PROdictions...
+                                  </p>
                                 </div>
                                 <img
                                   v-if="firstPatient"
@@ -373,14 +446,26 @@
                                   :src="getProdictProbUrl()"
                                   @load="loadingProdictProb = false"
                                   @error="loadingProdictProb = false"
-                                />
+                                >
                               </div>
                             </v-col>
-                            <v-col cols="12" md="6">
+                            <v-col
+                              cols="12"
+                              md="6"
+                            >
                               <div class="chart-container">
-                                <div v-if="loadingProdictUmap" class="loader">
-                                  <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
-                                  <p class="mt-4">Loading UMAP...</p>
+                                <div
+                                  v-if="loadingProdictUmap"
+                                  class="loader"
+                                >
+                                  <v-progress-circular
+                                    indeterminate
+                                    color="primary"
+                                    size="64"
+                                  />
+                                  <p class="mt-4">
+                                    Loading UMAP...
+                                  </p>
                                 </div>
                                 <img
                                   v-if="firstPatient"
@@ -388,7 +473,7 @@
                                   :src="getProdictUmapUrl()"
                                   @load="loadingProdictUmap = false"
                                   @error="loadingProdictUmap = false"
-                                />
+                                >
                               </div>
                             </v-col>
                           </v-row>
@@ -398,7 +483,7 @@
                   </v-tabs-items>
                   <!-- <v-tabs-items v-model="type">
                     <v-tab-item value="tumor">
-                      <v-card flat min-height="400px">
+                      <v-card variant="flat" min-height="400px">
                         <v-card-text>
                           <img v-if="firstPatient" :src="api.TUMOR_ANTIGENS_SWARM_PLOT({cohort_index: this.cohortIndex, patient: this.firstPatient})" />
                         </v-card-text>
@@ -406,7 +491,7 @@
                     </v-tab-item>
 
                     <v-tab-item value="rtk">
-                      <v-card flat min-height="400px">
+                      <v-card variant="flat" min-height="400px">
                         <v-card-text>
                           <img v-if="firstPatient" :src="api.RTKS_SWARM_PLOT({cohort_index: this.cohortIndex, patient: this.firstPatient})" />
                         </v-card-text>
@@ -414,7 +499,7 @@
                     </v-tab-item>
 
                     <v-tab-item value="cknk">
-                      <v-card flat min-height="400px">
+                      <v-card variant="flat" min-height="400px">
                         <v-card-text>
                           <img v-if="firstPatient" :src="api.CKS_NKS_SWARM_PLOT({cohort_index: this.cohortIndex, patient: this.firstPatient})" />
                         </v-card-text>
@@ -422,7 +507,7 @@
                     </v-tab-item>
 
                     <v-tab-item value="immune">
-                      <v-card flat min-height="400px">
+                      <v-card variant="flat" min-height="400px">
                         <v-card-text>
                           <img v-if="firstPatient" :src="api.IMMUNE_STATUS_HEATMAP({cohort_index: this.cohortIndex, patient: this.firstPatient})" />
                         </v-card-text>
@@ -430,7 +515,7 @@
                     </v-tab-item>
 
                     <v-tab-item value="prodict">
-                      <v-card flat min-height="400px">
+                      <v-card variant="flat" min-height="400px">
                         <v-card-text>
                           <v-row>
                             <v-col cols="12" md="6">
@@ -511,39 +596,39 @@ export default {
     api,
     allInputDataTypes: [
       {
-        text: 'Report summary',
+        title: 'Report summary',
         value: DataType.REPORT_SUMMARY
       },
       {
-        text: 'TOPAS CK score',
+        title: 'TOPAS CK score',
         value: DataType.TOPAS_CK_SCORE
       },
       {
-        text: 'TOPAS RTK score',
+        title: 'TOPAS RTK score',
         value: DataType.TOPAS_RTK_SCORE
       },
       {
-        text: 'Full proteome',
+        title: 'Full proteome',
         value: DataType.FULL_PROTEOME
       },
       {
-        text: 'Phosphopeptides',
+        title: 'Phosphopeptides',
         value: DataType.PHOSPHO_PROTEOME
       },
       {
-        text: 'Kinases',
+        title: 'Kinases',
         value: DataType.KINASE_SCORE
       },
       {
-        text: 'P-protein scores',
+        title: 'P-protein scores',
         value: DataType.PHOSPHO_SCORE
       },
       {
-        text: 'TOPAS subscore',
+        title: 'TOPAS subscore',
         value: DataType.TOPAS_SUBSCORE
       },
       {
-        text: 'Biomarker',
+        title: 'Biomarker',
         value: DataType.BIOMARKER
       }
     ],

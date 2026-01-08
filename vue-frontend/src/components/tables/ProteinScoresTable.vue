@@ -75,6 +75,7 @@ export default {
   data () {
     return {
       pageSizes: [10, 25, 50, 100],
+      dataGridInstance: null,
       dataGridRefName: 'dataGrid',
       customFields: [{
         dataField: 'Sample name',

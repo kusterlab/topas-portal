@@ -114,7 +114,7 @@ export default {
         icon: 'pulldown',
         text: 'Reset table',
         onClick: () => {
-          this.$refs[this.dataGridRefName].instance.clearSelection()
+          this.$refs[this.dataGridRefName]?.instance.clearSelection()
         }
       }
     }

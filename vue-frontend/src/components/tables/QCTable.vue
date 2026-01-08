@@ -110,15 +110,15 @@ export default {
       return [...this.customFields, ...this.common_fields]
     },
     dataGrid: function () {
-      return this.$refs[this.dataGridRefName].instance
+      return this.$refs[this.dataGridRefName]?.instance
     },
     refreshButtonOptions () {
       return {
         icon: 'pulldown',
         text: 'Reset table',
         onClick: () => {
-          this.dataGrid.clearFilter()
-          this.dataGrid.clearSelection()
+          this.dataGrid?.clearFilter()
+          this.dataGrid?.clearSelection()
         }
       }
     }
@@ -127,9 +127,9 @@ export default {
     isLoading () {
       // for some reason this does not work together with :scrolling="{ useNative: true }"
       if (this.isLoading) {
-        this.dataGrid.beginCustomLoading()
+        this.dataGrid?.beginCustomLoading()
       } else {
-        this.dataGrid.endCustomLoading()
+        this.dataGrid?.endCustomLoading()
       }
     }
   },

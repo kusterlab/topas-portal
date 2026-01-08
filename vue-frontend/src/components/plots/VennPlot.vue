@@ -57,14 +57,14 @@
         <v-checkbox
           v-model="showProteinTable"
           label="Show table of proteins in selected group"
-          dense
+          density="default"
           hide-details
         />
         <v-btn-toggle
           v-if="showProteinTable"
           v-model="tableCriteria"
           class="mt-4"
-          dense
+          density="default"
         >
           <v-btn
             value="all"
@@ -83,7 +83,7 @@
           :items="filteredItems"
           :items-per-page="10"
           :search="search"
-          dense
+          density="default"
         >
           <template #top>
             <v-text-field
@@ -140,7 +140,7 @@ export default {
         key: 'sample'
       }
     ],
-    tableHeaders: [{ text: 'Protein/p-peptide', value: 'name' }],
+    tableHeaders: [{ title: 'Protein/p-peptide', value: 'name' }],
     finalPlotData: [{ sample: 'gene1', group: 'A' }],
     selectedBatch: '',
     selectedProteins: [],

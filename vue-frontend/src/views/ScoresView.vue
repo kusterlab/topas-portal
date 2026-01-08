@@ -8,31 +8,15 @@
         :key="item.path"
         :to="item.path"
         :exact="index === 0"
-        class="tab-item"
-      >
-        <v-icon
-          left
-          class="tab-icon"
-        >
-          {{ item.icon }}
-        </v-icon>
-        <span class="tab-text">{{ item.label }}</span>
-      </v-tab>
+        :text="item.label"
+      />
       <v-tab
         v-for="item in customitems"
         v-show="customitemsStatus"
         :key="item.path"
         :to="item.path"
-        class="tab-item"
-      >
-        <v-icon
-          left
-          class="tab-icon"
-        >
-          {{ item.icon }}
-        </v-icon>
-        <span class="tab-text">{{ item.label }}</span>
-      </v-tab>
+        :text="item.label"
+      />
     </v-tabs>
 
     <router-view />

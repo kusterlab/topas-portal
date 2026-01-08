@@ -229,15 +229,15 @@ export default {
   },
   computed: {
     dataGrid: function () {
-      return this.$refs[this.dataGridRefName].instance
+      return this.$refs[this.dataGridRefName]?.instance
     },
     refreshButtonOptions () {
       return {
         icon: 'pulldown',
         text: 'Reset table',
         onClick: () => {
-          this.dataGrid.clearFilter()
-          this.dataGrid.clearSelection()
+          this.dataGrid?.clearFilter()
+          this.dataGrid?.clearSelection()
         }
       }
     }

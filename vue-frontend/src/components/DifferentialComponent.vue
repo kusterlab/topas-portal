@@ -1,184 +1,186 @@
 <template>
-  <v-row class="pa-4 grey lighten-3">
-    <v-col
-      sm="12"
-      md="2"
-      lg="2"
-    >
-      <v-card flat>
-        <v-card-title
-          tag="h1"
-        >
-          Differential Expression
-        </v-card-title>
-        <v-card-text>
-          <cohort-select
-            @select-cohort="updateCohort"
-          />
-          <v-checkbox
-            v-model="applyMultipleTestingCorrection"
-            class="mt-4"
-            dense
-            hide-details
-            label="Multiple testing correction (Benjamini-Hochberg)"
-          />
-          <v-select
-            v-model="modality"
-            class="input_data_type mb-2 mt-4"
-            dense
-            outlined
-            prepend-icon="mdi-filter"
-            hide-details
-            :items="allInputDataTypes"
-            label="Input Data Type"
-          />
-          <v-select
-            v-model="proteinType"
-            class="input_data_type mb-2 mt-4"
-            prepend-icon="mdi-palette"
-            dense
-            outlined
-            hide-details
-            :items="allProteinnTypes"
-            label="Highlight proteins"
-            @change="updateProteinType"
-          />
-        </v-card-text>
-      </v-card>
-      <v-card
-        flat
-        class="mt-4"
+  <v-container fluid>
+    <v-row class="pa-4 bg-grey-lighten-3">
+      <v-col
+        sm="12"
+        md="2"
+        lg="2"
       >
-        <v-card-title
-          tag="h1"
-        >
-          Select groups
-        </v-card-title>
-        <v-card-text>
-          <p class="mb-2">
-            Group1
-          </p>
-          <sample-select
-            :cohort-index="cohortIndex"
-            :sample-ids="customGroup1"
-            :show-table-select="true"
-            @update-group="updateSampleGroup1"
-            @update-selection-method="updateSelectionMethodGroup1"
-          />
-
-          <p class="mt-4 mb-2 d-inline-flex">
-            Group2
-          </p>
-          <v-checkbox
-            v-model="secondGroup"
-            hide-details
-            dense
-            class="d-inline-flex ml-2 mt-0"
-            label="All - Group1"
-          />
-          <sample-select
-            v-if="!secondGroup"
-            :cohort-index="cohortIndex"
-            :sample-ids="customGroup2"
-            :show-table-select="true"
-            @update-group="updateSampleGroup2"
-            @update-selection-method="updateSelectionMethodGroup2"
-          />
-
-          <v-btn
-            class="ma-2"
-            color="primary"
-            :loading="loading"
-            @click="doTest"
+        <v-card variant="flat">
+          <v-card-title
+            tag="h1"
           >
-            Perform Analysis
-          </v-btn>
-        </v-card-text>
-      </v-card>
-    </v-col>
-    <v-col
-      sm="12"
-      md="9"
-      lg="10"
-    >
-      <v-card
-        v-show="selectionMethod1 === 'table' | selectionMethod2 === 'table'"
-        flat
-        class="mb-4"
+            Differential Expression
+          </v-card-title>
+          <v-card-text>
+            <cohort-select
+              @select-cohort="updateCohort"
+            />
+            <v-checkbox
+              v-model="applyMultipleTestingCorrection"
+              class="mt-4"
+              density="default"
+              hide-details
+              label="Multiple testing correction (Benjamini-Hochberg)"
+            />
+            <v-select
+              v-model="modality"
+              class="input_data_type mb-2 mt-4"
+              density="default"
+              variant="outlined"
+              prepend-icon="mdi-filter"
+              hide-details
+              :items="allInputDataTypes"
+              label="Input Data Type"
+            />
+            <v-select
+              v-model="proteinType"
+              class="input_data_type mb-2 mt-4"
+              prepend-icon="mdi-palette"
+              density="default"
+              variant="outlined"
+              hide-details
+              :items="allProteinnTypes"
+              label="Highlight proteins"
+              @update:model-value="updateProteinType"
+            />
+          </v-card-text>
+        </v-card>
+        <v-card
+          variant="flat"
+          class="mt-4"
+        >
+          <v-card-title
+            tag="h1"
+          >
+            Select groups
+          </v-card-title>
+          <v-card-text>
+            <p class="mb-2">
+              Group1
+            </p>
+            <sample-select
+              :cohort-index="cohortIndex"
+              :sample-ids="customGroup1"
+              :show-table-select="true"
+              @update-group="updateSampleGroup1"
+              @update-selection-method="updateSelectionMethodGroup1"
+            />
+
+            <p class="mt-4 mb-2 d-inline-flex">
+              Group2
+            </p>
+            <v-checkbox
+              v-model="secondGroup"
+              hide-details
+              density="default"
+              class="d-inline-flex ml-2 mt-0"
+              label="All - Group1"
+            />
+            <sample-select
+              v-if="!secondGroup"
+              :cohort-index="cohortIndex"
+              :sample-ids="customGroup2"
+              :show-table-select="true"
+              @update-group="updateSampleGroup2"
+              @update-selection-method="updateSelectionMethodGroup2"
+            />
+
+            <v-btn
+              class="ma-2"
+              color="primary"
+              :loading="loading"
+              @click="doTest"
+            >
+              Perform Analysis
+            </v-btn>
+          </v-card-text>
+        </v-card>
+      </v-col>
+      <v-col
+        sm="12"
+        md="9"
+        lg="10"
       >
-        <v-card-text>
-          <v-row>
-            <v-col
-              v-show="selectionMethod1 === 'table'"
-              sm="12"
-              md="6"
-              lg="6"
-            >
-              <h2>Group1</h2>
-              <patient-select-table
-                :cohort-index="cohortIndex"
-                @onRowSelect="updatemetaSelectedRows1"
-              />
-            </v-col>
-            <v-col
-              v-show="selectionMethod2 === 'table'"
-              sm="12"
-              md="6"
-              lg="6"
-            >
-              <h2>Group2</h2>
-              <patient-select-table
-                :cohort-index="cohortIndex"
-                @onRowSelect="updatemetaSelectedRows2"
-              />
-            </v-col>
-          </v-row>
-        </v-card-text>
-      </v-card>
-      <v-card flat>
-        <v-card-text>
-          <v-row>
-            <v-col
-              sm="12"
-              md="6"
-              lg="6"
-            >
-              <statistic-table
-                :data-source="statisticData"
-                :selected-protein="selectedDotsInPlot"
-                @onRowSelect="updatestatsSelectedRowsstats"
-              />
-            </v-col>
-            <v-col
-              sm="12"
-              md="6"
-              lg="6"
-            >
-              <scatter-plot
-                id="differentialPlot"
-                :save-plot="true"
-                identifier1="Fold Change"
-                identifier2="-log"
-                :size-r="1"
-                :omics-type-x="modality"
-                :add-statslinte="true"
-                :width="600"
-                :height="600"
-                own-colormethod="true"
-                :omics-type-y="yAxistype"
-                score-type=""
-                label-x=""
-                label-y=""
-                :sel-ids="selectedPvalues"
-                :ensemble-data="statisticData"
-                @onDotSelect="selectDot"
-              />
-            </v-col>
-          </v-row>
-        </v-card-text>
-      </v-card>
-    </v-col>
-  </v-row>
+        <v-card
+          v-show="selectionMethod1 === 'table' || selectionMethod2 === 'table'"
+          variant="flat"
+          class="mb-4"
+        >
+          <v-card-text>
+            <v-row>
+              <v-col
+                v-show="selectionMethod1 === 'table'"
+                sm="12"
+                md="6"
+                lg="6"
+              >
+                <h2>Group1</h2>
+                <patient-select-table
+                  :cohort-index="cohortIndex"
+                  @onRowSelect="updatemetaSelectedRows1"
+                />
+              </v-col>
+              <v-col
+                v-show="selectionMethod2 === 'table'"
+                sm="12"
+                md="6"
+                lg="6"
+              >
+                <h2>Group2</h2>
+                <patient-select-table
+                  :cohort-index="cohortIndex"
+                  @onRowSelect="updatemetaSelectedRows2"
+                />
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </v-card>
+        <v-card variant="flat">
+          <v-card-text>
+            <v-row>
+              <v-col
+                sm="12"
+                md="6"
+                lg="6"
+              >
+                <statistic-table
+                  :data-source="statisticData"
+                  :selected-protein="selectedDotsInPlot"
+                  @onRowSelect="updatestatsSelectedRowsstats"
+                />
+              </v-col>
+              <v-col
+                sm="12"
+                md="6"
+                lg="6"
+              >
+                <scatter-plot
+                  id="differentialPlot"
+                  :save-plot="true"
+                  identifier1="Fold Change"
+                  identifier2="-log"
+                  :size-r="1"
+                  :omics-type-x="modality"
+                  :add-statslinte="true"
+                  :width="600"
+                  :height="600"
+                  own-colormethod="true"
+                  :omics-type-y="yAxistype"
+                  score-type=""
+                  label-x=""
+                  label-y=""
+                  :sel-ids="selectedPvalues"
+                  :ensemble-data="statisticData"
+                  @onDotSelect="selectDot"
+                />
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
@@ -234,31 +236,31 @@ export default {
     loading: false,
     allInputDataTypes: [
       {
-        text: 'TOPAS RTK scores',
+        title: 'TOPAS RTK scores',
         value: DataType.TOPAS_RTK_SCORE
       },
       {
-        text: 'Full proteome',
+        title: 'Full proteome',
         value: DataType.FULL_PROTEOME
       },
       {
-        text: 'Substrate Phosphorylation scores',
+        title: 'Substrate Phosphorylation scores',
         value: DataType.KINASE_SCORE
       },
       {
-        text: 'Kinase substrates peptides',
+        title: 'Kinase substrates peptides',
         value: DataType.KINASE_SUBSTRATE
       },
       {
-        text: 'Protein Phosphorylation scores',
+        title: 'Protein Phosphorylation scores',
         value: DataType.PHOSPHO_SCORE
       },
       {
-        text: 'Transcriptome (FPKM)',
+        title: 'Transcriptome (FPKM)',
         value: DataType.TRANSCRIPTOMICS
       },
       {
-        text: 'Phospho peptides',
+        title: 'Phospho peptides',
         value: DataType.PHOSPHO_PROTEOME
       }
     ]

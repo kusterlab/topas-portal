@@ -1,11 +1,8 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
+import { createStore } from 'vuex'
 import axios from 'axios'
 import notifications from './notifications'
 
-Vue.use(Vuex)
-
-const store = new Vuex.Store({
+export default createStore({
   state: {
     all_cohorts: [],
     common_fields: [],
@@ -74,5 +71,3 @@ const store = new Vuex.Store({
   }
 
 })
-
-export default store

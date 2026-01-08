@@ -1,114 +1,116 @@
 <template>
-  <v-row class="pa-4 grey lighten-3">
-    <v-col
-      sm="12"
-      md="3"
-      lg="2"
-    >
-      <v-card flat>
-        <v-card-title
-          tag="h1"
-        >
-          Protein Phosph. Scores
-        </v-card-title>
-        <v-card-text>
-          <cohort-select
-            @select-cohort="updateCohort"
-          />
-          <v-checkbox
-            v-model="includeRefChannels"
-            label="Include ref channels"
-            dense
-            hide-details
-          />
-          <protein-select
-            :cohort-index="cohortIndex"
-            label-override="Phosphoprotein"
-            data-layer="phospho_score"
-            class="mt-4"
-            @select-protein="updateProtein"
-          />
-        </v-card-text>
-      </v-card>
-      <!-- Collapsible Help Box -->
-      <v-card
-        flat
-        class="mt-4"
+  <v-container fluid>
+    <v-row class="pa-4 bg-grey-lighten-3">
+      <v-col
+        sm="12"
+        md="3"
+        lg="2"
       >
-        <v-card-title>Help</v-card-title>
-        <v-card-text>
-          <v-expansion-panels>
-            <v-expansion-panel>
-              <v-expansion-panel-header class="mb-0">
-                Tab info
-              </v-expansion-panel-header>
-              <v-expansion-panel-content>
-                In this tab you can visualize the protein phosphorylation scores to interrogate the relative phosphorylation of proteins based on the abundance of all protein phosphorylation sites.
-              </v-expansion-panel-content>
-            </v-expansion-panel>
-            <v-expansion-panel>
-              <v-expansion-panel-header class="mb-0">
-                How to use
-              </v-expansion-panel-header>
-              <v-expansion-panel-content>
-                You can select a protein- or sample-centric view. Use the dropdown menu to select a cohort, then apply filters as required to stratify samples. To visualize specific samples in the swarm plot, select samples in the list, pick a name in the field "Group" above the plot, adjust the color and click the blue edit button. Click the circled arrow to come back to default. To export the plot, click the export button on the right handside above the plot.
-              </v-expansion-panel-content>
-            </v-expansion-panel>
-          </v-expansion-panels>
-        </v-card-text>
-      </v-card>
-    </v-col>
-    <v-col
-      sm="12"
-      md="9"
-      lg="10"
-    >
-      <v-card flat>
-        <v-card-text>
-          <v-row>
-            <v-col
-              sm="12"
-              md="7"
-              lg="7"
-            >
-              <proteinscore-table
-                :data-source="url"
-                @onRowSelect="updateSelectedRows"
-                @table-ready="loadSwarmplot"
-              />
-            </v-col>
-            <v-col
-              sm="12"
-              md="5"
-              lg="5"
-            >
-              <v-skeleton-loader
-                :loading="loading"
-                height="200"
-                width="200"
-                type="image, list-item-two-line"
+        <v-card variant="flat">
+          <v-card-title
+            tag="h1"
+          >
+            Protein Phosph. Scores
+          </v-card-title>
+          <v-card-text>
+            <cohort-select
+              @select-cohort="updateCohort"
+            />
+            <v-checkbox
+              v-model="includeRefChannels"
+              label="Include ref channels"
+              density="default"
+              hide-details
+            />
+            <protein-select
+              :cohort-index="cohortIndex"
+              label-override="Phosphoprotein"
+              data-layer="phospho_score"
+              class="mt-4"
+              @select-protein="updateProtein"
+            />
+          </v-card-text>
+        </v-card>
+        <!-- Collapsible Help Box -->
+        <v-card
+          variant="flat"
+          class="mt-4"
+        >
+          <v-card-title>Help</v-card-title>
+          <v-card-text>
+            <v-expansion-panels>
+              <v-expansion-panel>
+                <v-expansion-panel-title class="mb-0">
+                  Tab info
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  In this tab you can visualize the protein phosphorylation scores to interrogate the relative phosphorylation of proteins based on the abundance of all protein phosphorylation sites.
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+              <v-expansion-panel>
+                <v-expansion-panel-title class="mb-0">
+                  How to use
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  You can select a protein- or sample-centric view. Use the dropdown menu to select a cohort, then apply filters as required to stratify samples. To visualize specific samples in the swarm plot, select samples in the list, pick a name in the field "Group" above the plot, adjust the color and click the blue edit button. Click the circled arrow to come back to default. To export the plot, click the export button on the right handside above the plot.
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+            </v-expansion-panels>
+          </v-card-text>
+        </v-card>
+      </v-col>
+      <v-col
+        sm="12"
+        md="9"
+        lg="10"
+      >
+        <v-card variant="flat">
+          <v-card-text>
+            <v-row>
+              <v-col
+                sm="12"
+                md="7"
+                lg="7"
               >
-                <v-responsive>
-                  <swarm-plot
-                    v-show="proteinidentifier"
-                    :swarm-data="plotData"
-                    :save-plot="true"
-                    swarm-id="proteinscore"
-                    :swarm-sel-ids="plotSelIds"
-                    :swarm-title="proteinidentifier"
-                    swarm-title-prefix="Protein phosphorylation score "
-                    field-name="Sample name"
-                    :draw-box-plot="true"
-                    field-values="Z-score"
-                  />
-                </v-responsive>
-              </v-skeleton-loader>
-            </v-col>
-          </v-row>
-        </v-card-text>
-      </v-card>
-    </v-col>
-  </v-row>
+                <proteinscore-table
+                  :data-source="url"
+                  @onRowSelect="updateSelectedRows"
+                  @table-ready="loadSwarmplot"
+                />
+              </v-col>
+              <v-col
+                sm="12"
+                md="5"
+                lg="5"
+              >
+                <v-skeleton-loader
+                  :loading="loading"
+                  height="200"
+                  width="200"
+                  type="image, list-item-two-line"
+                >
+                  <v-responsive>
+                    <swarm-plot
+                      v-show="proteinidentifier"
+                      :swarm-data="plotData"
+                      :save-plot="true"
+                      swarm-id="proteinscore"
+                      :swarm-sel-ids="plotSelIds"
+                      :swarm-title="proteinidentifier"
+                      swarm-title-prefix="Protein phosphorylation score "
+                      field-name="Sample name"
+                      :draw-box-plot="true"
+                      field-values="Z-score"
+                    />
+                  </v-responsive>
+                </v-skeleton-loader>
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 <script>
 import axios from 'axios'
@@ -142,6 +144,11 @@ export default {
     plotSelIds: [],
     selectedData: []
   }),
+  computed: {
+    includeRef () {
+      return this.includeRefChannels ? IncludeRef.INCLUDE_REF : IncludeRef.EXCLUDE_REF
+    }
+  },
   watch: {
     cohortIndex: function () {
       this.updateId()
@@ -151,11 +158,6 @@ export default {
     },
     proteinidentifier: function () {
       this.updateId()
-    }
-  },
-  computed: {
-    includeRef () {
-      return this.includeRefChannels ? IncludeRef.INCLUDE_REF : IncludeRef.EXCLUDE_REF
     }
   },
   methods: {

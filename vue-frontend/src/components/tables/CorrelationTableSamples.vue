@@ -93,7 +93,7 @@ export default {
       return [...this.customFields, ...this.common_fields]
     },
     dataGrid: function () {
-      return this.$refs[this.dataGridRefName].instance
+      return this.$refs[this.dataGridRefName]?.instance
     }
   },
   watch: {
@@ -104,11 +104,11 @@ export default {
   methods: {
     filterBySamplename () {
       if (this.selectedPatient !== null) {
-        this.dataGrid.filter([
+        this.dataGrid?.filter([
           ['Sample name', '=', this.selectedPatient]
         ])
       } else {
-        this.dataGrid.filter(null)
+        this.dataGrid?.filter(null)
       }
     },
     reset: function () {

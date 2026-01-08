@@ -60,9 +60,9 @@ export default {
     isLoading () {
       // for some reason this does not work together with :scrolling="{ useNative: true }"
       if (this.isLoading) {
-        this.dataGrid.beginCustomLoading()
+        this.dataGrid?.beginCustomLoading()
       } else {
-        this.dataGrid.endCustomLoading()
+        this.dataGrid?.endCustomLoading()
       }
     }
   }

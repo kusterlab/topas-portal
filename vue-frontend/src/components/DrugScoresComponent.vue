@@ -1,110 +1,112 @@
 <template>
-  <v-row class="pa-4 grey lighten-3">
-    <v-col
-      sm="12"
-      md="3"
-      lg="2"
-    >
-      <v-card flat>
-        <v-card-title
-          tag="h1"
-        >
-          Drug Scores
-        </v-card-title>
-        <v-card-text>
-          <cohort-select
-            @select-cohort="updateCohort"
-          />
-          <v-radio-group
-            v-model="inputType"
-            label="Input type"
-            hide-details
-            @change="updateId"
+  <v-container fluid>
+    <v-row class="pa-4 bg-grey-lighten-3">
+      <v-col
+        sm="12"
+        md="3"
+        lg="2"
+      >
+        <v-card variant="flat">
+          <v-card-title
+            tag="h1"
           >
-            <v-radio
-              label="Compare patients (per drug)"
-              value="per_drug"
+            Drug Scores
+          </v-card-title>
+          <v-card-text>
+            <cohort-select
+              @select-cohort="updateCohort"
             />
-            <v-radio
-              label="Compare drugs (per patient)"
-              value="per_patient"
+            <v-radio-group
+              v-model="inputType"
+              label="Input type"
+              hide-details
+              @update:model-value="updateId"
+            >
+              <v-radio
+                label="Compare patients (per drug)"
+                value="per_drug"
+              />
+              <v-radio
+                label="Compare drugs (per patient)"
+                value="per_patient"
+              />
+            </v-radio-group>
+            <v-autocomplete
+              v-if="inputType == 'per_drug'"
+              v-model="drugidentifier"
+              :items="allDrugs"
+              variant="outlined"
+              density="default"
+              label="Select Drug"
+              class="mt-4"
+              @update:model-value="updateId('drug')"
             />
-          </v-radio-group>
-          <v-autocomplete
-            v-if="inputType == 'per_drug'"
-            v-model="drugidentifier"
-            :items="allDrugs"
-            outlined
-            dense
-            label="Select Drug"
-            class="mt-4"
-            @change="updateId('drug')"
-          />
-          <v-autocomplete
-            v-if="inputType == 'per_drug'"
-            v-model="entityIdentifier"
-            :items="allEntities"
-            outlined
-            dense
-            chips
-            small-chips
-            label="Filter by entities"
-            multiple
-            @change="updateId('drug')"
-          />
-          <v-autocomplete
-            v-if="inputType == 'per_patient'"
-            v-model="patientidentifier"
-            :items="allPatients"
-            outlined
-            dense
-            label="Select Patient"
-            class="mt-4"
-            @change="updateId('patient')"
-          />
-        </v-card-text>
-      </v-card>
-    </v-col>
-    <v-col
-      sm="12"
-      md="9"
-      lg="10"
-    >
-      <v-card flat>
-        <v-card-text>
-          <v-row>
-            <v-col
-              sm="12"
-              md="7"
-              lg="7"
-            >
-              <drugscore-table
-                :data-source="url"
-                @onRowSelect="updateSelectedRows"
-              />
-            </v-col>
-            <v-col
-              sm="12"
-              md="5"
-              lg="5"
-            >
-              <swarm-plot
-                v-if="swarmShow"
-                :swarm-data="plotData"
-                :swarm-title="titleIdentifier"
-                swarm-id="drugscore"
-                :swarm-sel-ids="selectedIds"
-                swarm-title-prefix="Drug_scores"
-                field-name="Sample name"
-                :draw-box-plot="true"
-                field-values="Drug_score"
-              />
-            </v-col>
-          </v-row>
-        </v-card-text>
-      </v-card>
-    </v-col>
-  </v-row>
+            <v-autocomplete
+              v-if="inputType == 'per_drug'"
+              v-model="entityIdentifier"
+              :items="allEntities"
+              variant="outlined"
+              density="default"
+              chips
+              small-chips
+              label="Filter by entities"
+              multiple
+              @update:model-value="updateId('drug')"
+            />
+            <v-autocomplete
+              v-if="inputType == 'per_patient'"
+              v-model="patientidentifier"
+              :items="allPatients"
+              variant="outlined"
+              density="default"
+              label="Select Patient"
+              class="mt-4"
+              @update:model-value="updateId('patient')"
+            />
+          </v-card-text>
+        </v-card>
+      </v-col>
+      <v-col
+        sm="12"
+        md="9"
+        lg="10"
+      >
+        <v-card variant="flat">
+          <v-card-text>
+            <v-row>
+              <v-col
+                sm="12"
+                md="7"
+                lg="7"
+              >
+                <drugscore-table
+                  :data-source="url"
+                  @onRowSelect="updateSelectedRows"
+                />
+              </v-col>
+              <v-col
+                sm="12"
+                md="5"
+                lg="5"
+              >
+                <swarm-plot
+                  v-if="swarmShow"
+                  :swarm-data="plotData"
+                  :swarm-title="titleIdentifier"
+                  swarm-id="drugscore"
+                  :swarm-sel-ids="selectedIds"
+                  swarm-title-prefix="Drug_scores"
+                  field-name="Sample name"
+                  :draw-box-plot="true"
+                  field-values="Drug_score"
+                />
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 <script>
 import axios from 'axios'

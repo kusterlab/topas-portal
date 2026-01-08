@@ -5,7 +5,7 @@
       color="primary"
       mandatory
       hide-details
-      dense
+      density="compact"
     >
       <v-btn
         value="cohort"
@@ -22,19 +22,17 @@
         Subcohort
       </v-btn>
     </v-btn-toggle>
-    <v-card
+    <v-container
       v-if="allPatients === 'subcohort'"
     >
-      <v-card-text class="pa-3">
-        <sample-select
-          :cohort-index="cohortIndex"
-          :sample-ids="sampleIds"
-          :show-table-select="showTableSelect"
-          @update-group="updateSampleGroup"
-          @update-selection-method="updateSelectionMethodGroup"
-        />
-      </v-card-text>
-    </v-card>
+      <sample-select
+        :cohort-index="cohortIndex"
+        :sample-ids="sampleIds"
+        :show-table-select="showTableSelect"
+        @update-group="updateSampleGroup"
+        @update-selection-method="updateSelectionMethodGroup"
+      />
+    </v-container>
   </div>
 </template>
 <script>

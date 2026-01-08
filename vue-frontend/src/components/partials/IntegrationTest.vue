@@ -4,7 +4,7 @@
     class="pa-0"
   >
     <v-card
-      flat
+      variant="flat"
     >
       <v-card-title
         tag="h1"
@@ -32,7 +32,7 @@
                 v-model="proteinCheck"
                 style="width:100px"
                 label="Protein"
-                dense
+                density="default"
               />
             </v-col>
             <v-col cols="auto">
@@ -40,7 +40,7 @@
                 v-model="ppeptideCheck"
                 style="width:100px"
                 label="P-peptide"
-                dense
+                density="default"
               />
             </v-col>
 
@@ -49,16 +49,16 @@
                 v-model="topasCheck"
                 style="width:100px"
                 label="Topas"
-                dense
+                density="default"
               />
             </v-col>
 
             <v-col cols="auto">
               <v-btn
                 color="primary"
-                @click="checkAll"
                 :loading="loading"
                 class="mb-4 ml-4"
+                @click="checkAll"
               >
                 Check All Endpoints
               </v-btn>
@@ -70,24 +70,43 @@
               :items="results"
               item-value="name"
               :items-per-page="50"
-              dense
+              density="default"
             >
-              <template v-slot:[`item.status`]="{ item }">
-                <v-chip v-if="item.status === 200" color="green" dark small>
+              <template #[`item.status`]="{ item }">
+                <v-chip
+                  v-if="item.status === 200"
+                  color="green"
+                  dark
+                  small
+                >
                   ✅ 200 OK
                 </v-chip>
-                <v-chip v-else-if="item.status === 'ERR'" color="red" dark small>
+                <v-chip
+                  v-else-if="item.status === 'ERR'"
+                  color="red"
+                  dark
+                  small
+                >
                   ❌ ERR
                 </v-chip>
-                <v-chip v-else-if="item.status" color="orange" dark small>
+                <v-chip
+                  v-else-if="item.status"
+                  color="orange"
+                  dark
+                  small
+                >
                   ⚠️ {{ item.status }}
                 </v-chip>
-                <v-chip v-else color="grey" small>
+                <v-chip
+                  v-else
+                  color="grey"
+                  small
+                >
                   ⏳ Checking...
                 </v-chip>
               </template>
 
-              <template v-slot:[`item.ms`]="{ item }">
+              <template #[`item.ms`]="{ item }">
                 <span v-if="item.ms">{{ item.ms }} ms</span>
               </template>
             </v-data-table>
@@ -97,7 +116,7 @@
     </v-card>
     <v-card
       class="mt-4"
-      flat
+      variant="flat"
     >
       <v-card-title>Error logs</v-card-title>
       <v-card-text>
@@ -106,7 +125,7 @@
             <v-textarea
               label="Error Logs"
               style="width:100%;"
-              filled
+              variant="filled"
               hide-details
               :value="errorLogs"
             />
@@ -154,11 +173,11 @@ export default {
     selectedSamples: [],
     loading: false,
     headers: [
-      { text: 'Endpoint', value: 'name' },
-      { text: 'URL', value: 'url' },
-      { text: 'Status', value: 'status' },
-      { text: 'Time (ms)', value: 'ms' },
-      { text: 'Bytes', value: 'bytes' }
+      { title: 'Endpoint', value: 'name' },
+      { title: 'URL', value: 'url' },
+      { title: 'Status', value: 'status' },
+      { title: 'Time (ms)', value: 'ms' },
+      { title: 'Bytes', value: 'bytes' }
     ],
     results: [],
     errorLogs: ''

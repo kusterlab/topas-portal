@@ -91,11 +91,11 @@ export default {
   methods: {
     filterByBatch () {
       if (this.selectedBatch !== null) {
-        this.dataGrid.filter([
+        this.dataGrid?.filter([
           ['Batch', '=', this.selectedBatch]
         ])
       } else {
-        this.dataGrid.filter(null)
+        this.dataGrid?.filter(null)
       }
     },
     onSelectionChanged: function (e) {

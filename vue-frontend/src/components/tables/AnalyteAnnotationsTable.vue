@@ -76,8 +76,9 @@ export default {
       this.$emit('onRowSelect', e.selectedRowKeys, e.selectedRowsData)
     },
     onGridReady (e) {
-      const items = e.component.getDataSource().items()
-      if (!items.length) return
+      const ds = e.component.getDataSource()
+      const items = ds?.items()
+      if (!items?.length) return
 
       const keys = Object.keys(items[0])
       const keySignature = keys.join('|')

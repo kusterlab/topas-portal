@@ -3,7 +3,7 @@
     fluid
     class="pa-0"
   >
-    <v-card flat>
+    <v-card variant="flat">
       <v-card-title>Data loading logs</v-card-title>
       <v-card-text>
         <v-row>
@@ -11,7 +11,7 @@
             <v-textarea
               label="Loading Logs"
               style="width:100%;"
-              filled
+              variant="filled"
               hide-details
               :value="infoLogs"
             />
@@ -33,7 +33,7 @@
     </v-card>
     <v-card
       class="mt-4"
-      flat
+      variant="flat"
     >
       <v-card-title>Error logs</v-card-title>
       <v-card-text>
@@ -42,7 +42,7 @@
             <v-textarea
               label="Error Logs"
               style="width:100%;"
-              filled
+              variant="filled"
               hide-details
               :value="errorLogs"
             />

@@ -1,12 +1,12 @@
 <template>
   <v-container fluid>
-    <v-row class="grey lighten-3">
+    <v-row class="bg-grey-lighten-3">
       <v-col
         sm="12"
         md="3"
         lg="2"
       >
-        <v-card flat>
+        <v-card variant="flat">
           <v-card-title
             tag="h1"
           >
@@ -20,7 +20,7 @@
                 class="float-left"
                 label="Password"
                 type="password"
-                @change="checkPassValidity"
+                @update:model-value="checkPassValidity"
               >
                 <template #append>
                   <v-icon
@@ -47,7 +47,7 @@
         md="9"
         lg="10"
       >
-        <v-card flat>
+        <v-card variant="flat">
           <v-card-text class="pa-0">
             <v-tabs
               v-model="tabs"

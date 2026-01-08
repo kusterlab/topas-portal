@@ -4,12 +4,12 @@
       v-model="cohortName"
       class="cohort"
       prepend-icon="mdi-database"
-      dense
-      outlined
+      density="default"
+      variant="outlined"
       hide-details
       :items="all_cohorts"
       label="Cohort"
-      @change="updateCohort"
+      @update:model-value="updateCohort"
     />
   </div>
 </template>

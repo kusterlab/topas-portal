@@ -5,7 +5,7 @@
       v-model="selectionMethod"
       color="primary"
       mandatory
-      dense
+      density="default"
       class="mb-0"
     >
       <v-btn value="metadata">
@@ -25,28 +25,28 @@
       v-if="selectionMethod === 'metadata'"
       v-model="metadataType"
       prepend-icon="mdi-account"
-      dense
-      outlined
+      density="default"
+      variant="outlined"
       hide-details
       auto-select-first
       :items="metaDatatypes"
       label="Metadata column"
-      @change="metaDataChanged"
+      @update:model-value="metaDataChanged"
     />
     <v-autocomplete
       v-if="selectionMethod === 'metadata'"
       v-model="metadataValuesSelected"
       prepend-icon="mdi-filter"
       class="mt-4"
-      dense
+      density="default"
       small-chips
-      outlined
+      variant="outlined"
       hide-details
       auto-select-first
       :multiple="true"
       :items="metadataTypeFields"
       label="Group of interest"
-      @change="metadataValuesSelectedChanged"
+      @update:model-value="metadataValuesSelectedChanged"
     />
     <v-textarea
       v-if="selectionMethod !== 'metadata'"
@@ -55,10 +55,10 @@
       :placeholder="textareaPlaceholder"
       :readonly="selectionMethod === 'table'"
       clearable
-      outlined
+      variant="outlined"
       hide-details
       height="120"
-      @change="updateSampleIdList"
+      @update:model-value="updateSampleIdList"
     />
   </div>
 </template>

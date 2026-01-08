@@ -3,9 +3,9 @@
     <v-autocomplete
       v-model="selectedPhosphopeptides"
       :items="allPhosphopeptides"
-      outlined
+      variant="outlined"
       prepend-icon="mdi-filter"
-      dense
+      density="default"
       hide-details
       auto-select-first
       :multiple="multiple"
@@ -13,7 +13,7 @@
       :small-chips="multiple"
       :label="label_or_datalayer"
       :loading="allPhosphopeptides.length === 0"
-      @change="updatePhosphopeptides"
+      @update:model-value="updatePhosphopeptides"
     />
   </div>
 </template>

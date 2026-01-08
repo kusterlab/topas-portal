@@ -3,8 +3,8 @@
     <v-autocomplete
       v-model="selectedTopasIds"
       class="topas mt-1"
-      dense
-      outlined
+      density="default"
+      variant="outlined"
       hide-details
       prepend-icon="mdi-filter"
       auto-select-first
@@ -14,7 +14,7 @@
       :small-chips="multiple"
       :deletable-chips="multiple"
       label="Select kinase"
-      @change="updateSelectedTopasIds"
+      @update:model-value="updateSelectedTopasIds"
     >
       <template #prepend-item>
         <v-list-item

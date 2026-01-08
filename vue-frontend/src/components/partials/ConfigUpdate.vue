@@ -1,5 +1,5 @@
 <template>
-  <v-card flat>
+  <v-card variant="flat">
     <v-card-text>
       <v-text-field
         :value="configPath"
@@ -9,12 +9,12 @@
         disabled
         hide-details
       />
-      <v-expansion-panels dense>
+      <v-expansion-panels density="default">
         <v-expansion-panel>
-          <v-expansion-panel-header class="mb-0 grey lighten-2">
+          <v-expansion-panel-title class="mb-0 grey lighten-2">
             Show config file
-          </v-expansion-panel-header>
-          <v-expansion-panel-content class="grey lighten-3">
+          </v-expansion-panel-title>
+          <v-expansion-panel-text class="bg-grey-lighten-3">
             <v-btn
               class="ma-2 float-right"
               color="primary"
@@ -25,7 +25,7 @@
               </v-icon>
             </v-btn>
             <pre>{{ configValue }}</pre>
-          </v-expansion-panel-content>
+          </v-expansion-panel-text>
         </v-expansion-panel>
       </v-expansion-panels>
       <v-btn
@@ -41,12 +41,12 @@
           <v-select
             v-if="updateMode"
             v-model="cohortName"
-            dense
-            outlined
+            density="default"
+            variant="outlined"
             hide-details
             :items="all_cohorts"
             label="Cohort"
-            @change="getcohortPath"
+            @update:model-value="getcohortPath"
           />
         </v-col>
         <v-col cols="1">

@@ -1,230 +1,234 @@
 <template>
-  <v-row class="pa-4 grey lighten-3">
-    <v-col
-      sm="12"
-      md="3"
-      lg="2"
-    >
-      <v-card flat>
-        <v-card-title
-          tag="h1"
-        >
-          Correlations
-        </v-card-title>
-        <v-card-text>
-          <cohort-select
-            @select-cohort="updateCohort"
-          />
-          <subcohort-select
-            class="mt-4"
-            :cohort-index="cohortIndex"
-            :sample-ids="customGroup"
-            @update-group="updateSampleGroup"
-            @update-selection-method="updateSelectionMethodGroup"
-          />
-          <v-radio-group
-            v-model="intensityUnit"
-            label="Intensity unit"
-            hide-details
+  <v-container fluid>
+    <v-row class="pa-4 bg-grey-lighten-3">
+      <v-col
+        sm="12"
+        md="3"
+        lg="2"
+      >
+        <v-card variant="flat">
+          <v-card-title
+            tag="h1"
           >
-            <v-radio
-              v-for="u in intensityUnits"
-              :key="u.value"
-              :label="u.text"
-              :value="u.value"
+            Correlations
+          </v-card-title>
+          <v-card-text>
+            <cohort-select
+              @select-cohort="updateCohort"
             />
-          </v-radio-group>
-        </v-card-text>
-      </v-card>
-      <v-card
-        flat
-        class="mt-4"
-      >
-        <v-card-title
-          tag="h1"
+            <subcohort-select
+              class="mt-4"
+              :cohort-index="cohortIndex"
+              :sample-ids="customGroup"
+              @update-group="updateSampleGroup"
+              @update-selection-method="updateSelectionMethodGroup"
+            />
+            <v-radio-group
+              v-model="intensityUnit"
+              label="Intensity unit"
+              hide-details
+              class="mt-4"
+            >
+              <v-radio
+                v-for="u in intensityUnits"
+                :key="u.value"
+                :label="u.title"
+                :value="u.value"
+              />
+            </v-radio-group>
+          </v-card-text>
+        </v-card>
+        <v-card
+          variant="flat"
+          class="mt-4"
         >
-          Select correlation inputs
-        </v-card-title>
-        <v-card-text>
-          <v-select
-            v-model="correlationInputType"
-            prepend-icon="mdi-filter"
-            :items="dataTypes"
-            label="Input type"
-            hide-details
-            outlined
-            dense
-            @change="jsonUrl = ''"
-          />
-          <phosphopeptide-select
-            v-if="correlationInputType === 'psite'"
-            :cohort-index="cohortIndex"
-            :data-layer="correlationInputType"
-            class="mt-4"
-            @select-phosphopeptide="updateIdentifier"
-          />
-          <topas-select
-            v-if="correlationInputType === 'topas'"
-            class="mt-4"
-            :cohort-index="cohortIndex"
-            @select-topas="updateIdentifier"
-          />
-          <protein-select
-            v-if="correlationInputType !== 'psite' && correlationInputType !== 'topas'"
-            :cohort-index="cohortIndex"
-            :data-layer="correlationInputType"
-            class="mt-4"
-            @select-protein="updateIdentifier"
-          />
-
-          <v-select
-            v-model="correlationType"
-            :items="dataTypes"
-            prepend-icon="mdi-filter"
-            label="Correlate against"
-            hide-details
-            dense
-            outlined
-            class="mt-4"
-            @change="jsonUrl = ''"
-          />
-
-          <v-btn
-            class="mt-4"
-            color="primary"
-            :loading="loading"
-            @click="loadCorrelation"
+          <v-card-title
+            tag="h1"
           >
-            Run Analysis
-          </v-btn>
-        </v-card-text>
-      </v-card>
-      <v-card
-        flat
-        class="mt-4"
-      >
-        <v-card-title>Help</v-card-title>
-        <v-card-text>
-          <v-expansion-panels>
-            <v-expansion-panel>
-              <v-expansion-panel-header class="mb-0">
-                Tab info
-              </v-expansion-panel-header>
-              <v-expansion-panel-content>
-                In this tab you can visualize correlations between proteins, phosphopeptides, mRNA-transcripts, TOPAS scores, protein phosphorylation scores and substrate phosphorylation scores.
-              </v-expansion-panel-content>
-            </v-expansion-panel>
-            <v-expansion-panel>
-              <v-expansion-panel-header class="mb-0">
-                How to use
-              </v-expansion-panel-header>
-              <v-expansion-panel-content>
-                To visualize the correlation for specific correlation partners, select one item in the upper table. In the lower table you can select specific samples to highlight them in the correlation plot. You can also click on individual data points in the correlation plot to display the corresponding sample. To remove samples where one correlation partner has not been detected/scored, uncheck the "Impute NA on plot" and click "Run analysis" again. You can also show a density distribution by checking the box next to "Show Density Distribution" and clicking on "Run analysis" again. To export plots, click the export button on the right handside above the plot.
-              </v-expansion-panel-content>
-            </v-expansion-panel>
-          </v-expansion-panels>
-        </v-card-text>
-      </v-card>
-    </v-col>
+            Select correlation inputs
+          </v-card-title>
+          <v-card-text>
+            <v-select
+              v-model="correlationInputType"
+              prepend-icon="mdi-filter"
+              :items="dataTypes"
+              label="Input type"
+              hide-details
+              variant="outlined"
+              density="default"
+              @update:model-value="jsonUrl = ''"
+            />
+            <phosphopeptide-select
+              v-if="correlationInputType === 'psite'"
+              :cohort-index="cohortIndex"
+              :data-layer="correlationInputType"
+              class="mt-4"
+              @select-phosphopeptide="updateIdentifier"
+            />
+            <topas-select
+              v-if="correlationInputType === 'topas'"
+              class="mt-4"
+              :cohort-index="cohortIndex"
+              @select-topas="updateIdentifier"
+            />
+            <protein-select
+              v-if="correlationInputType !== 'psite' && correlationInputType !== 'topas'"
+              :cohort-index="cohortIndex"
+              :data-layer="correlationInputType"
+              class="mt-4"
+              @select-protein="updateIdentifier"
+            />
 
-    <v-col
-      sm="12"
-      md="9"
-      lg="10"
-    >
-      <v-card flat>
-        <v-card-text>
-          <v-row>
-            <v-col
-              sm="12"
-              md="8"
-              lg="8"
+            <v-select
+              v-model="correlationType"
+              :items="dataTypes"
+              prepend-icon="mdi-filter"
+              label="Correlate against"
+              hide-details
+              density="default"
+              variant="outlined"
+              class="mt-4"
+              @update:model-value="jsonUrl = ''"
+            />
+
+            <v-btn
+              class="mt-4"
+              color="primary"
+              :loading="loading"
+              @click="loadCorrelation"
             >
-              <correlation-table
-                :data-source="jsonUrl"
-                :correlation-input-type="correlationInputType"
-                :correlation-type="correlationType"
-                @onRowSelect="updateSelectedRowsCorrelation"
-              />
-            </v-col>
-            <v-col
-              sm="12"
-              md="4"
-              lg="4"
-            >
-              <scatter-plot
-                v-if="jsonUrl !== ''"
-                id="correlationPlot"
-                :identifier1="identifier1"
-                :save-plot="true"
-                add-trendlinte="true"
-                :identifier2="identifier2"
-                :remove-owncolor="false"
-                :omics-type-x="correlationInputType.replace('topas','TOPAS score')"
-                :omics-type-y="correlationType.replace('topas','TOPAS score')"
-                :expressions1="expressionData1"
-                :expressions2="expressionData2"
-                :sel-ids="selectedSamples"
-                :score-type="plotScoreType"
-                :label-x="labelX"
-                :label-y="labelY"
-                class="mt-4"
-                @onDotSelect="selectDot"
-              />
-              <v-checkbox
-                v-if="jsonUrl !== ''"
-                v-model="doImpute"
-                hide-details
-                dense
-                label="Impute NA on Plot"
-                @change="fetchExpressionData"
-              />
-            </v-col>
-          </v-row>
-        </v-card-text>
-      </v-card>
-      <v-card
-        class="mt-4"
-        flat
+              Run Analysis
+            </v-btn>
+          </v-card-text>
+        </v-card>
+        <v-card
+          variant="flat"
+          class="mt-4"
+        >
+          <v-card-title>Help</v-card-title>
+          <v-card-text>
+            <v-expansion-panels>
+              <v-expansion-panel>
+                <v-expansion-panel-title class="mb-0">
+                  Tab info
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  In this tab you can visualize correlations between proteins, phosphopeptides, mRNA-transcripts, TOPAS scores, protein phosphorylation scores and substrate phosphorylation scores.
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+              <v-expansion-panel>
+                <v-expansion-panel-title class="mb-0">
+                  How to use
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  To visualize the correlation for specific correlation partners, select one item in the upper table. In the lower table you can select specific samples to highlight them in the correlation plot. You can also click on individual data points in the correlation plot to display the corresponding sample. To remove samples where one correlation partner has not been detected/scored, uncheck the "Impute NA on plot" and click "Run analysis" again. You can also show a density distribution by checking the box next to "Show Density Distribution" and clicking on "Run analysis" again. To export plots, click the export button on the right handside above the plot.
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+            </v-expansion-panels>
+          </v-card-text>
+        </v-card>
+      </v-col>
+
+      <v-col
+        sm="12"
+        md="9"
+        lg="10"
       >
-        <v-card-text>
-          <v-row>
-            <v-col
-              sm="12"
-              md="8"
-              lg="8"
-            >
-              <sample-table
-                :key="componentKey"
-                :data-source="sampleData"
-                :selected-patient="selectedDotsInPlot"
-                :x-axis="xaxisTable"
-                :y-axis="yaxisTable"
-                @onRowSelect="updateSelectedRowsSample"
-              />
-            </v-col>
-            <v-col
-              sm="12"
-              md="4"
-              lg="4"
-            >
-              <v-checkbox
-                v-model="Showdensity"
-                dense
-                label="Show Density Distribution"
-              />
-              <density-plot
-                v-if="Showdensity"
-                :save-plot="true"
-                :plot-data="densityData"
-                :title-variables="histPlottitleVariables"
-              />
-            </v-col>
-          </v-row>
-        </v-card-text>
-      </v-card>
-    </v-col>
-  </v-row>
+        <v-card variant="flat">
+          <v-card-text>
+            <v-row>
+              <v-col
+                sm="12"
+                md="8"
+                lg="8"
+              >
+                <correlation-table
+                  :data-source="jsonUrl"
+                  :correlation-input-type="correlationInputType"
+                  :correlation-type="correlationType"
+                  @onRowSelect="updateSelectedRowsCorrelation"
+                />
+              </v-col>
+              <v-col
+                sm="12"
+                md="4"
+                lg="4"
+              >
+                <scatter-plot
+                  v-if="jsonUrl !== ''"
+                  id="correlationPlot"
+                  :identifier1="identifier1"
+                  :save-plot="true"
+                  add-trendlinte="true"
+                  :identifier2="identifier2"
+                  :remove-owncolor="false"
+                  :omics-type-x="correlationInputType.replace('topas','TOPAS score')"
+                  :omics-type-y="correlationType.replace('topas','TOPAS score')"
+                  :expressions1="expressionData1"
+                  :expressions2="expressionData2"
+                  :sel-ids="selectedSamples"
+                  :score-type="plotScoreType"
+                  :label-x="labelX"
+                  :label-y="labelY"
+                  class="mt-4"
+                  @onDotSelect="selectDot"
+                />
+                <v-checkbox
+                  v-if="jsonUrl !== ''"
+                  v-model="doImpute"
+                  hide-details
+                  density="default"
+                  label="Impute NA on Plot"
+                  @update:model-value="fetchExpressionData"
+                />
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </v-card>
+        <v-card
+          class="mt-4"
+          variant="flat"
+        >
+          <v-card-text>
+            <v-row>
+              <v-col
+                sm="12"
+                md="8"
+                lg="8"
+              >
+                <sample-table
+                  :key="componentKey"
+                  :data-source="sampleData"
+                  :selected-patient="selectedDotsInPlot"
+                  :x-axis="xaxisTable"
+                  :y-axis="yaxisTable"
+                  @onRowSelect="updateSelectedRowsSample"
+                />
+              </v-col>
+              <v-col
+                sm="12"
+                md="4"
+                lg="4"
+              >
+                <v-checkbox
+                  v-model="Showdensity"
+                  density="default"
+                  label="Show Density Distribution"
+                  @update:model-value="fetchDensityData"
+                />
+                <density-plot
+                  v-if="Showdensity"
+                  :save-plot="true"
+                  :plot-data="densityData"
+                  :title-variables="histPlottitleVariables"
+                />
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
@@ -304,37 +308,37 @@ export default {
     plotScoreType: 'Z-score',
     intensityUnits: [
       {
-        text: 'Z-scores',
+        title: 'Z-scores',
         value: IntensityUnit.Z_SCORE
       },
       {
-        text: 'Intensity',
+        title: 'Intensity',
         value: IntensityUnit.INTENSITY
       }
     ],
     dataTypes: [
       {
-        text: 'Proteins',
+        title: 'Proteins',
         value: DataType.FULL_PROTEOME
       },
       {
-        text: 'Phosphopeptides',
+        title: 'Phosphopeptides',
         value: DataType.PHOSPHO_PROTEOME
       },
       {
-        text: 'Transcripts (FPKM)',
+        title: 'Transcripts (FPKM)',
         value: DataType.TRANSCRIPTOMICS
       },
       {
-        text: 'TOPAS scores',
+        title: 'TOPAS scores',
         value: DataType.TOPAS_RTK_SCORE
       },
       {
-        text: 'Protein Phoshphorylation scores',
+        title: 'Protein Phoshphorylation scores',
         value: DataType.PHOSPHO_SCORE
       },
       {
-        text: 'Substrate Phosphorylation scores',
+        title: 'Substrate Phosphorylation scores',
         value: DataType.KINASE_SCORE
       }
     ]

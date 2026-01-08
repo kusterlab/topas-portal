@@ -1,12 +1,12 @@
 <template>
   <v-container fluid>
-    <v-row class="grey lighten-3">
+    <v-row class="bg-grey-lighten-3">
       <v-col
         sm="12"
         md="3"
         lg="2"
       >
-        <v-card flat>
+        <v-card variant="flat">
           <v-card-title
             tag="h1"
           >
@@ -15,9 +15,9 @@
           <v-card-text>
             <v-text-field
               v-model="identifierDrug"
-              dense
+              density="default"
               persistent-hint
-              outlined
+              variant="outlined"
               hint="Use semicolons (;) for multiple targets"
               label="Kinase(s) to target"
               placeholder="EGFR;ERBB2"
@@ -29,40 +29,40 @@
               :items="sortFunctions"
               label="Sort by"
               hide-details
-              outlined
-              dense
+              variant="outlined"
+              density="default"
             />
           </v-card-text>
         </v-card>
         <!-- Collapsible Help Box -->
         <v-card
-          flat
+          variant="flat"
           class="mt-4"
         >
           <v-card-title>Help</v-card-title>
           <v-card-text>
             <v-expansion-panels>
               <v-expansion-panel>
-                <v-expansion-panel-header class="mb-0">
+                <v-expansion-panel-title class="mb-0">
                   Tab info
-                </v-expansion-panel-header>
-                <v-expansion-panel-content>
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
                   In this tab you can find candidate kinase inhibitors for a list of
                   kinases you want to target based on Kinobeads experiments (Klaeger et al. 2017, Science).
-                </v-expansion-panel-content>
+                </v-expansion-panel-text>
               </v-expansion-panel>
               <v-expansion-panel>
-                <v-expansion-panel-header class="mb-0">
+                <v-expansion-panel-title class="mb-0">
                   How to use
-                </v-expansion-panel-header>
-                <v-expansion-panel-content>
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
                   Input one or multiple kinases to target. The table will give you a
                   list of drugs that target all kinases of your input list. The table
                   will be sorted with the most potent drug for your target on top. If
                   you provide multiple kinases, you can choose to sort by the average,
                   median or minimum Kd of your chosen targets. You can put additional
                   filters on the table using the advanced filter box above the table.
-                </v-expansion-panel-content>
+                </v-expansion-panel-text>
               </v-expansion-panel>
             </v-expansion-panels>
           </v-card-text>
@@ -73,7 +73,7 @@
         md="9"
         lg="10"
       >
-        <v-card flat>
+        <v-card variant="flat">
           <v-card-text>
             <v-container fluid>
               <v-row>
@@ -102,7 +102,7 @@
                     :items-per-page="10"
                     :search="searchTarget"
                     :hide-default-footer="true"
-                    dense
+                    density="default"
                   >
                     <template #top>
                       <v-text-field
@@ -170,19 +170,19 @@ export default {
     sortFunction: 'mean',
     sortFunctions: [
       {
-        text: 'Average Kd value',
+        title: 'Average Kd value',
         value: 'mean'
       },
       {
-        text: 'Median Kd value',
+        title: 'Median Kd value',
         value: 'median'
       },
       {
-        text: 'Min Kd value',
+        title: 'Min Kd value',
         value: 'min'
       }
     ],
-    tableHeaders: [{ text: 'Target', value: 'Drug' }, { text: 'Kdapp', value: 'Kdapp' }],
+    tableHeaders: [{ title: 'Target', value: 'Drug' }, { title: 'Kdapp', value: 'Kdapp' }],
     searchTarget: '',
     tablePage: 1,
     barplotData: false,

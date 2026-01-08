@@ -37,7 +37,10 @@
           mdi-cloud-download
         </v-icon>
       </v-btn>
-      <v-row class="dense align-center">
+      <v-row
+        class="align-center"
+        dense
+      >
         <v-col
           cols="auto"
           class="p-0"
@@ -485,10 +488,10 @@ export default {
 
 }
 
-.v-text-field {
+/* .v-text-field {
   width: 400px;
 
-}
+} */
 .swarmbtn {
   width: 70px;
 

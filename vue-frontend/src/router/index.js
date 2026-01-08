@@ -1,5 +1,4 @@
-import Vue from 'vue'
-import Router from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import LandingPage from '@/components/LandingPage.vue'
 
 import AnalytesView from '@/views/AnalytesView.vue'
@@ -29,10 +28,8 @@ import CohortStatsComponent from '@/components/CohortStatsComponent.vue'
 import SettingsView from '@/views/SettingsView.vue'
 import AdminToolsComponent from '@/components/AdminToolsComponent.vue'
 
-Vue.use(Router)
-
-export default new Router({
-  mode: 'hash',
+export default createRouter({
+  history: createWebHashHistory(),
   base: process.env.NODE_ENV === 'production'
     ? '/master_topas-portal/'
     : '/',

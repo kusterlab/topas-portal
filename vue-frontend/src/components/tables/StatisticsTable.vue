@@ -179,8 +179,8 @@ export default {
         icon: 'pulldown',
         text: 'Reset table',
         onClick: () => {
-          this.dataGrid.clearFilter()
-          this.dataGrid.clearSelection()
+          this.dataGrid?.clearFilter()
+          this.dataGrid?.clearSelection()
         }
       }
     }
@@ -193,11 +193,11 @@ export default {
   methods: {
     filterBySamplename () {
       if (this.selectedProtein !== null) {
-        this.dataGrid.filter([
+        this.dataGrid?.filter([
           ['Gene Names', '=', this.selectedProtein]
         ])
       } else {
-        this.dataGrid.filter(null)
+        this.dataGrid?.filter(null)
       }
     },
     onSelectionChanged: function (e) {

@@ -1,78 +1,80 @@
 <template>
-  <v-row class="pa-4 grey lighten-3">
-    <v-col
-      sm="12"
-      md="3"
-      lg="2"
-    >
-      <v-card flat>
-        <v-card-title
-          tag="h1"
-        >
-          Protein/p-site annotations
-        </v-card-title>
-        <v-card-text>
-          <cohort-select
-            @select-cohort="updateCohort"
-          />
-          <v-radio-group
-            v-model="mode"
-            label="Input type"
-            hide-details
-            class="mt-4"
-          >
-            <v-radio
-              v-for="(label, value) in radioOptions"
-              :key="value"
-              :label="label"
-              :value="value"
-            />
-          </v-radio-group>
-        </v-card-text>
-      </v-card>
-      <v-card
-        flat
-        class="mt-4"
+  <v-container fluid>
+    <v-row class="pa-4 bg-grey-lighten-3">
+      <v-col
+        sm="12"
+        md="3"
+        lg="2"
       >
-        <v-card-title>Help</v-card-title>
-        <v-card-text>
-          <v-expansion-panels>
-            <v-expansion-panel>
-              <v-expansion-panel-header class="mb-0">
-                Tab info
-              </v-expansion-panel-header>
-              <v-expansion-panel-content>
-                In this tab you can search and filter for annotations of proteins and p-peptides.
-              </v-expansion-panel-content>
-            </v-expansion-panel>
-            <v-expansion-panel>
-              <v-expansion-panel-header class="mb-0">
-                How to use
-              </v-expansion-panel-header>
-              <v-expansion-panel-content>
-                Use the dropdown menus to select a cohort and the radio buttons to select an analyte type.
-              </v-expansion-panel-content>
-            </v-expansion-panel>
-          </v-expansion-panels>
-        </v-card-text>
-      </v-card>
-    </v-col>
+        <v-card variant="flat">
+          <v-card-title
+            tag="h1"
+          >
+            Protein/p-site annotations
+          </v-card-title>
+          <v-card-text>
+            <cohort-select
+              @select-cohort="updateCohort"
+            />
+            <v-radio-group
+              v-model="mode"
+              label="Input type"
+              hide-details
+              class="mt-4"
+            >
+              <v-radio
+                v-for="(label, value) in radioOptions"
+                :key="value"
+                :label="label"
+                :value="value"
+              />
+            </v-radio-group>
+          </v-card-text>
+        </v-card>
+        <v-card
+          variant="flat"
+          class="mt-4"
+        >
+          <v-card-title>Help</v-card-title>
+          <v-card-text>
+            <v-expansion-panels>
+              <v-expansion-panel>
+                <v-expansion-panel-title class="mb-0">
+                  Tab info
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  In this tab you can search and filter for annotations of proteins and p-peptides.
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+              <v-expansion-panel>
+                <v-expansion-panel-title class="mb-0">
+                  How to use
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  Use the dropdown menus to select a cohort and the radio buttons to select an analyte type.
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+            </v-expansion-panels>
+          </v-card-text>
+        </v-card>
+      </v-col>
 
-    <!-- Annotation Table Section -->
-    <v-col
-      sm="12"
-      md="9"
-      lg="10"
-    >
-      <v-card flat>
-        <v-card-text>
-          <patient-scores-table
-            :data-source="annotationUrl"
-          />
-        </v-card-text>
-      </v-card>
-    </v-col>
-  </v-row>
+      <!-- Annotation Table Section -->
+      <v-col
+        sm="12"
+        md="9"
+        lg="10"
+      >
+        <v-card variant="flat">
+          <v-card-text>
+            <patient-scores-table
+              :data-source="annotationUrl"
+            />
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>

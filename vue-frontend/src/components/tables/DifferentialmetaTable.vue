@@ -5,15 +5,15 @@
       placeholder="EGFR"
       class="mt-2"
       hide-details
-      outlined
-      dense
+      variant="outlined"
+      density="default"
       @change="updatePatientTable"
     />
 
     <v-checkbox
       v-model="advancedFilter"
       hide-details
-      dense
+      density="default"
       label="Advanced table filter"
     />
     <div
@@ -147,15 +147,15 @@ export default {
       return `${process.env.VUE_APP_API_HOST}/${this.cohortIndex}/patients/genomics_annotations/${this.genomicAlterationsGene}`
     },
     dataGrid: function () {
-      return this.$refs[this.dataGridRefName].instance
+      return this.$refs[this.dataGridRefName]?.instance
     },
     refreshButtonOptions () {
       return {
         icon: 'pulldown',
         text: 'Reset table',
         onClick: () => {
-          this.dataGrid.clearFilter()
-          this.dataGrid.clearSelection()
+          this.dataGrid?.clearFilter()
+          this.dataGrid?.clearSelection()
         }
       }
     }

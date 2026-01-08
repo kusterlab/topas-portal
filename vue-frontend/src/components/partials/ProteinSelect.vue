@@ -3,16 +3,16 @@
     <v-autocomplete
       v-model="selectedProteins"
       :items="allProteins"
-      outlined
+      variant="outlined"
       prepend-icon="mdi-filter"
-      dense
+      density="default"
       hide-details
       auto-select-first
       :multiple="multiple"
       :clearable="multiple"
       :small-chips="multiple"
       :label="label_or_datalayer"
-      @change="updateProteins"
+      @update:model-value="updateProteins"
     />
   </div>
 </template>

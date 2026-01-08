@@ -94,7 +94,7 @@ export default {
       common_fields: state => state.common_fields
     }),
     dataGrid: function () {
-      return this.$refs[this.dataGridRefName].instance
+      return this.$refs[this.dataGridRefName]?.instance
     },
     cookieAccepted () {
       return this.$store.state.cookieAccepted
@@ -105,8 +105,8 @@ export default {
         text: 'Reset table',
         onClick: () => {
           this.filterBySamplename(null)
-          this.dataGrid.clearFilter()
-          this.dataGrid.clearSelection()
+          this.dataGrid?.clearFilter()
+          this.dataGrid?.clearSelection()
         }
       }
     }
@@ -207,11 +207,11 @@ export default {
     },
     filterBySamplename (sample) {
       if (sample !== null) {
-        this.dataGrid.filter([
+        this.dataGrid?.filter([
           ['Sample name', '=', sample]
         ])
       } else {
-        this.dataGrid.filter(null)
+        this.dataGrid?.filter(null)
       }
     },
     onSelectionChanged: function (e) {
