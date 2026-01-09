@@ -3,14 +3,14 @@
     <v-row>
       <v-col sm="12" md="2" lg="2">
         <div id="selectedItems">
-          <v-text-field v-model="selectedBatch" value="" label="Selected Group" readonly />
+          <v-text-field v-model="selectedBatch" model-value="" label="Selected Group" readonly />
         </div>
         <div id="uniqSize">
-          <v-text-field v-model="uniqueSize" value="" label="# Unique" readonly />
+          <v-text-field v-model="uniqueSize" model-value="" label="# Unique" readonly />
           <v-text-field
             id="selected-size"
             v-model="selectedSize"
-            value=""
+            model-value=""
             label="# Selected"
             readonly
           />
@@ -19,7 +19,7 @@
       <v-col sm="12" md="5" lg="5">
         <v-btn class="ma-2 float-right" color="primary" @click="downloadSVG">
           SVG
-          <v-icon dark> mdi-cloud-download </v-icon>
+          <v-icon> mdi-cloud-download </v-icon>
         </v-btn>
         <div id="venn" />
       </v-col>

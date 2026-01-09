@@ -32,7 +32,7 @@ export default createStore({
       commit('ACCEPT_COOKIES')
     },
 
-    async fetchAllCohorts({ state, rootState }) {
+    async fetchAllCohorts({ state }) {
       if (state.loading) {
         return
       }
@@ -47,7 +47,7 @@ export default createStore({
       state.all_cohorts = finalIndex
       state.loading = false
     },
-    async fetchCommonFields({ state, rootState }) {
+    async fetchCommonFields({ state }) {
       if (state.loading_common_fields) {
         return
       }

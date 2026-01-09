@@ -89,7 +89,7 @@
               label="Color by Metadata"
               @update:model-value="loading = false"
             />
-            <v-btn class="primary mt-4" @click="updatePCA"> Generate plot </v-btn>
+            <v-btn class="bg-primary mt-4" @click="updatePCA"> Generate plot </v-btn>
           </v-card-text>
         </v-card>
         <v-card variant="flat" class="mt-4">
@@ -110,7 +110,7 @@
               />
             </v-radio-group>
 
-            <v-btn class="primary ma-2" :loading="loading" @click="updateSilhouette">
+            <v-btn class="bg-primary ma-2" :loading="loading" @click="updateSilhouette">
               Generate Silhouette
             </v-btn>
           </v-card-text>
@@ -276,7 +276,7 @@
       ...mapMutations({
         addNotification: 'notifications/addNotification'
       }),
-      updateCohort({ dataSource, cohortIndex }) {
+      updateCohort({ cohortIndex }) {
         this.cohortIndex = cohortIndex
       },
       async updateSilhouette() {

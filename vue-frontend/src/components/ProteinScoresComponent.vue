@@ -142,10 +142,10 @@
       ...mapMutations({
         addNotification: 'notifications/addNotification'
       }),
-      updateCohort({ dataSource, cohortIndex }) {
+      updateCohort({ cohortIndex }) {
         this.cohortIndex = cohortIndex
       },
-      updateProtein({ dataSource, identifier }) {
+      updateProtein({ identifier }) {
         this.proteinidentifier = identifier
       },
       updateId() {

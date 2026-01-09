@@ -111,10 +111,10 @@
     }),
     computed: {},
     methods: {
-      updateCohort({ dataSource, cohortIndex }) {
+      updateCohort({ cohortIndex }) {
         this.cohortIndex = cohortIndex
       },
-      updateKinase({ dataSource, identifier }) {
+      updateKinase({ identifier }) {
         this.activeKinase = identifier
         this.loading = true
         this.url = api.ABUNDANCE({

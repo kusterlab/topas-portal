@@ -2,6 +2,7 @@
   <div>
     <v-autocomplete
       v-model="selectedTopasIds"
+      label="Select kinase"
       class="topas mt-1"
       density="default"
       variant="outlined"
@@ -11,19 +12,16 @@
       :items="allTopasIds"
       :multiple="multiple"
       :clearable="multiple"
-      :small-chips="multiple"
-      :deletable-chips="multiple"
-      label="Select kinase"
+      :chips="multiple"
+      :closable-chips="multiple"
       @update:model-value="updateSelectedTopasIds"
     >
-      <template #prepend-item>
+      <template v-if="multiple" #prepend-item>
         <v-list-item v-show="multiple" ripple>
           <v-list-item-action>
-            <v-simple-checkbox :value="allSelected" :ripple="true" @click="selectAll" />
+            <v-checkbox v-model="allSelected" hide-details @update:model-value="selectAll" />
           </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Select All</v-list-item-title>
-          </v-list-item-content>
+          <v-list-item-title>Select All</v-list-item-title>
         </v-list-item>
         <v-divider v-show="multiple" />
       </template>

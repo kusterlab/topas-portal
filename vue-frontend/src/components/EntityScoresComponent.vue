@@ -64,7 +64,7 @@
     },
 
     methods: {
-      updateCohort({ dataSource, cohortIndex }) {
+      updateCohort({ cohortIndex }) {
         this.cohortIndex = cohortIndex
       },
       getScores() {

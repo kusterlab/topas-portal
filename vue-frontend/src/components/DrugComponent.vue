@@ -64,8 +64,7 @@
                 <v-col sm="12" md="2" lg="2">
                   <v-data-table
                     v-if="barplotData"
-                    sort-by="Kdapp"
-                    :sort-desc="false"
+                    :sort-by="[{ key: 'Kdapp', order: 'asc' }]"
                     :headers="tableHeaders"
                     :items="barplotData"
                     :page="tablePage"

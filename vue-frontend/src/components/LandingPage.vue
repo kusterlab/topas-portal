@@ -2,14 +2,14 @@
   <v-container fluid>
     <v-row class="pa-4 bg-grey-lighten-3">
       <v-col sm="12" md="9" lg="9">
-        <v-row class="pa-0 home-hero light lighten-4">
+        <v-row class="pa-0 home-hero" color="grey-lighten-4">
           <v-col cols="12">
             <div class="home-hero__banner d-flex align-left justify-left py-1">
               <v-container>
-                <h1 class="display-2 font-weight-bold black--text text-left mb-4">
+                <h1 class="text-h3 font-weight-bold text-black text-left mb-4">
                   Welcome to the TOPAS Portal
                 </h1>
-                <p class="text-h6 black--text text-left mb-6">
+                <p class="text-h6 text-black text-left mb-6">
                   A multi-omics resource for precision oncology. Explore data and tools for
                   proteomics, transcriptomics, and genomics.
                 </p>
@@ -24,12 +24,7 @@
               <v-card-text>
                 <v-skeleton-loader height="200" width="100%" type="image, list-item-two-line">
                   <v-responsive>
-                    <v-img
-                      src="@/assets/topas_scores.png"
-                      alt="Entity Image"
-                      height="200"
-                      contain
-                    />
+                    <v-img src="@/assets/topas_scores.png" alt="Entity Image" height="200" cover />
                   </v-responsive>
                 </v-skeleton-loader>
               </v-card-text>
@@ -41,12 +36,7 @@
               <v-card-text>
                 <v-skeleton-loader height="200" width="100%" type="image, list-item-two-line">
                   <v-responsive>
-                    <v-img
-                      src="@/assets/kinase_score.png"
-                      alt="Entity Image"
-                      height="200"
-                      contain
-                    />
+                    <v-img src="@/assets/kinase_score.png" alt="Entity Image" height="200" cover />
                   </v-responsive>
                 </v-skeleton-loader>
               </v-card-text>
@@ -58,7 +48,7 @@
               <v-card-text>
                 <v-skeleton-loader height="200" width="100%" type="image, list-item-two-line">
                   <v-responsive>
-                    <v-img src="@/assets/volcano.png" alt="Entity Image" height="200" contain />
+                    <v-img src="@/assets/volcano.png" alt="Entity Image" height="200" cover />
                   </v-responsive>
                 </v-skeleton-loader>
               </v-card-text>
@@ -74,7 +64,7 @@
                       src="@/assets/patient_report.png"
                       alt="Entity Image"
                       height="200"
-                      contain
+                      cover
                     />
                   </v-responsive>
                 </v-skeleton-loader>

@@ -73,17 +73,16 @@
       <v-col sm="12" md="5" lg="6">
         <v-card variant="flat" :loading="heatmapIsLoading" :disabled="heatmapIsLoading">
           <v-card-text>
-            <v-tooltip bottom>
-              <template #activator="{ on, attrs }">
+            <v-tooltip location="bottom">
+              <template #activator="{ props }">
                 <v-btn
-                  v-bind="attrs"
                   class="ma-2"
                   color="primary"
                   :disabled="!heatmapHasData"
                   @click="downloadCSV"
-                  v-on="on"
+                  v-bind="props"
                 >
-                  <v-icon dark> mdi-table-arrow-down </v-icon>
+                  <v-icon> mdi-table-arrow-down </v-icon>
                 </v-btn>
               </template>
               <span>Download as CSV</span>
@@ -225,10 +224,10 @@
     },
     mounted() {},
     methods: {
-      updateCohort({ dataSource, cohortIndex }) {
+      updateCohort({ cohortIndex }) {
         this.cohortIndex = cohortIndex
       },
-      updateIdentifier({ dataSource, identifier }) {
+      updateIdentifier({ identifier }) {
         this.identifier = identifier
         this.updateHeatmap()
       },

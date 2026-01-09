@@ -1,7 +1,8 @@
 import js from '@eslint/js'
 import vue from 'eslint-plugin-vue'
+import vuetify from 'eslint-plugin-vuetify'
 import parser from '@typescript-eslint/parser'
-import love from 'eslint-config-love'
+// import love from 'eslint-config-love'
 import globals from 'globals'
 
 export default [
@@ -24,11 +25,22 @@ export default [
 
   js.configs.recommended,
   ...vue.configs['flat/essential'],
-  love,
+  ...vuetify.configs['flat/base'],
+  // love,
 
   {
     files: ['**/*.+(js|vue|jsx)'],
     rules: {
+      'no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^e|_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+          destructuredArrayIgnorePattern: '^_'
+        }
+      ],
+
       'no-console': 'warn',
       'vue/multi-word-component-names': 'off',
       'vue/no-v-text-v-html-on-component': 'off'

@@ -178,7 +178,7 @@
         this.multiGroupPlotSelectedPatients = selectedPatients
         this.multiGroupPlotSelectedColor = value.colorCode
       },
-      updateCohort({ dataSource, cohortIndex }) {
+      updateCohort({ cohortIndex }) {
         this.cohortIndex = cohortIndex
       },
       async getTopasData() {

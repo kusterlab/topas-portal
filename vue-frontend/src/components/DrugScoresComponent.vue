@@ -32,7 +32,6 @@
               variant="outlined"
               density="default"
               chips
-              small-chips
               label="Filter by entities"
               multiple
               @update:model-value="updateId('drug')"
@@ -124,7 +123,7 @@
       this.swarmSelIds = []
     },
     methods: {
-      updateCohort({ dataSource, cohortIndex }) {
+      updateCohort({ cohortIndex }) {
         this.cohortIndex = cohortIndex
       },
       updatePatientDrugLists() {

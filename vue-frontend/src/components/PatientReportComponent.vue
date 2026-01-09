@@ -212,8 +212,8 @@
                   </v-tabs>
 
                   <v-divider />
-                  <v-tabs-items v-model="type">
-                    <v-tab-item value="tumor">
+                  <v-tabs-window v-model="type">
+                    <v-tabs-window-item value="tumor">
                       <v-card variant="flat" min-height="400px">
                         <v-card-text>
                           <div class="chart-container">
@@ -231,9 +231,9 @@
                           </div>
                         </v-card-text>
                       </v-card>
-                    </v-tab-item>
+                    </v-tabs-window-item>
 
-                    <v-tab-item value="rtk">
+                    <v-tabs-window-item value="rtk">
                       <v-card variant="flat" min-height="400px">
                         <v-card-text>
                           <div class="chart-container">
@@ -251,9 +251,9 @@
                           </div>
                         </v-card-text>
                       </v-card>
-                    </v-tab-item>
+                    </v-tabs-window-item>
 
-                    <v-tab-item value="cknk">
+                    <v-tabs-window-item value="cknk">
                       <v-card variant="flat" min-height="400px">
                         <v-card-text>
                           <div class="chart-container">
@@ -271,9 +271,9 @@
                           </div>
                         </v-card-text>
                       </v-card>
-                    </v-tab-item>
+                    </v-tabs-window-item>
 
-                    <v-tab-item value="immune">
+                    <v-tabs-window-item value="immune">
                       <v-card variant="flat" min-height="400px">
                         <v-card-text>
                           <div class="chart-container">
@@ -291,9 +291,9 @@
                           </div>
                         </v-card-text>
                       </v-card>
-                    </v-tab-item>
+                    </v-tabs-window-item>
 
-                    <v-tab-item value="prodict">
+                    <v-tabs-window-item value="prodict">
                       <v-card variant="flat" min-height="400px">
                         <v-card-text>
                           <v-row>
@@ -330,42 +330,42 @@
                           </v-row>
                         </v-card-text>
                       </v-card>
-                    </v-tab-item>
-                  </v-tabs-items>
-                  <!-- <v-tabs-items v-model="type">
-                    <v-tab-item value="tumor">
+                    </v-tabs-window-item>
+                  </v-tabs-window>
+                  <!-- <v-tabs-window v-model="type">
+                    <v-tabs-window-item value="tumor">
                       <v-card variant="flat" min-height="400px">
                         <v-card-text>
                           <img v-if="firstPatient" :src="api.TUMOR_ANTIGENS_SWARM_PLOT({cohort_index: this.cohortIndex, patient: this.firstPatient})" />
                         </v-card-text>
                       </v-card>
-                    </v-tab-item>
+                    </v-tabs-window-item>
 
-                    <v-tab-item value="rtk">
+                    <v-tabs-window-item value="rtk">
                       <v-card variant="flat" min-height="400px">
                         <v-card-text>
                           <img v-if="firstPatient" :src="api.RTKS_SWARM_PLOT({cohort_index: this.cohortIndex, patient: this.firstPatient})" />
                         </v-card-text>
                       </v-card>
-                    </v-tab-item>
+                    </v-tabs-window-item>
 
-                    <v-tab-item value="cknk">
+                    <v-tabs-window-item value="cknk">
                       <v-card variant="flat" min-height="400px">
                         <v-card-text>
                           <img v-if="firstPatient" :src="api.CKS_NKS_SWARM_PLOT({cohort_index: this.cohortIndex, patient: this.firstPatient})" />
                         </v-card-text>
                       </v-card>
-                    </v-tab-item>
+                    </v-tabs-window-item>
 
-                    <v-tab-item value="immune">
+                    <v-tabs-window-item value="immune">
                       <v-card variant="flat" min-height="400px">
                         <v-card-text>
                           <img v-if="firstPatient" :src="api.IMMUNE_STATUS_HEATMAP({cohort_index: this.cohortIndex, patient: this.firstPatient})" />
                         </v-card-text>
                       </v-card>
-                    </v-tab-item>
+                    </v-tabs-window-item>
 
-                    <v-tab-item value="prodict">
+                    <v-tabs-window-item value="prodict">
                       <v-card variant="flat" min-height="400px">
                         <v-card-text>
                           <v-row>
@@ -378,8 +378,8 @@
                           </v-row>
                         </v-card-text>
                       </v-card>
-                    </v-tab-item>
-                  </v-tabs-items> -->
+                    </v-tabs-window-item>
+                  </v-tabs-window> -->
                 </v-card-text>
               </v-card>
             </v-col>
@@ -541,7 +541,7 @@
       ...mapMutations({
         addNotification: 'notifications/addNotification'
       }),
-      updateCohort({ dataSource, cohortIndex }) {
+      updateCohort({ cohortIndex }) {
         this.cohortIndex = cohortIndex
       },
       toggleDiv(type) {

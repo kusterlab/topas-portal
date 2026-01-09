@@ -15,8 +15,8 @@
                 @update:model-value="checkPassValidity"
               >
                 <template #append>
-                  <v-icon v-if="isLoggedIn" color="green darken-2"> mdi-check-circle </v-icon>
-                  <v-icon v-if="!isLoggedIn" color="red darken-2"> mdi-minus-circle </v-icon>
+                  <v-icon v-if="isLoggedIn" color="green-darken-2"> mdi-check-circle </v-icon>
+                  <v-icon v-if="!isLoggedIn" color="red-darken-2"> mdi-minus-circle </v-icon>
                 </template>
               </v-text-field>
             </div>
@@ -31,24 +31,24 @@
                 {{ item }}
               </v-tab>
             </v-tabs>
-            <v-tabs-items v-model="tabs">
-              <v-tab-item class="tab">
+            <v-tabs-window v-model="tabs">
+              <v-tabs-window-item class="tab">
                 <config-update />
-              </v-tab-item>
-              <v-tab-item class="tab">
+              </v-tabs-window-item>
+              <v-tabs-window-item class="tab">
                 <error-log />
-              </v-tab-item>
-              <v-tab-item class="tab">
+              </v-tabs-window-item>
+              <v-tabs-window-item class="tab">
                 <integration-test />
-              </v-tab-item>
-              <v-tab-item class="tab">
+              </v-tabs-window-item>
+              <v-tabs-window-item class="tab">
                 <v-card>
                   <v-card-text>
                     <config-table :data-source="PathvalidationUrl" />
                   </v-card-text>
                 </v-card>
-              </v-tab-item>
-            </v-tabs-items>
+              </v-tabs-window-item>
+            </v-tabs-window>
           </v-card-text>
         </v-card>
       </v-col>

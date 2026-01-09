@@ -1,7 +1,7 @@
 <template>
   <div id="densityplot">
     <v-btn v-if="savePlot" class="ma-2" color="primary" @click="downloadSVG">
-      <v-icon dark> mdi-cloud-download </v-icon>
+      <v-icon> mdi-cloud-download </v-icon>
     </v-btn>
   </div>
 </template>

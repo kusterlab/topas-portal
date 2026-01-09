@@ -1,7 +1,7 @@
 <template>
   <div v-if="plotData" :id="lollipopId" class="lollipopchart">
     <v-btn v-if="savePlot" class="ma-2" color="primary" @click="downloadSVG">
-      <v-icon dark> mdi-cloud-download </v-icon>
+      <v-icon> mdi-cloud-download </v-icon>
     </v-btn>
   </div>
 </template>

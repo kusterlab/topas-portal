@@ -1,28 +1,26 @@
 <template>
   <v-snackbar
-    top
-    right
-    :value="hasNotifications"
+    location="top right"
+    :model-value="hasNotifications"
     color="transparent"
-    elevation="0"
+    class="elevation-0 notification-container"
     timeout="-1"
-    class="notification-container"
   >
     <v-snackbar
       v-for="(n, i) in notifications"
       :key="i"
       :timeout="n.timeout || -1"
       :color="n.color || 'info'"
-      :value="true"
-      right
+      :model-value="true"
+      location="right"
       class="notification-item"
       :style="{ 'padding-bottom': 0, 'padding-top': 0 }"
-      @input="dismissNotification(i)"
+      @update:model-value="dismissNotification(i)"
     >
       {{ n.message }}
       <template #action>
-        <v-btn text class="mt-3" @click="dismissNotification(i)">
-          <v-icon left> mdi-close </v-icon>
+        <v-btn variant="text" class="mt-3" @click="dismissNotification(i)">
+          <v-icon start> mdi-close </v-icon>
           Dismiss
         </v-btn>
       </template>

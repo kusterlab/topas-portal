@@ -231,7 +231,7 @@
       ...mapMutations({
         addNotification: 'notifications/addNotification'
       }),
-      updateCohort({ dataSource, cohortIndex }) {
+      updateCohort({ cohortIndex }) {
         this.cohortIndex = cohortIndex
       },
       async doTest() {

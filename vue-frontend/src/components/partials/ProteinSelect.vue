@@ -10,7 +10,7 @@
       auto-select-first
       :multiple="multiple"
       :clearable="multiple"
-      :small-chips="multiple"
+      :chips="multiple"
       :label="label_or_datalayer"
       @update:model-value="updateProteins"
     />

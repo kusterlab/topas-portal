@@ -6,7 +6,7 @@
       color="primary"
       @click="downloadSVG"
     >
-      <v-icon dark> mdi-cloud-download </v-icon>
+      <v-icon> mdi-cloud-download </v-icon>
     </v-btn>
   </div>
 </template>

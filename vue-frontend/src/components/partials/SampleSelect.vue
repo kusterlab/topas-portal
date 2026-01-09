@@ -30,11 +30,11 @@
       prepend-icon="mdi-filter"
       class="mt-4"
       density="default"
-      small-chips
       variant="outlined"
       hide-details
       auto-select-first
-      :multiple="true"
+      multiple
+      chips
       :items="metadataTypeFields"
       label="Group of interest"
       @update:model-value="metadataValuesSelectedChanged"
@@ -48,7 +48,7 @@
       clearable
       variant="outlined"
       hide-details
-      height="120"
+      rows="4"
       @update:model-value="updateSampleIdList"
     />
   </v-row>
@@ -93,7 +93,7 @@
           }
           return this.sampleIds.join('\n')
         },
-        set: function (newValue) {}
+        set: function () {}
       },
       textareaPlaceholder: function () {
         if (this.selectionMethod === 'table') {

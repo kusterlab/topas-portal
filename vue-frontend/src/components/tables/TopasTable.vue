@@ -7,7 +7,7 @@
       :allow-column-reordering="true"
       :allow-column-resizing="true"
       :row-alternation-enabled="true"
-      :selection="{ mode: 'multiple', allowSelectAll: true }"
+      :selection="{ mode: 'multiple', allowSelectAll: true, showCheckBoxesMode: 'always' }"
       :show-borders="true"
       :scrolling="{ useNative: true }"
       column-resizing-mode="widget"

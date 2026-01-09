@@ -18,7 +18,7 @@
                 v-for="u in intensityUnits"
                 :key="u.value"
                 :label="u.title"
-                :value="u.value"
+                :model-value="u.value"
               />
             </v-radio-group>
           </v-card-text>
@@ -324,7 +324,7 @@
       }
     },
     methods: {
-      updateCohort({ dataSource, cohortIndex }) {
+      updateCohort({ cohortIndex }) {
         this.cohortIndex = cohortIndex
       },
       updateIdentifier({ dataSource, identifier }) {

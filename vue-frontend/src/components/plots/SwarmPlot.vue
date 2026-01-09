@@ -2,15 +2,15 @@
   <div id="container">
     <div :id="swarmId">
       <v-btn class="ma-2" color="primary" @click="reDrawPlot">
-        <v-icon dark> mdi-pencil </v-icon>
+        <v-icon> mdi-pencil </v-icon>
       </v-btn>
 
       <v-btn class="ma-2" color="primary" @click="resetPlot">
-        <v-icon dark> mdi-refresh </v-icon>
+        <v-icon> mdi-refresh </v-icon>
       </v-btn>
 
       <v-btn v-if="savePlot" class="ma-2" color="primary" @click="downloadSVG">
-        <v-icon dark> mdi-cloud-download </v-icon>
+        <v-icon> mdi-cloud-download </v-icon>
       </v-btn>
       <v-row class="align-center" dense>
         <v-col cols="auto" class="p-0">
@@ -26,7 +26,6 @@
             v-model="colorCode"
             hide-inputs
             hide-canvas
-            light
             swatches-max-height="50"
             width="300"
           />
@@ -97,14 +96,16 @@
         default: undefined
       }
     },
-    data: () => ({
-      colorCode: '',
-      ticksIntervals: 5,
-      patientGroup: '',
-      LegendY: 40,
-      scatterPoints: [],
-      legendArray: []
-    }),
+    data() {
+      return {
+        colorCode: '#ff0000',
+        ticksIntervals: 5,
+        patientGroup: '',
+        LegendY: 40,
+        scatterPoints: [],
+        legendArray: []
+      }
+    },
     watch: {
       swarmData: function () {
         this.initSwarm()
@@ -145,7 +146,6 @@
           dataSet.forEach(element => {
             dataBoxplot.push(element[fieldOfTable])
           })
-
           const dataSorted = dataBoxplot.sort(d3.ascending)
           const q1 = d3.quantile(dataSorted, 0.25)
           const median = d3.quantile(dataSorted, 0.5)
@@ -253,7 +253,7 @@
       },
 
       manualLegendAdd: function (svg) {
-        if ((this.patientGroup.length > 0) & (this.colorCode.length > 0)) {
+        if ((this.patientGroup.length > 0) & this.colorCode) {
           const legend = {}
           legend.color = this.colorCode
           legend.group = this.patientGroup
@@ -394,7 +394,7 @@
         const dataSet = this.scatterPoints
         this.$emit('selectedCells', {
           colorCode: this.colorCode,
-          selectedPatiens: this.swarmSelIds
+          selectedSamples: this.swarmSelIds
         })
         if (this.swarmSelIds.length > 0) {
           this.swarmSelIds.forEach(element => {

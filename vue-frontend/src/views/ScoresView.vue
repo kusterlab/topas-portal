@@ -2,19 +2,19 @@
   <div>
     <v-tabs show-arrows>
       <v-tab
-        v-for="(item, index) in items"
+        v-for="(item, index) in allTabs"
         :key="item.path"
         :to="item.path"
         :exact="index === 0"
         :text="item.label"
       />
-      <v-tab
+      <!-- <v-tab
         v-for="item in customitems"
         v-show="customitemsStatus"
         :key="item.path"
         :to="item.path"
         :text="item.label"
-      />
+      /> -->
     </v-tabs>
 
     <router-view />
@@ -36,6 +36,11 @@
       customitems: [{ label: 'Entity Scores', path: '/entityscores' }],
       customitemsStatus: false
     }),
+    computed: {
+      allTabs() {
+        return [...this.items, ...(this.customitemsStatus ? this.customitems : [])]
+      }
+    },
     mounted() {
       this.getEntityscoresstatus()
     },

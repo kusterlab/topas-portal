@@ -18,7 +18,7 @@
                 v-for="(label, value) in radioOptions"
                 :key="value"
                 :label="label"
-                :value="value"
+                :model-value="value"
               />
             </v-radio-group>
             <v-radio-group
@@ -61,7 +61,7 @@
               :readonly="true"
               variant="outlined"
               hide-details
-              height="120"
+              rows="4"
             />
           </v-card-text>
         </v-card>
@@ -331,15 +331,15 @@
       selectDot(value) {
         this.selectedDotsInPlot = value
       },
-      updateProtein({ dataSource, identifier }) {
+      updateProtein({ identifier }) {
         this.identifier = identifier
         this.updateId()
       },
-      updatePhosphopeptide({ dataSource, identifier }) {
+      updatePhosphopeptide({ identifier }) {
         this.identifier = identifier
         this.updateId()
       },
-      updateCohort({ dataSource, cohortIndex }) {
+      updateCohort({ cohortIndex }) {
         this.cohortIndex = cohortIndex
       },
       updateId() {

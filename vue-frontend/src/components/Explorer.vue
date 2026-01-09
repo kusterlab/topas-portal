@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-main>
-      <v-toolbar color="primary" dark>
+      <v-toolbar color="primary">
         <v-tabs show-arrows>
           <v-tab v-for="item in items" :key="item.path" :to="item.path">
             <template v-if="item.useSvg">
@@ -29,7 +29,7 @@
             </template>
 
             <template v-else>
-              <v-icon left>
+              <v-icon start>
                 {{ item.icon }}
               </v-icon>
             </template>

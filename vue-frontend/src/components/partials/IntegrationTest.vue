@@ -57,12 +57,12 @@
               density="default"
             >
               <template #[`item.status`]="{ item }">
-                <v-chip v-if="item.status === 200" color="green" dark small> ✅ 200 OK </v-chip>
-                <v-chip v-else-if="item.status === 'ERR'" color="red" dark small> ❌ ERR </v-chip>
-                <v-chip v-else-if="item.status" color="orange" dark small>
+                <v-chip v-if="item.status === 200" color="green" size="small"> ✅ 200 OK </v-chip>
+                <v-chip v-else-if="item.status === 'ERR'" color="red" size="small"> ❌ ERR </v-chip>
+                <v-chip v-else-if="item.status" color="orange" size="small">
                   ⚠️ {{ item.status }}
                 </v-chip>
-                <v-chip v-else color="grey" small> ⏳ Checking... </v-chip>
+                <v-chip v-else color="grey" size="small"> ⏳ Checking... </v-chip>
               </template>
 
               <template #[`item.ms`]="{ item }">
@@ -83,12 +83,12 @@
               style="width: 100%"
               variant="filled"
               hide-details
-              :value="errorLogs"
+              :model-value="errorLogs"
             />
           </v-col>
           <v-col cols="1">
             <v-btn color="primary" @click="updateErrorLogs">
-              <v-icon dark> mdi-refresh </v-icon>
+              <v-icon> mdi-refresh </v-icon>
             </v-btn>
           </v-col>
         </v-row>
@@ -150,7 +150,7 @@
         const response = await axios.get(`${import.meta.env.VITE_API_HOST}/integration/logs`)
         this.logValue = response.data.replace(/topas_separator/g, '\n')
       },
-      updateCohort({ dataSource, cohortIndex }) {
+      updateCohort({ cohortIndex }) {
         this.cohortIndex = cohortIndex
       },
       updateSampleGroup(sampleIdList) {
@@ -302,19 +302,19 @@
             const byteLength = buffer.byteLength
 
             // Update this one endpoint in-place
-            this.$set(this.results, i, {
+            this.results[i] = {
               ...ep,
               status: res.status,
               ms: Math.round(end - start),
               bytes: byteLength
-            })
+            }
           } catch (err) {
-            this.$set(this.results, i, {
+            this.results[i] = {
               ...ep,
               status: 'ERR',
               ms: null,
               bytes: null
-            })
+            }
           }
         })
 

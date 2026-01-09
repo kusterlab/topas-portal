@@ -1,14 +1,14 @@
 <template>
   <div id="container">
     <v-btn v-if="savePlot" class="ma-2" color="primary" @click="downloadSVG">
-      <v-icon dark> mdi-cloud-download </v-icon>
+      <v-icon> mdi-cloud-download </v-icon>
     </v-btn>
     <v-btn class="ma-2" color="primary" @click="resetDotColors">
-      <v-icon dark> mdi-refresh </v-icon>
+      <v-icon> mdi-refresh </v-icon>
     </v-btn>
 
     <v-btn class="ma-2" color="primary" @click="changetheseSamplescolors">
-      <v-icon dark> mdi-pencil </v-icon>
+      <v-icon> mdi-pencil </v-icon>
     </v-btn>
     <v-row>
       <v-col width="50%">

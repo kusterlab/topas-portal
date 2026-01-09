@@ -29,7 +29,6 @@
               v-model="activeBatches"
               :items="allPossibleBatches"
               variant="outlined"
-              small-chips
               density="default"
               hide-details
               clearable
@@ -45,9 +44,9 @@
         <v-card variant="flat" class="mt-4">
           <v-card-title tag="h1"> Custom input </v-card-title>
           <v-card-text>
-            <v-tooltip top>
-              <template #activator="{ on, attrs }">
-                <input v-bind="attrs" ref="docreader" type="file" @change="readFile" v-on="on" />
+            <v-tooltip location="top">
+              <template #activator="{ props }">
+                <input ref="docreader" type="file" @change="readFile" v-bind="props" />
               </template>
               <span
                 >Upload a comma delimited file with two columns<br />
@@ -122,7 +121,7 @@
       this.getBatchlist()
     },
     methods: {
-      updateCohort({ dataSource, cohortIndex }) {
+      updateCohort({ cohortIndex }) {
         this.cohortIndex = cohortIndex
       },
       async readFile() {

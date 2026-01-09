@@ -215,13 +215,13 @@
       ...mapMutations({
         addNotification: 'notifications/addNotification'
       }),
-      updateCohort({ dataSource, cohortIndex }) {
+      updateCohort({ cohortIndex }) {
         this.cohortIndex = cohortIndex
       },
-      updateProtein({ dataSource, identifier }) {
+      updateProtein({ identifier }) {
         this.identifier = identifier
       },
-      updatePhosphopeptide({ dataSource, identifier }) {
+      updatePhosphopeptide({ identifier }) {
         this.identifier = identifier
       },
       updateSampleGroup(selectedPatients) {
@@ -230,7 +230,7 @@
       updateMetadataType(metadataType) {
         this.metadataType = metadataType
       },
-      updateTopas({ dataSource, identifier }) {
+      updateTopas({ identifier }) {
         this.identifier = identifier
       },
       selectDot(value) {

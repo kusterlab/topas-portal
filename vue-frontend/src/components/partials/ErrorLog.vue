@@ -10,12 +10,12 @@
               style="width: 100%"
               variant="filled"
               hide-details
-              :value="infoLogs"
+              :model-value="infoLogs"
             />
           </v-col>
           <v-col cols="1">
             <v-btn color="primary" @click="updateInfoLogs">
-              <v-icon dark> mdi-refresh </v-icon>
+              <v-icon> mdi-refresh </v-icon>
             </v-btn>
           </v-col>
         </v-row>
@@ -31,12 +31,12 @@
               style="width: 100%"
               variant="filled"
               hide-details
-              :value="errorLogs"
+              :model-value="errorLogs"
             />
           </v-col>
           <v-col cols="1">
             <v-btn color="primary" @click="updateErrorLogs">
-              <v-icon dark> mdi-refresh </v-icon>
+              <v-icon> mdi-refresh </v-icon>
             </v-btn>
           </v-col>
         </v-row>

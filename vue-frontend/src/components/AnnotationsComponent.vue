@@ -11,7 +11,7 @@
                 v-for="(label, value) in radioOptions"
                 :key="value"
                 :label="label"
-                :value="value"
+                :model-value="value"
               />
             </v-radio-group>
           </v-card-text>
@@ -81,7 +81,7 @@
       ...mapMutations({
         addNotification: 'notifications/addNotification'
       }),
-      updateCohort({ dataSource, cohortIndex }) {
+      updateCohort({ cohortIndex }) {
         this.cohortIndex = cohortIndex
       }
     }

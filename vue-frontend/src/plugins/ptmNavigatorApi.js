@@ -17,7 +17,7 @@ const ptmnApi = {
     return 'ABCDEF0123456789ABCDEF0123456789'
   },
 
-  async refreshSessionId(uuid) {
+  async refreshSessionId(_) {
     return 'ABCDEF0123456789ABCDEF0123456789'
   },
 

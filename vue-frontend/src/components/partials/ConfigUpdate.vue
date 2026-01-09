@@ -2,7 +2,7 @@
   <v-card variant="flat">
     <v-card-text>
       <v-text-field
-        :value="configPath"
+        :model-value="configPath"
         style="width: 100%; white-space: nowrap; overflow-x: auto"
         label="Portal config file"
         readonly
@@ -11,12 +11,12 @@
       />
       <v-expansion-panels density="default">
         <v-expansion-panel>
-          <v-expansion-panel-title class="mb-0 grey lighten-2">
+          <v-expansion-panel-title class="mb-0 bg-grey-lighten-2">
             Show config file
           </v-expansion-panel-title>
           <v-expansion-panel-text class="bg-grey-lighten-3">
             <v-btn class="ma-2 float-right" color="primary" @click="showConfig">
-              <v-icon dark> mdi-refresh </v-icon>
+              <v-icon> mdi-refresh </v-icon>
             </v-btn>
             <pre>{{ configValue }}</pre>
           </v-expansion-panel-text>
@@ -24,7 +24,7 @@
       </v-expansion-panels>
       <v-btn
         v-if="updateMode"
-        class="mt-4 primary"
+        class="mt-4 bg-primary"
         :loading="!showUpdateCohorts"
         @click="reloadCohort((allCohorts = true))"
       >
@@ -45,17 +45,23 @@
         </v-col>
         <v-col cols="1">
           <v-dialog v-model="dialog" max-width="600px">
-            <template #activator="{ on, attrs }">
-              <v-btn v-bind="attrs" fab x-small dark hide-details color="green darken-2" v-on="on">
-                <v-icon>mdi-plus</v-icon>
-              </v-btn>
+            <template #activator="{ props }">
+              <v-btn
+                icon="mdi-plus"
+                size="x-small"
+                hide-details
+                color="green-darken-2"
+                v-bind="props"
+              />
             </template>
             <v-card>
               <v-card-title> Add new cohort </v-card-title>
               <v-card-text>
                 <v-text-field v-model="newCohortName" style="width: 1000px" label="Cohort name" />
-                <v-btn color="blue darken-1" text @click="addCohort"> Add to config file </v-btn>
-                <v-btn class="ml-4" color="blue darken-1" text @click="dialog = false">
+                <v-btn color="blue-darken-1" variant="text" @click="addCohort">
+                  Add to config file
+                </v-btn>
+                <v-btn class="ml-4" color="blue-darken-1" variant="text" @click="dialog = false">
                   Cancel
                 </v-btn>
               </v-card-text>
@@ -109,7 +115,7 @@
         </v-col>
       </v-row>
       <v-btn
-        class="mt-4 primary"
+        class="mt-4 bg-primary"
         :loading="!showUpdateCohorts"
         :disabled="cohortName.length === 0"
         @click="reloadCohort((allCohorts = false))"
