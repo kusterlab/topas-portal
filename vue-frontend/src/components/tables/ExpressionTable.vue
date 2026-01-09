@@ -21,10 +21,7 @@
       @selection-changed="onSelectionChanged"
       @content-ready="onTableReady"
     >
-      <DxExport
-        :enabled="true"
-        :allow-export-selected-data="true"
-      />
+      <DxExport :enabled="true" :allow-export-selected-data="true" />
       <DxFilterRow :visible="true" />
 
       <DxPager
@@ -42,205 +39,215 @@
           widget="dxButton"
           :options="refreshButtonOptions"
         />
-        <DxItem
-          name="exportButton"
-        />
-        <DxItem
-          name="columnChooserButton"
-        />
+        <DxItem name="exportButton" />
+        <DxItem name="columnChooserButton" />
       </DxToolbar>
     </DxDataGrid>
   </div>
 </template>
 <script>
-import {
-  DxDataGrid,
-  DxPager,
-  DxExport,
-  DxPaging,
-  DxFilterRow,
-  DxToolbar,
-  DxItem
-} from 'devextreme-vue/data-grid'
-import 'devextreme/dist/css/dx.light.css'
-import { mapState } from 'vuex'
-
-export default {
-  components: {
+  import {
     DxDataGrid,
-    DxExport,
     DxPager,
+    DxExport,
     DxPaging,
     DxFilterRow,
     DxToolbar,
     DxItem
-  },
-  props: {
-    dataSource: undefined,
-    selectedPatient: {
-      type: String,
-      default: null
-    }
-  },
-  data () {
-    return {
-      pageSizes: [15, 25, 50, 100],
-      dataGridRefName: 'dataGrid',
-      expressionFields: undefined
-    }
-  },
-  computed: {
-    ...mapState({
-      common_fields: state => state.common_fields
-    }),
-    dataGrid: function () {
-      return this.$refs[this.dataGridRefName]?.instance
-    },
-    cookieAccepted () {
-      return this.$store.state.cookieAccepted
-    },
-    refreshButtonOptions () {
-      return {
-        icon: 'pulldown',
-        text: 'Reset table',
-        onClick: () => {
-          this.filterBySamplename(null)
-          this.dataGrid?.clearFilter()
-          this.dataGrid?.clearSelection()
-        }
-      }
-    }
-  },
-  watch: {
-    selectedPatient: function () {
-      this.filterBySamplename(this.selectedPatient)
-    }
-  },
-  created () {
-    this.gettableFields()
-  },
-  methods: {
+  } from 'devextreme-vue/data-grid'
+  import 'devextreme/dist/css/dx.light.css'
+  import { mapState } from 'vuex'
 
-    saveGridState (state) {
-      if (this.cookieAccepted) {
-        const minimalState = {
-          columns: state.columns
-        }
-        localStorage.setItem('gridStateExpression', JSON.stringify(minimalState))
+  export default {
+    components: {
+      DxDataGrid,
+      DxExport,
+      DxPager,
+      DxPaging,
+      DxFilterRow,
+      DxToolbar,
+      DxItem
+    },
+    props: {
+      dataSource: undefined,
+      selectedPatient: {
+        type: String,
+        default: null
       }
     },
-    loadGridState () {
-      if (this.cookieAccepted) {
-        const savedState = localStorage.getItem('gridStateExpression')
-        return savedState ? JSON.parse(savedState) : null
+    data() {
+      return {
+        pageSizes: [15, 25, 50, 100],
+        dataGridRefName: 'dataGrid',
+        expressionFields: undefined
       }
     },
-    async gettableFields () {
-      this.expressionFields = [...[{
-        dataField: 'Sample name',
-        dataType: 'string',
-        visibleIndex: 0,
-        width: '170'
+    computed: {
+      ...mapState({
+        common_fields: state => state.common_fields
+      }),
+      dataGrid: function () {
+        return this.$refs[this.dataGridRefName]?.instance
       },
-      {
-        dataField: 'Rank',
-        dataType: 'number',
-        width: '50'
-      }, {
-        dataField: 'Occurrence',
-        dataType: 'number',
-        width: '50'
-      }, {
-        dataField: 'FC',
-        dataType: 'number',
-        format: { type: 'fixedPoint', precision: 2 },
-        width: '60'
-      }, {
-        dataField: 'Z-score',
-        dataType: 'number',
-        format: { type: 'fixedPoint', precision: 2 },
-        width: '70'
-      }, {
-        dataField: 'Intensity',
-        dataType: 'number',
-        format: { type: 'fixedPoint', precision: 2 },
-        width: '70'
-      }, {
-        dataField: 'num_pep',
-        dataType: 'number',
-        width: '40'
-      }, {
-        dataField: 'genomics_annotations',
-        dataType: 'string',
-        width: '120',
-        visible: false
-      }, {
-        dataField: 'snv',
-        dataType: 'string',
-        width: '120'
-      }, {
-        dataField: 'cnv',
-        dataType: 'string',
-        width: '120'
-      }, {
-        dataField: 'fusion',
-        dataType: 'string',
-        width: '120'
-      }, {
-        dataField: 'fusion_onkoKB',
-        dataType: 'string',
-        width: '120'
-      }, {
-        dataField: 'cnv_onkoKB',
-        dataType: 'string',
-        width: '120'
-      }, {
-        dataField: 'snv_onkoKB',
-        dataType: 'string',
-        width: '120'
-      }, {
-        dataField: 'confidence_score',
-        dataType: 'number',
-        format: { type: 'fixedPoint', precision: 2 },
-        width: '60'
-      }], ...this.common_fields]
-    },
-    filterBySamplename (sample) {
-      if (sample !== null) {
-        this.dataGrid?.filter([
-          ['Sample name', '=', sample]
-        ])
-      } else {
-        this.dataGrid?.filter(null)
+      cookieAccepted() {
+        return this.$store.state.cookieAccepted
+      },
+      refreshButtonOptions() {
+        return {
+          icon: 'pulldown',
+          text: 'Reset table',
+          onClick: () => {
+            this.filterBySamplename(null)
+            this.dataGrid?.clearFilter()
+            this.dataGrid?.clearSelection()
+          }
+        }
       }
     },
-    onSelectionChanged: function (e) {
-      this.$emit('onRowSelect', e.selectedRowKeys, e.selectedRowsData)
+    watch: {
+      selectedPatient: function () {
+        this.filterBySamplename(this.selectedPatient)
+      }
     },
-    onTableReady () {
-      this.$emit('table-ready', { dataSource: this.dataSource })
+    created() {
+      this.gettableFields()
+    },
+    methods: {
+      saveGridState(state) {
+        if (this.cookieAccepted) {
+          const minimalState = {
+            columns: state.columns
+          }
+          localStorage.setItem('gridStateExpression', JSON.stringify(minimalState))
+        }
+      },
+      loadGridState() {
+        if (this.cookieAccepted) {
+          const savedState = localStorage.getItem('gridStateExpression')
+          return savedState ? JSON.parse(savedState) : null
+        }
+      },
+      async gettableFields() {
+        this.expressionFields = [
+          ...[
+            {
+              dataField: 'Sample name',
+              dataType: 'string',
+              visibleIndex: 0,
+              width: '170'
+            },
+            {
+              dataField: 'Rank',
+              dataType: 'number',
+              width: '50'
+            },
+            {
+              dataField: 'Occurrence',
+              dataType: 'number',
+              width: '50'
+            },
+            {
+              dataField: 'FC',
+              dataType: 'number',
+              format: { type: 'fixedPoint', precision: 2 },
+              width: '60'
+            },
+            {
+              dataField: 'Z-score',
+              dataType: 'number',
+              format: { type: 'fixedPoint', precision: 2 },
+              width: '70'
+            },
+            {
+              dataField: 'Intensity',
+              dataType: 'number',
+              format: { type: 'fixedPoint', precision: 2 },
+              width: '70'
+            },
+            {
+              dataField: 'num_pep',
+              dataType: 'number',
+              width: '40'
+            },
+            {
+              dataField: 'genomics_annotations',
+              dataType: 'string',
+              width: '120',
+              visible: false
+            },
+            {
+              dataField: 'snv',
+              dataType: 'string',
+              width: '120'
+            },
+            {
+              dataField: 'cnv',
+              dataType: 'string',
+              width: '120'
+            },
+            {
+              dataField: 'fusion',
+              dataType: 'string',
+              width: '120'
+            },
+            {
+              dataField: 'fusion_onkoKB',
+              dataType: 'string',
+              width: '120'
+            },
+            {
+              dataField: 'cnv_onkoKB',
+              dataType: 'string',
+              width: '120'
+            },
+            {
+              dataField: 'snv_onkoKB',
+              dataType: 'string',
+              width: '120'
+            },
+            {
+              dataField: 'confidence_score',
+              dataType: 'number',
+              format: { type: 'fixedPoint', precision: 2 },
+              width: '60'
+            }
+          ],
+          ...this.common_fields
+        ]
+      },
+      filterBySamplename(sample) {
+        if (sample !== null) {
+          this.dataGrid?.filter([['Sample name', '=', sample]])
+        } else {
+          this.dataGrid?.filter(null)
+        }
+      },
+      onSelectionChanged: function (e) {
+        this.$emit('onRowSelect', e.selectedRowKeys, e.selectedRowsData)
+      },
+      onTableReady() {
+        this.$emit('table-ready', { dataSource: this.dataSource })
+      }
     }
   }
-}
 </script>
 
 <style>
-#grid {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
-}
+  #grid {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
 
-.selected-data {
-  margin-top: 20px;
-  padding: 20px;
-  background-color: rgba(191, 191, 191, 0.15);
-}
+  .selected-data {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: rgba(191, 191, 191, 0.15);
+  }
 
-.selected-data .caption {
-  font-weight: bold;
-  font-size: 115%;
-  margin-right: 4px;
-}
-
+  .selected-data .caption {
+    font-weight: bold;
+    font-size: 115%;
+    margin-right: 4px;
+  }
 </style>

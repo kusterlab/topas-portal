@@ -1,8 +1,6 @@
 <template>
   <div>
-    <v-tabs
-      show-arrows
-    >
+    <v-tabs show-arrows>
       <v-tab
         v-for="(item, index) in items"
         :key="item.path"
@@ -24,41 +22,38 @@
 </template>
 
 <script>
-import axios from 'axios'
-import { mapMutations } from 'vuex'
+  import axios from 'axios'
+  import { mapMutations } from 'vuex'
 
-export default {
-  data: () => ({
-    imagesrc: require('@/assets/topas_logo.png'),
-    items: [
-      { label: 'Topas Scores', path: '/topasscores' },
-      { label: 'Substrate Phosph. Scores', path: '/kinasescores' },
-      { label: 'Protein Phosph. Scores', path: '/proteinscores' },
-      { label: 'Subcohort z-scores', path: '/zscores' }
-    ],
-    customitems: [
-      { label: 'Entity Scores', path: '/entityscores' }
-    ],
-    customitemsStatus: false
-  }),
-  mounted () {
-    this.getEntityscoresstatus()
-  },
-  methods: {
-    ...mapMutations({
-      addNotification: 'notifications/addNotification'
+  export default {
+    data: () => ({
+      items: [
+        { label: 'Topas Scores', path: '/topasscores' },
+        { label: 'Substrate Phosph. Scores', path: '/kinasescores' },
+        { label: 'Protein Phosph. Scores', path: '/proteinscores' },
+        { label: 'Subcohort z-scores', path: '/zscores' }
+      ],
+      customitems: [{ label: 'Entity Scores', path: '/entityscores' }],
+      customitemsStatus: false
     }),
-    async getEntityscoresstatus () {
-      try {
-        const response = await axios.get(`${process.env.VUE_APP_API_HOST}/entityscore/status`)
-        this.customitemsStatus = response.data === 1
-      } catch (error) {
-        this.addNotification({
-          color: 'error',
-          message: 'Error: No connection to backend'
-        })
+    mounted() {
+      this.getEntityscoresstatus()
+    },
+    methods: {
+      ...mapMutations({
+        addNotification: 'notifications/addNotification'
+      }),
+      async getEntityscoresstatus() {
+        try {
+          const response = await axios.get(`${import.meta.env.VITE_API_HOST}/entityscore/status`)
+          this.customitemsStatus = response.data === 1
+        } catch (error) {
+          this.addNotification({
+            color: 'error',
+            message: 'Error: No connection to backend'
+          })
+        }
       }
     }
   }
-}
 </script>

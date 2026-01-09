@@ -30,66 +30,57 @@ import AdminToolsComponent from '@/components/AdminToolsComponent.vue'
 
 export default createRouter({
   history: createWebHashHistory(),
-  base: process.env.NODE_ENV === 'production'
-    ? '/master_topas-portal/'
-    : '/',
+  base: process.env.NODE_ENV === 'production' ? '/master_topas-portal/' : '/',
   routes: [
     { path: '/', component: LandingPage },
     {
       path: '/analytes',
       component: AnalytesView,
       redirect: '/abundance',
-      children:
-        [
-          { path: '/abundance', component: AbundanceComponent },
-          { path: '/annotations', component: AnnotationsComponent }
-        ]
+      children: [
+        { path: '/abundance', component: AbundanceComponent },
+        { path: '/annotations', component: AnnotationsComponent }
+      ]
     },
     {
       path: '/scores',
       component: ScoresView,
-      children:
-        [
-          { path: '/topasscores', component: TopasComponent },
-          { path: '/kinasescores', component: KinaseComponent },
-          { path: '/proteinscores', component: PproteinComponent },
-          { path: '/entityscores', component: EntityComponent },
-          { path: '/zscores', component: ZscoringComponent }
-        ]
+      children: [
+        { path: '/topasscores', component: TopasComponent },
+        { path: '/kinasescores', component: KinaseComponent },
+        { path: '/proteinscores', component: PproteinComponent },
+        { path: '/entityscores', component: EntityComponent },
+        { path: '/zscores', component: ZscoringComponent }
+      ]
     },
     {
       path: '/analytics',
       component: AnalyticsView,
       redirect: '/correlation',
-      children:
-        [
-          { path: '/correlation', component: CorrelationComponent },
-          { path: '/pca', component: PCAComponent },
-          { path: '/differential', component: DifferentialComponent },
-          { path: '/heatmap', component: HeatmapComponent },
-          { path: '/venn', component: VennComponent },
-          { path: '/kinobeads', component: KinobeadsComponent },
-          { path: '/ptmnavigator', component: PTMNavigatorComponent }
-        ]
+      children: [
+        { path: '/correlation', component: CorrelationComponent },
+        { path: '/pca', component: PCAComponent },
+        { path: '/differential', component: DifferentialComponent },
+        { path: '/heatmap', component: HeatmapComponent },
+        { path: '/venn', component: VennComponent },
+        { path: '/kinobeads', component: KinobeadsComponent },
+        { path: '/ptmnavigator', component: PTMNavigatorComponent }
+      ]
     },
     {
       path: '/patient',
       component: PatientView,
       redirect: '/patient-report',
-      children:
-        [
-          { path: '/patient-report', component: PatientReportComponent },
-          { path: '/cohort-stats', component: CohortStatsComponent }
-        ]
+      children: [
+        { path: '/patient-report', component: PatientReportComponent },
+        { path: '/cohort-stats', component: CohortStatsComponent }
+      ]
     },
     {
       path: '/settings',
       component: SettingsView,
       redirect: '/admin-tools',
-      children:
-        [
-          { path: '/admin-tools', component: AdminToolsComponent }
-        ]
+      children: [{ path: '/admin-tools', component: AdminToolsComponent }]
     }
   ]
 })

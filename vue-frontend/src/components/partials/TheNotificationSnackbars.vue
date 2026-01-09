@@ -9,26 +9,20 @@
     class="notification-container"
   >
     <v-snackbar
-      v-for="(n,i) in notifications"
+      v-for="(n, i) in notifications"
       :key="i"
       :timeout="n.timeout || -1"
       :color="n.color || 'info'"
       :value="true"
       right
       class="notification-item"
-      :style="{'padding-bottom': 0, 'padding-top': 0}"
+      :style="{ 'padding-bottom': 0, 'padding-top': 0 }"
       @input="dismissNotification(i)"
     >
       {{ n.message }}
       <template #action>
-        <v-btn
-          text
-          class="mt-3"
-          @click="dismissNotification(i)"
-        >
-          <v-icon left>
-            mdi-close
-          </v-icon>
+        <v-btn text class="mt-3" @click="dismissNotification(i)">
+          <v-icon left> mdi-close </v-icon>
           Dismiss
         </v-btn>
       </template>
@@ -37,27 +31,27 @@
 </template>
 
 <script>
-import { mapState, mapMutations, mapGetters } from 'vuex'
+  import { mapState, mapMutations, mapGetters } from 'vuex'
 
-export default {
-  computed: {
-    ...mapState({
-      /** @returns {any[]} */
-      notifications: state => state.notifications.notifications
-    }),
-    ...mapGetters({
-      hasNotifications: 'notifications/hasNotifications'
-    })
-  },
-  methods: {
-    ...mapMutations({
-      dismissNotification: 'notifications/dismissNotification'
-    })
+  export default {
+    computed: {
+      ...mapState({
+        /** @returns {any[]} */
+        notifications: state => state.notifications.notifications
+      }),
+      ...mapGetters({
+        hasNotifications: 'notifications/hasNotifications'
+      })
+    },
+    methods: {
+      ...mapMutations({
+        dismissNotification: 'notifications/dismissNotification'
+      })
+    }
   }
-}
 </script>
 
-  <style lang="scss">
+<style lang="scss">
   .notification-container {
     & > .v-snack__wrapper > .v-snack__content {
       padding: 0;
@@ -68,4 +62,4 @@ export default {
       height: auto;
     }
   }
-  </style>
+</style>

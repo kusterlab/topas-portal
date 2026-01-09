@@ -1,6 +1,5 @@
 const memberships = {
-
-  getMemFunc (num) {
+  getMemFunc(num) {
     /* makes all possible binary combinations for the input number
       for example if num = 3 it generates
         [
@@ -13,7 +12,7 @@ const memberships = {
         [ 1, 1, 1 ]
         ]
     */
-    function areAllCharactersTheSame (word) {
+    function areAllCharactersTheSame(word) {
       // returns true if all characters of word are identical: for example areAllCharactersTheSame(111) returns true
       let ansWer = true
       for (let i = 0; i < word.length; i++) {
@@ -24,13 +23,13 @@ const memberships = {
       return ansWer
     }
 
-    function addLeadingZeros (num, totalLength) {
+    function addLeadingZeros(num, totalLength) {
       // adds zero before the num to make the size to totalLength
       // i.e. addLeadingZeros(1,3) will return 001
-      return (String(num).padStart(totalLength, '0'))
+      return String(num).padStart(totalLength, '0')
     }
 
-    function dec2Binary (numInt) {
+    function dec2Binary(numInt) {
       // takes to binary i.e dec2Binary(2) = 10
       return (numInt >>> 0).toString(2)
     }
@@ -51,35 +50,36 @@ const memberships = {
       listComb.push(innerList)
       innerList = []
 
-      if (areAllCharactersTheSame(comB)) { // when all characters are the same like 111 the loop should end
+      if (areAllCharactersTheSame(comB)) {
+        // when all characters are the same like 111 the loop should end
         conDition = false
       }
       counTer++
     }
-    return (listComb)
+    return listComb
   },
-  getIntersection (listA, listB) {
+  getIntersection(listA, listB) {
     // items overlapping in both lists
     const setA = new Set(listA)
     const setB = new Set(listB)
-    const intersection = new Set(
-      [...setA].filter(element => setB.has(element))
-    )
+    const intersection = new Set([...setA].filter(element => setB.has(element)))
     return [...intersection]
   },
-  getDifference (listA, listB) {
+  getDifference(listA, listB) {
     // items which are in A but not in B
-    const diff = listA.filter(function (x) { return listB.indexOf(x) < 0 })
+    const diff = listA.filter(x => listB.indexOf(x) < 0)
     return diff
   },
-  getProteinList (plotSet, id) {
+  getProteinList(plotSet, id) {
     // take the whole dataset as plotSet and one group id and returns all elements which belong to group id
     const grp = plotSet.filter(element => element.group === id)
     const grpProteins = []
-    grp.forEach(element => { grpProteins.push(element.sample) })
+    grp.forEach(element => {
+      grpProteins.push(element.sample)
+    })
     return grpProteins
   },
-  getUniqList (plotSet) {
+  getUniqList(plotSet) {
     // gettig the unique of the  group names in plotSet
     const uniquegroups = []
     plotSet.filter(element => {

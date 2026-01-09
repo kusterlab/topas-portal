@@ -1,9 +1,10 @@
 <template>
   <DxDataGrid
+    :key="gridRefKey"
     :data-source="dataSource"
     :remote-operations="false"
     :row-alternation-enabled="true"
-    :selection="{ mode: 'single'}"
+    :selection="{ mode: 'single' }"
     :show-borders="true"
     :allow-column-resizing="true"
     :scrolling="{ useNative: true }"
@@ -11,9 +12,7 @@
     @selection-changed="onSelectionChanged"
   >
     <DxFilterRow :visible="true" />
-    <DxExport
-      :enabled="true"
-    />
+    <DxExport :enabled="true" />
 
     <DxColumn
       data-field="index"
@@ -21,17 +20,8 @@
       caption="Gene / Modified sequence"
       :width="400"
     />
-    <DxColumn
-      data-field="rank"
-      data-type="number"
-      :min-width="50"
-    />
-    <DxColumn
-      data-field="num_patients"
-      data-type="number"
-      caption="#patients"
-      :min-width="75"
-    />
+    <DxColumn data-field="rank" data-type="number" :min-width="50" />
+    <DxColumn data-field="num_patients" data-type="number" caption="#patients" :min-width="75" />
     <DxColumn
       data-field="p-value"
       data-type="number"
@@ -86,54 +76,54 @@
   </DxDataGrid>
 </template>
 <script>
-
-import {
-  DxDataGrid,
-  DxColumn,
-  DxPager,
-  DxPaging,
-  DxExport,
-  DxFilterRow
-} from 'devextreme-vue/data-grid'
-
-import 'devextreme/dist/css/dx.light.css'
-
-export default {
-  components: {
+  import {
     DxDataGrid,
     DxColumn,
     DxPager,
-    DxExport,
     DxPaging,
+    DxExport,
     DxFilterRow
-  },
-  props: {
-    dataSource: undefined,
-    correlationInputType: {
-      type: String,
-      default: ''
+  } from 'devextreme-vue/data-grid'
+
+  import 'devextreme/dist/css/dx.light.css'
+
+  export default {
+    components: {
+      DxDataGrid,
+      DxColumn,
+      DxPager,
+      DxExport,
+      DxPaging,
+      DxFilterRow
     },
-    correlationType: {
-      type: String,
-      default: ''
-    }
-  },
-  data () {
-    return {
-      pageSizes: [10, 25, 50, 100]
-    }
-  },
-  methods: {
-    onSelectionChanged: function (e) {
-      this.$emit('onRowSelect', e.selectedRowKeys, e.selectedRowsData)
+    props: {
+      dataSource: undefined,
+      correlationInputType: {
+        type: String,
+        default: ''
+      },
+      correlationType: {
+        type: String,
+        default: ''
+      }
     },
-    formatThreeSignificant: function (value) {
-      if (Math.abs(value) < 1e-3) {
-        return value.toExponential(2)
-      } else {
-        return value.toFixed(3)
+    data() {
+      return {
+        gridRefKey: 'correlationTable',
+        pageSizes: [10, 25, 50, 100]
+      }
+    },
+    methods: {
+      onSelectionChanged: function (e) {
+        this.$emit('onRowSelect', e.selectedRowKeys, e.selectedRowsData)
+      },
+      formatThreeSignificant: function (value) {
+        if (Math.abs(value) < 1e-3) {
+          return value.toExponential(2)
+        } else {
+          return value.toFixed(3)
+        }
       }
     }
   }
-}
 </script>

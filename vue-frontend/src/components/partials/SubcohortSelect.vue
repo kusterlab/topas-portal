@@ -1,30 +1,18 @@
 <template>
-  <div>
+  <v-row class="ma-1">
     <v-btn-toggle
       v-model="allPatients"
       color="primary"
       mandatory
+      class="flex-grow-1"
+      style="min-width: 0"
       hide-details
       density="compact"
     >
-      <v-btn
-        value="cohort"
-        class="mb-0"
-        tile
-      >
-        Full cohort
-      </v-btn>
-      <v-btn
-        value="subcohort"
-        class="mb-0"
-        tile
-      >
-        Subcohort
-      </v-btn>
+      <v-btn value="cohort" class="mb-0 flex-grow-1 text-no-wrap"> Full </v-btn>
+      <v-btn value="subcohort" class="mb-0 flex-grow-1 text-no-wrap"> Sub </v-btn>
     </v-btn-toggle>
-    <v-container
-      v-if="allPatients === 'subcohort'"
-    >
+    <v-container v-if="allPatients === 'subcohort'">
       <sample-select
         :cohort-index="cohortIndex"
         :sample-ids="sampleIds"
@@ -33,68 +21,66 @@
         @update-selection-method="updateSelectionMethodGroup"
       />
     </v-container>
-  </div>
+  </v-row>
 </template>
 <script>
-import SampleSelect from './SampleSelect.vue'
+  import SampleSelect from './SampleSelect.vue'
 
-export default {
-  name: 'SubcohortSelect',
-  components: {
-    SampleSelect
-  },
-  props: {
-    cohortIndex: {
-      type: Number,
-      default: -1
+  export default {
+    name: 'SubcohortSelect',
+    components: {
+      SampleSelect
     },
-    sampleIds: {
-      type: Array,
-      default: () => []
-    },
-    showTableSelect: {
-      type: Boolean,
-      default: false
-    }
-  },
-  data: () => ({
-    allPatients: 'cohort',
-    customGroup: [],
-    selectionMethod: 'none'
-  }),
-  computed: {
-  },
-  watch: {
-    allPatients: function () {
-      this.emitGroup()
-      this.emitSelectionMethod()
-    }
-  },
-  mounted () {
-  },
-  methods: {
-    updateSampleGroup (data) {
-      if (this.allPatients === 'cohort') {
-        this.customGroup = []
-      } else {
-        this.customGroup = data
+    props: {
+      cohortIndex: {
+        type: Number,
+        default: -1
+      },
+      sampleIds: {
+        type: Array,
+        default: () => []
+      },
+      showTableSelect: {
+        type: Boolean,
+        default: false
       }
-      this.emitGroup()
     },
-    updateSelectionMethodGroup (data) {
-      if (this.allPatients === 'cohort') {
-        this.selectionMethod = 'none'
-      } else {
-        this.selectionMethod = data
+    data: () => ({
+      allPatients: 'cohort',
+      customGroup: [],
+      selectionMethod: 'none'
+    }),
+    computed: {},
+    watch: {
+      allPatients: function () {
+        this.emitGroup()
+        this.emitSelectionMethod()
       }
-      this.emitSelectionMethod()
     },
-    emitGroup () {
-      this.$emit('update-group', this.customGroup)
-    },
-    emitSelectionMethod () {
-      this.$emit('update-selection-method', this.selectionMethod)
+    mounted() {},
+    methods: {
+      updateSampleGroup(data) {
+        if (this.allPatients === 'cohort') {
+          this.customGroup = []
+        } else {
+          this.customGroup = data
+        }
+        this.emitGroup()
+      },
+      updateSelectionMethodGroup(data) {
+        if (this.allPatients === 'cohort') {
+          this.selectionMethod = 'none'
+        } else {
+          this.selectionMethod = data
+        }
+        this.emitSelectionMethod()
+      },
+      emitGroup() {
+        this.$emit('update-group', this.customGroup)
+      },
+      emitSelectionMethod() {
+        this.$emit('update-selection-method', this.selectionMethod)
+      }
     }
   }
-}
 </script>

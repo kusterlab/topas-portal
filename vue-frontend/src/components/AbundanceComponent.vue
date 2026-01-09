@@ -2,34 +2,18 @@
   <v-container fluid>
     <v-row class="bg-grey-lighten-3">
       <!-- Sidebar Section -->
-      <v-col
-        sm="12"
-        md="3"
-        lg="2"
-      >
-        <v-card
-          variant="flat"
-          class="mb-4"
-        >
-          <v-card-title tag="h1">
-            Protein/p-site abundance
-          </v-card-title>
+      <v-col sm="12" md="3" lg="2">
+        <v-card variant="flat" class="mb-4">
+          <v-card-title tag="h1"> Protein/p-site abundance </v-card-title>
           <v-card-text>
-            <cohort-select
-              @select-cohort="updateCohort"
-            />
+            <cohort-select @select-cohort="updateCohort" />
             <v-checkbox
               v-model="includeRefChannels"
               label="Include ref channels"
               density="default"
               hide-details
             />
-            <v-radio-group
-              v-model="mode"
-              label="Input type"
-              hide-details
-              class="mt-4"
-            >
+            <v-radio-group v-model="mode" label="Input type" hide-details class="mt-4">
               <v-radio
                 v-for="(label, value) in radioOptions"
                 :key="value"
@@ -43,22 +27,14 @@
               hide-details
               class="mt-4"
             >
-              <v-radio
-                label="Z-score"
-                value="Z-score"
-              />
-              <v-radio
-                label="Intensity"
-                value="Intensity"
-              />
+              <v-radio label="Z-score" value="Z-score" />
+              <v-radio label="Intensity" value="Intensity" />
             </v-radio-group>
           </v-card-text>
         </v-card>
 
         <v-card variant="flat">
-          <v-card-title tag="h1">
-            Select {{ radioOptions[mode] }}
-          </v-card-title>
+          <v-card-title tag="h1"> Select {{ radioOptions[mode] }} </v-card-title>
           <v-card-text>
             <phosphopeptide-select
               v-if="mode === 'psite'"
@@ -90,27 +66,25 @@
           </v-card-text>
         </v-card>
         <!-- Collapsible Help Box -->
-        <v-card
-          variant="flat"
-          class="mt-4"
-        >
+        <v-card variant="flat" class="mt-4">
           <v-card-title>Help</v-card-title>
           <v-card-text>
             <v-expansion-panels>
               <v-expansion-panel>
-                <v-expansion-panel-title class="mb-0">
-                  Tab info
-                </v-expansion-panel-title>
+                <v-expansion-panel-title class="mb-0"> Tab info </v-expansion-panel-title>
                 <v-expansion-panel-text>
-                  In this tab you can visualize the normalized intensity and z-score of proteins and phosphopeptides.
+                  In this tab you can visualize the normalized intensity and z-score of proteins and
+                  phosphopeptides.
                 </v-expansion-panel-text>
               </v-expansion-panel>
               <v-expansion-panel>
-                <v-expansion-panel-title class="mb-0">
-                  How to use
-                </v-expansion-panel-title>
+                <v-expansion-panel-title class="mb-0"> How to use </v-expansion-panel-title>
                 <v-expansion-panel-text>
-                  Use the dropdown menu to select a cohort, then apply filters as required to stratify samples. To visualize specific samples in the swarm plot, select samples in the list, pick a name in the field "Group" above the plot, adjust the color and click the blue edit button. Click the circled arrow to come back to default. To export the plot, click the export button on the right handside above the plot.
+                  Use the dropdown menu to select a cohort, then apply filters as required to
+                  stratify samples. To visualize specific samples in the swarm plot, select samples
+                  in the list, pick a name in the field "Group" above the plot, adjust the color and
+                  click the blue edit button. Click the circled arrow to come back to default. To
+                  export the plot, click the export button on the right handside above the plot.
                 </v-expansion-panel-text>
               </v-expansion-panel>
             </v-expansion-panels>
@@ -119,18 +93,11 @@
       </v-col>
 
       <!-- Main Content Section -->
-      <v-col
-        sm="12"
-        md="9"
-        lg="10"
-      >
+      <v-col sm="12" md="9" lg="10">
         <v-card variant="flat">
           <v-card-text>
             <v-row>
-              <v-col
-                sm="12"
-                md="7"
-              >
+              <v-col sm="12" md="7">
                 <expression-table
                   :data-source="abundanceQuery"
                   :selected-patient="selectedDotsInPlot"
@@ -138,10 +105,7 @@
                   @table-ready="loadSwarmplot"
                 />
               </v-col>
-              <v-col
-                sm="12"
-                md="5"
-              >
+              <v-col sm="12" md="5">
                 <v-skeleton-loader
                   :loading="loading"
                   height="200"
@@ -152,13 +116,13 @@
                     <v-btn
                       class="ma-2"
                       color="primary"
-                      :disabled="swarmSelIds.length===0"
+                      :disabled="swarmSelIds.length === 0"
                       @click="plotSelectedRows"
                     >
                       Plot selected samples only
                     </v-btn>
                     <swarm-plot
-                      v-show="swarmPlotData.length>0"
+                      v-show="swarmPlotData.length > 0"
                       :swarm-data="swarmPlotData"
                       swarm-id="singleGene"
                       :swarm-sel-ids="swarmSelIds"
@@ -174,11 +138,7 @@
               </v-col>
             </v-row>
             <v-row class="mt-4">
-              <v-col
-                v-if="numPep.length > 0"
-                sm="12"
-                md="4"
-              >
+              <v-col v-if="numPep.length > 0" sm="12" md="4">
                 <histogram
                   id="numPep"
                   ref="histogram"
@@ -196,10 +156,7 @@
                   dose-unit="standard deviations"
                 />
               </v-col>
-              <v-col
-                sm="12"
-                md="4"
-              >
+              <v-col sm="12" md="4">
                 <histogram
                   id="ec50Histogram"
                   ref="histogram"
@@ -217,11 +174,7 @@
                   dose-unit="standard deviations"
                 />
               </v-col>
-              <v-col
-                v-if="confidenceScore.length > 0"
-                sm="12"
-                md="4"
-              >
+              <v-col v-if="confidenceScore.length > 0" sm="12" md="4">
                 <histogram
                   id="confidence"
                   ref="histogram"
@@ -248,233 +201,252 @@
 </template>
 
 <script>
+  import axios from 'axios'
+  import expressionTable from '@/components/tables/ExpressionTable.vue'
+  import histogram from '@/components/plots/GenericHistogram.vue'
+  import SwarmPlot from '@/components/plots/SwarmPlot.vue'
+  import ProteinSelect from '@/components/partials/ProteinSelect.vue'
+  import PhosphopeptideSelect from '@/components/partials/PhosphopeptideSelect.vue'
+  import CohortSelect from './partials/CohortSelect.vue'
+  import { DataType, IncludeRef, ImputationMode } from '@/constants'
+  import { api } from '@/routes.ts'
 
-import axios from 'axios'
-import expressionTable from '@/components/tables/ExpressionTable'
-import histogram from '@/components/plots/GenericHistogram'
-import SwarmPlot from '@/components/plots/SwarmPlot'
-import ProteinSelect from '@/components/partials/ProteinSelect.vue'
-import PhosphopeptideSelect from '@/components/partials/PhosphopeptideSelect.vue'
-import CohortSelect from './partials/CohortSelect.vue'
-import { DataType, IncludeRef, ImputationMode } from '@/constants'
-import { api } from '@/routes.ts'
+  export default {
+    name: 'AbundanceComponent',
+    components: {
+      expressionTable,
+      histogram,
+      CohortSelect,
+      SwarmPlot,
+      ProteinSelect,
+      PhosphopeptideSelect
+    },
+    props: {
+      minWidth: {
+        type: Number,
+        default: 400
+      },
 
-export default {
-  name: 'AbundanceComponent',
-  components: {
-    expressionTable,
-    histogram,
-    CohortSelect,
-    SwarmPlot,
-    ProteinSelect,
-    PhosphopeptideSelect
-  },
-  props: {
-    minWidth: {
-      type: Number,
-      default: 400
-    },
-
-    minHeight: {
-      type: Number,
-      default: 300
-    }
-  },
-  data: () => ({
-    identifier: '',
-    cohortIndex: 0,
-    mode: DataType.FULL_PROTEOME,
-    includeRefChannels: false,
-    showOncokbcnv: false,
-    radioOptions: {
-      [DataType.FULL_PROTEOME]: 'Protein',
-      [DataType.PHOSPHO_PROTEOME]: 'Phosphopeptide',
-      [DataType.TRANSCRIPTOMICS]: 'mRNA (FPKM)'
-    },
-    intensityUnit: 'Z-score',
-    selectedDotsInPlot: '',
-    cnvDescription: '',
-    allProteins: [],
-    swarmPlotData: [],
-    swarmSelIds: [],
-    abundanceQuery: '',
-    lastDataSource: '',
-    histogramMargin: { top: 20, right: 10, bottom: 50, left: 70 },
-    selectedLines: [],
-    selectedLinesConfidence: [],
-    selectedLinesnumPep: [],
-    selectedData: [],
-    loading: false
-  }),
-  computed: {
-    chartData () {
-      const hData = this.swarmPlotData.filter(z => z[this.intensityUnit] !== 'n.d.')
-      return hData.map(d => d[this.intensityUnit])
-    },
-    maxChart () {
-      return this.intensityUnit === 'Z-score' ? 4 : 10
-    },
-    minChart () {
-      return this.intensityUnit === 'Z-score' ? -4 : 5
-    },
-    numPep () {
-      const numPepData = this.swarmPlotData.filter(d => d.num_pep !== 'n.d.' && d.num_pep !== undefined)
-      return numPepData.map(d => d.num_pep)
-    },
-    confidenceScore () {
-      const confData = this.swarmPlotData.filter(d => d.confidence_score !== 'n.d.' && d.confidence_score !== undefined)
-      return confData.map(d => d.confidence_score)
-    },
-    identifierLabel () {
-      if (this.mode === DataType.TRANSCRIPTOMICS) {
-        return 'Gene name'
-      } else {
-        return 'Modified sequence'
+      minHeight: {
+        type: Number,
+        default: 300
       }
     },
-    swarmPrefix () {
-      return this.intensityUnit === 'Z-score' ? 'Z-Score' : 'log10 abundance'
-    },
-    placeholder () {
-      if (this.mode === DataType.TRANSCRIPTOMICS) {
-        return 'EGFR'
-      } else {
-        return '_AAAAAPApSED_'
+    data: () => ({
+      identifier: '',
+      cohortIndex: 0,
+      mode: DataType.FULL_PROTEOME,
+      includeRefChannels: false,
+      showOncokbcnv: false,
+      radioOptions: {
+        [DataType.FULL_PROTEOME]: 'Protein',
+        [DataType.PHOSPHO_PROTEOME]: 'Phosphopeptide',
+        [DataType.TRANSCRIPTOMICS]: 'mRNA (FPKM)'
+      },
+      intensityUnit: 'Z-score',
+      selectedDotsInPlot: '',
+      cnvDescription: '',
+      allProteins: [],
+      swarmPlotData: [],
+      swarmSelIds: [],
+      abundanceQuery: '',
+      lastDataSource: '',
+      histogramMargin: { top: 20, right: 10, bottom: 50, left: 70 },
+      selectedLines: [],
+      selectedLinesConfidence: [],
+      selectedLinesnumPep: [],
+      selectedData: [],
+      loading: false
+    }),
+    computed: {
+      chartData() {
+        const hData = this.swarmPlotData.filter(z => z[this.intensityUnit] !== 'n.d.')
+        return hData.map(d => d[this.intensityUnit])
+      },
+      maxChart() {
+        return this.intensityUnit === 'Z-score' ? 4 : 10
+      },
+      minChart() {
+        return this.intensityUnit === 'Z-score' ? -4 : 5
+      },
+      numPep() {
+        const numPepData = this.swarmPlotData.filter(
+          d => d.num_pep !== 'n.d.' && d.num_pep !== undefined
+        )
+        return numPepData.map(d => d.num_pep)
+      },
+      confidenceScore() {
+        const confData = this.swarmPlotData.filter(
+          d => d.confidence_score !== 'n.d.' && d.confidence_score !== undefined
+        )
+        return confData.map(d => d.confidence_score)
+      },
+      identifierLabel() {
+        if (this.mode === DataType.TRANSCRIPTOMICS) {
+          return 'Gene name'
+        } else {
+          return 'Modified sequence'
+        }
+      },
+      swarmPrefix() {
+        return this.intensityUnit === 'Z-score' ? 'Z-Score' : 'log10 abundance'
+      },
+      placeholder() {
+        if (this.mode === DataType.TRANSCRIPTOMICS) {
+          return 'EGFR'
+        } else {
+          return '_AAAAAPApSED_'
+        }
+      },
+      includeRef() {
+        return this.includeRefChannels ? IncludeRef.INCLUDE_REF : IncludeRef.EXCLUDE_REF
       }
     },
-    includeRef () {
-      return this.includeRefChannels ? IncludeRef.INCLUDE_REF : IncludeRef.EXCLUDE_REF
-    }
-  },
-  watch: {
-    showOncokbcnv: function () {
-      this.getoncoKB(this.identifier)
-    },
-    cohortIndex: function () {
-      this.updateId()
-    },
-    includeRefChannels: function () {
-      this.updateId()
-    },
-    mode: function (newMode, oldMode) {
-      this.abundanceQuery = ''
-      this.swarmPlotData = []
-      this.swarmSelIds = []
-      if (newMode === DataType.PHOSPHO_PROTEOME || oldMode === DataType.PHOSPHO_PROTEOME) {
-        this.identifier = ''
-      } else {
+    watch: {
+      showOncokbcnv: function () {
+        this.getoncoKB(this.identifier)
+      },
+      cohortIndex: function () {
         this.updateId()
-      }
-    }
-  },
-  mounted () {
-    this.selectedData = []
-    this.swarmSelIds = []
-  },
-  methods: {
-    selectDot (value) {
-      this.selectedDotsInPlot = value
-    },
-    updateProtein ({ dataSource, identifier }) {
-      this.identifier = identifier
-      this.updateId()
-    },
-    updatePhosphopeptide ({ dataSource, identifier }) {
-      this.identifier = identifier
-      this.updateId()
-    },
-    updateCohort ({ dataSource, cohortIndex }) {
-      this.cohortIndex = cohortIndex
-    },
-    updateId () {
-      if (this.identifier.length > 0) { // gene mode
+      },
+      includeRefChannels: function () {
+        this.updateId()
+      },
+      mode: function (newMode, oldMode) {
+        this.abundanceQuery = ''
         this.swarmPlotData = []
         this.swarmSelIds = []
-        if (this.showOncokbcnv) {
-          this.getoncoKB(this.identifier)
-        }
-        this.getExpression(this.mode, this.identifier)
-      }
-    },
-    getExpression (mode, key) {
-      this.loading = true
-      this.swarmPlotData = []
-      this.swarmSelIds = []
-      this.abundanceQuery = api.ABUNDANCE({
-        cohort_index: this.cohortIndex,
-        level: mode,
-        identifier: key,
-        imputation: ImputationMode.NO_IMPUTE,
-        include_ref: this.includeRef
-      })
-    },
-    async loadSwarmplot ({ dataSource }) {
-      if (dataSource.length === 0 || this.lastDataSource === dataSource) return
-
-      this.lastDataSource = dataSource
-      const response = await axios.get(dataSource)
-      this.swarmPlotData = response.data
-      this.loading = false
-    },
-    async fetchOncoKB (gene, alterationType) {
-      try {
-        const query = api.ONCOKB_CNV({ identifier: gene, cnv_type: alterationType })
-        const response = await axios.get(query)
-        const effect = response.data?.mutationEffect?.description
-
-        if (effect && effect.length > 0) {
-          return effect
-        } else if (effect === '') {
-          return `no ${alterationType.toLowerCase()} information in OncoKB.`
-        } else if (response.data?.status !== 200) {
-          if (response.data?.status === 401) {
-            return 'invalid OncoKB API token.'
-          }
-          return 'unable to connect to OncoKB.'
+        if (newMode === DataType.PHOSPHO_PROTEOME || oldMode === DataType.PHOSPHO_PROTEOME) {
+          this.identifier = ''
         } else {
-          return `unable to retrieve ${alterationType.toLowerCase()} information.`
+          this.updateId()
         }
-      } catch (error) {
-        return `error retrieving ${alterationType.toLowerCase()} information.`
       }
     },
-    async getoncoKB (gene) {
-      if (!gene || gene.length === 0) return
-
-      const [amplification, deletion] = await Promise.all([
-        this.fetchOncoKB(gene, 'AMPLIFICATION'),
-        this.fetchOncoKB(gene, 'DELETION')
-      ])
-
-      this.cnvDescription = `${amplification}\n${deletion}`
-    },
-    plotSelectedRows () {
-      this.swarmPlotData = this.selectedData
-    },
-
-    updateSelectedRows (selectedIds, selectedData) {
-      // selectedData = selectedData.filter(element => element[this.intensityUnit] !== 'n.d.')
-      this.selectedLines = []
-      this.selectedLinesnumPep = []
-      this.selectedLinesConfidence = []
+    mounted() {
+      this.selectedData = []
       this.swarmSelIds = []
-      selectedData.forEach((rowData) => {
-        this.swarmSelIds.push(rowData.index) // selected indices on the swarm plot
-        this.selectedLines.push({ color: 'black', value: rowData[this.intensityUnit], curveid: -1, dash: ('5, 5') })
-        this.selectedLinesnumPep.push({ color: 'black', value: rowData.num_pep, curveid: -1, dash: ('5, 5') })
-        this.selectedLinesConfidence.push({ color: 'black', value: rowData.confidence_score, curveid: -1, dash: ('5, 5') })
-      })
-      this.selectedData = selectedData
+    },
+    methods: {
+      selectDot(value) {
+        this.selectedDotsInPlot = value
+      },
+      updateProtein({ dataSource, identifier }) {
+        this.identifier = identifier
+        this.updateId()
+      },
+      updatePhosphopeptide({ dataSource, identifier }) {
+        this.identifier = identifier
+        this.updateId()
+      },
+      updateCohort({ dataSource, cohortIndex }) {
+        this.cohortIndex = cohortIndex
+      },
+      updateId() {
+        if (this.identifier.length > 0) {
+          // gene mode
+          this.swarmPlotData = []
+          this.swarmSelIds = []
+          if (this.showOncokbcnv) {
+            this.getoncoKB(this.identifier)
+          }
+          this.getExpression(this.mode, this.identifier)
+        }
+      },
+      getExpression(mode, key) {
+        this.loading = true
+        this.swarmPlotData = []
+        this.swarmSelIds = []
+        this.abundanceQuery = api.ABUNDANCE({
+          cohort_index: this.cohortIndex,
+          level: mode,
+          identifier: key,
+          imputation: ImputationMode.NO_IMPUTE,
+          include_ref: this.includeRef
+        })
+      },
+      async loadSwarmplot({ dataSource }) {
+        if (dataSource.length === 0 || this.lastDataSource === dataSource) return
+
+        this.lastDataSource = dataSource
+        const response = await axios.get(dataSource)
+        this.swarmPlotData = response.data
+        this.loading = false
+      },
+      async fetchOncoKB(gene, alterationType) {
+        try {
+          const query = api.ONCOKB_CNV({ identifier: gene, cnv_type: alterationType })
+          const response = await axios.get(query)
+          const effect = response.data?.mutationEffect?.description
+
+          if (effect && effect.length > 0) {
+            return effect
+          } else if (effect === '') {
+            return `no ${alterationType.toLowerCase()} information in OncoKB.`
+          } else if (response.data?.status !== 200) {
+            if (response.data?.status === 401) {
+              return 'invalid OncoKB API token.'
+            }
+            return 'unable to connect to OncoKB.'
+          } else {
+            return `unable to retrieve ${alterationType.toLowerCase()} information.`
+          }
+        } catch (error) {
+          return `error retrieving ${alterationType.toLowerCase()} information.`
+        }
+      },
+      async getoncoKB(gene) {
+        if (!gene || gene.length === 0) return
+
+        const [amplification, deletion] = await Promise.all([
+          this.fetchOncoKB(gene, 'AMPLIFICATION'),
+          this.fetchOncoKB(gene, 'DELETION')
+        ])
+
+        this.cnvDescription = `${amplification}\n${deletion}`
+      },
+      plotSelectedRows() {
+        this.swarmPlotData = this.selectedData
+      },
+
+      updateSelectedRows(selectedIds, selectedData) {
+        // selectedData = selectedData.filter(element => element[this.intensityUnit] !== 'n.d.')
+        this.selectedLines = []
+        this.selectedLinesnumPep = []
+        this.selectedLinesConfidence = []
+        this.swarmSelIds = []
+        selectedData.forEach(rowData => {
+          this.swarmSelIds.push(rowData.index) // selected indices on the swarm plot
+          this.selectedLines.push({
+            color: 'black',
+            value: rowData[this.intensityUnit],
+            curveid: -1,
+            dash: '5, 5'
+          })
+          this.selectedLinesnumPep.push({
+            color: 'black',
+            value: rowData.num_pep,
+            curveid: -1,
+            dash: '5, 5'
+          })
+          this.selectedLinesConfidence.push({
+            color: 'black',
+            value: rowData.confidence_score,
+            curveid: -1,
+            dash: '5, 5'
+          })
+        })
+        this.selectedData = selectedData
+      }
     }
   }
-}
 </script>
 <style scoped>
-  .scroll{
-    overflow-x:scroll;
+  .scroll {
+    overflow-x: scroll;
   }
- .sequence-gene{
-      width: 600px;
-      background-color: rgb(255, 255, 255);
-}
+  .sequence-gene {
+    width: 600px;
+    background-color: rgb(255, 255, 255);
+  }
 </style>

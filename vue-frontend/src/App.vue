@@ -8,31 +8,28 @@
 </template>
 
 <script>
-import TheNotificationSnackbars from './components/partials/TheNotificationSnackbars'
+  import { mapActions } from 'vuex'
+  import TheNotificationSnackbars from './components/partials/TheNotificationSnackbars.vue'
 
-import { mapActions } from 'vuex'
-import Explorer from './components/Explorer'
+  import Explorer from './components/Explorer.vue'
 
-export default {
-  name: 'App',
-  components: {
-    TheNotificationSnackbars,
-    Explorer
-  },
-  data: () => ({
-    imagesrc: require('@/assets/topas_logo.png')
-  }),
-  created () {
-    this.fetchAllCohorts()
-    this.fetchCommonFields()
-    window.addEventListener('keydown', this.escapeListener)
-  },
+  export default {
+    name: 'App',
+    components: {
+      TheNotificationSnackbars,
+      Explorer
+    },
+    created() {
+      this.fetchAllCohorts()
+      this.fetchCommonFields()
+      window.addEventListener('keydown', this.escapeListener)
+    },
 
-  methods: {
-    ...mapActions({
-      fetchAllCohorts: 'fetchAllCohorts',
-      fetchCommonFields: 'fetchCommonFields'
-    })
+    methods: {
+      ...mapActions({
+        fetchAllCohorts: 'fetchAllCohorts',
+        fetchCommonFields: 'fetchCommonFields'
+      })
+    }
   }
-}
 </script>

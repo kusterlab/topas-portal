@@ -14,44 +14,43 @@
   </div>
 </template>
 <script>
-import { mapGetters, mapState } from 'vuex'
-export default {
-  name: 'CohortSelect',
-  props: {
-  },
-  data: () => ({
-    cohortName: ''
-  }),
-  computed: {
-    ...mapState({
-      all_cohorts: state => state.all_cohorts
+  import { mapGetters, mapState } from 'vuex'
+  export default {
+    name: 'CohortSelect',
+    props: {},
+    data: () => ({
+      cohortName: ''
     }),
-    ...mapGetters({
-      hasData: 'hasData'
-    }),
-    cookieAccepted () {
-      return this.$store.state.cookieAccepted
+    computed: {
+      ...mapState({
+        all_cohorts: state => state.all_cohorts
+      }),
+      ...mapGetters({
+        hasData: 'hasData'
+      }),
+      cookieAccepted() {
+        return this.$store.state.cookieAccepted
+      },
+      cohortIndex: function () {
+        return this.all_cohorts.indexOf(this.cohortName)
+      }
     },
-    cohortIndex: function () {
-      return this.all_cohorts.indexOf(this.cohortName)
-    }
-  },
-  mounted () {
-    this.loadDefaultCohort()
-    this.updateCohort()
-  },
-  methods: {
-    setCohortIndex (newValue) {
-      this.$store.commit('setCohortIndex', newValue)
+    mounted() {
+      this.loadDefaultCohort()
+      this.updateCohort()
     },
-    loadDefaultCohort () {
-      this.cohortName = this.$store.state.cohortName
-    },
-    updateCohort () {
-      if (!this.cohortName || this.cohortName.length === 0) return
-      this.$emit('select-cohort', { dataSource: this.cohortName, cohortIndex: this.cohortIndex })
-      this.setCohortIndex({ cohortName: this.cohortName, cohortIndex: this.cohortIndex })
+    methods: {
+      setCohortIndex(newValue) {
+        this.$store.commit('setCohortIndex', newValue)
+      },
+      loadDefaultCohort() {
+        this.cohortName = this.$store.state.cohortName
+      },
+      updateCohort() {
+        if (!this.cohortName || this.cohortName.length === 0) return
+        this.$emit('select-cohort', { dataSource: this.cohortName, cohortIndex: this.cohortIndex })
+        this.setCohortIndex({ cohortName: this.cohortName, cohortIndex: this.cohortIndex })
+      }
     }
   }
-}
 </script>

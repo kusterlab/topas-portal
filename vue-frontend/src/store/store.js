@@ -14,10 +14,10 @@ export default createStore({
     cookieAccepted: true // remove this line and activate the above line to activate consent for cookies
   },
   mutations: {
-    ACCEPT_COOKIES (state) {
+    ACCEPT_COOKIES(state) {
       state.cookieAccepted = true
     },
-    setCohortIndex (state, newValue) {
+    setCohortIndex(state, newValue) {
       state.cohortIndex = newValue.cohortIndex
       state.cohortName = newValue.cohortName
     }
@@ -27,18 +27,18 @@ export default createStore({
   },
 
   actions: {
-    acceptCookies ({ commit }) {
+    acceptCookies({ commit }) {
       localStorage.setItem('cookieConsent', 'accepted')
       commit('ACCEPT_COOKIES')
     },
 
-    async fetchAllCohorts ({ state, rootState }) {
+    async fetchAllCohorts({ state, rootState }) {
       if (state.loading) {
         return
       }
 
       state.loading = true
-      const response = await axios.get(`${process.env.VUE_APP_API_HOST}/cohort_names`)
+      const response = await axios.get(`${import.meta.env.VITE_API_HOST}/cohort_names`)
       const finalIndex = []
 
       response.data.forEach(element => {
@@ -47,15 +47,14 @@ export default createStore({
       state.all_cohorts = finalIndex
       state.loading = false
     },
-    async fetchCommonFields ({ state, rootState }) {
+    async fetchCommonFields({ state, rootState }) {
       if (state.loading_common_fields) {
         return
       }
 
       state.loading_common_fields = true
-      const response = await axios.get(`${process.env.VUE_APP_API_HOST}/colnames`)
+      const response = await axios.get(`${import.meta.env.VITE_API_HOST}/colnames`)
       const finalIndex = []
-
       response.data.forEach(element => {
         if (element.visible === 'false') {
           element.visible = false
@@ -69,5 +68,4 @@ export default createStore({
   modules: {
     notifications
   }
-
 })

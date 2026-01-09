@@ -13,17 +13,14 @@
     :allow-column-resizing="true"
     :row-alternation-enabled="true"
     :scrolling="{ useNative: true }"
-    :selection="{ mode: 'multiple', allowSelectAll: true}"
+    :selection="{ mode: 'multiple', allowSelectAll: true }"
     :show-borders="true"
     column-resizing-mode="widget"
     :column-chooser="{ enabled: 'true', mode: 'select' }"
     @cell-prepared="onCellPrepared"
     @selection-changed="onSelectionChanged"
   >
-    <DxExport
-      :enabled="true"
-      :allow-export-selected-data="true"
-    />
+    <DxExport :enabled="true" :allow-export-selected-data="true" />
     <DxFilterRow :visible="true" />
 
     <DxPager
@@ -36,107 +33,106 @@
   </DxDataGrid>
 </template>
 <script>
+  import { DxDataGrid, DxPager, DxExport, DxPaging, DxFilterRow } from 'devextreme-vue/data-grid'
 
-import {
-  DxDataGrid,
-  DxPager,
-  DxExport,
-  DxPaging,
-  DxFilterRow
-} from 'devextreme-vue/data-grid'
+  import 'devextreme/dist/css/dx.light.css'
+  import axios from 'axios'
+  const dataGridRefKey = 'qc-table-data-grid'
 
-import 'devextreme/dist/css/dx.light.css'
-import axios from 'axios'
-const dataGridRefKey = 'qc-table-data-grid'
-
-export default {
-  components: {
-    DxDataGrid,
-    DxExport,
-    DxPager,
-    DxPaging,
-    DxFilterRow
-  },
-  props: {
-    dataSource: undefined,
-    isLoading: {
-      type: Boolean,
-      default: false
-    }
-  },
-  data () {
-    return {
-      pageSizes: [10, 25, 50, 100],
-      allEntities: ['LMS'],
-      dataGridRefKey
-    }
-  },
-  computed: {
-    dataGrid: function () {
-      return this.$refs[dataGridRefKey].instance
+  export default {
+    components: {
+      DxDataGrid,
+      DxExport,
+      DxPager,
+      DxPaging,
+      DxFilterRow
     },
-    cookieAccepted () {
-      return this.$store.state.cookieAccepted
-    }
-  },
-  watch: {
-    isLoading () {
-      // for some reason this does not work together with :scrolling="{ useNative: true }"
-      if (this.isLoading) {
-        this.dataGrid?.beginCustomLoading()
-      } else {
-        this.dataGrid?.endCustomLoading()
+    props: {
+      dataSource: undefined,
+      isLoading: {
+        type: Boolean,
+        default: false
       }
-    }
-  },
-  mounted () {
-    this.getListModels()
-  },
-  methods: {
-    saveGridState (state) {
-      if (this.cookieAccepted) {
-        const minimalState = {
-          columns: state.columns
+    },
+    data() {
+      return {
+        pageSizes: [10, 25, 50, 100],
+        allEntities: ['LMS'],
+        dataGridRefKey
+      }
+    },
+    computed: {
+      dataGrid: function () {
+        return this.$refs[dataGridRefKey].instance
+      },
+      cookieAccepted() {
+        return this.$store.state.cookieAccepted
+      }
+    },
+    watch: {
+      isLoading() {
+        // for some reason this does not work together with :scrolling="{ useNative: true }"
+        if (this.isLoading) {
+          this.dataGrid?.beginCustomLoading()
+        } else {
+          this.dataGrid?.endCustomLoading()
         }
-        localStorage.setItem('gridStateEntitytable', JSON.stringify(minimalState))
       }
     },
-    loadGridState () {
-      if (this.cookieAccepted) {
-        const savedState = localStorage.getItem('gridStateEntitytable')
-        return savedState ? JSON.parse(savedState) : null
-      }
+    mounted() {
+      this.getListModels()
     },
-    async getListModels () {
-      const response = await axios.get(`${process.env.VUE_APP_API_HOST}/entityscore/classifiers_list`)
-      this.allEntities = response.data
-    },
-    onSelectionChanged: function (e) {
-      this.$emit('onRowSelect', e.selectedRowKeys, e.selectedRowsData)
-    },
-    onCellPrepared (e) {
-      this.allEntities.forEach(element => {
-        const fieldName = element.toString()
-        if (e.rowType === 'data') {
-          if (e.column.dataField === fieldName && e.data[fieldName] > 0.75) {
-            e.cellElement.style.cssText = 'color: white; background-color: red'
+    methods: {
+      saveGridState(state) {
+        if (this.cookieAccepted) {
+          const minimalState = {
+            columns: state.columns
           }
-          if (e.column.dataField === fieldName && e.data[fieldName] <= 0.75 && e.data[fieldName] > 0.5) {
-            e.cellElement.style.cssText = 'color: black; background-color: yellow'
-          }
-          if (e.column.dataField === fieldName && e.data[fieldName] <= 0.35) {
-            e.cellElement.style.cssText = 'color: white; background-color: grey'
-          }
+          localStorage.setItem('gridStateEntitytable', JSON.stringify(minimalState))
         }
-      })
+      },
+      loadGridState() {
+        if (this.cookieAccepted) {
+          const savedState = localStorage.getItem('gridStateEntitytable')
+          return savedState ? JSON.parse(savedState) : null
+        }
+      },
+      async getListModels() {
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_HOST}/entityscore/classifiers_list`
+        )
+        this.allEntities = response.data
+      },
+      onSelectionChanged: function (e) {
+        this.$emit('onRowSelect', e.selectedRowKeys, e.selectedRowsData)
+      },
+      onCellPrepared(e) {
+        this.allEntities.forEach(element => {
+          const fieldName = element.toString()
+          if (e.rowType === 'data') {
+            if (e.column.dataField === fieldName && e.data[fieldName] > 0.75) {
+              e.cellElement.style.cssText = 'color: white; background-color: red'
+            }
+            if (
+              e.column.dataField === fieldName &&
+              e.data[fieldName] <= 0.75 &&
+              e.data[fieldName] > 0.5
+            ) {
+              e.cellElement.style.cssText = 'color: black; background-color: yellow'
+            }
+            if (e.column.dataField === fieldName && e.data[fieldName] <= 0.35) {
+              e.cellElement.style.cssText = 'color: white; background-color: grey'
+            }
+          }
+        })
+      }
     }
   }
-}
 </script>
 
-  <style>
+<style>
   .dx-command-select {
-      width: 30px!important;
-      min-width: 30px!important;
+    width: 30px !important;
+    min-width: 30px !important;
   }
-  </style>
+</style>

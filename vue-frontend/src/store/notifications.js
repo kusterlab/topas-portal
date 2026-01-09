@@ -3,22 +3,22 @@ const state = {
 }
 
 const mutations = {
-  addNotification (state, notification) {
+  addNotification(state, notification) {
     state.notifications.push(notification)
     setTimeout(() => {
       state.notifications.shift()
     }, 10000)
   },
-  clearNotifications (state) {
+  clearNotifications(state) {
     state.notifications = []
   },
-  dismissNotification (state, idx) {
+  dismissNotification(state, idx) {
     state.notifications.splice(idx, 1)
   }
 }
 
 const getters = {
-  hasNotifications (state) {
+  hasNotifications(state) {
     return state.notifications.length > 0
   }
 }

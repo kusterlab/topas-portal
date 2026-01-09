@@ -2,19 +2,11 @@
   <v-container fluid>
     <v-row class="bg-grey-lighten-3">
       <!-- Sidebar for Filters and Controls -->
-      <v-col
-        sm="12"
-        md="3"
-        lg="2"
-      >
+      <v-col sm="12" md="3" lg="2">
         <v-card variant="flat">
-          <v-card-title tag="h1">
-            Patient Reports
-          </v-card-title>
+          <v-card-title tag="h1"> Patient Reports </v-card-title>
           <v-card-text>
-            <cohort-select
-              @select-cohort="updateCohort"
-            />
+            <cohort-select @select-cohort="updateCohort" />
             <v-checkbox
               v-model="includeRefChannels"
               label="Include ref channels"
@@ -42,27 +34,26 @@
           </v-card-text>
         </v-card>
         <!-- Collapsible Help Box -->
-        <v-card
-          variant="flat"
-          class="mt-4"
-        >
+        <v-card variant="flat" class="mt-4">
           <v-card-title>Help</v-card-title>
           <v-card-text>
             <v-expansion-panels>
               <v-expansion-panel>
-                <v-expansion-panel-title class="mb-0">
-                  Tab info
-                </v-expansion-panel-title>
+                <v-expansion-panel-title class="mb-0"> Tab info </v-expansion-panel-title>
                 <v-expansion-panel-text>
-                  In this tab you can browse and download patient-specific reports. It also shows QC statistics and detailed plots regarding tumor antigens, RTKs, cytoplasmic kinases and immune status.
+                  In this tab you can browse and download patient-specific reports. It also shows QC
+                  statistics and detailed plots regarding tumor antigens, RTKs, cytoplasmic kinases
+                  and immune status.
                 </v-expansion-panel-text>
               </v-expansion-panel>
               <v-expansion-panel>
-                <v-expansion-panel-title class="mb-0">
-                  How to use
-                </v-expansion-panel-title>
+                <v-expansion-panel-title class="mb-0"> How to use </v-expansion-panel-title>
                 <v-expansion-panel-text>
-                  Use the dropdown menu to select a cohort, then select a sample by checking the corresponding checkbox in the table to the right to interactively explore the patient report for that sample. You can download the patient report(s) in Excel format by selecting one or more samples in the patient table and clicking the 'Download report(s)' button.
+                  Use the dropdown menu to select a cohort, then select a sample by checking the
+                  corresponding checkbox in the table to the right to interactively explore the
+                  patient report for that sample. You can download the patient report(s) in Excel
+                  format by selecting one or more samples in the patient table and clicking the
+                  'Download report(s)' button.
                 </v-expansion-panel-text>
               </v-expansion-panel>
             </v-expansion-panels>
@@ -70,21 +61,10 @@
         </v-card>
       </v-col>
       <!-- Main Content -->
-      <v-col
-        sm="12"
-        md="9"
-        lg="10"
-      >
-        <v-container
-          fluid
-          class="pa-0"
-        >
+      <v-col sm="12" md="9" lg="10">
+        <v-container fluid class="pa-0">
           <v-row>
-            <v-col
-              sm="12"
-              md="6"
-              lg="6"
-            >
+            <v-col sm="12" md="6" lg="6">
               <v-card variant="flat">
                 <v-card-text>
                   <patient-report-table
@@ -94,40 +74,22 @@
                   />
                 </v-card-text>
               </v-card>
-              <v-card
-                v-if="!firstPatient"
-                variant="flat"
-                class="mt-4"
-              >
-                <v-card-text>
-                  Please select a patient in the table above
-                </v-card-text>
+              <v-card v-if="!firstPatient" variant="flat" class="mt-4">
+                <v-card-text> Please select a patient in the table above </v-card-text>
               </v-card>
-              <v-card
-                v-if="firstPatient"
-                variant="flat"
-                class="mt-4"
-              >
+              <v-card v-if="firstPatient" variant="flat" class="mt-4">
                 <v-card-title>{{ firstPatient }} - {{ scoreTypeText }}</v-card-title>
                 <v-card-text>
                   <patientscore-table :data-source="patientScoresDataURL" />
                 </v-card-text>
               </v-card>
             </v-col>
-            <v-col
-              sm="12"
-              md="6"
-              lg="6"
-            >
+            <v-col sm="12" md="6" lg="6">
               <v-card variant="flat">
                 <v-card-text>
                   <!-- Top Row: Patient Table and Histograms -->
                   <v-row>
-                    <v-col
-                      sm="12"
-                      md="6"
-                      lg="6"
-                    >
+                    <v-col sm="12" md="6" lg="6">
                       <histogram
                         id="proteinfreq"
                         ref="histogram"
@@ -144,11 +106,7 @@
                         dose-unit="standard deviations"
                       />
                     </v-col>
-                    <v-col
-                      sm="12"
-                      md="6"
-                      lg="6"
-                    >
+                    <v-col sm="12" md="6" lg="6">
                       <histogram
                         id="peptidefpfreq"
                         ref="histogram"
@@ -167,11 +125,7 @@
                     </v-col>
                   </v-row>
                   <v-row>
-                    <v-col
-                      sm="12"
-                      md="6"
-                      lg="6"
-                    >
+                    <v-col sm="12" md="6" lg="6">
                       <histogram
                         id="pepppfreq"
                         ref="histogram"
@@ -188,11 +142,7 @@
                         dose-unit="standard deviations"
                       />
                     </v-col>
-                    <v-col
-                      sm="12"
-                      md="6"
-                      lg="6"
-                    >
+                    <v-col sm="12" md="6" lg="6">
                       <histogram
                         id="ppintensity"
                         ref="histogram"
@@ -209,11 +159,7 @@
                         dose-unit="standard deviations"
                       />
                     </v-col>
-                    <v-col
-                      sm="12"
-                      md="6"
-                      lg="6"
-                    >
+                    <v-col sm="12" md="6" lg="6">
                       <histogram
                         id="fpintensity"
                         ref="histogram"
@@ -230,11 +176,7 @@
                         dose-unit="standard deviations"
                       />
                     </v-col>
-                    <v-col
-                      sm="12"
-                      md="6"
-                      lg="6"
-                    >
+                    <v-col sm="12" md="6" lg="6">
                       <histogram
                         id="correlation"
                         ref="histogram"
@@ -258,54 +200,26 @@
             </v-col>
           </v-row>
           <v-row>
-            <v-col
-              sm="12"
-              md="12"
-              lg="12"
-            >
+            <v-col sm="12" md="12" lg="12">
               <v-card variant="flat">
                 <v-card-text>
-                  <v-tabs
-                    v-model="type"
-                  >
-                    <v-tab href="#tumor">
-                      TUMOR ANTIGENS
-                    </v-tab>
-                    <v-tab href="#rtk">
-                      RTK
-                    </v-tab>
-                    <v-tab href="#cknk">
-                      CK / NK
-                    </v-tab>
-                    <v-tab href="#immune">
-                      IMMUNE STATUS
-                    </v-tab>
-                    <v-tab href="#prodict">
-                      PRODICT
-                    </v-tab>
+                  <v-tabs v-model="type">
+                    <v-tab href="#tumor"> TUMOR ANTIGENS </v-tab>
+                    <v-tab href="#rtk"> RTK </v-tab>
+                    <v-tab href="#cknk"> CK / NK </v-tab>
+                    <v-tab href="#immune"> IMMUNE STATUS </v-tab>
+                    <v-tab href="#prodict"> PRODICT </v-tab>
                   </v-tabs>
 
                   <v-divider />
                   <v-tabs-items v-model="type">
                     <v-tab-item value="tumor">
-                      <v-card
-                        variant="flat"
-                        min-height="400px"
-                      >
+                      <v-card variant="flat" min-height="400px">
                         <v-card-text>
                           <div class="chart-container">
-                            <div
-                              v-if="loadingTumor"
-                              class="loader"
-                            >
-                              <v-progress-circular
-                                indeterminate
-                                color="primary"
-                                size="64"
-                              />
-                              <p class="mt-4">
-                                Loading tumor antigens...
-                              </p>
+                            <div v-if="loadingTumor" class="loader">
+                              <v-progress-circular indeterminate color="primary" size="64" />
+                              <p class="mt-4"> Loading tumor antigens... </p>
                             </div>
                             <img
                               v-if="firstPatient"
@@ -313,31 +227,19 @@
                               :src="getTumorUrl()"
                               @load="loadingTumor = false"
                               @error="loadingTumor = false"
-                            >
+                            />
                           </div>
                         </v-card-text>
                       </v-card>
                     </v-tab-item>
 
                     <v-tab-item value="rtk">
-                      <v-card
-                        variant="flat"
-                        min-height="400px"
-                      >
+                      <v-card variant="flat" min-height="400px">
                         <v-card-text>
                           <div class="chart-container">
-                            <div
-                              v-if="loadingRtk"
-                              class="loader"
-                            >
-                              <v-progress-circular
-                                indeterminate
-                                color="primary"
-                                size="64"
-                              />
-                              <p class="mt-4">
-                                Loading RTK...
-                              </p>
+                            <div v-if="loadingRtk" class="loader">
+                              <v-progress-circular indeterminate color="primary" size="64" />
+                              <p class="mt-4"> Loading RTK... </p>
                             </div>
                             <img
                               v-if="firstPatient"
@@ -345,31 +247,19 @@
                               :src="getRtkUrl()"
                               @load="loadingRtk = false"
                               @error="loadingRtk = false"
-                            >
+                            />
                           </div>
                         </v-card-text>
                       </v-card>
                     </v-tab-item>
 
                     <v-tab-item value="cknk">
-                      <v-card
-                        variant="flat"
-                        min-height="400px"
-                      >
+                      <v-card variant="flat" min-height="400px">
                         <v-card-text>
                           <div class="chart-container">
-                            <div
-                              v-if="loadingCknk"
-                              class="loader"
-                            >
-                              <v-progress-circular
-                                indeterminate
-                                color="primary"
-                                size="64"
-                              />
-                              <p class="mt-4">
-                                Loading CK/NK...
-                              </p>
+                            <div v-if="loadingCknk" class="loader">
+                              <v-progress-circular indeterminate color="primary" size="64" />
+                              <p class="mt-4"> Loading CK/NK... </p>
                             </div>
                             <img
                               v-if="firstPatient"
@@ -377,31 +267,19 @@
                               :src="getCknkUrl()"
                               @load="loadingCknk = false"
                               @error="loadingCknk = false"
-                            >
+                            />
                           </div>
                         </v-card-text>
                       </v-card>
                     </v-tab-item>
 
                     <v-tab-item value="immune">
-                      <v-card
-                        variant="flat"
-                        min-height="400px"
-                      >
+                      <v-card variant="flat" min-height="400px">
                         <v-card-text>
                           <div class="chart-container">
-                            <div
-                              v-if="loadingImmune"
-                              class="loader"
-                            >
-                              <v-progress-circular
-                                indeterminate
-                                color="primary"
-                                size="64"
-                              />
-                              <p class="mt-4">
-                                Loading immune status...
-                              </p>
+                            <div v-if="loadingImmune" class="loader">
+                              <v-progress-circular indeterminate color="primary" size="64" />
+                              <p class="mt-4"> Loading immune status... </p>
                             </div>
                             <img
                               v-if="firstPatient"
@@ -409,36 +287,21 @@
                               :src="getImmuneUrl()"
                               @load="loadingImmune = false"
                               @error="loadingImmune = false"
-                            >
+                            />
                           </div>
                         </v-card-text>
                       </v-card>
                     </v-tab-item>
 
                     <v-tab-item value="prodict">
-                      <v-card
-                        variant="flat"
-                        min-height="400px"
-                      >
+                      <v-card variant="flat" min-height="400px">
                         <v-card-text>
                           <v-row>
-                            <v-col
-                              cols="12"
-                              md="6"
-                            >
+                            <v-col cols="12" md="6">
                               <div class="chart-container">
-                                <div
-                                  v-if="loadingProdictProb"
-                                  class="loader"
-                                >
-                                  <v-progress-circular
-                                    indeterminate
-                                    color="primary"
-                                    size="64"
-                                  />
-                                  <p class="mt-4">
-                                    Loading PROdictions...
-                                  </p>
+                                <div v-if="loadingProdictProb" class="loader">
+                                  <v-progress-circular indeterminate color="primary" size="64" />
+                                  <p class="mt-4"> Loading PROdictions... </p>
                                 </div>
                                 <img
                                   v-if="firstPatient"
@@ -446,26 +309,14 @@
                                   :src="getProdictProbUrl()"
                                   @load="loadingProdictProb = false"
                                   @error="loadingProdictProb = false"
-                                >
+                                />
                               </div>
                             </v-col>
-                            <v-col
-                              cols="12"
-                              md="6"
-                            >
+                            <v-col cols="12" md="6">
                               <div class="chart-container">
-                                <div
-                                  v-if="loadingProdictUmap"
-                                  class="loader"
-                                >
-                                  <v-progress-circular
-                                    indeterminate
-                                    color="primary"
-                                    size="64"
-                                  />
-                                  <p class="mt-4">
-                                    Loading UMAP...
-                                  </p>
+                                <div v-if="loadingProdictUmap" class="loader">
+                                  <v-progress-circular indeterminate color="primary" size="64" />
+                                  <p class="mt-4"> Loading UMAP... </p>
                                 </div>
                                 <img
                                   v-if="firstPatient"
@@ -473,7 +324,7 @@
                                   :src="getProdictUmapUrl()"
                                   @load="loadingProdictUmap = false"
                                   @error="loadingProdictUmap = false"
-                                >
+                                />
                               </div>
                             </v-col>
                           </v-row>
@@ -540,415 +391,419 @@
 </template>
 
 <script>
-import axios from 'axios'
-import { mapMutations } from 'vuex'
+  import axios from 'axios'
+  import { mapMutations } from 'vuex'
 
-import CohortSelect from './partials/CohortSelect.vue'
-import patientscoreTable from '@/components/tables/PatientScoresTable.vue'
-import PatientReportTable from '@/components/tables/PatientReportTable.vue'
-import histogram from '@/components/plots/GenericHistogram.vue'
-import { DataType, IncludeRef } from '@/constants'
-import { api } from '@/routes.ts'
+  import CohortSelect from './partials/CohortSelect.vue'
+  import patientscoreTable from '@/components/tables/PatientScoresTable.vue'
+  import PatientReportTable from '@/components/tables/PatientReportTable.vue'
+  import histogram from '@/components/plots/GenericHistogram.vue'
+  import { DataType, IncludeRef } from '@/constants'
+  import { api } from '@/routes.ts'
 
-export default {
-  name: 'ReportComponent',
-  components: {
-    CohortSelect,
-    PatientReportTable,
-    histogram,
-    patientscoreTable
-  },
-  props: {
-    minWidth: {
-      type: Number,
-      default: 400
+  export default {
+    name: 'ReportComponent',
+    components: {
+      CohortSelect,
+      PatientReportTable,
+      histogram,
+      patientscoreTable
     },
-    minHeight: {
-      type: Number,
-      default: 300
-    }
-  },
-  data: () => ({
-    cohortIndex: -1,
-    includeRefChannels: false,
-    topasName: '',
-    isCollapsed: true,
-    fixedDomain: false,
-    summedIntensitiesPhospho: [],
-    summedIntensitiesFull: [],
-    patientData: [],
-    selectedLineppintensity: [],
-    selectedLinefpintensity: [],
-    scoreType: DataType.REPORT_SUMMARY,
-    showCorrelation: false,
-    histogramMargin: { top: 20, right: 10, bottom: 50, left: 70 },
-    proteinCounts: [],
-    peptideCounts: [],
-    ppeptideCounts: [],
-    correlationStatistics: [],
-    patientScoresDataURL: '',
-    type: 'tumor',
-    selectedFPLines: [],
-    selectedLinecorrelation: [],
-    selectedpepLines: [],
-    selectedfppepLines: [],
-    selectedData: [],
-    api,
-    allInputDataTypes: [
-      {
-        title: 'Report summary',
-        value: DataType.REPORT_SUMMARY
+    props: {
+      minWidth: {
+        type: Number,
+        default: 400
       },
-      {
-        title: 'TOPAS CK score',
-        value: DataType.TOPAS_CK_SCORE
-      },
-      {
-        title: 'TOPAS RTK score',
-        value: DataType.TOPAS_RTK_SCORE
-      },
-      {
-        title: 'Full proteome',
-        value: DataType.FULL_PROTEOME
-      },
-      {
-        title: 'Phosphopeptides',
-        value: DataType.PHOSPHO_PROTEOME
-      },
-      {
-        title: 'Kinases',
-        value: DataType.KINASE_SCORE
-      },
-      {
-        title: 'P-protein scores',
-        value: DataType.PHOSPHO_SCORE
-      },
-      {
-        title: 'TOPAS subscore',
-        value: DataType.TOPAS_SUBSCORE
-      },
-      {
-        title: 'Biomarker',
-        value: DataType.BIOMARKER
+      minHeight: {
+        type: Number,
+        default: 300
       }
-    ],
-    loadingTumor: false,
-    loadingRtk: false,
-    loadingCknk: false,
-    loadingImmune: false,
-    loadingProdictProb: false,
-    loadingProdictUmap: false
-  }),
-  computed: {
-    proteinCount () {
-      return this.proteinCounts.map(d => d.identified)
     },
-    peptideCount () {
-      return this.ppeptideCounts.map(d => d.identified)
-    },
-    peptidefpCount () {
-      return this.peptideCounts.map(d => d.identified)
-    },
-    correlationCount () {
-      return this.correlationStatistics.map(d => d.correlation)
-    },
-    ppintensitySum () {
-      return this.summedIntensitiesPhospho.map(d => d.sumIntensities)
-    },
-    fpintensitySum () {
-      return this.summedIntensitiesFull.map(d => d.sumIntensities)
-    },
-    patientReportUrl () {
-      return api.PATIENT_REPORT_TABLE_XLSX({ cohort_index: this.cohortIndex, patients: ':patients' })
-    },
-    includeRef () {
-      return this.includeRefChannels ? IncludeRef.INCLUDE_REF : IncludeRef.EXCLUDE_REF
-    },
-    firstPatient () {
-      if (this.selectedData.length > 0) {
-        return this.selectedData[0]['Sample name']
-      }
-      return ''
-    },
-    scoreTypeText () {
-      const found = this.allInputDataTypes.find(
-        item => item.value === this.scoreType
-      )
-      return found ? found.text : ''
-    }
-  },
-  watch: {
-    cohortIndex () {
-      this.getPatientData()
-    },
-    includeRefChannels () {
-      this.getPatientData()
-    }
-  },
-  methods: {
-    ...mapMutations({
-      addNotification: 'notifications/addNotification'
-    }),
-    updateCohort ({ dataSource, cohortIndex }) {
-      this.cohortIndex = cohortIndex
-    },
-    toggleDiv (type) {
-      this.type = type
-    },
-    async getPatientData () {
-      this.patientData = null
-      const requests = [
+    data: () => ({
+      cohortIndex: -1,
+      includeRefChannels: false,
+      topasName: '',
+      isCollapsed: true,
+      fixedDomain: false,
+      summedIntensitiesPhospho: [],
+      summedIntensitiesFull: [],
+      patientData: [],
+      selectedLineppintensity: [],
+      selectedLinefpintensity: [],
+      scoreType: DataType.REPORT_SUMMARY,
+      showCorrelation: false,
+      histogramMargin: { top: 20, right: 10, bottom: 50, left: 70 },
+      proteinCounts: [],
+      peptideCounts: [],
+      ppeptideCounts: [],
+      correlationStatistics: [],
+      patientScoresDataURL: '',
+      type: 'tumor',
+      selectedFPLines: [],
+      selectedLinecorrelation: [],
+      selectedpepLines: [],
+      selectedfppepLines: [],
+      selectedData: [],
+      api,
+      allInputDataTypes: [
         {
-          name: 'patientData',
-          endpoint: api.PATIENTS_METADATA({
-            cohort_index: this.cohortIndex,
-            include_ref: this.includeRef
-          }),
-          errorMessage: 'Error: Could not load patient metadata'
+          title: 'Report summary',
+          value: DataType.REPORT_SUMMARY
         },
         {
-          name: 'summedIntensitiesPhospho',
-          endpoint: api.PATIENT_CENTRIC_SUMMED_INTENSITY({
-            cohort_index: this.cohortIndex,
-            level: DataType.PHOSPHO_PROTEOME,
-            include_ref: this.includeRef
-          }),
-          errorMessage: 'Error: could not load phospho intensities data'
+          title: 'TOPAS CK score',
+          value: DataType.TOPAS_CK_SCORE
         },
         {
-          name: 'summedIntensitiesFull',
-          endpoint: api.PATIENT_CENTRIC_SUMMED_INTENSITY({
-            cohort_index: this.cohortIndex,
-            level: DataType.FULL_PROTEOME,
-            include_ref: this.includeRef
-          }),
-          errorMessage: 'Error: could not load full proteome intensities data'
+          title: 'TOPAS RTK score',
+          value: DataType.TOPAS_RTK_SCORE
         },
         {
-          name: 'proteinCounts',
-          endpoint: api.PATIENT_CENTRIC_COUNTS({
-            cohort_index: this.cohortIndex,
-            level: DataType.FULL_PROTEOME,
-            include_ref: this.includeRef
-          }),
-          errorMessage: 'Error: could not load protein counts data'
+          title: 'Full proteome',
+          value: DataType.FULL_PROTEOME
         },
         {
-          name: 'ppeptideCounts',
-          endpoint: api.PATIENT_CENTRIC_COUNTS({
-            cohort_index: this.cohortIndex,
-            level: DataType.PHOSPHO_PROTEOME,
-            include_ref: this.includeRef
-          }),
-          errorMessage: 'Error: could not load phosphoproteome peptide counts data'
+          title: 'Phosphopeptides',
+          value: DataType.PHOSPHO_PROTEOME
         },
         {
-          name: 'peptideCounts',
-          endpoint: api.PATIENT_CENTRIC_COUNTS({
-            cohort_index: this.cohortIndex,
-            level: DataType.FULL_PROTEOME_NUM_PEPTIDES,
-            include_ref: this.includeRef
-          }),
-          errorMessage: 'Error: could not load full proteome peptide counts data'
+          title: 'Kinases',
+          value: DataType.KINASE_SCORE
+        },
+        {
+          title: 'P-protein scores',
+          value: DataType.PHOSPHO_SCORE
+        },
+        {
+          title: 'TOPAS subscore',
+          value: DataType.TOPAS_SUBSCORE
+        },
+        {
+          title: 'Biomarker',
+          value: DataType.BIOMARKER
         }
-      ]
-
-      if (this.showCorrelation) {
-        requests.push({
-          name: 'correlationStatistics',
-          endpoint: api.CORRELATION_FPKM_PROTEIN({
-            cohort_index: this.cohortIndex
-          }),
-          errorMessage: 'Error: could not load FPKM-protein correlation statistics data'
+      ],
+      loadingTumor: false,
+      loadingRtk: false,
+      loadingCknk: false,
+      loadingImmune: false,
+      loadingProdictProb: false,
+      loadingProdictUmap: false
+    }),
+    computed: {
+      proteinCount() {
+        return this.proteinCounts.map(d => d.identified)
+      },
+      peptideCount() {
+        return this.ppeptideCounts.map(d => d.identified)
+      },
+      peptidefpCount() {
+        return this.peptideCounts.map(d => d.identified)
+      },
+      correlationCount() {
+        return this.correlationStatistics.map(d => d.correlation)
+      },
+      ppintensitySum() {
+        return this.summedIntensitiesPhospho.map(d => d.sumIntensities)
+      },
+      fpintensitySum() {
+        return this.summedIntensitiesFull.map(d => d.sumIntensities)
+      },
+      patientReportUrl() {
+        return api.PATIENT_REPORT_TABLE_XLSX({
+          cohort_index: this.cohortIndex,
+          patients: ':patients'
         })
-      }
-
-      this.processRequestsAsync(requests)
-    },
-    async processRequestsAsync (requests) {
-      // Start all requests immediately and handle them independently
-      for (const { name, endpoint, errorMessage } of requests) {
-        axios.get(endpoint)
-          .then(response => {
-            // Update the corresponding reactive variable as soon as data arrives
-            this[name] = response.data
-          })
-          .catch(() => {
-            // Handle errors individually
-            this.addNotification({
-              color: 'error',
-              message: errorMessage
-            })
-          })
+      },
+      includeRef() {
+        return this.includeRefChannels ? IncludeRef.INCLUDE_REF : IncludeRef.EXCLUDE_REF
+      },
+      firstPatient() {
+        if (this.selectedData.length > 0) {
+          return this.selectedData[0]['Sample name']
+        }
+        return ''
+      },
+      scoreTypeText() {
+        const found = this.allInputDataTypes.find(item => item.value === this.scoreType)
+        return found ? found.text : ''
       }
     },
-    getscoresTable () {
-      if (this.firstPatient.length === 0) return
-
-      this.patientScoresDataURL = api.PATIENT_REPORT_TABLE({
-        cohort_index: this.cohortIndex,
-        patient: this.firstPatient,
-        level: this.scoreType
-      })
+    watch: {
+      cohortIndex() {
+        this.getPatientData()
+      },
+      includeRefChannels() {
+        this.getPatientData()
+      }
     },
-    async updateSelectedRows (selectedIds, selectedData) {
-      this.selectedData = selectedData
-
-      if (selectedData.length > 0) {
-        this.loadingTumor = true
-        this.loadingRtk = true
-        this.loadingCknk = true
-        this.loadingImmune = true
-        this.loadingProdictProb = true
-        this.loadingProdictUmap = true
-
-        this.getscoresTable()
-        const dashStyle = '5, 5'
-
-        const mappings = [
+    methods: {
+      ...mapMutations({
+        addNotification: 'notifications/addNotification'
+      }),
+      updateCohort({ dataSource, cohortIndex }) {
+        this.cohortIndex = cohortIndex
+      },
+      toggleDiv(type) {
+        this.type = type
+      },
+      async getPatientData() {
+        this.patientData = null
+        const requests = [
           {
-            source: 'proteinCounts',
-            target: 'selectedFPLines',
-            color: 'red',
-            valueKey: 'identified'
+            name: 'patientData',
+            endpoint: api.PATIENTS_METADATA({
+              cohort_index: this.cohortIndex,
+              include_ref: this.includeRef
+            }),
+            errorMessage: 'Error: Could not load patient metadata'
           },
           {
-            source: 'ppeptideCounts',
-            target: 'selectedpepLines',
-            color: 'blue',
-            valueKey: 'identified'
+            name: 'summedIntensitiesPhospho',
+            endpoint: api.PATIENT_CENTRIC_SUMMED_INTENSITY({
+              cohort_index: this.cohortIndex,
+              level: DataType.PHOSPHO_PROTEOME,
+              include_ref: this.includeRef
+            }),
+            errorMessage: 'Error: could not load phospho intensities data'
           },
           {
-            source: 'peptideCounts',
-            target: 'selectedfppepLines',
-            color: 'red',
-            valueKey: 'identified'
+            name: 'summedIntensitiesFull',
+            endpoint: api.PATIENT_CENTRIC_SUMMED_INTENSITY({
+              cohort_index: this.cohortIndex,
+              level: DataType.FULL_PROTEOME,
+              include_ref: this.includeRef
+            }),
+            errorMessage: 'Error: could not load full proteome intensities data'
           },
           {
-            source: 'summedIntensitiesPhospho',
-            target: 'selectedLineppintensity',
-            color: 'blue',
-            valueKey: 'sumIntensities'
+            name: 'proteinCounts',
+            endpoint: api.PATIENT_CENTRIC_COUNTS({
+              cohort_index: this.cohortIndex,
+              level: DataType.FULL_PROTEOME,
+              include_ref: this.includeRef
+            }),
+            errorMessage: 'Error: could not load protein counts data'
           },
           {
-            source: 'summedIntensitiesFull',
-            target: 'selectedLinefpintensity',
-            color: 'orange',
-            valueKey: 'sumIntensities'
+            name: 'ppeptideCounts',
+            endpoint: api.PATIENT_CENTRIC_COUNTS({
+              cohort_index: this.cohortIndex,
+              level: DataType.PHOSPHO_PROTEOME,
+              include_ref: this.includeRef
+            }),
+            errorMessage: 'Error: could not load phosphoproteome peptide counts data'
+          },
+          {
+            name: 'peptideCounts',
+            endpoint: api.PATIENT_CENTRIC_COUNTS({
+              cohort_index: this.cohortIndex,
+              level: DataType.FULL_PROTEOME_NUM_PEPTIDES,
+              include_ref: this.includeRef
+            }),
+            errorMessage: 'Error: could not load full proteome peptide counts data'
           }
         ]
 
         if (this.showCorrelation) {
-          mappings.push({
-            source: 'correlationStatistics',
-            target: 'selectedLinecorrelation',
-            color: 'black',
-            valueKey: 'correlation'
+          requests.push({
+            name: 'correlationStatistics',
+            endpoint: api.CORRELATION_FPKM_PROTEIN({
+              cohort_index: this.cohortIndex
+            }),
+            errorMessage: 'Error: could not load FPKM-protein correlation statistics data'
           })
         }
 
-        // Populate each in one pass
-        for (const { source, target, color, valueKey } of mappings) {
-          this[target] = []
-          this[source].forEach(element => {
-            if (element.patients === this.firstPatient) {
-              this[target].push({
-                color,
-                value: element[valueKey],
-                curveid: -1,
-                dash: dashStyle
+        this.processRequestsAsync(requests)
+      },
+      async processRequestsAsync(requests) {
+        // Start all requests immediately and handle them independently
+        for (const { name, endpoint, errorMessage } of requests) {
+          axios
+            .get(endpoint)
+            .then(response => {
+              // Update the corresponding reactive variable as soon as data arrives
+              this[name] = response.data
+            })
+            .catch(() => {
+              // Handle errors individually
+              this.addNotification({
+                color: 'error',
+                message: errorMessage
               })
-            }
-          })
+            })
         }
+      },
+      getscoresTable() {
+        if (this.firstPatient.length === 0) return
+
+        this.patientScoresDataURL = api.PATIENT_REPORT_TABLE({
+          cohort_index: this.cohortIndex,
+          patient: this.firstPatient,
+          level: this.scoreType
+        })
+      },
+      async updateSelectedRows(selectedIds, selectedData) {
+        this.selectedData = selectedData
+
+        if (selectedData.length > 0) {
+          this.loadingTumor = true
+          this.loadingRtk = true
+          this.loadingCknk = true
+          this.loadingImmune = true
+          this.loadingProdictProb = true
+          this.loadingProdictUmap = true
+
+          this.getscoresTable()
+          const dashStyle = '5, 5'
+
+          const mappings = [
+            {
+              source: 'proteinCounts',
+              target: 'selectedFPLines',
+              color: 'red',
+              valueKey: 'identified'
+            },
+            {
+              source: 'ppeptideCounts',
+              target: 'selectedpepLines',
+              color: 'blue',
+              valueKey: 'identified'
+            },
+            {
+              source: 'peptideCounts',
+              target: 'selectedfppepLines',
+              color: 'red',
+              valueKey: 'identified'
+            },
+            {
+              source: 'summedIntensitiesPhospho',
+              target: 'selectedLineppintensity',
+              color: 'blue',
+              valueKey: 'sumIntensities'
+            },
+            {
+              source: 'summedIntensitiesFull',
+              target: 'selectedLinefpintensity',
+              color: 'orange',
+              valueKey: 'sumIntensities'
+            }
+          ]
+
+          if (this.showCorrelation) {
+            mappings.push({
+              source: 'correlationStatistics',
+              target: 'selectedLinecorrelation',
+              color: 'black',
+              valueKey: 'correlation'
+            })
+          }
+
+          // Populate each in one pass
+          for (const { source, target, color, valueKey } of mappings) {
+            this[target] = []
+            this[source].forEach(element => {
+              if (element.patients === this.firstPatient) {
+                this[target].push({
+                  color,
+                  value: element[valueKey],
+                  curveid: -1,
+                  dash: dashStyle
+                })
+              }
+            })
+          }
+        }
+      },
+      getTumorUrl() {
+        return api.TUMOR_ANTIGENS_SWARM_PLOT({
+          cohort_index: this.cohortIndex,
+          patient: this.firstPatient
+        })
+      },
+
+      getRtkUrl() {
+        return api.RTKS_SWARM_PLOT({
+          cohort_index: this.cohortIndex,
+          patient: this.firstPatient
+        })
+      },
+
+      getCknkUrl() {
+        return api.CKS_NKS_SWARM_PLOT({
+          cohort_index: this.cohortIndex,
+          patient: this.firstPatient
+        })
+      },
+
+      getImmuneUrl() {
+        return api.IMMUNE_STATUS_HEATMAP({
+          cohort_index: this.cohortIndex,
+          patient: this.firstPatient
+        })
+      },
+
+      getProdictProbUrl() {
+        return api.PRODICT_PATIENT_PROBABILITES({
+          cohort_index: this.cohortIndex,
+          patient: this.firstPatient
+        })
+      },
+
+      getProdictUmapUrl() {
+        return api.PRODICT_PATIENT_UMAP({
+          cohort_index: this.cohortIndex,
+          patient: this.firstPatient
+        })
       }
-    },
-    getTumorUrl () {
-      return api.TUMOR_ANTIGENS_SWARM_PLOT({
-        cohort_index: this.cohortIndex,
-        patient: this.firstPatient
-      })
-    },
-
-    getRtkUrl () {
-      return api.RTKS_SWARM_PLOT({
-        cohort_index: this.cohortIndex,
-        patient: this.firstPatient
-      })
-    },
-
-    getCknkUrl () {
-      return api.CKS_NKS_SWARM_PLOT({
-        cohort_index: this.cohortIndex,
-        patient: this.firstPatient
-      })
-    },
-
-    getImmuneUrl () {
-      return api.IMMUNE_STATUS_HEATMAP({
-        cohort_index: this.cohortIndex,
-        patient: this.firstPatient
-      })
-    },
-
-    getProdictProbUrl () {
-      return api.PRODICT_PATIENT_PROBABILITES({
-        cohort_index: this.cohortIndex,
-        patient: this.firstPatient
-      })
-    },
-
-    getProdictUmapUrl () {
-      return api.PRODICT_PATIENT_UMAP({
-        cohort_index: this.cohortIndex,
-        patient: this.firstPatient
-      })
     }
   }
-}
 </script>
 
 <style>
-.collapsible-container {
-  margin: 1em;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 1em;
-}
+  .collapsible-container {
+    margin: 1em;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 1em;
+  }
 
-button {
-  margin-bottom: 1em;
-}
+  button {
+    margin-bottom: 1em;
+  }
 
-.collapsible-content {
-  overflow: hidden;
-  transition: max-height 0.3s ease;
-}
+  .collapsible-content {
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
 
-.button-show-score {
-  background-color: #e0e0e0;
-  border: none;
-  padding: 10px 20px;
-  font-size: 16px;
-  font-weight: bold;
-  border-radius: 8px;
-  box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2), -3px -3px 6px rgba(255, 255, 255, 0.7);
-  transition: box-shadow 0.2s ease-in-out;
-}
+  .button-show-score {
+    background-color: #e0e0e0;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 8px;
+    box-shadow:
+      3px 3px 6px rgba(0, 0, 0, 0.2),
+      -3px -3px 6px rgba(255, 255, 255, 0.7);
+    transition: box-shadow 0.2s ease-in-out;
+  }
 
-.chart-container {
-  position: relative;
-  min-height: 400px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+  .chart-container {
+    position: relative;
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-.loader {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 400px;
-}
+  .loader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+  }
 </style>

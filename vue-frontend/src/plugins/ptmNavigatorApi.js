@@ -2,56 +2,66 @@ import axios from 'axios'
 import { api } from '@/routes.ts'
 import { DataType } from '@/constants'
 
-const INTERNAL_HOST = process.env.VUE_APP_API_HOST
+const INTERNAL_HOST = import.meta.env.VITE_API_HOST
 
 const ptmnApi = {
-  getBackendName () {
+  getBackendName() {
     return 'Cohort'
   },
 
-  async getOrganisms () {
+  async getOrganisms() {
     return [{ taxcode: 9606, name: 'Homo sapiens' }]
   },
 
-  getDefaultSessionId () {
+  getDefaultSessionId() {
     return 'ABCDEF0123456789ABCDEF0123456789'
   },
 
-  async refreshSessionId (uuid) {
+  async refreshSessionId(uuid) {
     return 'ABCDEF0123456789ABCDEF0123456789'
   },
 
-  async getUserDatasetList (sessionId) {
+  async getUserDatasetList(sessionId) {
     return []
   },
 
-  async loadUserDatasets (sessionId, userDatasets) {
+  async loadUserDatasets(sessionId, userDatasets) {
     return {
       ptmInputList: [],
       proteinInputList: []
     }
   },
 
-  async getInternalProjects () {
-    const names = (await axios
-      .get(`${INTERNAL_HOST}/cohort_names`)
-    ).data.map((el, i) => ({ projectId: i, projectName: el }))
+  async getInternalProjects() {
+    const names = (await axios.get(`${INTERNAL_HOST}/cohort_names`)).data.map((el, i) => ({
+      projectId: i,
+      projectName: el
+    }))
 
     return names
   },
 
-  async getInternalDatasetsForProject (projectId) {
-    return (await axios
-      .get(`${INTERNAL_HOST}/${projectId}/patients`)
-    ).data.map((el) => ({ datasetId: el['Sample name'], datasetName: el['Sample name'], datasetType: 'FoldChange', taxcode: 9606, omics: 'Phosphorylation', projectId }))
+  async getInternalDatasetsForProject(projectId) {
+    return (await axios.get(`${INTERNAL_HOST}/${projectId}/patients`)).data.map(el => ({
+      datasetId: el['Sample name'],
+      datasetName: el['Sample name'],
+      datasetType: 'FoldChange',
+      taxcode: 9606,
+      omics: 'Phosphorylation',
+      projectId
+    }))
   },
 
-  async loadInternalDatasets (selectedDatasets) {
+  async loadInternalDatasets(selectedDatasets) {
     const patientIds = selectedDatasets.map(el => el.datasetName)
-    const projectId = selectedDatasets[0].projectId
+    const { projectId } = selectedDatasets[0]
     const [proteinInputList, ptmInputList] = await Promise.all([
-      Promise.all(patientIds.map(id => fetchAndFormatProteins(projectId, id))).then(res => res.flat()),
-      Promise.all(patientIds.map(id => fetchAndFormatPtms(projectId, id))).then(res => res.flat())
+      Promise.all(patientIds.map(async id => await fetchAndFormatProteins(projectId, id))).then(
+        res => res.flat()
+      ),
+      Promise.all(patientIds.map(async id => await fetchAndFormatPtms(projectId, id))).then(res =>
+        res.flat()
+      )
     ])
     return {
       ptmInputList,
@@ -59,11 +69,11 @@ const ptmnApi = {
     }
   },
 
-  async getCanonicalPathwayList (taxcode) {
+  async getCanonicalPathwayList(taxcode) {
     return (await axios.get(api.CANONICAL_PATHWAYS({ taxcode, protein_search: '' }))).data
   },
 
-  async getCustomPathwayList (_) {
+  async getCustomPathwayList(_) {
     return (await axios.get(api.CUSTOM_PATHWAYS())).data.map(item => ({
       pathwayId: item.id,
       pathwayName: item.name,
@@ -71,26 +81,26 @@ const ptmnApi = {
     }))
   },
 
-  async getPathwaySkeleton (taxcode, canonicalPathwayLink) {
+  async getPathwaySkeleton(taxcode, canonicalPathwayLink) {
     return (await axios.get(api.PATHWAY_SKELETONS({ taxcode, link: canonicalPathwayLink }))).data
   },
 
-  async storeCustomPathway (skeleton, _, customPathwayName, currentlyEditedPathwayId) {
-    return (await axios.post(
-      api.CUSTOM_PATHWAYS(),
-      {
+  async storeCustomPathway(skeleton, _, customPathwayName, currentlyEditedPathwayId) {
+    return (
+      await axios.post(api.CUSTOM_PATHWAYS(), {
         id: currentlyEditedPathwayId?._id,
         name: customPathwayName,
         skeleton: JSON.stringify(skeleton)
-      }
-    )).data.id
+      })
+    ).data.id
   },
 
-  async getFilteredPathwayIds (searchStrings, taxcode) {
-    return (await axios.get(api.CANONICAL_PATHWAYS({ taxcode, protein_search: searchStrings }))).data
+  async getFilteredPathwayIds(searchStrings, taxcode) {
+    return (await axios.get(api.CANONICAL_PATHWAYS({ taxcode, protein_search: searchStrings })))
+      .data
   },
 
-  async getEnrichmentTypes () {
+  async getEnrichmentTypes() {
     return [
       {
         name: 'TOPAS',
@@ -115,11 +125,11 @@ const ptmnApi = {
     ]
   },
 
-  async loadUserEnrichmentResults (sessionId, userDatasetIds, enrichmentTypeId) {
+  async loadUserEnrichmentResults(sessionId, userDatasetIds, enrichmentTypeId) {
     return []
   },
 
-  async loadInternalDatabaseEnrichmentResults (projectId, datasetId) {
+  async loadInternalDatabaseEnrichmentResults(projectId, datasetId) {
     const kinaseResults = await fetchKinaseResults(projectId, datasetId)
     return {
       [datasetId]: [
@@ -131,11 +141,11 @@ const ptmnApi = {
     }
   },
 
-  async loadCurveData (curveIds, isUserDataMode) {
+  async loadCurveData(curveIds, isUserDataMode) {
     return []
   },
 
-  getCustomDataUploadComponent () {
+  getCustomDataUploadComponent() {
     return 'analyticsCustomDataUpload'
   }
 }
@@ -143,19 +153,21 @@ const ptmnApi = {
 export default ptmnApi
 
 /*
-* Helper functions that are not exported
-* */
+ * Helper functions that are not exported
+ * */
 
-async function fetchAndFormatProteins (projectId, datasetId) {
-  const data = (await axios.get(api.PATIENT_REPORT_TABLE({ cohort_index: projectId, patient: datasetId, level: DataType.FULL_PROTEOME }))).data
+async function fetchAndFormatProteins(projectId, datasetId) {
+  const { data } = await axios.get(
+    api.PATIENT_REPORT_TABLE({
+      cohort_index: projectId,
+      patient: datasetId,
+      level: DataType.FULL_PROTEOME
+    })
+  )
 
   return data.map(el => ({
     geneNames: [el['Gene names'].split(';')].flat(),
-    regulation: el['Z-score'] > 1.5
-      ? 'up'
-      : el['Z-score'] < -1.5
-        ? 'down'
-        : 'not',
+    regulation: el['Z-score'] > 1.5 ? 'up' : el['Z-score'] < -1.5 ? 'down' : 'not',
     uniprotAccs: [],
     details: {
       'Experiment Name': datasetId,
@@ -169,16 +181,18 @@ async function fetchAndFormatProteins (projectId, datasetId) {
   }))
 }
 
-async function fetchAndFormatPtms (projectId, datasetId) {
-  const data = (await axios.get(api.PATIENT_REPORT_TABLE({ cohort_index: projectId, patient: datasetId, level: DataType.PHOSPHO_PROTEOME }))).data
+async function fetchAndFormatPtms(projectId, datasetId) {
+  const { data } = await axios.get(
+    api.PATIENT_REPORT_TABLE({
+      cohort_index: projectId,
+      patient: datasetId,
+      level: DataType.PHOSPHO_PROTEOME
+    })
+  )
 
   return data.map(el => ({
     geneNames: [el['Gene names'].split(';')].flat(),
-    regulation: el['Z-score'] > 1.5
-      ? 'up'
-      : el['Z-score'] < -1.5
-        ? 'down'
-        : 'not',
+    regulation: el['Z-score'] > 1.5 ? 'up' : el['Z-score'] < -1.5 ? 'down' : 'not',
     uniprotAccs: [],
     details: {
       'Sample name': datasetId,
@@ -194,8 +208,14 @@ async function fetchAndFormatPtms (projectId, datasetId) {
   }))
 }
 
-async function fetchKinaseResults (projectId, datasetId) {
-  const data = (await axios.get(api.PATIENT_REPORT_TABLE({ cohort_index: projectId, patient: datasetId, level: DataType.TOPAS_CK_SCORE }))).data
+async function fetchKinaseResults(projectId, datasetId) {
+  const { data } = await axios.get(
+    api.PATIENT_REPORT_TABLE({
+      cohort_index: projectId,
+      patient: datasetId,
+      level: DataType.TOPAS_CK_SCORE
+    })
+  )
   return data.map(el => ({
     Kinase: el['Gene Names'],
     [`Score (${datasetId})`]: el['Z-score'],
