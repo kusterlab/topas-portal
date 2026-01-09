@@ -1,0 +1,37 @@
+{{- with .Values.frontend }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "topas-portal.fullname" $ }}-frontend
+  labels:
+    {{- include "topas-portal.labels" $ | nindent 4 }}
+spec:
+  type: {{ .service.type }}
+  ports:
+    - port: {{ .service.port }}
+      nodePort: {{ .service.nodePort }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "topas-portal.selectorLabels" $ | nindent 4 }}
+{{- end }}
+---
+{{- with .Values.backend }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "topas-portal.fullname" $ }}-backend
+  labels:
+    {{- include "topas-portal.labels" $ | nindent 4 }}
+spec:
+  type: {{ .service.type }}
+  ports:
+    - port: {{ .service.port }}
+      nodePort: {{ .service.nodePort }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "topas-portal.selectorLabels" $ | nindent 4 }}
+{{- end }}
