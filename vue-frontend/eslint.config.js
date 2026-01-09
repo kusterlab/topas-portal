@@ -2,7 +2,6 @@ import js from '@eslint/js'
 import vue from 'eslint-plugin-vue'
 import vuetify from 'eslint-plugin-vuetify'
 import parser from '@typescript-eslint/parser'
-// import love from 'eslint-config-love'
 import globals from 'globals'
 
 export default [
@@ -26,7 +25,6 @@ export default [
   js.configs.recommended,
   ...vue.configs['flat/essential'],
   ...vuetify.configs['flat/base'],
-  // love,
 
   {
     files: ['**/*.+(js|vue|jsx)'],

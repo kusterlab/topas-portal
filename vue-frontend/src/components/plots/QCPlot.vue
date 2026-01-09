@@ -16,7 +16,6 @@
           v-model="colorCode"
           hide-inputs
           hide-canvas
-          light
           swatches-max-height="50"
           width="300"
         />
@@ -78,7 +77,7 @@
     data: () => ({
       showLegend: true,
       patientGroup: '',
-      colorCode: null,
+      colorCode: '#ff0000',
       finalPlotData: []
     }),
     watch: {
