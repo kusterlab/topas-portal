@@ -67,9 +67,9 @@
   import utils from '@/plugins/DownloadUtils'
   // import JsonExcel from 'vue-json-excel'
 
-  import * as venn from 'venn.js'
+  import { VennDiagram, sortAreas } from 'venn.js'
   import * as d3 from 'd3'
-  import * as matrix from 'matrix-js'
+  import matrix from 'matrix-js'
 
   export default {
     name: 'VennPlot',
@@ -205,10 +205,10 @@
 
         // plot
         const div = d3.select('#venn')
-        div.datum(sets).call(venn.VennDiagram())
+        div.datum(sets).call(VennDiagram())
         // add listeners to all the groups to display tooltip on mouseover
         div.selectAll('g').on('click', function (event, d) {
-          venn.sortAreas(div, d)
+          sortAreas(div, d)
           // highlight the current path
           const selection = d3.select(this).transition('tooltip').duration(400)
           that.selectedBatch = selection._groups[0][0].__data__.sets

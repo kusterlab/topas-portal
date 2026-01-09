@@ -172,7 +172,7 @@ Check the `Makefile` for additional functionalities.
 5. Check that the backend is running by opening http://localhost:3832/config in your browser. Your config file should be displayed.
 6. Open a new shell and deploy the frontend by running:
     ```
-    VUE_APP_API_HOST=http://localhost:3832 make serve
+    VITE_API_HOST=http://localhost:3832 make serve
     ```
 7. Open the portal at http://localhost:8080. To upload cohort data, go to `Other tools -> Admin tools` and press the `Reload all cohorts` button at the bottom of the page.
 
@@ -193,7 +193,7 @@ Check the `Makefile` for additional functionalities.
 3. The backend is available at http://localhost:3832 (to test, try http://localhost:3832/config)
 4. Deploy the frontend:
     ```
-    VUE_APP_API_HOST=http://$(hostname -I | awk '{print $1}'):3832 docker-compose f docker-compose-frontend.local.yml build
+    VITE_API_HOST=http://$(hostname -I | awk '{print $1}'):3832 docker-compose f docker-compose-frontend.local.yml build
     docker-compose f docker-compose-frontend.local.yml up -d
     ```
 5. Open the portal at http://localhost:3834. To upload cohort data, go to `Other tools -> Admin tools` and press the `Reload all cohorts` button at the bottom of the page.
