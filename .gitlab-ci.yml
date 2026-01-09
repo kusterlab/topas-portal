@@ -1,5 +1,5 @@
 image: docker:latest
- 
+
 variables:
   REGISTRY: $CI_REGISTRY
   PROJECT_PATH: none
@@ -11,7 +11,7 @@ variables:
   CI_PUBLISH: public
   # hotfix for https://gitlab.com/gitlab-org/gitlab-ce/issues/64959
   DOCKER_TLS_CERTDIR: ""
- 
+
 stages:
   - build
   - deploy
@@ -55,6 +55,15 @@ stages:
         CI_BACKEND_PORT: "3832"
         CI_FRONTEND_PORT: "3834"
         BRANCH: master-test
+      - SSH_DEPLOY_HOST_MATRIX: $SSH_DEPLOY_HOST_TEST
+        SSH_PRIVATE_KEY_MATRIX: $SSH_PRIVATE_KEY_TEST
+        SSH_KNOWN_HOSTS_MATRIX: $SSH_KNOWN_HOSTS_TEST
+        CI_VOLUME_MOUNT_PATH_MATRIX: $CI_VOLUME_MOUNT_PATH_INTERNAL
+        CI_CONFIG_FILE_PATH: $CI_CONFIG_FILE_PATH_DEVELOP
+        DOCKER_COMPOSE_FILE: docker-compose.dev.yml
+        CI_BACKEND_PORT: "3842"
+        CI_FRONTEND_PORT: "3844"
+        BRANCH: vue3
       - SSH_DEPLOY_HOST_MATRIX: $SSH_DEPLOY_HOST_INTERNAL
         SSH_PRIVATE_KEY_MATRIX: $SSH_PRIVATE_KEY_INTERNAL
         SSH_KNOWN_HOSTS_MATRIX: $SSH_KNOWN_HOSTS_INTERNAL
@@ -85,19 +94,18 @@ build-frontend:
     - PROJECT_PATH=$(echo $CI_PROJECT_PATH | tr '[:upper:]' '[:lower:]')
     - CONTAINER_IMAGE_FRONTEND=$REGISTRY/$PROJECT_PATH
     - NODE_ENV=$(if [ $CI_COMMIT_REF_SLUG != "master" ]; then echo "development"; else echo "production"; fi)
-    - VUE_APP_API_HOST=$(if [ $NODE_ENV != "production" ]; then echo "http://${SSH_DEPLOY_HOST_MATRIX}:${CI_BACKEND_PORT}"; else echo "/master_topas-portal_backend"; fi)
+    - API_HOST=$(if [ $NODE_ENV != "production" ]; then echo "http://${SSH_DEPLOY_HOST_MATRIX}:${CI_BACKEND_PORT}"; else echo "/master_topas-portal_backend"; fi)
     - docker pull $CONTAINER_IMAGE_FRONTEND:latest || true
     - cd vue-frontend
-    - docker image pull node:14.18.3-bullseye
-    - DOCKER_BUILDKIT=0 docker build --build-arg NODE_ENV=$NODE_ENV --build-arg VUE_APP_API_HOST=$VUE_APP_API_HOST --cache-from $CONTAINER_IMAGE_FRONTEND:latest --tag $CONTAINER_IMAGE_FRONTEND:$CI_COMMIT_REF_SLUG --tag $CONTAINER_IMAGE_FRONTEND:latest .
+    - docker image pull node:22-bullseye
+    - DOCKER_BUILDKIT=0 docker build --build-arg NODE_ENV=$NODE_ENV --build-arg VITE_API_HOST=$API_HOST --build-arg VUE_APP_API_HOST=$API_HOST --cache-from $CONTAINER_IMAGE_FRONTEND:latest --tag $CONTAINER_IMAGE_FRONTEND:$CI_COMMIT_REF_SLUG --tag $CONTAINER_IMAGE_FRONTEND:latest .
     - docker push $CONTAINER_IMAGE_FRONTEND:$CI_COMMIT_REF_SLUG
     - docker push $CONTAINER_IMAGE_FRONTEND:latest
-  parallel: !reference [.parallel,parallel]
+  parallel: !reference [.parallel, parallel]
   rules:
     - if: $CI_COMMIT_REF_NAME == $BRANCH
   tags:
     - topas_road
-
 
 build-backend:
   before_script:
@@ -112,28 +120,25 @@ build-backend:
     - docker pull $CONTAINER_IMAGE_BACKEND:latest || true
     - cd flask-backend
     - docker build
-        --target dev
-        --cache-from $CONTAINER_IMAGE_BACKEND:dev-buildcache
-        --tag $CONTAINER_IMAGE_BACKEND:dev-buildcache
-        --build-arg BUILDKIT_INLINE_CACHE=1
-        "."
+      --target dev
+      --cache-from $CONTAINER_IMAGE_BACKEND:dev-buildcache
+      --tag $CONTAINER_IMAGE_BACKEND:dev-buildcache
+      --build-arg BUILDKIT_INLINE_CACHE=1
+      "."
     - docker push $CONTAINER_IMAGE_BACKEND:dev-buildcache
-    - docker build 
-        --cache-from $CONTAINER_IMAGE_BACKEND:latest 
-        --cache-from $CONTAINER_IMAGE_BACKEND:dev-buildcache
-        --tag $CONTAINER_IMAGE_BACKEND:$CI_COMMIT_REF_SLUG
-        --tag $CONTAINER_IMAGE_BACKEND:$CI_COMMIT_SHORT_SHA
-        --tag $CONTAINER_IMAGE_BACKEND:latest 
-        "."
+    - docker build
+      --cache-from $CONTAINER_IMAGE_BACKEND:latest
+      --cache-from $CONTAINER_IMAGE_BACKEND:dev-buildcache
+      --tag $CONTAINER_IMAGE_BACKEND:$CI_COMMIT_REF_SLUG
+      --tag $CONTAINER_IMAGE_BACKEND:$CI_COMMIT_SHORT_SHA
+      --tag $CONTAINER_IMAGE_BACKEND:latest
+      "."
     - docker push $CONTAINER_IMAGE_BACKEND:$CI_COMMIT_REF_SLUG
     - docker push $CONTAINER_IMAGE_BACKEND:$CI_COMMIT_SHORT_SHA
     - docker push $CONTAINER_IMAGE_BACKEND:latest
   tags:
     - topas_road
 
-
-
- 
 deploy-to-swarm:
   stage: deploy
   image: kroniak/ssh-client:3.6
@@ -170,7 +175,7 @@ deploy-to-swarm:
     - scp $DOCKER_COMPOSE_FILE deployer@$SSH_DEPLOY_HOST_MATRIX:$COMPOSE_PATH
     # start new container
     - ssh deployer@$SSH_DEPLOY_HOST_MATRIX "cd $COMPOSE_PATH && docker stack deploy --with-registry-auth --compose-file $DOCKER_COMPOSE_FILE $CI_COMMIT_REF_SLUG"
-  parallel: !reference [.parallel,parallel]
+  parallel: !reference [.parallel, parallel]
   rules:
     - if: $CI_COMMIT_REF_NAME == $BRANCH
   tags:

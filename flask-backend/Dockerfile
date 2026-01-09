@@ -1,4 +1,4 @@
-FROM python:3.9.21-slim-bookworm AS dev
+FROM python:3.10.19-slim-bookworm AS dev
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -6,11 +6,17 @@ ARG DEBIAN_FRONTEND=noninteractive
 # Python dependencies #
 #######################
 
-ENV HOME  /root/flask-backend/
+ENV HOME=/root/flask-backend/
 WORKDIR /root/flask-backend/
 
 # see https://github.com/python-poetry/poetry/issues/1427
-ENV LANG C.UTF-8
+ENV LANG=C.UTF-8
+
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    g++ \
+    python3-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN pip install -U pip
 RUN pip install poetry==1.8.3
@@ -27,7 +33,7 @@ RUN poetry install  --without dev --extras "pgsql"
 # Add Python code #
 ###################
 
-FROM python:3.9.21-slim-bookworm AS deploy
+FROM python:3.10.19-slim-bookworm AS deploy
 
 COPY --from=dev /root/flask-backend/.venv /root/flask-backend/.venv
 ENV PATH="/root/flask-backend/.venv/bin:$PATH"

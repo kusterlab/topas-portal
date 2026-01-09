@@ -1,4 +1,4 @@
-FROM node:14.18.3-bullseye AS dev
+FROM node:22-bullseye AS dev
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -16,14 +16,14 @@ RUN npm install -g http-server
 #####################
 
 ARG NODE_ENV=production
-ARG VUE_APP_API_HOST=/master_topas-portal_backend
+ARG VITE_API_HOST=/master_topas-portal_backend
 
 ADD ./ /root/vue-frontend
 WORKDIR /root/vue-frontend
-RUN npm run build
+RUN NODE_OPTIONS="--max-old-space-size=4096" npm run build
 
 RUN echo "NODE_ENV: $NODE_ENV"
-RUN echo "VUE_APP_API_HOST: $VUE_APP_API_HOST"
+RUN echo "VITE_API_HOST: $VITE_API_HOST"
 
 WORKDIR /root
 CMD [ "sh", "-c", "http-server dist --port ${CI_FRONTEND_PORT:-3834}" ]
