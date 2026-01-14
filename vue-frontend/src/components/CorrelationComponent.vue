@@ -18,7 +18,7 @@
                 v-for="u in intensityUnits"
                 :key="u.value"
                 :label="u.title"
-                :model-value="u.value"
+                :value="u.value"
               />
             </v-radio-group>
           </v-card-text>

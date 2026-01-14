@@ -4,12 +4,10 @@
       <v-col sm="12" md="3" lg="2">
         <v-card variant="flat">
           <v-card-title tag="h1"> Admin tools </v-card-title>
-          <v-card-text>
-            <div style="display: flow-root">
+          <v-card-text >
               <v-text-field
                 v-model="password"
                 :disabled="isLoggedIn"
-                class="float-left"
                 label="Password"
                 type="password"
                 @update:model-value="checkPassValidity"
@@ -19,7 +17,6 @@
                   <v-icon v-if="!isLoggedIn" color="red-darken-2"> mdi-minus-circle </v-icon>
                 </template>
               </v-text-field>
-            </div>
           </v-card-text>
         </v-card>
       </v-col>

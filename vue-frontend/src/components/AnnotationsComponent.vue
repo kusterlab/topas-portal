@@ -11,7 +11,7 @@
                 v-for="(label, value) in radioOptions"
                 :key="value"
                 :label="label"
-                :model-value="value"
+                :value="value"
               />
             </v-radio-group>
           </v-card-text>
