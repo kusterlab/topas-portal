@@ -215,7 +215,7 @@
                       >
                         <template #placeholder>
                           <v-col class="fill-height ma-0" align="center" justify="center">
-                            <v-progress-circular indeterminate color="primary" />
+                            <v-progress-circular indeterminate color="primary" size="64" />
                             <p>Loading tumor antigens...</p>
                           </v-col>
                         </template>
@@ -231,7 +231,7 @@
                       >
                         <template #placeholder>
                           <v-col class="fill-height ma-0" hei align="center" justify="center">
-                            <v-progress-circular indeterminate color="primary" />
+                            <v-progress-circular indeterminate color="primary" size="64" />
                             <p>Loading RTKs...</p>
                           </v-col>
                         </template>
