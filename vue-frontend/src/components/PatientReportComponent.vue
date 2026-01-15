@@ -202,136 +202,111 @@
           <v-row>
             <v-col sm="12" md="12" lg="12">
               <v-card variant="flat">
+                <v-card-title>Advanced plots</v-card-title>
                 <v-card-text>
-                  <v-tabs v-model="type">
-                    <v-tab value="tumor"> TUMOR ANTIGENS </v-tab>
-                    <v-tab value="rtk"> RTK </v-tab>
-                    <v-tab value="cknk"> CK / NK </v-tab>
-                    <v-tab value="immune"> IMMUNE STATUS </v-tab>
-                    <v-tab value="prodict"> PRODICT </v-tab>
-                  </v-tabs>
+                  <v-row>
+                    <v-col>
+                      <v-img
+                        v-if="firstPatient"
+                        :src="getTumorUrl()"
+                        aspect-ratio="1.78"
+                        @load="loadingTumor = false"
+                        @error="loadingTumor = false"
+                      >
+                        <template #placeholder>
+                          <v-col class="fill-height ma-0" align="center" justify="center">
+                            <v-progress-circular indeterminate color="primary" />
+                            <p>Loading tumor antigens...</p>
+                          </v-col>
+                        </template>
+                      </v-img>
+                    </v-col>
+                    <v-col>
+                      <v-img
+                        v-if="firstPatient"
+                        :src="getRtkUrl()"
+                        aspect-ratio="1.78"
+                        @load="loadingRtk = false"
+                        @error="loadingRtk = false"
+                      >
+                        <template #placeholder>
+                          <v-col class="fill-height ma-0" hei align="center" justify="center">
+                            <v-progress-circular indeterminate color="primary" />
+                            <p>Loading RTKs...</p>
+                          </v-col>
+                        </template>
+                      </v-img>
+                    </v-col>
+                  </v-row>
 
-                  <v-divider />
-                  <v-tabs-window v-model="type">
-                    <v-tabs-window-item value="tumor">
-                      <v-card variant="flat" min-height="400px">
-                        <v-card-text>
-                          <div class="chart-container">
-                            <div v-if="loadingTumor" class="loader">
-                              <v-progress-circular indeterminate color="primary" size="64" />
-                              <p class="mt-4"> Loading tumor antigens... </p>
-                            </div>
-                            <img
-                              v-if="firstPatient"
-                              v-show="!loadingTumor"
-                              :src="getTumorUrl()"
-                              @load="loadingTumor = false"
-                              @error="loadingTumor = false"
-                            />
-                          </div>
-                        </v-card-text>
-                      </v-card>
-                    </v-tabs-window-item>
-
-                    <v-tabs-window-item value="rtk">
-                      <v-card variant="flat" min-height="400px">
-                        <v-card-text>
-                          <div class="chart-container">
-                            <div v-if="loadingRtk" class="loader">
-                              <v-progress-circular indeterminate color="primary" size="64" />
-                              <p class="mt-4"> Loading RTK... </p>
-                            </div>
-                            <img
-                              v-if="firstPatient"
-                              v-show="!loadingRtk"
-                              :src="getRtkUrl()"
-                              @load="loadingRtk = false"
-                              @error="loadingRtk = false"
-                            />
-                          </div>
-                        </v-card-text>
-                      </v-card>
-                    </v-tabs-window-item>
-
-                    <v-tabs-window-item value="cknk">
-                      <v-card variant="flat" min-height="400px">
-                        <v-card-text>
-                          <div class="chart-container">
-                            <div v-if="loadingCknk" class="loader">
-                              <v-progress-circular indeterminate color="primary" size="64" />
-                              <p class="mt-4"> Loading CK/NK... </p>
-                            </div>
-                            <img
-                              v-if="firstPatient"
-                              v-show="!loadingCknk"
-                              :src="getCknkUrl()"
-                              @load="loadingCknk = false"
-                              @error="loadingCknk = false"
-                            />
-                          </div>
-                        </v-card-text>
-                      </v-card>
-                    </v-tabs-window-item>
-
-                    <v-tabs-window-item value="immune">
-                      <v-card variant="flat" min-height="400px">
-                        <v-card-text>
-                          <div class="chart-container">
-                            <div v-if="loadingImmune" class="loader">
-                              <v-progress-circular indeterminate color="primary" size="64" />
-                              <p class="mt-4"> Loading immune status... </p>
-                            </div>
-                            <img
-                              v-if="firstPatient"
-                              v-show="!loadingImmune"
-                              :src="getImmuneUrl()"
-                              @load="loadingImmune = false"
-                              @error="loadingImmune = false"
-                            />
-                          </div>
-                        </v-card-text>
-                      </v-card>
-                    </v-tabs-window-item>
-
-                    <v-tabs-window-item value="prodict">
-                      <v-card variant="flat" min-height="400px">
-                        <v-card-text>
-                          <v-row>
-                            <v-col cols="12" md="6">
-                              <div class="chart-container">
-                                <div v-if="loadingProdictProb" class="loader">
-                                  <v-progress-circular indeterminate color="primary" size="64" />
-                                  <p class="mt-4"> Loading PROdictions... </p>
-                                </div>
-                                <img
-                                  v-if="firstPatient"
-                                  v-show="!loadingProdictProb"
-                                  :src="getProdictProbUrl()"
-                                  @load="loadingProdictProb = false"
-                                  @error="loadingProdictProb = false"
-                                />
-                              </div>
-                            </v-col>
-                            <v-col cols="12" md="6">
-                              <div class="chart-container">
-                                <div v-if="loadingProdictUmap" class="loader">
-                                  <v-progress-circular indeterminate color="primary" size="64" />
-                                  <p class="mt-4"> Loading UMAP... </p>
-                                </div>
-                                <img
-                                  v-if="firstPatient"
-                                  v-show="!loadingProdictUmap"
-                                  :src="getProdictUmapUrl()"
-                                  @load="loadingProdictUmap = false"
-                                  @error="loadingProdictUmap = false"
-                                />
-                              </div>
-                            </v-col>
-                          </v-row>
-                        </v-card-text>
-                      </v-card>
-                    </v-tabs-window-item>
-                  </v-tabs-window>
+                  <v-row>
+                    <v-col>
+                      <v-img
+                        v-if="firstPatient"
+                        :src="getCknkUrl()"
+                        aspect-ratio="1.78"
+                        @load="loadingCknk = false"
+                        @error="loadingCknk = false"
+                      >
+                        <template #placeholder>
+                          <v-col class="fill-height ma-0" align="center" justify="center">
+                            <v-progress-circular indeterminate color="primary" size="64" />
+                            <p class="mt-4"> Loading CK/NK... </p>
+                          </v-col>
+                        </template>
+                      </v-img>
+                    </v-col>
+                    <v-col>
+                      <v-img
+                        v-if="firstPatient"
+                        :src="getImmuneUrl()"
+                        aspect-ratio="1.78"
+                        @load="loadingImmune = false"
+                        @error="loadingImmune = false"
+                      >
+                        <template #placeholder>
+                          <v-col class="fill-height ma-0" align="center" justify="center">
+                            <v-progress-circular indeterminate color="primary" size="64" />
+                            <p class="mt-4"> Loading immune status... </p>
+                          </v-col>
+                        </template>
+                      </v-img>
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col>
+                      <v-img
+                        v-if="firstPatient"
+                        :src="getProdictProbUrl()"
+                        aspect-ratio="1.78"
+                        @load="loadingProdictProb = false"
+                        @error="loadingProdictProb = false"
+                      >
+                        <template #placeholder>
+                          <v-col class="fill-height ma-0" align="center" justify="center">
+                            <v-progress-circular indeterminate color="primary" size="64" />
+                            <p class="mt-4"> Loading PROdictions... </p>
+                          </v-col>
+                        </template>
+                      </v-img>
+                    </v-col>
+                    <v-col>
+                      <v-img
+                        v-if="firstPatient"
+                        :src="getProdictUmapUrl()"
+                        aspect-ratio="1.78"
+                        @load="loadingProdictUmap = false"
+                        @error="loadingProdictUmap = false"
+                      >
+                        <template #placeholder>
+                          <v-col class="fill-height ma-0" align="center" justify="center">
+                            <v-progress-circular indeterminate color="primary" size="64" />
+                            <p class="mt-4"> Loading UMAP... </p>
+                          </v-col>
+                        </template>
+                      </v-img>
+                    </v-col>
+                  </v-row>
                 </v-card-text>
               </v-card>
             </v-col>
@@ -487,6 +462,14 @@
       },
       includeRefChannels() {
         this.getPatientData()
+      },
+      firstPatient() {
+        this.loadingTumor = true
+        this.loadingRtk = true
+        this.loadingCknk = true
+        this.loadingImmune = true
+        this.loadingProdictProb = true
+        this.loadingProdictUmap = true
       }
     },
     methods: {
@@ -600,13 +583,6 @@
         this.selectedData = selectedData
 
         if (selectedData.length > 0) {
-          this.loadingTumor = true
-          this.loadingRtk = true
-          this.loadingCknk = true
-          this.loadingImmune = true
-          this.loadingProdictProb = true
-          this.loadingProdictUmap = true
-
           this.getscoresTable()
           const dashStyle = '5, 5'
 
