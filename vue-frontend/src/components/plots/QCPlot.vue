@@ -121,7 +121,7 @@
       changetheseSamplescolors() {
         if (this.qcSelIds.length > 0) {
           this.qcSelIds.forEach(element => {
-            this.finalPlotData[element].colorCodes = this.colorCode.hex
+            this.finalPlotData[element].colorCodes = this.colorCode
             this.finalPlotData[element].MetaData = this.patientGroup
             this.finalPlotData[element].rSize = 50
           })
