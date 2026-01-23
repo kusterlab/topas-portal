@@ -1,5 +1,12 @@
-
-from flask import Blueprint, jsonify, current_app, send_from_directory, Response, request, send_file
+from flask import (
+    Blueprint,
+    jsonify,
+    current_app,
+    send_from_directory,
+    Response,
+    request,
+    send_file,
+)
 import db
 import pandas as pd
 import zipfile
@@ -16,9 +23,11 @@ from routes import PatientReportApiRoutes
 from topas_portal.config import CohortConfig
 from topas_portal import prexp_preprocess as pp
 import matplotlib
-matplotlib.use('svg')
+
+matplotlib.use("svg")
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap, BoundaryNorm
+from matplotlib.ticker import MultipleLocator
 import seaborn as sns
 from topas_portal import patient_report_excel
 
@@ -84,7 +93,7 @@ antigens = [
     "VTCN1",
     "CLDN6",
     "ESR1",
-    "SSTR2"
+    "SSTR2",
 ]
 
 
@@ -151,8 +160,9 @@ immune_status_genes = [
     "HLA-H",
     "CD3D",
     "CD22",
-    "GZMH"
+    "GZMH",
 ]
+
 
 @cache.cached(timeout=50)
 @patient_report_page.route(PatientReportApiRoutes.PATIENT_REPORT_TABLE)
@@ -235,7 +245,9 @@ def get_patient_reports_as_attachment(cohort_index: int, patients: str):
                     compress_type=zipfile.ZIP_STORED,
                 )  # no compression, because Excel files are already binary
         return send_from_directory(
-            current_app.config["UPLOAD_FOLDER"], Path(output_zipfile).name, as_attachment=True
+            current_app.config["UPLOAD_FOLDER"],
+            Path(output_zipfile).name,
+            as_attachment=True,
         )
 
 
@@ -244,21 +256,23 @@ def get_tumor_antigens_swarm_plot(cohort_index: int, patient: str):
     if len(patient.split(";")) > 1:
         return "Can only handle 1 patient at a time", 400
 
-    subcohort_column = request.args.get("subcohort_column", type=str, default="code_oncotree")
+    subcohort_column = request.args.get(
+        "subcohort_column", type=str, default="code_oncotree"
+    )
     samples = cohorts_db.get_patient_metadata_df(cohort_index)
 
     subcohort = get_subcohort_index(samples, subcohort_column, patient)
 
-    fp = cohorts_db.get_protein_abundance_df(cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE)
+    fp = cohorts_db.get_protein_abundance_df(
+        cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
+    )
 
     genes = fp.index.intersection(antigens)
 
     df_long = (
         fp.loc[genes]
         .reset_index()
-        .melt(id_vars='Gene names',
-                var_name='Sample names',
-                value_name='Expression')
+        .melt(id_vars="Gene names", var_name="Sample names", value_name="Expression")
     )
 
     df_long["subcohort"] = df_long["Sample names"].isin(subcohort)
@@ -266,66 +280,86 @@ def get_tumor_antigens_swarm_plot(cohort_index: int, patient: str):
 
     gene_order = (
         df_long[df_long["highlight"]]
-            .sort_values("Expression", ascending=False)["Gene names"]
-            .tolist()
+        .sort_values("Expression", ascending=False)["Gene names"]
+        .tolist()
     )
 
-    svg_data = get_swarm_plot_svg(df_long, gene_order, "", "Protein abundance (z-score)", f"{patient} tumor antigens")
+    svg_data = get_swarm_plot_svg(
+        df_long,
+        gene_order,
+        "",
+        "Protein abundance (z-score)",
+        f"{patient} tumor antigens",
+    )
 
     return Response(svg_data, mimetype="image/svg+xml")
+
 
 @patient_report_page.route(PatientReportApiRoutes.RTKS_SWARM_PLOT)
 def get_rtk_swarm_plot(cohort_index: int, patient: str):
     if len(patient.split(";")) > 1:
         return "Can only handle 1 patient at a time", 400
 
-    subcohort_column = request.args.get("subcohort_column", type=str, default="code_oncotree")
+    subcohort_column = request.args.get(
+        "subcohort_column", type=str, default="code_oncotree"
+    )
     samples = cohorts_db.get_patient_metadata_df(cohort_index)
 
     subcohort = get_subcohort_index(samples, subcohort_column, patient)
 
-    rtk = cohorts_db.get_topas_rtk_scores_df(cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE)
-    
+    rtk = cohorts_db.get_topas_rtk_scores_df(
+        cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
+    )
+
     df_long = (
-        rtk
-        .rename_axis("Gene names")
+        rtk.rename_axis("Gene names")
         .reset_index()
-        .melt(id_vars="Gene names",
-            var_name="Sample names",
-            value_name="Expression")
+        .melt(id_vars="Gene names", var_name="Sample names", value_name="Expression")
     )
     df_long["subcohort"] = df_long["Sample names"].isin(subcohort)
     df_long["highlight"] = df_long["Sample names"].eq(patient)
 
     gene_order = (
         df_long[df_long["highlight"]]
-            .sort_values("Expression", ascending=False)["Gene names"]
-            .tolist()
+        .sort_values("Expression", ascending=False)["Gene names"]
+        .tolist()
     )
 
-    svg_data = get_swarm_plot_svg(df_long, gene_order, "", "RTK-TOPAS (z-score)", f"{patient} RTK")    
+    svg_data = get_swarm_plot_svg(
+        df_long,
+        gene_order,
+        "",
+        "RTK-TOPAS (z-score)",
+        f"{patient} RTK",
+        y_thresh_main=2,
+        y_thresh_sec=1.5,
+        ymin=-4.2,
+        ymax=4.2,
+    )
 
     return Response(svg_data, mimetype="image/svg+xml")
+
 
 @patient_report_page.route(PatientReportApiRoutes.CKS_NKS_SWARM_PLOT)
 def get_ck_nk_swarm_plot(cohort_index: int, patient: str):
     if len(patient.split(";")) > 1:
         return "Can only handle 1 patient at a time", 400
 
-    subcohort_column = request.args.get("subcohort_column", type=str, default="code_oncotree")
+    subcohort_column = request.args.get(
+        "subcohort_column", type=str, default="code_oncotree"
+    )
     samples = cohorts_db.get_patient_metadata_df(cohort_index)
 
     subcohort = get_subcohort_index(samples, subcohort_column, patient)
 
-    ck_nk = cohorts_db.get_topas_ck_scores_df(cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE)
-    
+    ck_nk = cohorts_db.get_topas_ck_scores_df(
+        cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
+    )
+
     df_long = (
-        ck_nk
-        .rename_axis("Gene names")
+        ck_nk.rename_axis("Gene names")
         .reset_index()
-        .melt(id_vars="Gene names",
-            var_name="Sample names",
-            value_name="Expression")
+        .melt(id_vars="Gene names", var_name="Sample names", value_name="Expression")
     )
 
     df_long["subcohort"] = df_long["Sample names"].isin(subcohort)
@@ -333,10 +367,18 @@ def get_ck_nk_swarm_plot(cohort_index: int, patient: str):
 
     gene_order = (
         df_long[df_long["highlight"]]
-            .sort_values("Expression", ascending=False)["Gene names"]
-            .tolist()
+        .sort_values("Expression", ascending=False)["Gene names"]
+        .tolist()
     )
-    svg_data = get_swarm_plot_svg(df_long, gene_order, "", "CK/NK-TOPAS (z-score)", f"{patient} CK/NK")    
+    svg_data = get_swarm_plot_svg(
+        df_long,
+        gene_order,
+        "",
+        "CK/NK-TOPAS (z-score)",
+        f"{patient} CK/NK",
+        y_thresh_main=2,
+        y_thresh_sec=1.5,
+    )
     return Response(svg_data, mimetype="image/svg+xml")
 
 
@@ -345,8 +387,10 @@ def get_immune_status_heatmap(cohort_index: int, patient: str):
     if len(patient.split(";")) > 1:
         return "Can only handle 1 patient at a time", 400
 
-    fp = cohorts_db.get_protein_abundance_df(cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE)
-    
+    fp = cohorts_db.get_protein_abundance_df(
+        cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
+    )
+
     fp = fp.loc[fp.index.intersection(immune_status_genes)]
 
     def classify(x):
@@ -356,8 +400,14 @@ def get_immune_status_heatmap(cohort_index: int, patient: str):
             return 1
         else:
             return 0
-    sample_order = (fp.applymap(classify) > 0).sum(axis=0).sort_values(ascending=False).index.to_list()
-    
+
+    sample_order = (
+        (fp.applymap(classify) > 0)
+        .sum(axis=0)
+        .sort_values(ascending=False)
+        .index.to_list()
+    )
+
     sample_order.remove(patient)
     new_order = sample_order[:5] + [patient] + sample_order[-5:]
 
@@ -372,9 +422,9 @@ def get_immune_status_heatmap(cohort_index: int, patient: str):
         cmap=cmap,
         cbar=None,
         linewidths=0.5,
-        linecolor='white',
+        linecolor="white",
         norm=norm,
-        ax=ax
+        ax=ax,
     )
 
     mid = len(new_order) // 2
@@ -384,8 +434,8 @@ def get_immune_status_heatmap(cohort_index: int, patient: str):
 
     for label in ax.get_xticklabels():
         label.set_rotation(60)
-        label.set_ha('right')
-        label.set_rotation_mode('anchor')
+        label.set_ha("right")
+        label.set_rotation_mode("anchor")
 
     ax.xaxis.label.set_visible(False)
     ax.yaxis.label.set_visible(False)
@@ -401,73 +451,215 @@ def get_immune_status_heatmap(cohort_index: int, patient: str):
     return Response(svg_data, mimetype="image/svg+xml")
 
 
+@patient_report_page.route(PatientReportApiRoutes.PRODICT_PATIENT_PROBABILITES)
+# http://localhost:3832/cohort_index/patients/patient_id/prodict/score"
+def get_probabilities(cohort_index, patient):
+    """Returns entity scores for a given patient"""
+    try:
+        models = load_sklearn_models(config.get_models_folder())
+        data_clean = get_imputed_df(cohort_index)
+        patient_input_data = pd.DataFrame(data_clean.loc[patient]).T
+
+        predictions = probabilities_calculator(models, patient_input_data)
+
+        svg_output = generate_prodict_visualization(predictions, patient)
+        plt.close("all")
+
+        return Response(svg_output, mimetype="image/svg+xml")
+
+    except Exception as e:
+        return jsonify({"error during prediction": str(e)}), 50
+
+
+@patient_report_page.route(PatientReportApiRoutes.PRODICT_PATIENT_UMAP)
+def get_patient_umap(cohort_index: int, patient: str):
+    """
+    Generate UMAP visualization for a specific patient in its entity context.
+    """
+
+    try:
+
+        # Loading necessary data. Intensity, metadata and signatures
+        signatures_dict = load_signatures_from_folder(config.get_signatures_folder())
+
+        # Modifying metadata, extracting only oncotree classification
+        metadata = cohorts_db.get_patient_metadata_df(cohort_index)
+        metadata = metadata.set_index("Sample name")
+        metadata_oncotree = metadata["code_oncotree"]
+
+        # Loading imputed intensities
+        data_clean = get_imputed_df(cohort_index)
+        data_clean["code_oncotree"] = metadata_oncotree
+
+        # Defining the oncotree for the patient
+        signatures = signatures_dict
+        signature_key = metadata_oncotree.loc[patient]
+
+        # Generate UMAP figure
+        fig = generate_umap_visualization(
+            data_clean=data_clean,
+            signatures=signatures,
+            sample_name=patient,
+            signature_key=signature_key,
+            n_neighbors=10,
+            min_dist=0.1,
+            random_state=93,
+        )
+
+        # Save figure to bytes buffer
+        buf = io.BytesIO()
+        fig.savefig(buf, format="svg", bbox_inches="tight")
+        buf.seek(0)
+
+        svg_string = buf.getvalue().decode("utf-8")
+        plt.close(fig)
+        return Response(svg_string, mimetype="image/svg+xml")
+
+    except KeyError as e:
+        return {
+            "error": f"Missing required parameter: {str(e)}",
+            "traceback": traceback.format_exc(),
+        }, 400
+
+    except Exception as e:
+        return {"error": str(e), "traceback": traceback.format_exc()}, 500
+
+
 def get_subcohort_index(samples_df, column, sample_name):
-    return samples_df[
-        samples_df[column] == samples_df.loc[samples_df["Sample name"] == sample_name, column].iloc[0]
-    ]["Sample name"].to_list() if column in samples_df.columns else []
+    return (
+        samples_df[
+            samples_df[column]
+            == samples_df.loc[samples_df["Sample name"] == sample_name, column].iloc[0]
+        ]["Sample name"].to_list()
+        if column in samples_df.columns
+        else []
+    )
 
 
-def get_swarm_plot_svg(df_long, gene_order, xlabel, ylabel, title="", figsize=(10, 4)):
+def get_swarm_plot_svg(
+    df_long,
+    gene_order,
+    xlabel,
+    ylabel,
+    title="",
+    figsize=(10, 4),
+    y_thresh_main=2,
+    y_thresh_sec=1.5,
+    y_break_at=None,
+    ymin=None,
+    ymax=None,
+):
+    should_break_axis = (
+        y_break_at is not None and (df_long["Expression"] >= y_break_at).sum() > 0
+    )
+    max_val = df_long["Expression"].max()
+    bottom_plot_idx = 1 if should_break_axis else 0
+    nrows = 2 if should_break_axis else 1
+    height_ratios = [1, 3] if should_break_axis else None
+
     highlight_genes = (
-        df_long[df_long["highlight"]].groupby("Gene names")["Expression"]
+        df_long[df_long["highlight"]]
+        .groupby("Gene names")["Expression"]
         .max()
-        .gt(2)
+        .gt(y_thresh_main)
     )
 
+    fig, ax = plt.subplots(
+        nrows=nrows, ncols=1, figsize=figsize, height_ratios=height_ratios, sharex=True
+    )
+    fig.subplots_adjust(hspace=0.02)
+    ax = np.atleast_1d(ax)
 
-    fig, ax = plt.subplots(figsize=figsize)
+    for x in ax:
+        sns.stripplot(
+            data=df_long[~df_long["subcohort"]],
+            x="Gene names",
+            y="Expression",
+            order=gene_order,
+            color="grey",
+            alpha=0.5,
+            jitter=True,
+            size=3,
+            ax=x,
+        )
 
-    sns.stripplot(
-        data=df_long[~df_long["subcohort"]],
-        x="Gene names",
-        y="Expression",
-        order=gene_order,
-        color="grey",
-        alpha=0.5,
-        jitter=True,
-        size=3,
-        ax=ax,
+        sns.stripplot(
+            data=df_long[df_long["subcohort"]],
+            x="Gene names",
+            y="Expression",
+            order=gene_order,
+            color="mediumblue",
+            alpha=0.5,
+            jitter=True,
+            size=3,
+            ax=x,
+        )
+
+        sns.stripplot(
+            data=df_long[df_long["highlight"]],
+            x="Gene names",
+            y="Expression",
+            order=gene_order,
+            color="red",
+            jitter=True,
+            size=5,
+            ax=x,
+        )
+
+        x.set_xlabel(None)
+        x.set_ylabel(None)
+        x.tick_params(axis="x", which="both", length=0)
+        x.tick_params(axis="y", which="both", length=0)
+
+        x.yaxis.set_major_locator(MultipleLocator(0.5))
+
+    ax[bottom_plot_idx].axhline(y=y_thresh_main, linestyle="--", color="red", zorder=10)
+    ax[bottom_plot_idx].axhline(
+        y=y_thresh_sec, linestyle="--", color="black", alpha=0.3
     )
 
-    sns.stripplot(
-        data=df_long[df_long["subcohort"]],
-        x="Gene names",
-        y="Expression",
-        order=gene_order,
-        color="mediumblue",
-        alpha=0.5,
-        jitter=True,
-        size=3,
-        ax=ax,
+    ax[bottom_plot_idx].set_xticks(ax[bottom_plot_idx].get_xticks())
+    ax[bottom_plot_idx].set_xticklabels(
+        ax[bottom_plot_idx].get_xticklabels(),
+        rotation=60,
+        ha="right",
+        rotation_mode="anchor",
     )
 
-    sns.stripplot(
-        data=df_long[df_long["highlight"]],
-        x="Gene names",
-        y="Expression",
-        order=gene_order,
-        color="red",
-        jitter=True,
-        size=5,
-        ax=ax,
-    )
-
-    for tick in ax.get_xticklabels():
+    for tick in ax[bottom_plot_idx].get_xticklabels():
         gene = tick.get_text()
         if highlight_genes.get(gene, False):
             tick.set_color("red")
 
-    ax.axhline(y=2, linestyle='--', color='red', zorder=10)
+    if should_break_axis:
+        ax[0].spines.bottom.set_visible(False)
+        ax[1].spines.top.set_visible(False)
+        ax[0].xaxis.tick_top()
+        ax[0].tick_params(labeltop=False)
+        ax[1].xaxis.tick_bottom()
+        ax[1].set_ylim(bottom=ymin)
+        ax[1].set_ylim(top=y_break_at - 0.7)
+        ax[0].set_ylim([max_val - 0.3, max_val + 0.3])
 
-    ax.set_xticks(ax.get_xticks())
-    ax.set_xticklabels(ax.get_xticklabels(), rotation=60, ha='right', rotation_mode='anchor')
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel)
-    ax.set_title(title)
+        d = 0.5
+        kwargs = dict(
+            marker=[(-1, -d), (1, d)],
+            markersize=12,
+            linestyle="none",
+            color="k",
+            mec="k",
+            mew=1,
+            clip_on=False,
+        )
+        ax[0].plot([0, 1], [0, 0], transform=ax[0].transAxes, **kwargs)
+        ax[1].plot([0, 1], [1, 1], transform=ax[1].transAxes, **kwargs)
+    else:
+        ax[0].set_ylim(bottom=ymin)
+        ax[0].set_ylim(top=ymax)
 
-    ax.tick_params(axis='x', which='both', length=0)
-    ax.tick_params(axis='y', which='both', length=0)
-
+    fig.supxlabel(xlabel)
+    fig.supylabel(ylabel)
+    fig.suptitle(title)
     fig.tight_layout()
 
     buf = io.BytesIO()
@@ -480,13 +672,14 @@ def get_swarm_plot_svg(df_long, gene_order, xlabel, ylabel, title="", figsize=(1
 
 # PRODICT
 
+
 # Load necessary files - Classification models and Tumor Type Signatues
 def load_signatures_from_folder(folder_path):
     folder = Path(folder_path)
     signatures_dict = {}
 
-    for file in folder.glob("*.txt"): 
-        key = file.stem               
+    for file in folder.glob("*.txt"):
+        key = file.stem
         with open(file, "r") as f:
             lines = [line.strip() for line in f if line.strip() != ""]
         signatures_dict[key] = lines
@@ -495,13 +688,12 @@ def load_signatures_from_folder(folder_path):
 
 
 def load_sklearn_models(folder_path):
-
-    """ Loads pickelized sklearn classification models from folder"""
+    """Loads pickelized sklearn classification models from folder"""
     models = {}
     for filename in os.listdir(folder_path):
-        if filename.endswith('.pkl'):
+        if filename.endswith(".pkl"):
             file_path = os.path.join(folder_path, filename)
-            model_name = filename.replace('_log_reg_ridge_model.pkl', '')
+            model_name = filename.replace("_log_reg_ridge_model.pkl", "")
             try:
                 model = joblib.load(file_path)
                 models[model_name] = model
@@ -515,23 +707,23 @@ def impute_normal_down_shift_distribution(
     column_wise: bool = True,
     width: float = 0.3,
     downshift: float = 1.8,
-    seed: int = 2
+    seed: int = 2,
 ) -> pd.DataFrame:
     """
     Performs imputation across a matrix columnswise
     """
-    
+
     unimputerd_df = unimputerd_dataframe.copy()
     unimputerd_df.replace({pd.NA: np.nan}, inplace=True)
     unimputerd_matrix = unimputerd_df.to_numpy()
     columns_names = unimputerd_df.columns
     rownames = unimputerd_df.index
-    
+
     unimputerd_matrix[~np.isfinite(unimputerd_matrix)] = np.nan
     main_mean = np.nanmean(unimputerd_matrix)
     main_std = np.nanstd(unimputerd_matrix)
     np.random.seed(seed=seed)
-    
+
     def impute_normal_per_vector(temp: np.ndarray, width=width, downshift=downshift):
         """Performs imputation for a single vector"""
         if column_wise:
@@ -540,46 +732,39 @@ def impute_normal_down_shift_distribution(
         else:
             temp_sd = main_std
             temp_mean = main_mean
-        
+
         shrinked_sd = width * temp_sd
         downshifted_mean = temp_mean - (downshift * temp_sd)
         n_missing = np.count_nonzero(np.isnan(temp))
-        
+
         if n_missing > 0:
             temp[np.isnan(temp)] = np.random.normal(
-                loc=downshifted_mean,
-                scale=shrinked_sd,
-                size=n_missing
+                loc=downshifted_mean, scale=shrinked_sd, size=n_missing
             )
-        
+
         return temp
-    
+
     final_matrix = np.apply_along_axis(impute_normal_per_vector, 0, unimputerd_matrix)
     final_df = pd.DataFrame(final_matrix)
     final_df.index = rownames
     final_df.columns = columns_names
-    
+
     return final_df
 
 
-@cache.cached(timeout=300, key_prefix='imputed_cohort_')
+@cache.cached(timeout=300, key_prefix="imputed_cohort_")
 def get_imputed_df(cohort_index: int):
     """Collescts intensity dataframe and impute it to further process"""
-    
+
     fp = cohorts_db.get_protein_abundance_df(
-                cohort_index, 
-                intensity_unit=utils.IntensityUnit.INTENSITY
-            )
+        cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
+    )
 
     data_initial = fp.T
     imputed_data = impute_normal_down_shift_distribution(
-        data_initial,
-        column_wise=True,
-        width=0.3,
-        downshift=1.8,
-        seed=2
+        data_initial, column_wise=True, width=0.3, downshift=1.8, seed=2
     )
-    data_clean = imputed_data.dropna(axis=1, how='all')
+    data_clean = imputed_data.dropna(axis=1, how="all")
     return data_clean
 
 
@@ -590,7 +775,7 @@ def generate_umap_visualization(
     signature_key: str,
     n_neighbors: int = 10,
     min_dist: float = 0.1,
-    random_state: int = 93
+    random_state: int = 93,
 ):
     """Generate UMAP visualization with color coding based on signatures and sample"""
 
@@ -612,7 +797,7 @@ def generate_umap_visualization(
         n_neighbors=n_neighbors,
         min_dist=min_dist,
         random_state=random_state,
-        n_components=2
+        n_components=2,
     )
     embedding = reducer.fit_transform(X)
 
@@ -620,20 +805,20 @@ def generate_umap_visualization(
     colors = []
     for idx in data_clean.index:
         if idx == sample_name:
-            colors.append('#FF0000')
-        elif data_clean.loc[idx, 'code_oncotree'] == signature_key:
-            colors.append('#0468BF')
+            colors.append("#FF0000")
+        elif data_clean.loc[idx, "code_oncotree"] == signature_key:
+            colors.append("#0468BF")
         else:
-            colors.append('silver')
+            colors.append("silver")
 
     # Create visualization
     fig, ax = plt.subplots(figsize=(6, 6))
 
     # Plot points in order
     for color_code, label in [
-        ('silver', 'Other'),
-        ('#0468BF', f'{signature_key}'),
-        ('#FF0000', sample_name)
+        ("silver", "Other"),
+        ("#0468BF", f"{signature_key}"),
+        ("#FF0000", sample_name),
     ]:
         mask = np.array(colors) == color_code
         if np.any(mask):
@@ -642,17 +827,25 @@ def generate_umap_visualization(
                 embedding[mask, 1],
                 c=color_code,
                 label=label,
-                alpha=0.7 if color_code != '#FF0000' else 1.0,
-                s=60 if color_code == '#FF0000' else (75 if color_code == '#0468BF' else 50),
-                edgecolors='black' if color_code == '#FF0000' else 'white',
-                linewidths=1 if color_code == '#FF0000' else 0.5,
-                zorder=1 if color_code == 'silver' else (2 if color_code == '#0468BF' else 3)
+                alpha=0.7 if color_code != "#FF0000" else 1.0,
+                s=(
+                    60
+                    if color_code == "#FF0000"
+                    else (75 if color_code == "#0468BF" else 50)
+                ),
+                edgecolors="black" if color_code == "#FF0000" else "white",
+                linewidths=1 if color_code == "#FF0000" else 0.5,
+                zorder=(
+                    1
+                    if color_code == "silver"
+                    else (2 if color_code == "#0468BF" else 3)
+                ),
             )
 
-    ax.set_xlabel('UMAP 1')
-    ax.set_ylabel('UMAP 2')
-    ax.set_title(f'UMAP Visualization - {sample_name}', fontsize=10, fontweight='bold')
-    ax.legend(loc='best', framealpha=0.9)
+    ax.set_xlabel("UMAP 1")
+    ax.set_ylabel("UMAP 2")
+    ax.set_title(f"UMAP Visualization - {sample_name}", fontsize=10, fontweight="bold")
+    ax.legend(loc="best", framealpha=0.9)
 
     plt.tight_layout()
 
@@ -683,140 +876,68 @@ def probabilities_calculator(models: dict, input_data: pd.DataFrame) -> dict:
         print(f"{len(missing_proteins)} proteins added for {tumor_entity}")
 
         # Predict probability of class 1
-        pred_prob = model.predict_proba(input_df[models[tumor_entity].feature_names_in_])[:, 1]
+        pred_prob = model.predict_proba(
+            input_df[models[tumor_entity].feature_names_in_]
+        )[:, 1]
         predictions[tumor_entity] = float(pred_prob)
 
     return predictions
 
 
 def generate_prodict_visualization(predictions: dict, sample_name: str):
-    """Lollipopo graph to visualize the probabilities of 
+    """Lollipopo graph to visualize the probabilities of
     each classifier applied to a sample"""
-    
+
     row = pd.Series(predictions).sort_index(ascending=False)
-    
+
     rename_map = {
         "PLEMESO_PEMESO": "P(L)EMESO",
         "BA_ANGS": "(B)ANGS",
         "LMS_ULMS": "(U)LMS",
         "MEL_UM": "(U)MEL",
-        
     }
     row.index = row.index.to_series().replace(rename_map)
 
     fig, ax = plt.subplots(figsize=(5, 6))
-    ax.hlines(y=row.index, xmin=0, xmax=row.values, color='lightgrey', lw=2)
+    ax.hlines(y=row.index, xmin=0, xmax=row.values, color="lightgrey", lw=2)
 
     # Plot each dot with conditional color
     for feature, value in row.items():
-        color = 'red' if value > 0.9 else 'steelblue' if value > 0.5 else 'silver'
-        ax.plot(value, feature, 'o', color=color, markersize=8)
-        
+        color = "red" if value > 0.9 else "steelblue" if value > 0.5 else "silver"
+        ax.plot(value, feature, "o", color=color, markersize=8)
+
         if value > 0.1:
-            ax.text(value + 0.03, feature, f'{value:.2f}', 
-                   va='center', ha='left', fontsize=9)
+            ax.text(
+                value + 0.03,
+                feature,
+                f"{value:.2f}",
+                va="center",
+                ha="left",
+                fontsize=9,
+            )
 
     # Add threshold lines
-    ax.axvline(x=0.5, color='grey', lw=1, linestyle='--')
-    ax.axvline(x=0.9, color='black', lw=1, linestyle='--')
+    ax.axvline(x=0.5, color="grey", lw=1, linestyle="--")
+    ax.axvline(x=0.9, color="black", lw=1, linestyle="--")
 
     # Labels
     ax.set_xlabel("Probability")
     ax.set_xticks([0.0, 0.5, 0.9, 1.0])
-    ax.set_title(f'PROdict Classification - {sample_name}', fontsize=10, fontweight='bold')
+    ax.set_title(
+        f"PROdict Classification - {sample_name}", fontsize=10, fontweight="bold"
+    )
 
     # Remove frame box (keep only x & y axes)
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-    ax.spines['bottom'].set_visible(True)
-    ax.spines['left'].set_visible(True)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.spines["bottom"].set_visible(True)
+    ax.spines["left"].set_visible(True)
 
     # Layout and export as SVG
     plt.tight_layout()
     buf = io.BytesIO()
-    plt.savefig(buf, format='svg', bbox_inches='tight')
+    plt.savefig(buf, format="svg", bbox_inches="tight")
     plt.close(fig)
     buf.seek(0)
 
-    return buf.getvalue().decode('utf-8')
-
-
-@patient_report_page.route(PatientReportApiRoutes.PRODICT_PATIENT_PROBABILITES)
-# http://localhost:3832/cohort_index/patients/patient_id/prodict/score"
-def get_probabilities(cohort_index, patient):
-    """Returns entity scores for a given patient"""
-    try:
-        models = load_sklearn_models(config.get_models_folder())
-        data_clean = get_imputed_df(cohort_index)
-        patient_input_data = pd.DataFrame(data_clean.loc[patient]).T
-
-        predictions = probabilities_calculator(models, patient_input_data)
-
-        svg_output = generate_prodict_visualization(predictions, patient)
-        plt.close('all')
-
-        return Response(svg_output, mimetype='image/svg+xml')
-
-    except Exception as e:
-        return jsonify({"error during prediction": str(e)}), 50
-
-
-@patient_report_page.route(PatientReportApiRoutes.PRODICT_PATIENT_UMAP)
-def get_patient_umap(
-        cohort_index: int,
-        patient: str
-):
-    """
-    Generate UMAP visualization for a specific patient in its entity context.
-    """
-
-    try:
-
-        # Loading necessary data. Intensity, metadata and signatures
-        signatures_dict = load_signatures_from_folder(config.get_signatures_folder())
-        
-        # Modifying metadata, extracting only oncotree classification
-        metadata = cohorts_db.get_patient_metadata_df(cohort_index)
-        metadata = metadata.set_index('Sample name')
-        metadata_oncotree = metadata['code_oncotree']
-
-
-        #Loading imputed intensities
-        data_clean = get_imputed_df(cohort_index)
-        data_clean['code_oncotree'] = metadata_oncotree
-
-        #Defining the oncotree for the patient
-        signatures = signatures_dict
-        signature_key = metadata_oncotree.loc[patient]
-
-        # Generate UMAP figure
-        fig = generate_umap_visualization(
-            data_clean=data_clean,
-            signatures=signatures,
-            sample_name=patient,
-            signature_key=signature_key,
-            n_neighbors=10,
-            min_dist=0.1,
-            random_state=93
-        )
-
-        # Save figure to bytes buffer
-        buf = io.BytesIO()
-        fig.savefig(buf, format='svg', bbox_inches='tight')
-        buf.seek(0)
-
-        svg_string = buf.getvalue().decode('utf-8')
-        plt.close(fig)
-        return Response(svg_string, mimetype='image/svg+xml')
-
-    except KeyError as e:
-        return {
-            "error": f"Missing required parameter: {str(e)}",
-            "traceback": traceback.format_exc()
-        }, 400
-
-    except Exception as e:
-        return {
-            "error": str(e),
-            "traceback": traceback.format_exc()
-        }, 500
+    return buf.getvalue().decode("utf-8")
