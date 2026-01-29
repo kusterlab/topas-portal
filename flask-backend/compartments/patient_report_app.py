@@ -275,11 +275,11 @@ def get_tumor_antigens_swarm_plot(cohort_index: int, patient: str):
         .melt(id_vars="Gene names", var_name="Sample names", value_name="Expression")
     )
 
-    df_long["subcohort"] = df_long["Sample names"].isin(subcohort)
-    df_long["highlight"] = df_long["Sample names"].eq(patient)
+    df_long["Is subcohort"] = df_long["Sample names"].isin(subcohort)
+    df_long["Is highlighted"] = df_long["Sample names"].eq(patient)
 
     gene_order = (
-        df_long[df_long["highlight"]]
+        df_long[df_long["Is highlighted"]]
         .sort_values("Expression", ascending=False)["Gene names"]
         .tolist()
     )
@@ -316,11 +316,11 @@ def get_rtk_swarm_plot(cohort_index: int, patient: str):
         .reset_index()
         .melt(id_vars="Gene names", var_name="Sample names", value_name="Expression")
     )
-    df_long["subcohort"] = df_long["Sample names"].isin(subcohort)
-    df_long["highlight"] = df_long["Sample names"].eq(patient)
+    df_long["Is subcohort"] = df_long["Sample names"].isin(subcohort)
+    df_long["Is highlighted"] = df_long["Sample names"].eq(patient)
 
     gene_order = (
-        df_long[df_long["highlight"]]
+        df_long[df_long["Is highlighted"]]
         .sort_values("Expression", ascending=False)["Gene names"]
         .tolist()
     )
@@ -333,12 +333,11 @@ def get_rtk_swarm_plot(cohort_index: int, patient: str):
         f"{patient} RTK",
         y_thresh_main=2,
         y_thresh_sec=1.5,
-        ymin=-4.2,
-        ymax=4.2,
+        ymin=0,
+        y_outlier_above=4
     )
 
     return Response(svg_data, mimetype="image/svg+xml")
-
 
 @patient_report_page.route(PatientReportApiRoutes.CKS_NKS_SWARM_PLOT)
 def get_ck_nk_swarm_plot(cohort_index: int, patient: str):
@@ -362,11 +361,11 @@ def get_ck_nk_swarm_plot(cohort_index: int, patient: str):
         .melt(id_vars="Gene names", var_name="Sample names", value_name="Expression")
     )
 
-    df_long["subcohort"] = df_long["Sample names"].isin(subcohort)
-    df_long["highlight"] = df_long["Sample names"].eq(patient)
+    df_long["Is subcohort"] = df_long["Sample names"].isin(subcohort)
+    df_long["Is highlighted"] = df_long["Sample names"].eq(patient)
 
     gene_order = (
-        df_long[df_long["highlight"]]
+        df_long[df_long["Is highlighted"]]
         .sort_values("Expression", ascending=False)["Gene names"]
         .tolist()
     )
@@ -535,6 +534,7 @@ def get_subcohort_index(samples_df, column, sample_name):
         else []
     )
 
+    
 
 def get_swarm_plot_svg(
     df_long,
@@ -548,17 +548,19 @@ def get_swarm_plot_svg(
     y_break_at=None,
     ymin=None,
     ymax=None,
+    y_outlier_above=None
 ):
     should_break_axis = (
         y_break_at is not None and (df_long["Expression"] >= y_break_at).sum() > 0
     )
-    max_val = df_long["Expression"].max()
     bottom_plot_idx = 1 if should_break_axis else 0
     nrows = 2 if should_break_axis else 1
-    height_ratios = [1, 3] if should_break_axis else None
+    height_ratios = [1, 9] if should_break_axis else None
+
+    df_long["Plot expression"] = df_long["Expression"].apply(lambda x: y_outlier_above if y_outlier_above and x >= y_outlier_above else x)
 
     highlight_genes = (
-        df_long[df_long["highlight"]]
+        df_long[df_long["Is highlighted"]]
         .groupby("Gene names")["Expression"]
         .max()
         .gt(y_thresh_main)
@@ -567,14 +569,14 @@ def get_swarm_plot_svg(
     fig, ax = plt.subplots(
         nrows=nrows, ncols=1, figsize=figsize, height_ratios=height_ratios, sharex=True
     )
-    fig.subplots_adjust(hspace=0.02)
+    fig.subplots_adjust(hspace=0.01)
     ax = np.atleast_1d(ax)
 
     for x in ax:
         sns.stripplot(
-            data=df_long[~df_long["subcohort"]],
+            data=df_long[~df_long["Is subcohort"]],
             x="Gene names",
-            y="Expression",
+            y="Plot expression",
             order=gene_order,
             color="grey",
             alpha=0.5,
@@ -584,11 +586,11 @@ def get_swarm_plot_svg(
         )
 
         sns.stripplot(
-            data=df_long[df_long["subcohort"]],
+            data=df_long[df_long["Is subcohort"]],
             x="Gene names",
-            y="Expression",
+            y="Plot expression",
             order=gene_order,
-            color="mediumblue",
+            color="tab:blue",
             alpha=0.5,
             jitter=True,
             size=3,
@@ -596,9 +598,9 @@ def get_swarm_plot_svg(
         )
 
         sns.stripplot(
-            data=df_long[df_long["highlight"]],
+            data=df_long[df_long["Is highlighted"]],
             x="Gene names",
-            y="Expression",
+            y="Plot expression",
             order=gene_order,
             color="red",
             jitter=True,
@@ -610,8 +612,6 @@ def get_swarm_plot_svg(
         x.set_ylabel(None)
         x.tick_params(axis="x", which="both", length=0)
         x.tick_params(axis="y", which="both", length=0)
-
-        x.yaxis.set_major_locator(MultipleLocator(0.5))
 
     ax[bottom_plot_idx].axhline(y=y_thresh_main, linestyle="--", color="red", zorder=10)
     ax[bottom_plot_idx].axhline(
@@ -625,6 +625,23 @@ def get_swarm_plot_svg(
         ha="right",
         rotation_mode="anchor",
     )
+    if y_outlier_above:
+        yticks = np.arange(ymin or ax[bottom_plot_idx].get_yticks()[0], y_outlier_above + 0.5, 0.5)
+        ax[bottom_plot_idx].set_yticks(yticks)
+        ylabels = ax[bottom_plot_idx].get_yticklabels()
+        ylabels[-1] = f"≥ {y_outlier_above}"
+        ax[bottom_plot_idx].set_yticklabels(ylabels)
+
+        data_to_annot = df_long[df_long["Is highlighted"] & (df_long["Plot expression"] == y_outlier_above)]
+        for _, data in data_to_annot.iterrows():
+            ax[bottom_plot_idx].annotate(
+                f'{data["Expression"]:.2f}',
+                (data["Gene names"], y_outlier_above),
+                xytext=(0, 5),
+                textcoords='offset points',
+                fontsize=10,
+                color='red'
+            )
 
     for tick in ax[bottom_plot_idx].get_xticklabels():
         gene = tick.get_text()
@@ -632,6 +649,7 @@ def get_swarm_plot_svg(
             tick.set_color("red")
 
     if should_break_axis:
+        max_val = df_long["Expression"].max()
         ax[0].spines.bottom.set_visible(False)
         ax[1].spines.top.set_visible(False)
         ax[0].xaxis.tick_top()
