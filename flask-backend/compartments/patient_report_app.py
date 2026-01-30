@@ -578,7 +578,7 @@ def get_swarm_plot_svg(
             x="Gene names",
             y="Plot expression",
             order=gene_order,
-            color="grey",
+            color="lightgrey",
             alpha=0.5,
             jitter=True,
             size=3,
