@@ -252,16 +252,25 @@ def get_patient_reports_as_attachment(cohort_index: int, patients: str):
 
 
 @patient_report_page.route(PatientReportApiRoutes.TUMOR_ANTIGENS_SWARM_PLOT)
-def get_tumor_antigens_swarm_plot(cohort_index: int, patient: str):
+def get_tumor_antigens_swarm_plot(
+    cohort_index: int, patient: str, background_cohort: str
+):
     if len(patient.split(";")) > 1:
         return "Can only handle 1 patient at a time", 400
 
     subcohort_column = request.args.get(
         "subcohort_column", type=str, default="code_oncotree"
     )
+    background_cohort = (
+        request.args.get("background_cohort", type=str)
+        or request.args.get("backgorund_cohort", type=str)
+        or background_cohort
+    )
     samples = cohorts_db.get_patient_metadata_df(cohort_index)
 
-    subcohort = get_subcohort_index(samples, subcohort_column, patient)
+    subcohort = get_subcohort_index(
+        samples, subcohort_column, patient, background_cohort=background_cohort
+    )
 
     fp = cohorts_db.get_protein_abundance_df(
         cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
@@ -296,16 +305,23 @@ def get_tumor_antigens_swarm_plot(cohort_index: int, patient: str):
 
 
 @patient_report_page.route(PatientReportApiRoutes.RTKS_SWARM_PLOT)
-def get_rtk_swarm_plot(cohort_index: int, patient: str):
+def get_rtk_swarm_plot(cohort_index: int, patient: str, background_cohort: str):
     if len(patient.split(";")) > 1:
         return "Can only handle 1 patient at a time", 400
 
     subcohort_column = request.args.get(
         "subcohort_column", type=str, default="code_oncotree"
     )
+    background_cohort = (
+        request.args.get("background_cohort", type=str)
+        or request.args.get("backgorund_cohort", type=str)
+        or background_cohort
+    )
     samples = cohorts_db.get_patient_metadata_df(cohort_index)
 
-    subcohort = get_subcohort_index(samples, subcohort_column, patient)
+    subcohort = get_subcohort_index(
+        samples, subcohort_column, patient, background_cohort=background_cohort
+    )
 
     rtk = cohorts_db.get_topas_rtk_scores_df(
         cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
@@ -340,16 +356,23 @@ def get_rtk_swarm_plot(cohort_index: int, patient: str):
     return Response(svg_data, mimetype="image/svg+xml")
 
 @patient_report_page.route(PatientReportApiRoutes.CKS_NKS_SWARM_PLOT)
-def get_ck_nk_swarm_plot(cohort_index: int, patient: str):
+def get_ck_nk_swarm_plot(cohort_index: int, patient: str, background_cohort: str):
     if len(patient.split(";")) > 1:
         return "Can only handle 1 patient at a time", 400
 
     subcohort_column = request.args.get(
         "subcohort_column", type=str, default="code_oncotree"
     )
+    background_cohort = (
+        request.args.get("background_cohort", type=str)
+        or request.args.get("backgorund_cohort", type=str)
+        or background_cohort
+    )
     samples = cohorts_db.get_patient_metadata_df(cohort_index)
 
-    subcohort = get_subcohort_index(samples, subcohort_column, patient)
+    subcohort = get_subcohort_index(
+        samples, subcohort_column, patient, background_cohort=background_cohort
+    )
 
     ck_nk = cohorts_db.get_topas_ck_scores_df(
         cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
@@ -524,17 +547,29 @@ def get_patient_umap(cohort_index: int, patient: str):
         return {"error": str(e), "traceback": traceback.format_exc()}, 500
 
 
-def get_subcohort_index(samples_df, column, sample_name):
-    return (
-        samples_df[
-            samples_df[column]
-            == samples_df.loc[samples_df["Sample name"] == sample_name, column].iloc[0]
-        ]["Sample name"].to_list()
-        if column in samples_df.columns
-        else []
-    )
+def get_subcohort_index(samples_df, column, sample_name, background_cohort=None):
+    if column not in samples_df.columns:
+        return []
 
-    
+    background_value = (background_cohort or "").strip()
+    if background_value.lower() in {"", "default", "auto", "none", "null"}:
+        background_value = ""
+
+    if background_value:
+        return samples_df[samples_df[column] == background_value][
+            "Sample name"
+        ].to_list()
+
+    if not sample_name:
+        return []
+
+    sample_rows = samples_df[samples_df["Sample name"] == sample_name]
+    if sample_rows.empty:
+        return []
+
+    target_class = sample_rows[column].iloc[0]
+    return samples_df[samples_df[column] == target_class]["Sample name"].to_list()
+
 
 def get_swarm_plot_svg(
     df_long,

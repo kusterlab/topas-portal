@@ -205,9 +205,22 @@
                 <v-card-title>Advanced plots</v-card-title>
                 <v-card-text>
                   <v-row>
+                    <v-col cols="12" sm="6" md="4">
+                      <v-select
+                        v-model="backgroundCohort"
+                        :items="backgroundCohortOptions"
+                        label="Background cohort"
+                        density="compact"
+                        variant="outlined"
+                        hide-details
+                      />
+                    </v-col>
+                  </v-row>
+                  <v-row>
                     <v-col>
                       <v-img
                         v-if="firstPatient"
+                        :key="`${plotsReloadKey}-tumor`"
                         :src="getTumorUrl()"
                         aspect-ratio="1.78"
                         @load="loadingTumor = false"
@@ -224,6 +237,7 @@
                     <v-col>
                       <v-img
                         v-if="firstPatient"
+                        :key="`${plotsReloadKey}-rtk`"
                         :src="getRtkUrl()"
                         aspect-ratio="1.78"
                         @load="loadingRtk = false"
@@ -243,6 +257,7 @@
                     <v-col>
                       <v-img
                         v-if="firstPatient"
+                        :key="`${plotsReloadKey}-cknk`"
                         :src="getCknkUrl()"
                         aspect-ratio="1.78"
                         @load="loadingCknk = false"
@@ -259,6 +274,7 @@
                     <v-col>
                       <v-img
                         v-if="firstPatient"
+                        :key="`${plotsReloadKey}-immune`"
                         :src="getImmuneUrl()"
                         aspect-ratio="1.78"
                         @load="loadingImmune = false"
@@ -277,6 +293,7 @@
                     <v-col>
                       <v-img
                         v-if="firstPatient"
+                        :key="`${plotsReloadKey}-prodict-prob`"
                         :src="getProdictProbUrl()"
                         aspect-ratio="1.78"
                         @load="loadingProdictProb = false"
@@ -293,6 +310,7 @@
                     <v-col>
                       <v-img
                         v-if="firstPatient"
+                        :key="`${plotsReloadKey}-prodict-umap`"
                         :src="getProdictUmapUrl()"
                         aspect-ratio="1.78"
                         @load="loadingProdictUmap = false"
@@ -415,7 +433,17 @@
       loadingCknk: false,
       loadingImmune: false,
       loadingProdictProb: false,
-      loadingProdictUmap: false
+      loadingProdictUmap: false,
+      backgroundCohort: 'default',
+      backgroundCohortOptions: [
+        { title: 'Default (patient cohort)', value: 'default' },
+        { title: 'CHDM', value: 'CHDM' },
+        { title: 'BRCA', value: 'BRCA' },
+        { title: 'ARMS', value: 'ARMS' },
+        { title: 'ERMS', value: 'ERMS' },
+        { title: 'ASPS', value: 'ASPS' },
+        { title: 'IHCH', value: 'IHCH' }
+      ]
     }),
     computed: {
       proteinCount() {
@@ -454,6 +482,12 @@
       scoreTypeText() {
         const found = this.allInputDataTypes.find(item => item.value === this.scoreType)
         return found ? found.text : ''
+      },
+      backgroundCohortParam() {
+        return this.backgroundCohort || 'default'
+      },
+      plotsReloadKey() {
+        return `${this.firstPatient}-${this.backgroundCohortParam}`
       }
     },
     watch: {
@@ -464,6 +498,15 @@
         this.getPatientData()
       },
       firstPatient() {
+        this.loadingTumor = true
+        this.loadingRtk = true
+        this.loadingCknk = true
+        this.loadingImmune = true
+        this.loadingProdictProb = true
+        this.loadingProdictUmap = true
+      },
+      backgroundCohort() {
+        if (!this.firstPatient) return
         this.loadingTumor = true
         this.loadingRtk = true
         this.loadingCknk = true
@@ -647,21 +690,24 @@
       getTumorUrl() {
         return api.TUMOR_ANTIGENS_SWARM_PLOT({
           cohort_index: this.cohortIndex,
-          patient: this.firstPatient
+          patient: this.firstPatient,
+          background_cohort: this.backgroundCohortParam
         })
       },
 
       getRtkUrl() {
         return api.RTKS_SWARM_PLOT({
           cohort_index: this.cohortIndex,
-          patient: this.firstPatient
+          patient: this.firstPatient,
+          background_cohort: this.backgroundCohortParam
         })
       },
 
       getCknkUrl() {
         return api.CKS_NKS_SWARM_PLOT({
           cohort_index: this.cohortIndex,
-          patient: this.firstPatient
+          patient: this.firstPatient,
+          background_cohort: this.backgroundCohortParam
         })
       },
 
