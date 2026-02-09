@@ -434,16 +434,7 @@
       loadingImmune: false,
       loadingProdictProb: false,
       loadingProdictUmap: false,
-      backgroundCohort: 'default',
-      backgroundCohortOptions: [
-        { title: 'Default (patient cohort)', value: 'default' },
-        { title: 'CHDM', value: 'CHDM' },
-        { title: 'BRCA', value: 'BRCA' },
-        { title: 'ARMS', value: 'ARMS' },
-        { title: 'ERMS', value: 'ERMS' },
-        { title: 'ASPS', value: 'ASPS' },
-        { title: 'IHCH', value: 'IHCH' }
-      ]
+      backgroundCohort: 'default'
     }),
     computed: {
       proteinCount() {
@@ -483,6 +474,22 @@
         const found = this.allInputDataTypes.find(item => item.value === this.scoreType)
         return found ? found.text : ''
       },
+      backgroundCohortOptions() {
+        const options = [{ title: 'Default (patient cohort)', value: 'default' }]
+        if (!Array.isArray(this.patientData)) return options
+
+        const uniqueValues = new Set()
+        this.patientData.forEach(row => {
+          const value = row && row.code_oncotree
+          if (value) uniqueValues.add(value)
+        })
+
+        return options.concat(
+          Array.from(uniqueValues)
+            .sort()
+            .map(value => ({ title: value, value }))
+        )
+      },
       backgroundCohortParam() {
         return this.backgroundCohort || 'default'
       },
@@ -492,7 +499,14 @@
     },
     watch: {
       cohortIndex() {
+        this.backgroundCohort = 'default'
         this.getPatientData()
+      },
+      patientData() {
+        const values = this.backgroundCohortOptions.map(option => option.value)
+        if (!values.includes(this.backgroundCohort)) {
+          this.backgroundCohort = 'default'
+        }
       },
       includeRefChannels() {
         this.getPatientData()
@@ -511,7 +525,6 @@
         this.loadingRtk = true
         this.loadingCknk = true
         this.loadingImmune = true
-        this.loadingProdictProb = true
         this.loadingProdictUmap = true
       }
     },
@@ -728,7 +741,8 @@
       getProdictUmapUrl() {
         return api.PRODICT_PATIENT_UMAP({
           cohort_index: this.cohortIndex,
-          patient: this.firstPatient
+          patient: this.firstPatient,
+          background_cohort: this.backgroundCohortParam
         })
       }
     }

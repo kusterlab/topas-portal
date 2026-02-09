@@ -494,7 +494,7 @@ def get_probabilities(cohort_index, patient):
 
 
 @patient_report_page.route(PatientReportApiRoutes.PRODICT_PATIENT_UMAP)
-def get_patient_umap(cohort_index: int, patient: str):
+def get_patient_umap(cohort_index: int, patient: str, background_cohort: str = None):
     """
     Generate UMAP visualization for a specific patient in its entity context.
     """
@@ -515,7 +515,20 @@ def get_patient_umap(cohort_index: int, patient: str):
 
         # Defining the oncotree for the patient
         signatures = signatures_dict
-        signature_key = metadata_oncotree.loc[patient]
+
+        background_cohort = (
+            request.args.get("background_cohort", type=str)
+            or request.args.get("backgorund_cohort", type=str)
+            or background_cohort
+        )
+        background_value = (background_cohort or "").strip()
+        if background_value.lower() in {"", "default", "auto", "none", "null"}:
+            background_value = ""
+
+        if background_value:
+            signature_key = background_value
+        else:
+            signature_key = metadata_oncotree.loc[patient]
 
         # Generate UMAP figure
         fig = generate_umap_visualization(
