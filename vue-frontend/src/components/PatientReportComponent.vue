@@ -218,6 +218,18 @@
                   </v-row>
                   <v-row>
                     <v-col>
+                      <div class="d-flex justify-end mb-2">
+                        <v-btn
+                          v-if="firstPatient"
+                          size="small"
+                          variant="text"
+                          icon
+                          title="Download tumor antigens"
+                          @click="downloadPlot(getTumorUrl(), plotFilename('tumor-antigens'))"
+                        >
+                          <v-icon> mdi-cloud-download </v-icon>
+                        </v-btn>
+                      </div>
                       <v-img
                         v-if="firstPatient"
                         :key="`${plotsReloadKey}-tumor`"
@@ -235,6 +247,18 @@
                       </v-img>
                     </v-col>
                     <v-col>
+                      <div class="d-flex justify-end mb-2">
+                        <v-btn
+                          v-if="firstPatient"
+                          size="small"
+                          variant="text"
+                          icon
+                          title="Download RTKs"
+                          @click="downloadPlot(getRtkUrl(), plotFilename('rtk'))"
+                        >
+                          <v-icon> mdi-cloud-download </v-icon>
+                        </v-btn>
+                      </div>
                       <v-img
                         v-if="firstPatient"
                         :key="`${plotsReloadKey}-rtk`"
@@ -255,6 +279,18 @@
 
                   <v-row>
                     <v-col>
+                      <div class="d-flex justify-end mb-2">
+                        <v-btn
+                          v-if="firstPatient"
+                          size="small"
+                          variant="text"
+                          icon
+                          title="Download CK/NK"
+                          @click="downloadPlot(getCknkUrl(), plotFilename('ck-nk'))"
+                        >
+                          <v-icon> mdi-cloud-download </v-icon>
+                        </v-btn>
+                      </div>
                       <v-img
                         v-if="firstPatient"
                         :key="`${plotsReloadKey}-cknk`"
@@ -272,6 +308,18 @@
                       </v-img>
                     </v-col>
                     <v-col>
+                      <div class="d-flex justify-end mb-2">
+                        <v-btn
+                          v-if="firstPatient"
+                          size="small"
+                          variant="text"
+                          icon
+                          title="Download immune status"
+                          @click="downloadPlot(getImmuneUrl(), plotFilename('immune-status'))"
+                        >
+                          <v-icon> mdi-cloud-download </v-icon>
+                        </v-btn>
+                      </div>
                       <v-img
                         v-if="firstPatient"
                         :key="`${plotsReloadKey}-immune`"
@@ -291,6 +339,18 @@
                   </v-row>
                   <v-row>
                     <v-col>
+                      <div class="d-flex justify-end mb-2">
+                        <v-btn
+                          v-if="firstPatient"
+                          size="small"
+                          variant="text"
+                          icon
+                          title="Download PROdict scores"
+                          @click="downloadPlot(getProdictProbUrl(), plotFilename('prodict-scores'))"
+                        >
+                          <v-icon> mdi-cloud-download </v-icon>
+                        </v-btn>
+                      </div>
                       <v-img
                         v-if="firstPatient"
                         :key="`${plotsReloadKey}-prodict-prob`"
@@ -308,6 +368,18 @@
                       </v-img>
                     </v-col>
                     <v-col>
+                      <div class="d-flex justify-end mb-2">
+                        <v-btn
+                          v-if="firstPatient"
+                          size="small"
+                          variant="text"
+                          icon
+                          title="Download PROdict UMAP"
+                          @click="downloadPlot(getProdictUmapUrl(), plotFilename('prodict-umap'))"
+                        >
+                          <v-icon> mdi-cloud-download </v-icon>
+                        </v-btn>
+                      </div>
                       <v-img
                         v-if="firstPatient"
                         :key="`${plotsReloadKey}-prodict-umap`"
@@ -475,7 +547,7 @@
         return found ? found.text : ''
       },
       backgroundCohortOptions() {
-        const options = [{ title: 'Default (patient cohort)', value: 'default' }]
+        const options = [{ title: 'Default (Sample Oncotree)', value: 'default' }]
         if (!Array.isArray(this.patientData)) return options
 
         const uniqueValues = new Set()
@@ -512,6 +584,7 @@
         this.getPatientData()
       },
       firstPatient() {
+        this.backgroundCohort = 'default'
         this.loadingTumor = true
         this.loadingRtk = true
         this.loadingCknk = true
@@ -744,6 +817,32 @@
           patient: this.firstPatient,
           background_cohort: this.backgroundCohortParam
         })
+      },
+      plotFilename(label) {
+        const patient = this.firstPatient || 'patient'
+        const cohort =
+          this.backgroundCohortParam && this.backgroundCohortParam !== 'default'
+            ? this.backgroundCohortParam
+            : 'default'
+        return `${patient}_${label}_${cohort}`.replace(/[^a-zA-Z0-9_.-]+/g, '_')
+      },
+      async downloadPlot(url, filename) {
+        try {
+          const response = await axios.get(url, { responseType: 'blob' })
+          const blob = new Blob([response.data], { type: 'image/svg+xml' })
+          const link = document.createElement('a')
+          link.href = URL.createObjectURL(blob)
+          link.download = `${filename}.svg`
+          document.body.appendChild(link)
+          link.click()
+          document.body.removeChild(link)
+          URL.revokeObjectURL(link.href)
+        } catch (error) {
+          this.addNotification({
+            color: 'error',
+            message: 'Error: could not download plot'
+          })
+        }
       }
     }
   }

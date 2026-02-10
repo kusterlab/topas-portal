@@ -538,7 +538,6 @@ def get_patient_umap(cohort_index: int, patient: str, background_cohort: str = N
             signature_key=signature_key,
             n_neighbors=10,
             min_dist=0.1,
-            random_state=93,
         )
 
         # Save figure to bytes buffer
@@ -638,7 +637,7 @@ def get_swarm_plot_svg(
             x="Gene names",
             y="Plot expression",
             order=gene_order,
-            color="tab:blue",
+            color="dodgerblue",
             alpha=0.5,
             jitter=True,
             size=3,
@@ -862,7 +861,6 @@ def generate_umap_visualization(
     reducer = UMAP(
         n_neighbors=n_neighbors,
         min_dist=min_dist,
-        random_state=random_state,
         n_components=2,
     )
     embedding = reducer.fit_transform(X)
@@ -969,7 +967,7 @@ def generate_prodict_visualization(predictions: dict, sample_name: str):
 
     # Plot each dot with conditional color
     for feature, value in row.items():
-        color = "red" if value > 0.9 else "steelblue" if value > 0.5 else "silver"
+        color = "red" if value > 0.9 else "dodgerblue" if value > 0.5 else "silver"
         ax.plot(value, feature, "o", color=color, markersize=8)
 
         if value > 0.1:
