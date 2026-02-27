@@ -110,7 +110,7 @@
                 <scatter-plot
                   id="differentialPlot"
                   :save-plot="true"
-                  identifier1="Fold Change"
+                  identifier1="log2 Fold Change"
                   identifier2="-log"
                   :size-r="1"
                   :omics-type-x="modality"
