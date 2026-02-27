@@ -251,14 +251,16 @@ export default {
       this.scatterPoints = scatterData
     },
 
-    manualLegendAdd: function (svg) {
-      if ((this.patientGroup.length > 0) & this.colorCode) {
+    addLegend: function (svg) {
+      if (this.patientGroup && this.colorCode) {
         const legend = {}
         legend.color = this.colorCode
         legend.group = this.patientGroup
         legend.Y = this.LegendY
         this.legendArray.push(legend)
         this.LegendY += 20
+      }
+      if (this.legendArray.length > 0) {
         this.legendArray.forEach(element => {
           svg
             .append('circle')
@@ -359,7 +361,7 @@ export default {
 
       return { tooltip, xLine }
     },
-    initaxes: function (width, height, margin, dataSet, fieldOfTable) {
+    initAxes: function (width, height, margin, dataSet, fieldOfTable) {
       d3.select(`#${this.swarmId}`).selectAll('svg').remove()
       const svg = d3
         .select(`#${this.swarmId}`)
@@ -367,7 +369,7 @@ export default {
         .attr('class', 'd3')
         .attr('width', width)
         .attr('height', height)
-      this.manualLegendAdd(svg) // adding element of the legends
+      this.addLegend(svg) // adding element of the legends
       const yScale = d3
         .scaleLinear()
         .range([height - margin.bottom, margin.top])
@@ -413,7 +415,7 @@ export default {
       }
 
       this.scatterPoints = dataSet // using scatter points instead of simulation
-      const pltobj = this.initaxes(this.width, this.height, this.margin, dataSet, fieldOfTable)
+      const pltobj = this.initAxes(this.width, this.height, this.margin, dataSet, fieldOfTable)
       const svg = pltobj.svg
       const yScale = pltobj.yScale
       this.boxPlot(dataSet, fieldOfTable, this.width, yScale, this.margin, svg) // draw boxplot
@@ -453,7 +455,7 @@ export default {
       const swarmDataFiltered = this.swarmData.filter(
         d => typeof d[this.fieldValues] === 'number'
       )
-      const pltobj = this.initaxes(
+      const pltobj = this.initAxes(
         this.width,
         this.height,
         this.margin,
