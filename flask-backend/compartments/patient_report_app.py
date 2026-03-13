@@ -94,6 +94,7 @@ antigens = [
     "CLDN6",
     "ESR1",
     "SSTR2",
+    "PRAME"
 ]
 
 
