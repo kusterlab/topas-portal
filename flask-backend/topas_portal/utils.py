@@ -2,15 +2,15 @@ import os
 import random
 import json
 from enum import Enum
-
+from io import BytesIO
 import pandas as pd
 import numpy as np
 from flask import Response
 from typing import List
 from datetime import datetime
+import re
 
 from topas_portal import settings
-
 
 # remember to update the corresponding constant in vue-frontend/src/constants.js
 class DataType(str, Enum):
@@ -510,3 +510,10 @@ def whitespace_remover(df: pd.DataFrame) -> pd.DataFrame:
         else:
             pass
     return df
+
+def to_snake_case(text):
+    text = text.lower()
+    text = re.sub(r'[^a-z0-9]+', '_', text)
+    text = re.sub(r'_+', '_', text)
+    text = text.strip('_')
+    return text

@@ -260,3 +260,7 @@ class CohortConfig:
 
     def get_signatures_folder(self) -> Path:
         return Path(self.config["signatures_folder"])
+
+    def get_report_template_pptx(self) -> Path:
+        return Path(self.config["report_template_pptx_path"])
+        

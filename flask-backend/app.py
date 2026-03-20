@@ -99,7 +99,7 @@ with app.app_context():
     from compartments.overview_app import overview_page
     from compartments.z_scoring_app import zscoring_page
     from compartments.ptmnavigator_app import ptmnavigator_page
-    from compartments.patient_report_app import patient_report_page
+    from compartments.patient_report.patient_report_app import patient_report_page
 
     if cohorts_db.config.do_load_data_on_startup() and (
         os.getenv("WERKZEUG_RUN_MAIN") == "true" or not debug

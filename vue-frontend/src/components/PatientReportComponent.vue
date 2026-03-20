@@ -202,8 +202,19 @@
           <v-row>
             <v-col sm="12" md="12" lg="12">
               <v-card variant="flat">
-                <v-card-title>Advanced plots</v-card-title>
-                <v-card-text>
+                  <v-card-title>
+                    Advanced plots
+                    <v-spacer></v-spacer>
+                    <v-btn
+                      color="primary"
+                      :disabled="!canDownloadReportPptx"
+                      :loading="downloadingPptx"
+                      @click="downloadPatientReportPptx"
+                    >
+                      Download Patient Report
+                    </v-btn>
+                  </v-card-title>                
+                  <v-card-text>
                   <v-row>
                     <v-col cols="12" sm="6" md="4">
                       <v-select
@@ -235,8 +246,8 @@
                         :key="`${plotsReloadKey}-tumor`"
                         :src="getTumorUrl()"
                         aspect-ratio="1.78"
-                        @load="loadingTumor = false"
-                        @error="loadingTumor = false"
+                        @load="onTumorLoad"
+                        @error="onTumorError"
                       >
                         <template #placeholder>
                           <v-col class="fill-height ma-0" align="center" justify="center">
@@ -264,8 +275,8 @@
                         :key="`${plotsReloadKey}-rtk`"
                         :src="getRtkUrl()"
                         aspect-ratio="1.78"
-                        @load="loadingRtk = false"
-                        @error="loadingRtk = false"
+                        @load="onRtkLoad"
+                        @error="onRtkError"
                       >
                         <template #placeholder>
                           <v-col class="fill-height ma-0" hei align="center" justify="center">
@@ -296,8 +307,8 @@
                         :key="`${plotsReloadKey}-cknk`"
                         :src="getCknkUrl()"
                         aspect-ratio="1.78"
-                        @load="loadingCknk = false"
-                        @error="loadingCknk = false"
+                        @load="onCknkLoad"
+                        @error="onCknkError"
                       >
                         <template #placeholder>
                           <v-col class="fill-height ma-0" align="center" justify="center">
@@ -325,8 +336,8 @@
                         :key="`${plotsReloadKey}-immune`"
                         :src="getImmuneUrl()"
                         aspect-ratio="1.78"
-                        @load="loadingImmune = false"
-                        @error="loadingImmune = false"
+                        @load="onImmuneLoad"
+                        @error="onImmuneError"
                       >
                         <template #placeholder>
                           <v-col class="fill-height ma-0" align="center" justify="center">
@@ -356,8 +367,8 @@
                         :key="`${plotsReloadKey}-prodict-prob`"
                         :src="getProdictProbUrl()"
                         aspect-ratio="1.78"
-                        @load="loadingProdictProb = false"
-                        @error="loadingProdictProb = false"
+                        @load="onProdictProbLoad"
+                        @error="onProdictProbError"
                       >
                         <template #placeholder>
                           <v-col class="fill-height ma-0" align="center" justify="center">
@@ -385,8 +396,8 @@
                         :key="`${plotsReloadKey}-prodict-umap`"
                         :src="getProdictUmapUrl()"
                         aspect-ratio="1.78"
-                        @load="loadingProdictUmap = false"
-                        @error="loadingProdictUmap = false"
+                        @load="onProdictUmapLoad"
+                        @error="onProdictUmapError"
                       >
                         <template #placeholder>
                           <v-col class="fill-height ma-0" align="center" justify="center">
@@ -506,9 +517,25 @@
       loadingImmune: false,
       loadingProdictProb: false,
       loadingProdictUmap: false,
+      tumorLoaded: false,
+      rtkLoaded: false,
+      cknkLoaded: false,
+      immuneLoaded: false,
+      prodictProbLoaded: false,
+      prodictUmapLoaded: false,
       backgroundCohort: 'default'
     }),
     computed: {
+      canDownloadReportPptx() {
+        return (
+          this.immuneLoaded &&
+          this.rtkLoaded &&
+          this.cknkLoaded &&
+          this.tumorLoaded &&
+          this.prodictProbLoaded &&
+          this.prodictUmapLoaded
+        );
+      },
       proteinCount() {
         return this.proteinCounts.map(d => d.identified)
       },
@@ -591,6 +618,13 @@
         this.loadingImmune = true
         this.loadingProdictProb = true
         this.loadingProdictUmap = true
+        this.tumorLoaded = false
+        this.rtkLoaded = false
+        this.cknkLoaded = false
+        this.immuneLoaded = false
+        this.prodictProbLoaded = false
+        this.prodictUmapLoaded = false
+
       },
       backgroundCohort() {
         if (!this.firstPatient) return
@@ -599,12 +633,102 @@
         this.loadingCknk = true
         this.loadingImmune = true
         this.loadingProdictUmap = true
+        this.tumorLoaded = false
+        this.rtkLoaded = false
+        this.cknkLoaded = false
+        this.immuneLoaded = false
+        this.prodictProbLoaded = false
+        this.prodictUmapLoaded = false
       }
     },
     methods: {
       ...mapMutations({
         addNotification: 'notifications/addNotification'
       }),
+      async downloadPatientReportPptx() {
+        this.downloadingPptx = true;
+        try {
+          const response = await axios.get(api.PATIENT_REPORT_PPTX({
+            cohort_index: this.cohortIndex,
+            patient: this.firstPatient,
+            background_cohort: this.backgroundCohortParam
+          }), {
+            responseType: "blob"   // important for binary files
+          });
+
+          // Axios headers are plain objects
+          const disposition = response.headers["content-disposition"];
+          let filename = this.firstPatient + "_patient_report.pptx"; // default
+          if (disposition && disposition.includes("filename=")) {
+            filename = disposition
+              .split("filename=")[1]
+              .replace(/"/g, "")
+              .trim();
+          }
+
+          // response.data is already a Blob because of responseType
+          const url = window.URL.createObjectURL(response.data);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          window.URL.revokeObjectURL(url);
+        } catch (err) {
+          console.error(err);
+        } finally {
+          this.downloading = false;
+        }
+      },
+      onImmuneLoad() {
+        this.loadingImmune = false;
+        this.immuneLoaded = true;
+      },
+      onImmuneError() {
+        this.loadingImmune = false;
+        this.immuneLoaded = false; 
+      },
+      onTumorLoad() {
+        this.loadingTumor = false;
+        this.tumorLoaded = true;
+      },
+      onTumorError() {
+        this.loadingTumor = false;
+        this.tumorLoaded = false; 
+      },
+      onRtkLoad() {
+        this.loadingRtk = false;
+        this.rtkLoaded = true;
+      },
+      onRtkError() {
+        this.loadingRtk = false;
+        this.rtkLoaded = false; 
+      },
+      onCknkLoad() {
+        this.loadingCknk = false;
+        this.cknkLoaded = true;
+      },
+      onCknkError() {
+        this.loadingCknk = false;
+        this.cknkLoaded = false; 
+      },
+      onProdictProbLoad() {
+        this.loadingProdictProb = false;
+        this.prodictProbLoaded = true;
+      },
+      onProdictProbError() {
+        this.loadingProdictProb = false;
+        this.prodictProbLoaded = false; 
+      },
+      onProdictUmapLoad() {
+        this.loadingProdictUmap = false;
+        this.prodictUmapLoaded = true;
+      },
+      onProdictUmapError() {
+        this.loadingProdictUmap = false;
+        this.prodictUmapLoaded = false; 
+      },
       updateCohort({ cohortIndex }) {
         this.cohortIndex = cohortIndex
       },

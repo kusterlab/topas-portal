@@ -18,7 +18,7 @@ ptmnavigator_page = Blueprint(
 
 pathway_repo = PathwayRepository(mongodb)
 
-@ptmnavigator_page.route(PtmNavigatorApiRoutes.CANONICAL_PATHWAYS.path())
+@ptmnavigator_page.route(PtmNavigatorApiRoutes.CANONICAL_PATHWAYS.path)
 def get_canonical_pathways(
     taxcode: int
 ):
@@ -37,7 +37,7 @@ def get_canonical_pathways(
     except requests.exceptions.RequestException as e :
         return jsonify({"error": str(e)}), 500
 
-@ptmnavigator_page.route(PtmNavigatorApiRoutes.PATHWAY_SKELETONS.path())
+@ptmnavigator_page.route(PtmNavigatorApiRoutes.PATHWAY_SKELETONS.path)
 def get_pathway_skeletons(
     taxcode: int
 ):
@@ -50,7 +50,7 @@ def get_pathway_skeletons(
     except requests.exceptions.RequestException as e :
         return jsonify({"error": str(e)}), 500
 
-@ptmnavigator_page.route(PtmNavigatorApiRoutes.ENRICHMENTS.path())
+@ptmnavigator_page.route(PtmNavigatorApiRoutes.ENRICHMENTS.path)
 def get_enrichments(cohort_index: str, grp_ind: str):
     method = request.args["method"]
     try:
