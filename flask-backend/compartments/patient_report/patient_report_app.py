@@ -85,7 +85,7 @@ antigens = [
     "CLDN6",
     "ESR1",
     "SSTR2",
-    "PRAME"
+    "PRAME",
 ]
 
 
@@ -158,7 +158,9 @@ immune_status_genes = [
 
 @cache.cached(timeout=50)
 @patient_report_page.route(PatientReportApiRoutes.PATIENT_REPORT_TABLE)
-def get_patient_report_table(cohort_index: int, patient: str, level: common_utils.DataType):
+def get_patient_report_table(
+    cohort_index: int, patient: str, level: common_utils.DataType
+):
     """Returns tables from the patient reports.
 
     Example: http://localhost:3832/0/patient_reports/I007-031-108742/protein
@@ -251,19 +253,26 @@ def get_tumor_antigens_swarm_plot(cohort_index: int, patient: str):
     background_cohort = request.args.get("background_cohort", default="", type=str)
     metadata = cohorts_db.get_patient_metadata_df(cohort_index)
     metadata = metadata.set_index("Sample name")
-    background_cohort = utils.get_background_cohort(metadata, background_cohort, patient)
+    background_cohort = utils.get_background_cohort(
+        metadata, background_cohort, patient
+    )
 
-    svg_data = cache.get(utils.TUMOR_ANTIGEN_CACHE_ID_TEMPLATE.format_map({
-        "sample": patient,
-        "cohort": cohort_index,
-        "background_cohort": background_cohort if background_cohort else "default",
-        "ext": "svg"
-    }))
+    svg_data = cache.get(
+        utils.TUMOR_ANTIGEN_CACHE_ID_TEMPLATE.format_map(
+            {
+                "sample": patient,
+                "cohort": cohort_index,
+                "background_cohort": (
+                    background_cohort if background_cohort else "default"
+                ),
+                "ext": "svg",
+            }
+        )
+    )
     if svg_data is None:
         subcohort_column = request.args.get(
             "subcohort_column", type=str, default="code_oncotree"
         )
-
 
         subcohort = utils.get_background_cohort_indices(
             metadata, subcohort_column, patient, background_cohort=background_cohort
@@ -273,9 +282,7 @@ def get_tumor_antigens_swarm_plot(cohort_index: int, patient: str):
         )
 
         genes = fp.index.intersection(antigens)
-        pr = utils.PatientReport(
-            cohort_index, patient, background_cohort
-        )
+        pr = utils.PatientReport(cohort_index, patient, background_cohort)
         pr.setup_swarm_df(fp.loc[genes].reset_index(), subcohort)
         pr.generate_swarm_plot(
             "",
@@ -301,26 +308,32 @@ def get_rtk_swarm_plot(cohort_index: int, patient: str):
     background_cohort = request.args.get("background_cohort", default="", type=str)
     metadata = cohorts_db.get_patient_metadata_df(cohort_index)
     metadata = metadata.set_index("Sample name")
-    background_cohort = utils.get_background_cohort(metadata, background_cohort, patient)
+    background_cohort = utils.get_background_cohort(
+        metadata, background_cohort, patient
+    )
 
     subcohort = utils.get_background_cohort_indices(
         metadata, subcohort_column, patient, background_cohort=background_cohort
     )
 
-    svg_data = cache.get(utils.TOPAS_RTK_CACHE_ID_TEMPLATE.format_map({
-        "sample": patient,
-        "cohort": cohort_index,
-        "background_cohort": background_cohort if background_cohort else "default",
-        "ext": "svg"
-    }))
+    svg_data = cache.get(
+        utils.TOPAS_RTK_CACHE_ID_TEMPLATE.format_map(
+            {
+                "sample": patient,
+                "cohort": cohort_index,
+                "background_cohort": (
+                    background_cohort if background_cohort else "default"
+                ),
+                "ext": "svg",
+            }
+        )
+    )
 
     if svg_data is None:
         rtk = cohorts_db.get_topas_rtk_scores_df(
             cohort_index, intensity_unit=common_utils.IntensityUnit.Z_SCORE
         )
-        pr = utils.PatientReport(
-            cohort_index, patient, background_cohort
-        )
+        pr = utils.PatientReport(cohort_index, patient, background_cohort)
         pr.setup_swarm_df(rtk.rename_axis("Gene names").reset_index(), subcohort)
         pr.generate_swarm_plot(
             "",
@@ -329,13 +342,14 @@ def get_rtk_swarm_plot(cohort_index: int, patient: str):
             y_thresh_main=2,
             y_thresh_sec=1.5,
             ymin=0,
-            y_outlier_above=4
+            y_outlier_above=4,
         )
         svg_data = pr.output_format(pr.get_topas_rtk_cache_id("svg"), "svg")
         pr.output_format(pr.get_topas_rtk_cache_id("png"), "png")
         pr.close_fig()
 
     return Response(svg_data, mimetype="image/svg+xml")
+
 
 @patient_report_page.route(PatientReportApiRoutes.CKS_NKS_SWARM_PLOT.path)
 def get_ck_nk_swarm_plot(cohort_index: int, patient: str):
@@ -346,30 +360,35 @@ def get_ck_nk_swarm_plot(cohort_index: int, patient: str):
         "subcohort_column", type=str, default="code_oncotree"
     )
     background_cohort = request.args.get("background_cohort", default="", type=str)
-    
+
     metadata = cohorts_db.get_patient_metadata_df(cohort_index)
     metadata = metadata.set_index("Sample name")
-    background_cohort = utils.get_background_cohort(metadata, background_cohort, patient)
+    background_cohort = utils.get_background_cohort(
+        metadata, background_cohort, patient
+    )
 
     subcohort = utils.get_background_cohort_indices(
         metadata, subcohort_column, patient, background_cohort=background_cohort
     )
 
-    svg_data = cache.get(utils.TOPAS_CK_CACHE_ID_TEMPLATE.format_map({
-        "sample": patient,
-        "cohort": cohort_index,
-        "background_cohort": background_cohort if background_cohort else "default",
-        "ext": "svg"
-    })
-)
+    svg_data = cache.get(
+        utils.TOPAS_CK_CACHE_ID_TEMPLATE.format_map(
+            {
+                "sample": patient,
+                "cohort": cohort_index,
+                "background_cohort": (
+                    background_cohort if background_cohort else "default"
+                ),
+                "ext": "svg",
+            }
+        )
+    )
     if svg_data is None:
         ck_nk = cohorts_db.get_topas_ck_scores_df(
             cohort_index, intensity_unit=common_utils.IntensityUnit.Z_SCORE
         )
 
-        pr = utils.PatientReport(
-            cohort_index, patient, background_cohort
-        )
+        pr = utils.PatientReport(cohort_index, patient, background_cohort)
         pr.setup_swarm_df(ck_nk.rename_axis("Gene names").reset_index(), subcohort)
         pr.generate_swarm_plot(
             "",
@@ -387,11 +406,11 @@ def get_ck_nk_swarm_plot(cohort_index: int, patient: str):
 
 @patient_report_page.route(PatientReportApiRoutes.IMMUNE_STATUS_HEATMAP.path)
 def get_immune_status_heatmap(cohort_index: int, patient: str):
-    svg_data = cache.get(utils.IMMUNE_HEATMAP_CACHE_ID_TEMPLATE.format_map({
-        "sample": patient,
-        "cohort": cohort_index,
-        "ext": "svg"
-    }))
+    svg_data = cache.get(
+        utils.IMMUNE_HEATMAP_CACHE_ID_TEMPLATE.format_map(
+            {"sample": patient, "cohort": cohort_index, "ext": "svg"}
+        )
+    )
     if svg_data is None:
         if len(patient.split(";")) > 1:
             return "Can only handle 1 patient at a time", 400
@@ -400,9 +419,7 @@ def get_immune_status_heatmap(cohort_index: int, patient: str):
             cohort_index, intensity_unit=common_utils.IntensityUnit.Z_SCORE
         )
 
-        pr = utils.PatientReport(
-            cohort_index, patient
-        )
+        pr = utils.PatientReport(cohort_index, patient)
         pr.setup_immune_status_df(fp.loc[fp.index.intersection(immune_status_genes)].T)
         pr.generate_immune_status_heatmap(f"{patient} immune status")
         svg_data = pr.output_format(pr.get_immune_heatmap_cache_id("svg"), "svg")
@@ -416,11 +433,12 @@ def get_immune_status_heatmap(cohort_index: int, patient: str):
 # http://localhost:3832/cohort_index/patients/patient_id/prodict/score"
 def get_probabilities(cohort_index: int, patient: str):
     """Returns entity scores for a given patient"""
-    svg_data = cache.get(utils.PRODICT_PROB_CACHE_ID_TEMPLATE.format_map({
-        "sample": patient,
-        "ext": "svg"
-    }))
-    
+    svg_data = cache.get(
+        utils.PRODICT_PROB_CACHE_ID_TEMPLATE.format_map(
+            {"sample": patient, "ext": "svg"}
+        )
+    )
+
     if svg_data is None:
         try:
             models = utils.load_sklearn_models(config.get_models_folder())
@@ -436,10 +454,9 @@ def get_probabilities(cohort_index: int, patient: str):
 
             pr.close_fig()
 
-
         except Exception as e:
             return jsonify({"error during prediction": str(e)}), 500
-        
+
     return Response(svg_data, mimetype="image/svg+xml")
 
 
@@ -452,33 +469,40 @@ def get_patient_umap(cohort_index: int, patient: str):
 
     metadata = cohorts_db.get_patient_metadata_df(cohort_index)
     metadata = metadata.set_index("Sample name")
-    background_cohort = utils.get_background_cohort(metadata, background_cohort, patient)
+    background_cohort = utils.get_background_cohort(
+        metadata, background_cohort, patient
+    )
 
-    
-    svg_data = cache.get(utils.PRODICT_UMAP_CACHE_ID_TEMPLATE.format_map({
-        "sample": patient,
-        "cohort": cohort_index,
-        "background_cohort": background_cohort if background_cohort else "default",
-        "ext": "svg"
-    }))
-    
+    svg_data = cache.get(
+        utils.PRODICT_UMAP_CACHE_ID_TEMPLATE.format_map(
+            {
+                "sample": patient,
+                "cohort": cohort_index,
+                "background_cohort": (
+                    background_cohort if background_cohort else "default"
+                ),
+                "ext": "svg",
+            }
+        )
+    )
+
     if svg_data is None:
         try:
             # Loading necessary data. Intensity, metadata and signatures
-            signatures_dict = utils.load_signatures_from_folder(config.get_signatures_folder())
+            signatures_dict = utils.load_signatures_from_folder(
+                config.get_signatures_folder()
+            )
 
             # Loading imputed intensities
             data_clean = utils.get_imputed_df(cohort_index)
             data_clean["code_oncotree"] = metadata.get("code_oncotree")
 
             pr = utils.PatientReport(cohort_index, patient, background_cohort)
-            pr.setup_prodict_umap_df(data_clean, signatures_dict)   
+            pr.setup_prodict_umap_df(data_clean, signatures_dict)
 
             # Generate UMAP figure
             pr.generate_umap(
-                n_neighbors=10,
-                min_dist=0.1,
-                title=f"UMAP Visualization - {patient}"
+                n_neighbors=10, min_dist=0.1, title=f"UMAP Visualization - {patient}"
             )
             svg_data = pr.output_format(pr.get_prodict_umap_cache_id("svg"), "svg")
             pr.output_format(pr.get_prodict_umap_cache_id("png"), "png")
@@ -495,62 +519,90 @@ def get_patient_umap(cohort_index: int, patient: str):
             return {"error": str(e), "traceback": traceback.format_exc()}, 500
     return Response(svg_data, mimetype="image/svg+xml")
 
+
 @patient_report_page.route(PatientReportApiRoutes.PATIENT_REPORT_PPTX.path)
 def get_patient_report_pptx(cohort_index: int, patient: str):
     background_cohort = request.args.get("background_cohort", default="", type=str)
-    
+
     metadata = cohorts_db.get_patient_metadata_df(cohort_index)
     metadata = metadata.set_index("Sample name")
-    background_cohort = utils.get_background_cohort(metadata, background_cohort, patient)
+    background_cohort = utils.get_background_cohort(
+        metadata, background_cohort, patient
+    )
 
-    prodict_umap_png = cache.get(utils.PRODICT_PROB_CACHE_ID_TEMPLATE.format_map({
-        "sample": patient,
-        "cohort": cohort_index,
-        "background_cohort": background_cohort if background_cohort else "default",
-        "ext": "png"
-    }))
-    prodict_prob_png = cache.get(utils.PRODICT_PROB_CACHE_ID_TEMPLATE.format_map({
-        "sample": patient,
-        "ext": "png"
-    }))
+    prodict_umap_png = cache.get(
+        utils.PRODICT_PROB_CACHE_ID_TEMPLATE.format_map(
+            {
+                "sample": patient,
+                "cohort": cohort_index,
+                "background_cohort": (
+                    background_cohort if background_cohort else "default"
+                ),
+                "ext": "png",
+            }
+        )
+    )
+    prodict_prob_png = cache.get(
+        utils.PRODICT_PROB_CACHE_ID_TEMPLATE.format_map(
+            {"sample": patient, "ext": "png"}
+        )
+    )
 
-    immune_heatmap_png = cache.get(utils.IMMUNE_HEATMAP_CACHE_ID_TEMPLATE.format_map({
-        "sample": patient,
-        "cohort": cohort_index,
-        "ext": "png"
-    }))
+    immune_heatmap_png = cache.get(
+        utils.IMMUNE_HEATMAP_CACHE_ID_TEMPLATE.format_map(
+            {"sample": patient, "cohort": cohort_index, "ext": "png"}
+        )
+    )
 
-    tumor_antigen_png = cache.get(utils.TUMOR_ANTIGEN_CACHE_ID_TEMPLATE.format_map({
-        "sample": patient,
-        "cohort": cohort_index,
-        "background_cohort": background_cohort if background_cohort else "default",
-        "ext": "png"
-    }))
-    topas_rtk_png = cache.get(utils.TOPAS_RTK_CACHE_ID_TEMPLATE.format_map({
-        "sample": patient,
-        "cohort": cohort_index,
-        "background_cohort": background_cohort if background_cohort else "default",
-        "ext": "png"
-    }))
-    topas_ck_png = cache.get(utils.TOPAS_CK_CACHE_ID_TEMPLATE.format_map({
-        "sample": patient,
-        "cohort": cohort_index,
-        "background_cohort": background_cohort if background_cohort else "default",
-        "ext": "png"
-    }))
+    tumor_antigen_png = cache.get(
+        utils.TUMOR_ANTIGEN_CACHE_ID_TEMPLATE.format_map(
+            {
+                "sample": patient,
+                "cohort": cohort_index,
+                "background_cohort": (
+                    background_cohort if background_cohort else "default"
+                ),
+                "ext": "png",
+            }
+        )
+    )
+    topas_rtk_png = cache.get(
+        utils.TOPAS_RTK_CACHE_ID_TEMPLATE.format_map(
+            {
+                "sample": patient,
+                "cohort": cohort_index,
+                "background_cohort": (
+                    background_cohort if background_cohort else "default"
+                ),
+                "ext": "png",
+            }
+        )
+    )
+    topas_ck_png = cache.get(
+        utils.TOPAS_CK_CACHE_ID_TEMPLATE.format_map(
+            {
+                "sample": patient,
+                "cohort": cohort_index,
+                "background_cohort": (
+                    background_cohort if background_cohort else "default"
+                ),
+                "ext": "png",
+            }
+        )
+    )
 
-    if (not prodict_umap_png or 
-        not prodict_prob_png or 
-        not tumor_antigen_png or 
-        not immune_heatmap_png or 
-        not topas_ck_png or 
-        not topas_rtk_png
+    if (
+        not prodict_umap_png
+        or not prodict_prob_png
+        or not tumor_antigen_png
+        or not immune_heatmap_png
+        or not topas_ck_png
+        or not topas_rtk_png
     ):
         return "Images not available yet. Please generate them in cache first.", 400
 
     metadata = cohorts_db.get_patient_metadata_df(cohort_index)
     metadata = metadata.set_index("Sample name")
-
 
     prs = Presentation(config.get_report_template_pptx())
     slide = prs.slides[0]
@@ -558,22 +610,63 @@ def get_patient_report_pptx(cohort_index: int, patient: str):
     val_pp = metadata_row.get("Tumor cell content")
     val_bp = metadata_row.get("TCC_Bioinfo")
 
+    na_tcc_values = [None, "", "missing", "NA", ""]
     for shape in slide.shapes:
         if shape.has_text_frame:
             for i, paragraph in enumerate(shape.text_frame.paragraphs):
                 for run in paragraph.runs:
                     run.text = re.sub(r"\[SAMPLE\]", patient, run.text)
-                    run.text = re.sub(r"\[ENT\]", str(metadata_row.get("code_oncotree", "NA")), run.text)
-                    run.text = re.sub(r"\[TOP\]", str(metadata_row.get("tissue_topology", "NA")), run.text)
-                    run.text = re.sub(r"\[PP\]", f"{int(val_pp)}%" if val_pp not in [None, "", "NA"] else "NA", run.text)
-                    run.text = re.sub(r"\[BP\]", f"{int(val_bp)}%" if val_bp not in [None, "", "NA"] else "NA", run.text)
-    
-    slide.shapes.add_picture(BytesIO(tumor_antigen_png), left=Inches(4.47), top=Inches(0.55), height=Inches(1.89))
-    slide.shapes.add_picture(BytesIO(immune_heatmap_png), left=Inches(4.14), top=Inches(2.49), height=Inches(0.86))
-    slide.shapes.add_picture(BytesIO(prodict_prob_png), left=Inches(0.02), top=Inches(1.44), height=Inches(1.90))
-    slide.shapes.add_picture(BytesIO(prodict_umap_png), left=Inches(1.52), top=Inches(1.42), height=Inches(1.90))
-    slide.shapes.add_picture(BytesIO(topas_rtk_png), left=Inches(0.01), top=Inches(3.95), height=Inches(1.73))
-    slide.shapes.add_picture(BytesIO(topas_ck_png), left=Inches(0.01), top=Inches(5.74), height=Inches(1.73))
+                    run.text = re.sub(
+                        r"\[ENT\]",
+                        str(metadata_row.get("code_oncotree", "NA")),
+                        run.text,
+                    )
+                    run.text = re.sub(
+                        r"\[TOP\]",
+                        str(metadata_row.get("tissue_topology", "NA")),
+                        run.text,
+                    )
+                    run.text = re.sub(
+                        r"\[PP\]",
+                        f"{int(val_pp)}%" if utils.can_be_int(val_pp) else "NA",
+                        run.text,
+                    )
+                    run.text = re.sub(
+                        r"\[BP\]",
+                        f"{int(val_bp)}%" if utils.can_be_int(val_pp) else "NA",
+                        run.text,
+                    )
+
+    slide.shapes.add_picture(
+        BytesIO(tumor_antigen_png),
+        left=Inches(4.47),
+        top=Inches(0.55),
+        height=Inches(1.89),
+    )
+    slide.shapes.add_picture(
+        BytesIO(immune_heatmap_png),
+        left=Inches(4.14),
+        top=Inches(2.49),
+        height=Inches(0.86),
+    )
+    slide.shapes.add_picture(
+        BytesIO(prodict_prob_png),
+        left=Inches(0.02),
+        top=Inches(1.44),
+        height=Inches(1.90),
+    )
+    slide.shapes.add_picture(
+        BytesIO(prodict_umap_png),
+        left=Inches(1.52),
+        top=Inches(1.42),
+        height=Inches(1.90),
+    )
+    slide.shapes.add_picture(
+        BytesIO(topas_rtk_png), left=Inches(0.01), top=Inches(3.95), height=Inches(1.73)
+    )
+    slide.shapes.add_picture(
+        BytesIO(topas_ck_png), left=Inches(0.01), top=Inches(5.74), height=Inches(1.73)
+    )
 
     ppt_io = BytesIO()
     prs.save(ppt_io)
@@ -583,5 +676,5 @@ def get_patient_report_pptx(cohort_index: int, patient: str):
         ppt_io,
         mimetype="application/vnd.openxmlformats-officedocument.presentationml.presentation",
         as_attachment=True,
-        download_name=f"{patient}.pptx"
+        download_name=f"{patient}.pptx",
     )

@@ -13,6 +13,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap, BoundaryNorm
 import seaborn as sns
+
 matplotlib.use("svg")
 
 
@@ -22,63 +23,80 @@ cohorts_db = db.cohorts_db
 
 
 PRODICT_PROB_CACHE_ID_TEMPLATE = "prodict_prob_{sample}_{ext}"
-PRODICT_UMAP_CACHE_ID_TEMPLATE = "prodict_umap_{sample}_{cohort}_{background_cohort}_{ext}"
+PRODICT_UMAP_CACHE_ID_TEMPLATE = (
+    "prodict_umap_{sample}_{cohort}_{background_cohort}_{ext}"
+)
 TOPAS_RTK_CACHE_ID_TEMPLATE = "topas_rtk_{sample}_{cohort}_{background_cohort}_{ext}"
 TOPAS_CK_CACHE_ID_TEMPLATE = "topas_ck_{sample}_{cohort}_{background_cohort}_{ext}"
-TUMOR_ANTIGEN_CACHE_ID_TEMPLATE = "tumor_antigens_{sample}_{cohort}_{background_cohort}_{ext}"
+TUMOR_ANTIGEN_CACHE_ID_TEMPLATE = (
+    "tumor_antigens_{sample}_{cohort}_{background_cohort}_{ext}"
+)
 IMMUNE_HEATMAP_CACHE_ID_TEMPLATE = "immune_heatmap_{sample}_{cohort}_{ext}"
 
-class PatientReport():
+
+class PatientReport:
     def __init__(self, cohort_id: int, patient: str, background_cohort: str = None):
         self._patient = patient
         self._cohort_id = cohort_id
         self._background_cohort = background_cohort
 
     def get_prodict_prob_cache_id(self, ext):
-        return PRODICT_PROB_CACHE_ID_TEMPLATE.format_map({
-            "sample": self._patient,
-            "ext": ext
-        })
-    
+        return PRODICT_PROB_CACHE_ID_TEMPLATE.format_map(
+            {"sample": self._patient, "ext": ext}
+        )
+
     def get_prodict_umap_cache_id(self, ext):
-        return PRODICT_UMAP_CACHE_ID_TEMPLATE.format_map({
-            "sample": self._patient,
-            "cohort": self._cohort_id,
-            "background_cohort": self._background_cohort if self._background_cohort else "default",
-            "ext": ext
-        })
+        return PRODICT_UMAP_CACHE_ID_TEMPLATE.format_map(
+            {
+                "sample": self._patient,
+                "cohort": self._cohort_id,
+                "background_cohort": (
+                    self._background_cohort if self._background_cohort else "default"
+                ),
+                "ext": ext,
+            }
+        )
 
     def get_topas_rtk_cache_id(self, ext):
-        return TOPAS_RTK_CACHE_ID_TEMPLATE.format_map({
-            "sample": self._patient,
-            "cohort": self._cohort_id,
-            "background_cohort": self._background_cohort if self._background_cohort else "default",
-            "ext": ext
-        })
+        return TOPAS_RTK_CACHE_ID_TEMPLATE.format_map(
+            {
+                "sample": self._patient,
+                "cohort": self._cohort_id,
+                "background_cohort": (
+                    self._background_cohort if self._background_cohort else "default"
+                ),
+                "ext": ext,
+            }
+        )
 
     def get_topas_ck_cache_id(self, ext):
-        return TOPAS_CK_CACHE_ID_TEMPLATE.format_map({
-            "sample": self._patient,
-            "cohort": self._cohort_id,
-            "background_cohort": self._background_cohort if self._background_cohort else "default",
-            "ext": ext
-        })
-    
-    def get_antigens_cache_id(self, ext):
-        return TUMOR_ANTIGEN_CACHE_ID_TEMPLATE.format_map({
-            "sample": self._patient,
-            "cohort": self._cohort_id,
-            "background_cohort": self._background_cohort if self._background_cohort else "default",
-            "ext": ext
-        })
-    
-    def get_immune_heatmap_cache_id(self, ext):
-        return IMMUNE_HEATMAP_CACHE_ID_TEMPLATE.format_map({
-            "sample": self._patient,
-            "cohort": self._cohort_id,
-            "ext": ext
-        })
+        return TOPAS_CK_CACHE_ID_TEMPLATE.format_map(
+            {
+                "sample": self._patient,
+                "cohort": self._cohort_id,
+                "background_cohort": (
+                    self._background_cohort if self._background_cohort else "default"
+                ),
+                "ext": ext,
+            }
+        )
 
+    def get_antigens_cache_id(self, ext):
+        return TUMOR_ANTIGEN_CACHE_ID_TEMPLATE.format_map(
+            {
+                "sample": self._patient,
+                "cohort": self._cohort_id,
+                "background_cohort": (
+                    self._background_cohort if self._background_cohort else "default"
+                ),
+                "ext": ext,
+            }
+        )
+
+    def get_immune_heatmap_cache_id(self, ext):
+        return IMMUNE_HEATMAP_CACHE_ID_TEMPLATE.format_map(
+            {"sample": self._patient, "cohort": self._cohort_id, "ext": ext}
+        )
 
     def setup_prodict_scores(self, predictions):
         self._predictions = predictions
@@ -104,13 +122,15 @@ class PatientReport():
             .sort_values(ascending=False)
             .index.to_list()
         )
-        
+
         sample_order.remove(self._patient)
         self._gene_order = sample_order[:5] + [self._patient] + sample_order[-5:]
         self._df = self._df.loc[self._gene_order]
 
     def setup_swarm_df(self, df, subcohort_ids):
-        self._df = df.melt(id_vars="Gene names", var_name="Sample names", value_name="Expression")
+        self._df = df.melt(
+            id_vars="Gene names", var_name="Sample names", value_name="Expression"
+        )
 
         self._df["Is subcohort"] = self._df["Sample names"].isin(subcohort_ids)
         self._df["Is highlighted"] = self._df["Sample names"].eq(self._patient)
@@ -133,7 +153,7 @@ class PatientReport():
         y_break_at=None,
         ymin=None,
         ymax=None,
-        y_outlier_above=None
+        y_outlier_above=None,
     ):
         should_break_axis = (
             y_break_at is not None and (self._df["Expression"] >= y_break_at).sum() > 0
@@ -142,7 +162,9 @@ class PatientReport():
         nrows = 2 if should_break_axis else 1
         height_ratios = [1, 9] if should_break_axis else None
 
-        self._df["Plot expression"] = self._df["Expression"].apply(lambda x: y_outlier_above if y_outlier_above and x >= y_outlier_above else x)
+        self._df["Plot expression"] = self._df["Expression"].apply(
+            lambda x: y_outlier_above if y_outlier_above and x >= y_outlier_above else x
+        )
 
         highlight_genes = (
             self._df[self._df["Is highlighted"]]
@@ -152,7 +174,11 @@ class PatientReport():
         )
 
         fig, ax = plt.subplots(
-            nrows=nrows, ncols=1, figsize=figsize, height_ratios=height_ratios, sharex=True
+            nrows=nrows,
+            ncols=1,
+            figsize=figsize,
+            height_ratios=height_ratios,
+            sharex=True,
         )
         fig.subplots_adjust(hspace=0.01)
         ax = np.atleast_1d(ax)
@@ -198,7 +224,9 @@ class PatientReport():
             x.tick_params(axis="x", which="both", length=0)
             x.tick_params(axis="y", which="both", length=0)
 
-        ax[bottom_plot_idx].axhline(y=y_thresh_main, linestyle="--", color="red", zorder=10)
+        ax[bottom_plot_idx].axhline(
+            y=y_thresh_main, linestyle="--", color="red", zorder=10
+        )
         ax[bottom_plot_idx].axhline(
             y=y_thresh_sec, linestyle="--", color="black", alpha=0.3
         )
@@ -211,21 +239,26 @@ class PatientReport():
             rotation_mode="anchor",
         )
         if y_outlier_above:
-            yticks = np.arange(ymin or ax[bottom_plot_idx].get_yticks()[0], y_outlier_above + 0.5, 0.5)
+            yticks = np.arange(
+                ymin or ax[bottom_plot_idx].get_yticks()[0], y_outlier_above + 0.5, 0.5
+            )
             ax[bottom_plot_idx].set_yticks(yticks)
             ylabels = ax[bottom_plot_idx].get_yticklabels()
             ylabels[-1] = f"≥ {y_outlier_above}"
             ax[bottom_plot_idx].set_yticklabels(ylabels)
 
-            data_to_annot = self._df[self._df["Is highlighted"] & (self._df["Plot expression"] == y_outlier_above)]
+            data_to_annot = self._df[
+                self._df["Is highlighted"]
+                & (self._df["Plot expression"] == y_outlier_above)
+            ]
             for _, data in data_to_annot.iterrows():
                 ax[bottom_plot_idx].annotate(
                     f'{data["Expression"]:.2f}',
                     (data["Gene names"], y_outlier_above),
                     xytext=(0, 5),
-                    textcoords='offset points',
+                    textcoords="offset points",
                     fontsize=10,
-                    color='red'
+                    color="red",
                 )
 
         for tick in ax[bottom_plot_idx].get_xticklabels():
@@ -310,7 +343,9 @@ class PatientReport():
         """Generate UMAP visualization with color coding based on signatures and sample"""
         # Get signature values to filter by
         if self._background_cohort not in self._signatures.keys():
-            signature_values = [item for sublist in self._signatures.values() for item in sublist]
+            signature_values = [
+                item for sublist in self._signatures.values() for item in sublist
+            ]
         else:
             signature_values = self._signatures[self._background_cohort]
 
@@ -326,7 +361,7 @@ class PatientReport():
             n_neighbors=n_neighbors,
             min_dist=min_dist,
             n_components=2,
-            random_state=random_state
+            random_state=random_state,
         )
         embedding = reducer.fit_transform(X)
 
@@ -416,9 +451,7 @@ class PatientReport():
         # Labels
         ax.set_xlabel("Probability")
         ax.set_xticks([0.0, 0.5, 0.9, 1.0])
-        ax.set_title(
-            title, fontsize=10, fontweight="bold"
-        )
+        ax.set_title(title, fontsize=10, fontweight="bold")
 
         # Remove frame box (keep only x & y axes)
         ax.spines["top"].set_visible(False)
@@ -439,14 +472,22 @@ class PatientReport():
             cache.set(id, data, timeout=86400)
 
         return data
-    
+
     def close_fig(self):
         plt.close(self._fig)
 
-def preprocess_background_cohort(background_cohort=""):
-    return "" if background_cohort.strip().lower() in {"", "default", "auto", "none", "null"} else background_cohort
 
-def get_background_cohort(metadata_df, background_cohort, patient, background_cohort_column="code_oncotree"):
+def preprocess_background_cohort(background_cohort=""):
+    return (
+        ""
+        if background_cohort.strip().lower() in {"", "default", "auto", "none", "null"}
+        else background_cohort
+    )
+
+
+def get_background_cohort(
+    metadata_df, background_cohort, patient, background_cohort_column="code_oncotree"
+):
     metadata_oncotree = metadata_df.get(background_cohort_column)
     preprocessed_background_cohort = preprocess_background_cohort(background_cohort)
     if not preprocessed_background_cohort and metadata_oncotree is not None:
@@ -456,7 +497,10 @@ def get_background_cohort(metadata_df, background_cohort, patient, background_co
 
     return signature_key
 
-def get_background_cohort_indices(metadata_df, column, sample_name, background_cohort=None):
+
+def get_background_cohort_indices(
+    metadata_df, column, sample_name, background_cohort=None
+):
     if column not in metadata_df.columns:
         return []
 
@@ -472,7 +516,6 @@ def get_background_cohort_indices(metadata_df, column, sample_name, background_c
 
     target_class = sample_rows[column]
     return metadata_df[metadata_df[column] == target_class].index.to_list()
-
 
 
 # PRODICT
@@ -573,7 +616,6 @@ def get_imputed_df(cohort_index: int):
     return data_clean
 
 
-
 # Prediction function
 
 
@@ -606,3 +648,9 @@ def probabilities_calculator(models: dict, input_data: pd.DataFrame) -> dict:
     return predictions
 
 
+def can_be_int(value):
+    try:
+        int(value)
+        return True
+    except (ValueError, TypeError):
+        return False

@@ -21,7 +21,7 @@ def generate_ts_function(name, path):
 
     # Create parameter signature and destructuring
     if params:
-        param_signature = "{" + ", ".join(params) + "}"
+        param_signature = "{" + "= '', ".join(params) + " = '' }"
     else:
         param_signature = ""
 
