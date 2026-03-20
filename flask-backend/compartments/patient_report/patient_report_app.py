@@ -606,7 +606,6 @@ def get_patient_report_pptx(cohort_index: int, patient: str):
     val_pp = metadata_row.get("Tumor cell content")
     val_bp = metadata_row.get("TCC_Bioinfo")
 
-    na_tcc_values = [None, "", "missing", "NA", ""]
     for shape in slide.shapes:
         if shape.has_text_frame:
             for i, paragraph in enumerate(shape.text_frame.paragraphs):
@@ -629,7 +628,7 @@ def get_patient_report_pptx(cohort_index: int, patient: str):
                     )
                     run.text = re.sub(
                         r"\[BP\]",
-                        f"{int(val_bp)}%" if utils.can_be_int(val_pp) else "NA",
+                        f"{int(val_bp)}%" if utils.can_be_int(val_bp) else "NA",
                         run.text,
                     )
 

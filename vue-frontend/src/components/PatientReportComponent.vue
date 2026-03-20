@@ -202,19 +202,19 @@
           <v-row>
             <v-col sm="12" md="12" lg="12">
               <v-card variant="flat">
-                  <v-card-title>
-                    Advanced plots
-                    <v-spacer></v-spacer>
-                    <v-btn
-                      color="primary"
-                      :disabled="!canDownloadReportPptx"
-                      :loading="downloadingPptx"
-                      @click="downloadPatientReportPptx"
-                    >
-                      Download Patient Report
-                    </v-btn>
-                  </v-card-title>                
-                  <v-card-text>
+                <v-card-title>
+                  Advanced plots
+                  <v-spacer></v-spacer>
+                  <v-btn
+                    color="primary"
+                    :disabled="!canDownloadReportPptx"
+                    :loading="downloadingPptx"
+                    @click="downloadPatientReportPptx"
+                  >
+                    Download Patient Report
+                  </v-btn>
+                </v-card-title>
+                <v-card-text>
                   <v-row>
                     <v-col cols="12" sm="6" md="4">
                       <v-select
@@ -534,7 +534,7 @@
           this.tumorLoaded &&
           this.prodictProbLoaded &&
           this.prodictUmapLoaded
-        );
+        )
       },
       proteinCount() {
         return this.proteinCounts.map(d => d.identified)
@@ -624,7 +624,6 @@
         this.immuneLoaded = false
         this.prodictProbLoaded = false
         this.prodictUmapLoaded = false
-
       },
       backgroundCohort() {
         if (!this.firstPatient) return
@@ -646,88 +645,88 @@
         addNotification: 'notifications/addNotification'
       }),
       async downloadPatientReportPptx() {
-        this.downloadingPptx = true;
+        this.downloadingPptx = true
         try {
-          const response = await axios.get(api.PATIENT_REPORT_PPTX({
-            cohort_index: this.cohortIndex,
-            patient: this.firstPatient,
-            background_cohort: this.backgroundCohortParam
-          }), {
-            responseType: "blob"   // important for binary files
-          });
+          const response = await axios.get(
+            api.PATIENT_REPORT_PPTX({
+              cohort_index: this.cohortIndex,
+              patient: this.firstPatient,
+              background_cohort: this.backgroundCohortParam
+            }),
+            {
+              responseType: 'blob' // important for binary files
+            }
+          )
 
           // Axios headers are plain objects
-          const disposition = response.headers["content-disposition"];
-          let filename = this.firstPatient + "_patient_report.pptx"; // default
-          if (disposition && disposition.includes("filename=")) {
-            filename = disposition
-              .split("filename=")[1]
-              .replace(/"/g, "")
-              .trim();
+          const disposition = response.headers['content-disposition']
+          let filename = this.firstPatient + '_patient_report.pptx' // default
+          if (disposition && disposition.includes('filename=')) {
+            filename = disposition.split('filename=')[1].replace(/"/g, '').trim()
           }
 
           // response.data is already a Blob because of responseType
-          const url = window.URL.createObjectURL(response.data);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = filename;
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-          window.URL.revokeObjectURL(url);
+          const url = window.URL.createObjectURL(response.data)
+          const a = document.createElement('a')
+          a.href = url
+          a.download = filename
+          document.body.appendChild(a)
+          a.click()
+          a.remove()
+          window.URL.revokeObjectURL(url)
         } catch (err) {
-          console.error(err);
+          console.error(err)
         } finally {
-          this.downloading = false;
+          this.downloadingPptx = false
         }
       },
       onImmuneLoad() {
-        this.loadingImmune = false;
-        this.immuneLoaded = true;
+        this.loadingImmune = false
+        this.immuneLoaded = true
       },
       onImmuneError() {
-        this.loadingImmune = false;
-        this.immuneLoaded = false; 
+        this.loadingImmune = false
+        this.immuneLoaded = false
       },
       onTumorLoad() {
-        this.loadingTumor = false;
-        this.tumorLoaded = true;
+        this.loadingTumor = false
+        this.tumorLoaded = true
       },
       onTumorError() {
-        this.loadingTumor = false;
-        this.tumorLoaded = false; 
+        this.loadingTumor = false
+        this.tumorLoaded = false
       },
       onRtkLoad() {
-        this.loadingRtk = false;
-        this.rtkLoaded = true;
+        this.loadingRtk = false
+        this.rtkLoaded = true
       },
       onRtkError() {
-        this.loadingRtk = false;
-        this.rtkLoaded = false; 
+        this.loadingRtk = false
+        this.rtkLoaded = false
       },
       onCknkLoad() {
-        this.loadingCknk = false;
-        this.cknkLoaded = true;
+        this.loadingCknk = false
+        this.cknkLoaded = true
       },
       onCknkError() {
-        this.loadingCknk = false;
-        this.cknkLoaded = false; 
+        this.loadingCknk = false
+        this.cknkLoaded = false
       },
       onProdictProbLoad() {
-        this.loadingProdictProb = false;
-        this.prodictProbLoaded = true;
+        this.loadingProdictProb = false
+        this.prodictProbLoaded = true
       },
       onProdictProbError() {
-        this.loadingProdictProb = false;
-        this.prodictProbLoaded = false; 
+        this.loadingProdictProb = false
+        this.prodictProbLoaded = false
       },
       onProdictUmapLoad() {
-        this.loadingProdictUmap = false;
-        this.prodictUmapLoaded = true;
+        this.loadingProdictUmap = false
+        this.prodictUmapLoaded = true
       },
       onProdictUmapError() {
-        this.loadingProdictUmap = false;
-        this.prodictUmapLoaded = false; 
+        this.loadingProdictUmap = false
+        this.prodictUmapLoaded = false
       },
       updateCohort({ cohortIndex }) {
         this.cohortIndex = cohortIndex
