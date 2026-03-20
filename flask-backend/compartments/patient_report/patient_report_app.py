@@ -270,8 +270,8 @@ def get_tumor_antigens_swarm_plot(cohort_index: int, patient: str):
         )
     )
     if svg_data is None:
-        subcohort_column = request.args.get(
-            "subcohort_column", type=str, default="code_oncotree"
+        subcohort_column = (
+            request.args.get("subcohort_column", type=str) or "code_oncotree"
         )
 
         subcohort = utils.get_background_cohort_indices(
@@ -302,9 +302,7 @@ def get_rtk_swarm_plot(cohort_index: int, patient: str):
     if len(patient.split(";")) > 1:
         return "Can only handle 1 patient at a time", 400
 
-    subcohort_column = request.args.get(
-        "subcohort_column", type=str, default="code_oncotree"
-    )
+    subcohort_column = request.args.get("subcohort_column", type=str) or "code_oncotree"
     background_cohort = request.args.get("background_cohort", default="", type=str)
     metadata = cohorts_db.get_patient_metadata_df(cohort_index)
     metadata = metadata.set_index("Sample name")
@@ -356,9 +354,7 @@ def get_ck_nk_swarm_plot(cohort_index: int, patient: str):
     if len(patient.split(";")) > 1:
         return "Can only handle 1 patient at a time", 400
 
-    subcohort_column = request.args.get(
-        "subcohort_column", type=str, default="code_oncotree"
-    )
+    subcohort_column = request.args.get("subcohort_column", type=str) or "code_oncotree"
     background_cohort = request.args.get("background_cohort", default="", type=str)
 
     metadata = cohorts_db.get_patient_metadata_df(cohort_index)
@@ -531,7 +527,7 @@ def get_patient_report_pptx(cohort_index: int, patient: str):
     )
 
     prodict_umap_png = cache.get(
-        utils.PRODICT_PROB_CACHE_ID_TEMPLATE.format_map(
+        utils.PRODICT_UMAP_CACHE_ID_TEMPLATE.format_map(
             {
                 "sample": patient,
                 "cohort": cohort_index,
