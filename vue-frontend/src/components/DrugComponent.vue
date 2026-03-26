@@ -1,6 +1,6 @@
 <template>
-  <v-container fluid>
-    <v-row class="bg-grey-lighten-3">
+  <v-container class="bg-grey-lighten-3" fluid>
+    <v-row>
       <v-col sm="12" md="3" lg="2">
         <v-card variant="flat">
           <v-card-title tag="h1"> Kinase inhibitors </v-card-title>

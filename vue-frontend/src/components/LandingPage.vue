@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid>
+  <v-container class="pa-0" fluid>
     <v-row class="pa-4 bg-grey-lighten-3">
       <v-col sm="12" md="9" lg="9">
         <v-row class="pa-0 home-hero" color="grey-lighten-4">
