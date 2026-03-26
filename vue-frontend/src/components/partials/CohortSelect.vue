@@ -4,7 +4,7 @@
       v-model="cohortName"
       class="cohort"
       prepend-icon="mdi-database"
-      density="default"
+      density="comfortable"
       variant="outlined"
       hide-details
       :items="all_cohorts"

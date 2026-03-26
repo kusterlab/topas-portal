@@ -7,7 +7,7 @@
           <v-card-text>
             <v-text-field
               v-model="identifierDrug"
-              density="default"
+              density="comfortable"
               persistent-hint
               variant="outlined"
               hint="Use semicolons (;) for multiple targets"
@@ -22,7 +22,7 @@
               label="Sort by"
               hide-details
               variant="outlined"
-              density="default"
+              density="comfortable"
             />
           </v-card-text>
         </v-card>
@@ -71,7 +71,7 @@
                     :items-per-page="10"
                     :search="searchTarget"
                     :hide-default-footer="true"
-                    density="default"
+                    density="comfortable"
                   >
                     <template #top>
                       <v-text-field

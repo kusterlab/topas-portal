@@ -33,7 +33,7 @@
               label="Input type"
               hide-details
               variant="outlined"
-              density="default"
+              density="comfortable"
               @update:model-value="jsonUrl = ''"
             />
             <phosphopeptide-select
@@ -63,7 +63,7 @@
               prepend-icon="mdi-filter"
               label="Correlate against"
               hide-details
-              density="default"
+              density="comfortable"
               variant="outlined"
               class="mt-4"
               @update:model-value="jsonUrl = ''"
@@ -141,7 +141,7 @@
                   v-if="jsonUrl !== ''"
                   v-model="doImpute"
                   hide-details
-                  density="default"
+                  density="comfortable"
                   label="Impute NA on Plot"
                   @update:model-value="fetchExpressionData"
                 />
@@ -165,7 +165,7 @@
               <v-col sm="12" md="4" lg="4">
                 <v-checkbox
                   v-model="Showdensity"
-                  density="default"
+                  density="comfortable"
                   label="Show Density Distribution"
                   @update:model-value="fetchDensityData"
                 />

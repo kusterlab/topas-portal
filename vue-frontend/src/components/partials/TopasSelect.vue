@@ -4,7 +4,7 @@
       v-model="selectedTopasIds"
       label="Select kinase"
       class="topas mt-1"
-      density="default"
+      density="comfortable"
       variant="outlined"
       hide-details
       prepend-icon="mdi-filter"

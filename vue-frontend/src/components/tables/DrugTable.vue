@@ -3,7 +3,7 @@
     <v-checkbox
       v-model="advancedFilter"
       hide-details
-      density="default"
+      density="comfortable"
       label="Advanced table filter"
     />
     <div v-show="advancedFilter" class="filter-container">

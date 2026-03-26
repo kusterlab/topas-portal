@@ -5,7 +5,7 @@
       :items="allPhosphopeptides"
       variant="outlined"
       prepend-icon="mdi-filter"
-      density="default"
+      density="comfortable"
       hide-details
       auto-select-first
       :multiple="multiple"

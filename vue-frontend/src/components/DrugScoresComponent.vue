@@ -20,7 +20,7 @@
               v-model="drugidentifier"
               :items="allDrugs"
               variant="outlined"
-              density="default"
+              density="comfortable"
               label="Select Drug"
               class="mt-4"
               @update:model-value="updateId('drug')"
@@ -30,7 +30,7 @@
               v-model="entityIdentifier"
               :items="allEntities"
               variant="outlined"
-              density="default"
+              density="comfortable"
               chips
               label="Filter by entities"
               multiple
@@ -41,7 +41,7 @@
               v-model="patientidentifier"
               :items="allPatients"
               variant="outlined"
-              density="default"
+              density="comfortable"
               label="Select Patient"
               class="mt-4"
               @update:model-value="updateId('patient')"

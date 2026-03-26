@@ -5,7 +5,7 @@
       v-model="selectionMethod"
       color="primary"
       mandatory
-      density="default"
+      density="comfortable"
       class="mb-0 flex-grow-1"
     >
       <v-btn value="metadata" class="flex-grow-1"> Metadata </v-btn>
@@ -16,7 +16,7 @@
       v-if="selectionMethod === 'metadata'"
       v-model="metadataType"
       prepend-icon="mdi-account"
-      density="default"
+      density="comfortable"
       variant="outlined"
       hide-details
       auto-select-first
@@ -29,7 +29,7 @@
       v-model="metadataValuesSelected"
       prepend-icon="mdi-filter"
       class="mt-4"
-      density="default"
+      density="comfortable"
       variant="outlined"
       hide-details
       auto-select-first

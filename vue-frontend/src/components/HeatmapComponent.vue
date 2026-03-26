@@ -27,7 +27,7 @@
               v-model="inputDataType"
               class="input_data_type mb-2"
               prepend-icon="mdi-filter"
-              density="default"
+              density="comfortable"
               variant="outlined"
               hide-details
               :items="allInputDataTypes"

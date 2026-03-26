@@ -9,7 +9,7 @@
             <v-select
               v-model="activeMeta"
               class="mt-4"
-              density="default"
+              density="comfortable"
               variant="outlined"
               hide-details
               :items="metaData"
@@ -22,7 +22,7 @@
               class="mt-4"
               label="Min Items per Group"
               type="number"
-              density="default"
+              density="comfortable"
               variant="outlined"
               prepend-icon="mdi-counter"
               hide-details

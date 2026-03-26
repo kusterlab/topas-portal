@@ -14,7 +14,7 @@
             <v-checkbox
               v-model="showTopasSubscore"
               label="Show TOPAS subscore plots"
-              density="default"
+              density="comfortable"
               hide-details
               @update:model-value="getTopasData"
             />

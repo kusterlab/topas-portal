@@ -7,7 +7,7 @@
       class="flex-grow-1"
       style="min-width: 0"
       hide-details
-      density="compact"
+      density="comfortable"
     >
       <v-btn value="cohort" class="mb-0 flex-grow-1 text-no-wrap"> Full </v-btn>
       <v-btn value="subcohort" class="mb-0 flex-grow-1 text-no-wrap"> Sub </v-btn>

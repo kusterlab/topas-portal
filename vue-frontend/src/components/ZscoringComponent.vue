@@ -23,7 +23,7 @@
             <v-select
               v-model="mode"
               class="input_data_type mb-2"
-              density="default"
+              density="comfortable"
               prepend-icon="mdi-filter"
               variant="outlined"
               hide-details

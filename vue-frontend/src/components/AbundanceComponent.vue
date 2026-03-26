@@ -7,7 +7,7 @@
           <v-card-title tag="h1"> Protein/p-site abundance </v-card-title>
           <v-card-text>
             <cohort-select @select-cohort="updateCohort" />
-            <v-checkbox v-model="includeRefChannels" label="Include ref channels" density="default" hide-details />
+            <v-checkbox v-model="includeRefChannels" label="Include ref channels" density="comfortable" hide-details />
             <v-radio-group v-model="mode" label="Input type" hide-details class="mt-4">
               <v-radio v-for="(label, value) in radioOptions" :key="value" :label="label" :value="value" />
             </v-radio-group>
@@ -25,7 +25,7 @@
               @select-phosphopeptide="updatePhosphopeptide" />
             <protein-select v-if="mode !== 'psite'" :cohort-index="cohortIndex" :data-layer="mode"
               @select-protein="updateProtein" />
-            <v-checkbox v-if="mode !== 'psite'" v-model="showOncokbcnv" density="default" hide-details
+            <v-checkbox v-if="mode !== 'psite'" v-model="showOncokbcnv" density="comfortable" hide-details
               label="Load OncoKB annotations" />
             <v-textarea v-if="showOncokbcnv" v-model="cnvDescription" :readonly="true" variant="outlined" hide-details
               rows="4" />

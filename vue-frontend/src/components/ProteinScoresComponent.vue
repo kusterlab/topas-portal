@@ -9,7 +9,7 @@
             <v-checkbox
               v-model="includeRefChannels"
               label="Include ref channels"
-              density="default"
+              density="comfortable"
               hide-details
             />
             <protein-select
