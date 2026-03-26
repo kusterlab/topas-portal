@@ -19,6 +19,7 @@ else:
     cohorts_db = InMemoryCohortDataAPI(config_file)
 
 
+mongodb = None
 try:
     MONGODB_URI = (
     f"mongodb://"

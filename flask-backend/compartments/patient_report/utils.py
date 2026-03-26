@@ -490,7 +490,11 @@ def get_background_cohort(
 ):
     metadata_oncotree = metadata_df.get(background_cohort_column)
     preprocessed_background_cohort = preprocess_background_cohort(background_cohort)
-    if not preprocessed_background_cohort and metadata_oncotree is not None:
+    if (
+        not preprocessed_background_cohort
+        and metadata_oncotree is not None
+        and patient in metadata_oncotree.index
+    ):
         signature_key = metadata_oncotree.loc[patient]
     else:
         signature_key = preprocessed_background_cohort

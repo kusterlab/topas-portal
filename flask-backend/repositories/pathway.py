@@ -6,7 +6,9 @@ from models.pathway import PathwayModel
 
 class PathwayRepository:
     def __init__(self, client: MongoClient):
-        self.collection = client.db_name.pathways
+        self.collection = None
+        if client is not None:
+            self.collection = client.db_name.pathways
     
     def create(self, model: PathwayModel) -> PathwayModel:
         doc = model.model_dump(exclude={'id'}, mode="db")

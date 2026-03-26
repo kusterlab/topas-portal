@@ -25,7 +25,7 @@ export_flask_routes:
 	cd flask-backend && poetry run python3 -m routes
 
 serve: export_flask_routes
-	cd vue-frontend && npm install && npm run serve
+	cd vue-frontend && npm install && npm run dev
 
 lint:
 	cd vue-frontend && npx eslint "./**" --fix --ignore-pattern Dockerfile
