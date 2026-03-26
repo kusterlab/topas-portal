@@ -13,7 +13,7 @@
               @update-group="updateSampleGroup"
               @update-selection-method="updateSelectionMethodGroup"
             />
-            <v-radio-group v-model="intensityUnit" label="Intensity unit" hide-details class="mt-4">
+            <v-radio-group v-model="intensityUnit" label="Intensity unit" class="mt-4">
               <v-radio
                 v-for="u in intensityUnits"
                 :key="u.value"
@@ -31,9 +31,6 @@
               prepend-icon="mdi-filter"
               :items="dataTypes"
               label="Input type"
-              hide-details
-              variant="outlined"
-              density="comfortable"
               @update:model-value="jsonUrl = ''"
             />
             <phosphopeptide-select
@@ -62,9 +59,6 @@
               :items="dataTypes"
               prepend-icon="mdi-filter"
               label="Correlate against"
-              hide-details
-              density="comfortable"
-              variant="outlined"
               class="mt-4"
               @update:model-value="jsonUrl = ''"
             />
@@ -140,8 +134,6 @@
                 <v-checkbox
                   v-if="jsonUrl !== ''"
                   v-model="doImpute"
-                  hide-details
-                  density="comfortable"
                   label="Impute NA on Plot"
                   @update:model-value="fetchExpressionData"
                 />
@@ -165,7 +157,6 @@
               <v-col sm="12" md="4" lg="4">
                 <v-checkbox
                   v-model="Showdensity"
-                  density="comfortable"
                   label="Show Density Distribution"
                   @update:model-value="fetchDensityData"
                 />

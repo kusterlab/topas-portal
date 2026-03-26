@@ -21,7 +21,6 @@
                 v-model="proteinCheck"
                 style="width: 100px"
                 label="Protein"
-                density="comfortable"
               />
             </v-col>
             <v-col cols="auto">
@@ -29,7 +28,6 @@
                 v-model="ppeptideCheck"
                 style="width: 100px"
                 label="P-peptide"
-                density="comfortable"
               />
             </v-col>
 
@@ -38,7 +36,6 @@
                 v-model="topasCheck"
                 style="width: 100px"
                 label="Topas"
-                density="comfortable"
               />
             </v-col>
 
@@ -54,7 +51,6 @@
               :items="results"
               item-value="name"
               :items-per-page="50"
-              density="comfortable"
             >
               <template #[`item.status`]="{ item }">
                 <v-chip v-if="item.status === 200" color="green" size="small"> ✅ 200 OK </v-chip>

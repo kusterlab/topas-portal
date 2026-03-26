@@ -2,8 +2,6 @@
   <div>
     <v-checkbox
       v-model="advancedFilter"
-      hide-details
-      density="comfortable"
       label="Advanced table filter"
     />
     <div v-show="advancedFilter" class="filter-container">

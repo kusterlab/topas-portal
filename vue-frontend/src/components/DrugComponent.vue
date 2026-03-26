@@ -7,9 +7,7 @@
           <v-card-text>
             <v-text-field
               v-model="identifierDrug"
-              density="comfortable"
               persistent-hint
-              variant="outlined"
               hint="Use semicolons (;) for multiple targets"
               label="Kinase(s) to target"
               placeholder="EGFR;ERBB2"
@@ -20,9 +18,6 @@
               prepend-icon="mdi-sort"
               :items="sortFunctions"
               label="Sort by"
-              hide-details
-              variant="outlined"
-              density="comfortable"
             />
           </v-card-text>
         </v-card>
@@ -71,7 +66,6 @@
                     :items-per-page="10"
                     :search="searchTarget"
                     :hide-default-footer="true"
-                    density="comfortable"
                   >
                     <template #top>
                       <v-text-field

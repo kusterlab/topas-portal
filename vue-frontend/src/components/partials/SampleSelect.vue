@@ -1,37 +1,30 @@
 <template>
-  <v-row>
+  <div>
     <v-btn-toggle
       v-if="showToggle"
       v-model="selectionMethod"
       color="primary"
       mandatory
-      density="comfortable"
-      class="mb-0 flex-grow-1"
     >
-      <v-btn value="metadata" class="flex-grow-1"> Metadata </v-btn>
-      <v-btn v-if="showTableSelect" value="table"> Table </v-btn>
-      <v-btn value="samplelist" class="flex-grow-1"> List </v-btn>
+      <v-btn value="metadata" class="flex-grow-1 px-3"> Metadata </v-btn>
+      <v-btn v-if="showTableSelect" value="table" class="px-3"> Table </v-btn>
+      <v-btn value="samplelist" class="flex-grow-1 px-3"> List </v-btn>
     </v-btn-toggle>
     <v-autocomplete
       v-if="selectionMethod === 'metadata'"
       v-model="metadataType"
       prepend-icon="mdi-account"
-      density="comfortable"
-      variant="outlined"
-      hide-details
       auto-select-first
       :items="metaDatatypes"
       label="Metadata column"
       @update:model-value="metaDataChanged"
+      class="mt-2"
     />
     <v-autocomplete
       v-if="selectionMethod === 'metadata'"
       v-model="metadataValuesSelected"
       prepend-icon="mdi-filter"
       class="mt-4"
-      density="comfortable"
-      variant="outlined"
-      hide-details
       auto-select-first
       multiple
       chips
@@ -46,12 +39,10 @@
       :placeholder="textareaPlaceholder"
       :readonly="selectionMethod === 'table'"
       clearable
-      variant="outlined"
-      hide-details
       rows="4"
       @update:model-value="updateSampleIdList"
     />
-  </v-row>
+  </div>
 </template>
 
 <script>

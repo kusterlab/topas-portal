@@ -22,11 +22,8 @@
           <v-card-text>
             <v-select
               v-model="mode"
-              class="input_data_type mb-2"
-              density="comfortable"
+              class="input_data_type mb-4"
               prepend-icon="mdi-filter"
-              variant="outlined"
-              hide-details
               :items="allInputDataTypes"
               label="Data Type"
             />
@@ -89,43 +86,43 @@
             </v-row>
           </v-card-text>
         </v-card>
-        <v-card plain variant="outlined">
-          <v-row>
-            <v-col sm="12" md="4" lg="4">
-              <v-card-text>
+        <v-card variant="flat">
+          <v-card-text>
+            <v-row>
+              <v-col sm="12" md="4" lg="4">
                 <zscore-table
                   :ref="componentKey"
                   :data-source="zscoreTableUrl"
                   @onRowSelect="updateSelectedRows"
                 />
-              </v-card-text>
-            </v-col>
-            <v-col sm="12" md="8" lg="8">
-              <v-card variant="flat">
-                <!-- <swarm-plot
-                  v-if="swarmPlotData.length>0"
-                  :swarm-data="swarmPlotData"
-                  swarm-id="singleGene"
-                  :swarm-sel-ids="swarmSelIds"
-                  :swarm-title="identifier"
-                  swarm-title-prefix="z-score"
-                  field-name="Sample name"
-                  :draw-box-plot="true"
-                  field-values="subcohort_zscore"
-                  @onDotClick="selectDot"
-                /> -->
-                <multi-group-plot
-                  i-d="zscorePlot"
-                  field-x="data_type"
-                  field-y="zscores"
-                  title="Sample name"
-                  :plot-data="swarmPlotData"
-                  :selected-patients="swarmSelIds"
-                  :selected-color="multiGroupPlotSelectedColor"
-                />
-              </v-card>
-            </v-col>
-          </v-row>
+              </v-col>
+              <v-col sm="12" md="8" lg="8">
+                <v-card variant="flat">
+                  <!-- <swarm-plot
+                    v-if="swarmPlotData.length>0"
+                    :swarm-data="swarmPlotData"
+                    swarm-id="singleGene"
+                    :swarm-sel-ids="swarmSelIds"
+                    :swarm-title="identifier"
+                    swarm-title-prefix="z-score"
+                    field-name="Sample name"
+                    :draw-box-plot="true"
+                    field-values="subcohort_zscore"
+                    @onDotClick="selectDot"
+                  /> -->
+                  <multi-group-plot
+                    i-d="zscorePlot"
+                    field-x="data_type"
+                    field-y="zscores"
+                    title="Sample name"
+                    :plot-data="swarmPlotData"
+                    :selected-patients="swarmSelIds"
+                    :selected-color="multiGroupPlotSelectedColor"
+                  />
+                </v-card>
+              </v-col>
+            </v-row>
+          </v-card-text>
         </v-card>
       </v-col>
     </v-row>

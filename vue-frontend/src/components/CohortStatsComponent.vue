@@ -9,9 +9,6 @@
             <v-select
               v-model="activeMeta"
               class="mt-4"
-              density="comfortable"
-              variant="outlined"
-              hide-details
               :items="metaData"
               label="Metadata column"
               prepend-icon="mdi-palette"
@@ -22,10 +19,7 @@
               class="mt-4"
               label="Min Items per Group"
               type="number"
-              density="comfortable"
-              variant="outlined"
               prepend-icon="mdi-counter"
-              hide-details
               @update:model-value="updateplotaData"
             />
           </v-card-text>

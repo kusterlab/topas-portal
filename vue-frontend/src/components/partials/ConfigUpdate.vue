@@ -9,7 +9,7 @@
         disabled
         hide-details
       />
-      <v-expansion-panels density="comfortable">
+      <v-expansion-panels>
         <v-expansion-panel>
           <v-expansion-panel-title class="mb-0 bg-grey-lighten-2">
             Show config file
@@ -35,7 +35,7 @@
           <v-select
             v-if="updateMode"
             v-model="cohortName"
-            density="comfortable"
+           
             variant="outlined"
             hide-details
             :items="all_cohorts"

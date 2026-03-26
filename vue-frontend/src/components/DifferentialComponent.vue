@@ -9,17 +9,12 @@
             <v-checkbox
               v-model="applyMultipleTestingCorrection"
               class="mt-4"
-              density="comfortable"
-              hide-details
               label="Multiple testing correction (Benjamini-Hochberg)"
             />
             <v-select
               v-model="modality"
               class="input_data_type mb-2 mt-4"
-              density="comfortable"
-              variant="outlined"
               prepend-icon="mdi-filter"
-              hide-details
               :items="allInputDataTypes"
               label="Input Data Type"
             />
@@ -27,9 +22,6 @@
               v-model="proteinType"
               class="input_data_type mb-2 mt-4"
               prepend-icon="mdi-palette"
-              density="comfortable"
-              variant="outlined"
-              hide-details
               :items="allProteinnTypes"
               label="Highlight proteins"
               @update:model-value="updateProteinType"
@@ -51,8 +43,6 @@
             <p class="mt-4 mb-2 d-inline-flex"> Group2 </p>
             <v-checkbox
               v-model="secondGroup"
-              hide-details
-              density="comfortable"
               class="d-inline-flex ml-2 mt-0"
               label="All - Group1"
             />

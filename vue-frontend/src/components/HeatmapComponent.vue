@@ -27,9 +27,6 @@
               v-model="inputDataType"
               class="input_data_type mb-2"
               prepend-icon="mdi-filter"
-              density="comfortable"
-              variant="outlined"
-              hide-details
               :items="allInputDataTypes"
               label="Input Data Type"
               @update:model-value="updateHeatmap"

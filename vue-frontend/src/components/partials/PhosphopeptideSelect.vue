@@ -3,10 +3,7 @@
     <v-autocomplete
       v-model="selectedPhosphopeptides"
       :items="allPhosphopeptides"
-      variant="outlined"
       prepend-icon="mdi-filter"
-      density="comfortable"
-      hide-details
       auto-select-first
       :multiple="multiple"
       :clearable="multiple"

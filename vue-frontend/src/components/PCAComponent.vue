@@ -17,21 +17,15 @@
               v-if="!onlyReferenceChannels"
               v-model="includeReplicates"
               label="Include replicates"
-              hide-details
-              density="comfortable"
             />
             <v-checkbox
               v-if="!onlyReferenceChannels"
               v-model="includeReferenceChannels"
               label="Include reference channels"
-              hide-details
-              density="comfortable"
             />
             <v-checkbox
               v-model="onlyReferenceChannels"
               label="Only reference channels"
-              hide-details
-              density="comfortable"
             />
             <v-text-field
               v-model="imputationRatio"
@@ -46,7 +40,7 @@
         <v-card variant="flat" class="mt-4">
           <v-card-title tag="h1"> Select plot inputs </v-card-title>
           <v-card-text>
-            <v-btn-toggle v-model="dimReductionMethod" color="primary" mandatory density="comfortable">
+            <v-btn-toggle v-model="dimReductionMethod" color="primary" mandatory>
               <v-btn value="ppca"> PCA </v-btn>
               <v-btn value="umap"> UMAP </v-btn>
             </v-btn-toggle>
@@ -54,9 +48,6 @@
               v-model="inputDataType"
               prepend-icon="mdi-filter"
               class="input_data_type my-2"
-              density="comfortable"
-              variant="outlined"
-              hide-details
               :items="allInputDataTypes"
               label="Input Type"
               @update:model-value="loading = false"
@@ -64,8 +55,6 @@
             <v-checkbox
               v-model="geneSubsetActive"
               label="Use custom identifier list"
-              hide-details
-              density="comfortable"
             />
             <v-file-input
               v-show="geneSubsetActive"
@@ -75,14 +64,13 @@
               accept="text/*,.txt"
               hint="one gene name/p-peptide per line"
               persistent-hint
-              density="comfortable"
             />
 
             <v-select
               v-model="activeMeta"
               prepend-icon="mdi-palette"
               class="metadata mt-4"
-              density="comfortable"
+             
               variant="outlined"
               hide-details
               :items="metaData"
@@ -101,7 +89,7 @@
               hide-details
               type="number"
             />
-            <v-radio-group v-model="silhouetteInputType" label="Input type" density="comfortable">
+            <v-radio-group v-model="silhouetteInputType" label="Input type">
               <v-radio label="Raw data" value="beforeCluster" />
 
               <v-radio

@@ -27,14 +27,11 @@
         <v-checkbox
           v-model="showProteinTable"
           label="Show table of proteins in selected group"
-          density="comfortable"
-          hide-details
         />
         <v-btn-toggle
           v-if="showProteinTable"
           v-model="tableCriteria"
           class="mt-4"
-          density="comfortable"
         >
           <v-btn value="all"> all </v-btn>
           <v-btn value="uniq"> unique </v-btn>
@@ -45,7 +42,6 @@
           :items="filteredItems"
           :items-per-page="10"
           :search="search"
-          density="comfortable"
         >
           <template #top>
             <v-text-field

@@ -9,8 +9,6 @@
             <v-checkbox
               v-model="includeRefChannels"
               label="Include ref channels"
-              density="comfortable"
-              hide-details
             />
             <protein-select
               :cohort-index="cohortIndex"

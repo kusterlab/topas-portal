@@ -3,31 +3,31 @@
     <v-row>
       <!-- Sidebar Section -->
       <v-col sm="12" md="3" lg="2">
-        <v-card variant="flat" class="mb-4">
+        <v-card variant="flat">
           <v-card-title tag="h1"> Protein/p-site abundance </v-card-title>
           <v-card-text>
             <cohort-select @select-cohort="updateCohort" />
-            <v-checkbox v-model="includeRefChannels" label="Include ref channels" density="comfortable" hide-details />
-            <v-radio-group v-model="mode" label="Input type" hide-details class="mt-4">
+            <v-checkbox v-model="includeRefChannels" label="Include ref channels" />
+            <v-radio-group v-model="mode" label="Input type" class="mt-2">
               <v-radio v-for="(label, value) in radioOptions" :key="value" :label="label" :value="value" />
             </v-radio-group>
-            <v-radio-group v-model="intensityUnit" label="Swarmplot intensity unit" hide-details class="mt-4">
+            <v-radio-group v-model="intensityUnit" label="Swarmplot intensity unit" class="mt-4">
               <v-radio label="Z-score" value="Z-score" />
               <v-radio label="Intensity" value="Intensity" />
             </v-radio-group>
           </v-card-text>
         </v-card>
 
-        <v-card variant="flat">
+        <v-card variant="flat" class="mt-4">
           <v-card-title tag="h1"> Select {{ radioOptions[mode] }} </v-card-title>
           <v-card-text>
             <phosphopeptide-select v-if="mode === 'psite'" :cohort-index="cohortIndex" :data-layer="mode"
               @select-phosphopeptide="updatePhosphopeptide" />
             <protein-select v-if="mode !== 'psite'" :cohort-index="cohortIndex" :data-layer="mode"
               @select-protein="updateProtein" />
-            <v-checkbox v-if="mode !== 'psite'" v-model="showOncokbcnv" density="comfortable" hide-details
+            <v-checkbox v-if="mode !== 'psite'" v-model="showOncokbcnv"
               label="Load OncoKB annotations" />
-            <v-textarea v-if="showOncokbcnv" v-model="cnvDescription" :readonly="true" variant="outlined" hide-details
+            <v-textarea v-if="showOncokbcnv" v-model="cnvDescription" :readonly="true" variant="outlined"
               rows="4" />
           </v-card-text>
         </v-card>

@@ -10,16 +10,11 @@
             <v-checkbox
               v-model="includeRefChannels"
               label="Include ref channels"
-              density="comfortable"
-              hide-details
             />
             <v-select
               v-model="scoreType"
               class="input_data_type mb-2 mt-4"
               prepend-icon="mdi-filter"
-              density="comfortable"
-              variant="outlined"
-              hide-details
               :items="allInputDataTypes"
               label="Data Type"
               @update:model-value="getscoresTable"
@@ -27,8 +22,6 @@
             <v-checkbox
               v-model="showCorrelation"
               label="Show FPKM/protein correlation histogram"
-              density="comfortable"
-              hide-details
               @update:model-value="getPatientData"
             />
           </v-card-text>
@@ -221,9 +214,6 @@
                         v-model="backgroundCohort"
                         :items="backgroundCohortOptions"
                         label="Background cohort"
-                        density="comfortable"
-                        variant="outlined"
-                        hide-details
                       />
                     </v-col>
                   </v-row>

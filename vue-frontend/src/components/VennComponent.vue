@@ -9,7 +9,6 @@
             <v-btn-toggle
               v-model="dataType"
               class="mt-4"
-              density="comfortable"
               @update:model-value="getvennData"
             >
               <v-btn v-for="option in allInputDataTypes" :key="option.value" :value="option.value">
@@ -18,8 +17,6 @@
             </v-btn-toggle>
             <v-btn-toggle
               v-model="modalityType"
-              density="comfortable"
-              hide-details
               @update:model-value="getBatchlist"
             >
               <v-btn value="batchcompare"> Batches </v-btn>
@@ -28,9 +25,6 @@
             <v-select
               v-model="activeBatches"
               :items="allPossibleBatches"
-              variant="outlined"
-              density="comfortable"
-              hide-details
               clearable
               label="Batches/Patients"
               multiple

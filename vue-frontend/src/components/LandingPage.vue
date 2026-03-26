@@ -1,6 +1,6 @@
 <template>
-  <v-container class="pa-0" fluid>
-    <v-row class="pa-4 bg-grey-lighten-3">
+  <v-container class="bg-grey-lighten-3" fluid>
+    <v-row>
       <v-col sm="12" md="9" lg="9">
         <v-row class="pa-0 home-hero" color="grey-lighten-4">
           <v-col cols="12">

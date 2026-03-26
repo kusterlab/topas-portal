@@ -4,16 +4,11 @@
       label="Gene for genomics annotation"
       placeholder="EGFR"
       class="mt-2"
-      hide-details
-      variant="outlined"
-      density="comfortable"
       @change="updatePatientTable"
     />
 
     <v-checkbox
       v-model="advancedFilter"
-      hide-details
-      density="comfortable"
       label="Advanced table filter"
     />
     <div v-show="advancedFilter" class="filter-container">
