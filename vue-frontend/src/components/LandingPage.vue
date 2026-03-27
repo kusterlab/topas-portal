@@ -1,5 +1,5 @@
 <template>
-  <v-container class="bg-grey-lighten-3" fluid>
+  <v-container class="bg-grey-lighten-3 pa-8" fluid>
     <v-row>
       <v-col sm="12" md="9" lg="9">
         <v-row class="pa-0 home-hero" color="grey-lighten-4">
@@ -19,43 +19,43 @@
         </v-row>
         <v-row>
           <v-col sm="3" md="3" lg="3">
-            <v-card :to="topasactivityPath" variant="outlined">
+            <v-card :to="topasactivityPath" variant="outlined" class="bg-white">
               <v-card-title class="text-h6 font-weight-bold"> TOPAS scores </v-card-title>
               <v-card-text>
                 <v-skeleton-loader height="200" width="100%" type="image, list-item-two-line">
                   <v-responsive>
-                    <v-img src="@/assets/topas_scores.png" alt="Entity Image" height="200" cover />
+                    <v-img src="@/assets/topas_scores.png" alt="Entity Image" height="200" />
                   </v-responsive>
                 </v-skeleton-loader>
               </v-card-text>
             </v-card>
           </v-col>
           <v-col sm="3" md="3" lg="3">
-            <v-card :to="kinasectivityPath" variant="outlined">
+            <v-card :to="kinasectivityPath" variant="outlined" class="bg-white">
               <v-card-title class="text-h6 font-weight-bold"> Kinase activity </v-card-title>
               <v-card-text>
                 <v-skeleton-loader height="200" width="100%" type="image, list-item-two-line">
                   <v-responsive>
-                    <v-img src="@/assets/kinase_score.png" alt="Entity Image" height="200" cover />
+                    <v-img src="@/assets/kinase_score.png" alt="Entity Image" height="200" />
                   </v-responsive>
                 </v-skeleton-loader>
               </v-card-text>
             </v-card>
           </v-col>
           <v-col sm="3" md="3" lg="3">
-            <v-card :to="cohortAnalysis" variant="outlined">
+            <v-card :to="cohortAnalysis" variant="outlined" class="bg-white">
               <v-card-title class="text-h6 font-weight-bold"> Cohort Analysis </v-card-title>
               <v-card-text>
                 <v-skeleton-loader height="200" width="100%" type="image, list-item-two-line">
                   <v-responsive>
-                    <v-img src="@/assets/volcano.png" alt="Entity Image" height="200" cover />
+                    <v-img src="@/assets/volcano.png" alt="Entity Image" height="200" />
                   </v-responsive>
                 </v-skeleton-loader>
               </v-card-text>
             </v-card>
           </v-col>
           <v-col sm="3" md="3" lg="3">
-            <v-card :to="patientReport" variant="outlined">
+            <v-card :to="patientReport" variant="outlined" class="bg-white">
               <v-card-title class="text-h6 font-weight-bold"> Patient Report </v-card-title>
               <v-card-text>
                 <v-skeleton-loader height="200" width="100%" type="image, list-item-two-line">
@@ -64,7 +64,6 @@
                       src="@/assets/patient_report.png"
                       alt="Entity Image"
                       height="200"
-                      cover
                     />
                   </v-responsive>
                 </v-skeleton-loader>
