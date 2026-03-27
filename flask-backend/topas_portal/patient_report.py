@@ -8,7 +8,7 @@ from topas_portal import settings
 from topas_portal.data_type import DataType
 from topas_portal.constants import (
     IntensityUnit,
-    IncludeRef,
+    SampleFilter,
 )
 import topas_portal.topas_preprocess as topas_loader
 
@@ -120,7 +120,7 @@ def _load_proteome(
     cohort_df = get_abundance_df(
         cohort_index,
         extra_columns=extra_columns,
-        include_ref=IncludeRef.INCLUDE_REF,
+        include_ref=SampleFilter.PATIENTS_AND_REF,
     )  # use IncludeRef.INCLUDE_REF to skip expensive filtering step
     extra_columns = cohort_df.columns.intersection(extra_columns).to_list()
 

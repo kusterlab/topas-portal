@@ -416,7 +416,7 @@
   import patientscoreTable from '@/components/tables/PatientScoresTable.vue'
   import PatientReportTable from '@/components/tables/PatientReportTable.vue'
   import histogram from '@/components/plots/GenericHistogram.vue'
-  import { DataType, IncludeRef } from '@/constants'
+  import { DataType, SampleFilter } from '@/constants'
   import { api } from '@/routes.ts'
 
   export default {
@@ -551,7 +551,7 @@
         })
       },
       includeRef() {
-        return this.includeRefChannels ? IncludeRef.INCLUDE_REF : IncludeRef.EXCLUDE_REF
+        return this.includeRefChannels ? SampleFilter.PATIENTS_AND_REF : SampleFilter.ONLY_PATIENTS
       },
       firstPatient() {
         if (this.selectedData.length > 0) {

@@ -1,5 +1,6 @@
-# the corresponding constants are automatically updated in vue-frontend/src/constants.js
 from enum import Enum
+
+# the corresponding constants are automatically updated in vue-frontend/src/constants.js
 
 
 class ColumnNames(str, Enum):
@@ -7,9 +8,11 @@ class ColumnNames(str, Enum):
     GENE_NAME = "Gene names"
 
 
-class IncludeRef(str, Enum):
-    INCLUDE_REF = "include_ref"
-    EXCLUDE_REF = "exclude_ref"
+class SampleFilter(str, Enum):
+    ALL = "all"
+    PATIENTS_AND_EXCLUDED = "pat_and_excl"
+    PATIENTS_AND_REF = "pat_and_ref"
+    ONLY_PATIENTS = "only_pat"
     ONLY_REF = "only_ref"
 
 
@@ -56,6 +59,7 @@ INTENSITY_UNIT_FILE_SUFFIXES = {
 # regex patterns
 PATIENT_PREFIX = "pat_"
 REF_CHANNEL_PREFIX = "ref_"
+EXCLUDED_CHANNEL_PREFIX = "excl_"
 IDENTIFICATION_METADATA_PREFIX = "Identification metadata "
 Z_SCORE_REGEX = r" Z-score"
 REGEX_META = (

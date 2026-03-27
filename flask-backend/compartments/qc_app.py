@@ -12,7 +12,7 @@ from topas_portal import settings
 from topas_portal.data_type import DataType
 from topas_portal.constants import (
     IntensityUnit,
-    IncludeRef,
+    SampleFilter,
 )
 import topas_portal.pca_umap as qc_meta
 from topas_portal import fetch_data_matrix as data
@@ -31,7 +31,7 @@ def pca_umap(
     input_data_type: DataType,
     cohort_index: str,
     dimensionality_reduction_method: str,
-    include_ref: IncludeRef,
+    include_ref: SampleFilter,
     use_replicate: str,
     selected_genes: Optional[List[str]] = None,
     meta_col_silhoutte: str = "Paper Entity",
@@ -180,7 +180,7 @@ def pca_umap(
 
 
 def load_pca_data(
-    cohort_index: int, input_data_type: DataType, include_ref: IncludeRef
+    cohort_index: int, input_data_type: DataType, include_ref: SampleFilter
 ):
     if input_data_type != DataType.FP_PP:
         return load_pca_data_single(
@@ -208,7 +208,7 @@ def load_pca_data(
 def load_pca_data_single(
     cohort_index: int,
     plot_type: DataType,
-    include_ref: IncludeRef,
+    include_ref: SampleFilter,
 ):
     intensity_unit = IntensityUnit.Z_SCORE
     if plot_type in [
@@ -299,7 +299,7 @@ def dimensionality_reduction(
     level: DataType,
     cohort_index: int,
     dimensionality_reduction_method: str,
-    include_ref: IncludeRef,
+    include_ref: SampleFilter,
     use_replicate: str,
     custom_patients: str,
     imputation_ratio: float,

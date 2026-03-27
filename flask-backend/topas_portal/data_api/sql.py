@@ -7,7 +7,7 @@ import pandas as pd
 from topas_portal import constants
 from topas_portal.constants import (
     IntensityUnit,
-    IncludeRef,
+    SampleFilter,
 )
 import topas_portal.data_api.in_memory as in_memory
 import topas_portal.file_loaders.expression as expression_loader
@@ -108,7 +108,7 @@ class SQLCohortDataAPI:
         intensity_unit: Optional[IntensityUnit] = None,
         identifier=None,
         patient_name=None,
-        include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
+        include_ref: SampleFilter = SampleFilter.ONLY_PATIENTS,
         extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
 
@@ -159,7 +159,7 @@ class SQLCohortDataAPI:
         intensity_unit: Optional[IntensityUnit] = None,
         identifier=None,
         patient_name=None,
-        include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
+        include_ref: SampleFilter = SampleFilter.ONLY_PATIENTS,
         extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         if intensity_unit == IntensityUnit.INTENSITY:
@@ -224,7 +224,7 @@ class SQLCohortDataAPI:
         intensity_unit: Optional[IntensityUnit],
         identifier: str = None,
         patient_name: str = None,
-        include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
+        include_ref: SampleFilter = SampleFilter.ONLY_PATIENTS,
         extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         if intensity_unit == IntensityUnit.SCORE:
@@ -246,7 +246,7 @@ class SQLCohortDataAPI:
         intensity_unit: Optional[IntensityUnit],
         identifier: str = None,
         patient_name: str = None,
-        include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
+        include_ref: SampleFilter = SampleFilter.ONLY_PATIENTS,
         extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         raise NotImplementedError(f"Cannot return topas CK scores from SQL database")
@@ -264,7 +264,7 @@ class SQLCohortDataAPI:
         intensity_unit: Optional[IntensityUnit],
         identifier: str = None,
         patient_name: str = None,
-        include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
+        include_ref: SampleFilter = SampleFilter.ONLY_PATIENTS,
         extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         query = f"""SELECT patient_name,protein_name,value FROM phosphoscores WHERE cohort_id={cohort_index} """
@@ -279,7 +279,7 @@ class SQLCohortDataAPI:
         intensity_unit: Optional[IntensityUnit],
         identifier: str = None,
         patient_name: str = None,
-        include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
+        include_ref: SampleFilter = SampleFilter.ONLY_PATIENTS,
         extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         cohort_report_dir = self.get_report_dir(cohort_index)
@@ -302,7 +302,7 @@ class SQLCohortDataAPI:
         intensity_unit: Optional[IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
-        include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
+        include_ref: SampleFilter = SampleFilter.ONLY_PATIENTS,
         extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         fpkm_df = self.provider.FPKM

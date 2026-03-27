@@ -12,7 +12,7 @@ from topas_portal.data_type import DataType
 from topas_portal import constants
 from topas_portal.constants import (
     IntensityUnit,
-    IncludeRef,
+    SampleFilter,
     ImputationMode,
 )
 import topas_portal.genomics_preprocess as genomics_prep
@@ -206,7 +206,7 @@ def get_abundance_with_annotations(
     level: DataType,
     identifier: str,
     imputation_mode: ImputationMode,
-    include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
+    include_ref: SampleFilter = SampleFilter.ONLY_PATIENTS,
 ):
     """_summary_
 
@@ -291,7 +291,7 @@ def get_abundance_df(
     intensity_unit: Optional[IntensityUnit] = None,
     identifier: str = None,
     patient_name: str = None,
-    include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
+    include_ref: SampleFilter = SampleFilter.ONLY_PATIENTS,
     extra_columns: Optional[list[str]] = None,
 ):
     """_summary_
@@ -365,7 +365,7 @@ def get_annotation_df(
     annotation_df = get_abundance_df_dict[level](
         cohort_index,
         extra_columns=extra_columns,
-        include_ref=IncludeRef.INCLUDE_REF,
+        include_ref=SampleFilter.PATIENTS_AND_REF,
     )  # use IncludeRef.INCLUDE_REF to skip expensive filtering step
     extra_columns = [col for col in extra_columns if col in annotation_df.columns]
 

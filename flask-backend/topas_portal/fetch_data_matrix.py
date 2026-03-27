@@ -9,7 +9,7 @@ from topas_portal import utils
 from topas_portal.data_type import DataType
 from topas_portal.constants import (
     IntensityUnit,
-    IncludeRef,
+    SampleFilter,
 )
 import topas_portal.topas_scores_meta as topas
 
@@ -24,7 +24,7 @@ def fetch_data_matrix_with_sample_annotations(
     identifiers: list[str],
     sample_ids: list[str],
     intensity_unit: IntensityUnit = IntensityUnit.Z_SCORE,
-    include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
+    include_ref: SampleFilter = SampleFilter.ONLY_PATIENTS,
 ) -> pd.DataFrame:
     z_scores_df = fetch_data_matrix(
         cohorts_db=cohorts_db,
@@ -48,7 +48,7 @@ def fetch_data_matrix(
     level: DataType,
     identifiers: list[str] | None = None,
     intensity_unit: IntensityUnit = IntensityUnit.Z_SCORE,
-    include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
+    include_ref: SampleFilter = SampleFilter.ONLY_PATIENTS,
 ) -> pd.DataFrame:
     if level in topas.TOPAS_LEVEL_MAPPING:
         topas_df = cohorts_db.get_topas_annotation_df()

@@ -97,8 +97,12 @@ def load_annotated_intensity_file(
         :, extra_columns_intersection
     ].fillna("")
 
-    patients_list: pd.Index = annot_df.filter(regex=r"^pat_|^ref_").columns
-    patients_list = patients_list.str.replace(pat=r"^pat_", repl="", regex=True)
+    patients_list: pd.Index = annot_df.filter(
+        regex=rf"^({constants.PATIENT_PREFIX})|{constants.REF_CHANNEL_PREFIX}|{constants.EXCLUDED_CHANNEL_PREFIX}"
+    ).columns
+    patients_list = patients_list.str.replace(
+        pat=rf"^{constants.PATIENT_PREFIX}", repl="", regex=True
+    )
     patients_list = patients_list.tolist()
 
     patient_list_prefixed = utils.add_patient_prefix(patients_list)

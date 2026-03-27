@@ -188,7 +188,7 @@
   import PhosphopeptideSelect from '@/components/partials/PhosphopeptideSelect.vue'
   import DensityPlot from '@/components/plots/BarhistPlot.vue'
 
-  import { DataType, IncludeRef, IntensityUnit, ImputationMode } from '@/constants'
+  import { DataType, SampleFilter, IntensityUnit, ImputationMode } from '@/constants'
   import { api } from '@/routes.ts'
 
   export default {
@@ -375,7 +375,7 @@
           level: modality,
           identifier: key,
           imputation: imputeString,
-          include_ref: IncludeRef.EXCLUDE_REF
+          include_ref: SampleFilter.ONLY_PATIENTS
         })
         const response = await axios.get(url)
         if (response.data && response.data.length > 0) {

@@ -7,8 +7,9 @@
           <v-card-title tag="h1"> Protein/p-site abundance </v-card-title>
           <v-card-text>
             <cohort-select @select-cohort="updateCohort" />
-            <v-checkbox v-model="includeRefChannels" label="Include ref channels" />
-            <v-radio-group v-model="mode" label="Input type" class="mt-2">
+            <v-checkbox v-model="showRefChannels" label="Show ref channels" density="compact" class="mt-2"/>
+            <v-checkbox v-model="showExcludedChannels" label="Show excluded channels" density="compact" class="mb-4"/>
+            <v-radio-group v-model="mode" label="Data type" class="mt-2">
               <v-radio v-for="(label, value) in radioOptions" :key="value" :label="label" :value="value" />
             </v-radio-group>
           </v-card-text>
@@ -121,7 +122,7 @@ import SwarmPlot from '@/components/plots/SwarmPlot.vue'
 import ProteinSelect from '@/components/partials/ProteinSelect.vue'
 import PhosphopeptideSelect from '@/components/partials/PhosphopeptideSelect.vue'
 import CohortSelect from './partials/CohortSelect.vue'
-import { DataType, IncludeRef, ImputationMode } from '@/constants'
+import { DataType, SampleFilter, ImputationMode } from '@/constants'
 import { api } from '@/routes.ts'
 
 export default {
@@ -149,7 +150,8 @@ export default {
     identifier: '',
     cohortIndex: 0,
     mode: DataType.FULL_PROTEOME,
-    includeRefChannels: false,
+    showRefChannels: false,
+    showExcludedChannels: false,
     showOncokbcnv: false,
     radioOptions: {
       [DataType.FULL_PROTEOME]: 'Protein',
@@ -219,8 +221,20 @@ export default {
         return '_AAAAAPApSED_'
       }
     },
-    includeRef() {
-      return this.includeRefChannels ? IncludeRef.INCLUDE_REF : IncludeRef.EXCLUDE_REF
+    sampleFilter() {
+      if (this.showRefChannels) {
+        if (this.showExcludedChannels) {
+          return SampleFilter.ALL
+        } else {
+          return SampleFilter.PATIENTS_AND_REF
+        }
+      } else {
+        if (this.showExcludedChannels) {
+          return SampleFilter.PATIENTS_AND_EXCLUDED
+        } else {
+          return SampleFilter.ONLY_PATIENTS
+        }
+      }
     }
   },
   watch: {
@@ -230,7 +244,7 @@ export default {
     cohortIndex: function () {
       this.updateId()
     },
-    includeRefChannels: function () {
+    sampleFilter: function () {
       this.updateId()
     },
     mode: function (newMode, oldMode) {
@@ -279,7 +293,7 @@ export default {
         level: mode,
         identifier: key,
         imputation: ImputationMode.NO_IMPUTE,
-        include_ref: this.includeRef
+        include_ref: this.sampleFilter
       })
     },
     async loadSwarmplot({ dataSource }) {

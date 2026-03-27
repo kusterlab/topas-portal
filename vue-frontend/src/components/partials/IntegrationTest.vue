@@ -98,7 +98,7 @@
   import { mapGetters, mapState, mapMutations } from 'vuex'
   import CohortSelect from './CohortSelect.vue'
   import SampleSelect from './SampleSelect.vue'
-  import { DataType, IncludeRef, IntensityUnit, ImputationMode } from '@/constants'
+  import { DataType, SampleFilter, IntensityUnit, ImputationMode } from '@/constants'
   import { api } from '@/routes.ts'
 
   export default {
@@ -182,7 +182,7 @@
           field_interest: '40',
           modality: 'rna',
           batchlists: 'b1,b2',
-          include_ref: IncludeRef.INCLUDE_REF,
+          include_ref: SampleFilter.PATIENTS_AND_REF,
           imputation: ImputationMode.NO_IMPUTE,
           selected_genes_mode: 'all',
           dimensionality_reduction_method: 'ppca',

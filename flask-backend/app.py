@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from topas_portal.data_type import DataType
 from topas_portal.constants import (
     IntensityUnit,
-    IncludeRef,
+    SampleFilter,
     ColumnNames,
     ImputationMode,
 )
@@ -401,7 +401,7 @@ def get_error_log():
 def get_sum_intensities_pp_level(
     cohort_index: int,
     level: DataType,
-    include_ref: IncludeRef,
+    include_ref: SampleFilter,
 ):
     if settings.DATABASE_MODE:
         return {}  # this query is not implemented yet in the database
@@ -417,7 +417,7 @@ def get_sum_intensities_pp_level(
 def get_identifications_frequency(
     cohort_index: int,
     level: DataType,
-    include_ref: IncludeRef,
+    include_ref: SampleFilter,
 ):
     if settings.DATABASE_MODE:
         return {}  # this query is not implemented yet in the database
@@ -501,7 +501,7 @@ def patients_genomics_annotations(cohort_index: int, identifier: str):
 @app.route(ApiRoutes.PATIENTS_METADATA)
 @cache.cached(timeout=50)
 # http://localhost:3832/0/metadata
-def patientsmetadata(cohort_index: int, include_ref: IncludeRef):
+def patientsmetadata(cohort_index: int, include_ref: SampleFilter):
     sample_annotation_df = cohorts_db.get_sample_annotation_df(
         cohort_index, include_ref
     )
@@ -593,7 +593,7 @@ def abundance(
     level: DataType,
     identifier: str,
     imputation: str,
-    include_ref: IncludeRef,
+    include_ref: SampleFilter,
 ):
     return pp.get_abundance_with_annotations(
         cohorts_db,
@@ -644,7 +644,7 @@ def heatmap(
         level,
         identifier.split(","),
         patients.split(","),
-        include_ref=IncludeRef.INCLUDE_REF,
+        include_ref=SampleFilter.PATIENTS_AND_REF,
     )
     if output_format == "plot":
         merged_df.index = merged_df["Sample name"]

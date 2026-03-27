@@ -97,7 +97,7 @@
   import SwarmPlot from '@/components/plots/SwarmPlot.vue'
   import ProteinSelect from '@/components/partials/ProteinSelect.vue'
 
-  import { DataType, IncludeRef, ImputationMode } from '@/constants'
+  import { DataType, SampleFilter, ImputationMode } from '@/constants'
   import { api } from '@/routes.ts'
 
   export default {
@@ -122,7 +122,7 @@
     }),
     computed: {
       includeRef() {
-        return this.includeRefChannels ? IncludeRef.INCLUDE_REF : IncludeRef.EXCLUDE_REF
+        return this.includeRefChannels ? SampleFilter.PATIENTS_AND_REF : SampleFilter.ONLY_PATIENTS
       }
     },
     watch: {

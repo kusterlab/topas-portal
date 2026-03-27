@@ -40,12 +40,6 @@ export const ImputationMode = Object.freeze({
   IMPUTE: 'impute'
 })
 
-export const IncludeRef = Object.freeze({
-  INCLUDE_REF: 'include_ref',
-  EXCLUDE_REF: 'exclude_ref',
-  ONLY_REF: 'only_ref'
-})
-
 export const IntensityUnit = Object.freeze({
   INTENSITY: 'intensity',
   Z_SCORE: 'z_scored',
@@ -54,5 +48,13 @@ export const IntensityUnit = Object.freeze({
   BATCH_RANK: 'batchrank',
   SCORE: 'score',
   IDENTIFICATION_METADATA: 'identification_metadata'
+})
+
+export const SampleFilter = Object.freeze({
+  ALL: 'all',
+  PATIENTS_AND_EXCLUDED: 'pat_and_excl',
+  PATIENTS_AND_REF: 'pat_and_ref',
+  ONLY_PATIENTS: 'only_pat',
+  ONLY_REF: 'only_ref'
 })
 

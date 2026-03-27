@@ -2,7 +2,7 @@ from werkzeug.routing import BaseConverter
 from topas_portal.data_type import DataType
 from topas_portal.constants import (
     IntensityUnit,
-    IncludeRef,
+    SampleFilter,
 )
 
 
@@ -30,7 +30,7 @@ class IntensityUnitConverter(BaseConverter):
 class IncludeRefConverter(BaseConverter):
     def to_python(self, value):
         """Convert matched string to a IntensityUnit."""
-        return IncludeRef(value)
+        return SampleFilter(value)
 
     def to_url(self, value):
         """Convert IntensityUnit object back to string for URL generation."""

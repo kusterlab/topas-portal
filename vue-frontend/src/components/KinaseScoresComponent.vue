@@ -88,7 +88,7 @@
   import kinasescoreTable from '@/components/tables/KinasescoreTable.vue'
   import SwarmPlot from '@/components/plots/SwarmPlot.vue'
   import ProteinSelect from '@/components/partials/ProteinSelect.vue'
-  import { DataType, IncludeRef, ImputationMode } from '@/constants'
+  import { DataType, SampleFilter, ImputationMode } from '@/constants'
   import { api } from '@/routes.ts'
 
   export default {
@@ -122,7 +122,7 @@
           level: DataType.KINASE_SCORE,
           identifier: this.activeKinase,
           imputation: ImputationMode.NO_IMPUTE,
-          include_ref: IncludeRef.EXCLUDE_REF
+          include_ref: SampleFilter.ONLY_PATIENTS
         })
       },
       updateSelectedRows(selectedIds, selectedData) {

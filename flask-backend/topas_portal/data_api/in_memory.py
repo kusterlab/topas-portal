@@ -8,7 +8,7 @@ from topas_portal.data_type import DataType
 from topas_portal import constants
 from topas_portal.constants import (
     IntensityUnit,
-    IncludeRef,
+    SampleFilter,
 )
 from topas_portal.databases.in_memory import InMemoryProvider
 from topas_portal.config import CohortConfig
@@ -48,7 +48,7 @@ class InMemoryCohortDataAPI:
     def get_sample_annotation_df(
         self,
         cohort_index: str,
-        include_ref: IncludeRef = IncludeRef.INCLUDE_REF,
+        include_ref: SampleFilter = SampleFilter.PATIENTS_AND_REF,
     ) -> pd.DataFrame:
         """in sample annotaton df the replicates are included"""
         sample_annotation_df = self.provider.get_dataframe(
@@ -61,9 +61,7 @@ class InMemoryCohortDataAPI:
 
     def get_patient_metadata_df(self, cohort_index: str) -> pd.DataFrame:
         """in patient meta_df the replicates are not included"""
-        return self.provider.get_dataframe(
-            cohort_index, DataType.PATIENT_METADATA
-        )
+        return self.provider.get_dataframe(cohort_index, DataType.PATIENT_METADATA)
 
     def get_search_qc_df(self, cohort_index: str) -> pd.DataFrame:
         """MaxQuant search QC statistics, e.g. #peptides, summed intensity"""
@@ -76,7 +74,7 @@ class InMemoryCohortDataAPI:
         intensity_unit: Optional[IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
-        include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
+        include_ref: SampleFilter = SampleFilter.ONLY_PATIENTS,
         extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         df = self.provider.get_dataframe(cohort_index, data_layer)
@@ -97,7 +95,7 @@ class InMemoryCohortDataAPI:
         intensity_unit: Optional[IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
-        include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
+        include_ref: SampleFilter = SampleFilter.ONLY_PATIENTS,
         extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         return self._get_filtered_df(
@@ -116,7 +114,7 @@ class InMemoryCohortDataAPI:
         intensity_unit: Optional[IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
-        include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
+        include_ref: SampleFilter = SampleFilter.ONLY_PATIENTS,
         extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         return self._get_filtered_df(
@@ -135,7 +133,7 @@ class InMemoryCohortDataAPI:
         intensity_unit: Optional[IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
-        include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
+        include_ref: SampleFilter = SampleFilter.ONLY_PATIENTS,
         extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         return self._get_filtered_df(
@@ -154,7 +152,7 @@ class InMemoryCohortDataAPI:
         intensity_unit: Optional[IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
-        include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
+        include_ref: SampleFilter = SampleFilter.ONLY_PATIENTS,
         extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         return self._get_filtered_df(
@@ -173,7 +171,7 @@ class InMemoryCohortDataAPI:
         intensity_unit: Optional[IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
-        include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
+        include_ref: SampleFilter = SampleFilter.ONLY_PATIENTS,
         extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         return self._get_filtered_df(
@@ -192,7 +190,7 @@ class InMemoryCohortDataAPI:
         intensity_unit: Optional[IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
-        include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
+        include_ref: SampleFilter = SampleFilter.ONLY_PATIENTS,
         extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         return self._get_filtered_df(
@@ -211,7 +209,7 @@ class InMemoryCohortDataAPI:
         intensity_unit: Optional[IntensityUnit] = None,
         identifier=None,
         patient_name=None,
-        include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
+        include_ref: SampleFilter = SampleFilter.ONLY_PATIENTS,
         extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         return self._get_filtered_df(
@@ -239,26 +237,41 @@ class InMemoryCohortDataAPI:
 
 def _filter_for_ref(
     df: pd.DataFrame,
-    include_ref: IncludeRef,
+    include_ref: SampleFilter,
     extra_columns: Optional[list[str]] = None,
 ) -> pd.DataFrame:
-    if include_ref == IncludeRef.EXCLUDE_REF:
-        df = df.loc[:, ~df.columns.str.startswith(constants.REF_CHANNEL_PREFIX)]
-    elif include_ref == IncludeRef.ONLY_REF:
-        df = df.loc[
+    if include_ref == SampleFilter.ONLY_PATIENTS:
+        return df.loc[
+            :,
+            ~df.columns.str.startswith(constants.REF_CHANNEL_PREFIX)
+            & ~df.columns.str.startswith(constants.EXCLUDED_CHANNEL_PREFIX),
+        ]
+    elif include_ref == SampleFilter.ONLY_REF:
+        return df.loc[
             :,
             df.columns.str.startswith(constants.REF_CHANNEL_PREFIX)
+            | df.columns.isin(extra_columns),
+        ]
+    elif include_ref == SampleFilter.PATIENTS_AND_REF:
+        return df.loc[
+            :,
+            ~df.columns.str.startswith(constants.EXCLUDED_CHANNEL_PREFIX),
+        ]
+    elif include_ref == SampleFilter.PATIENTS_AND_EXCLUDED:
+        return df.loc[
+            :,
+            ~df.columns.str.startswith(constants.REF_CHANNEL_PREFIX)
             | df.columns.isin(extra_columns),
         ]
     return df
 
 
 def _filter_for_ref_sample_annotation(
-    df: pd.DataFrame, include_ref: IncludeRef
+    df: pd.DataFrame, include_ref: SampleFilter
 ) -> pd.DataFrame:
-    if include_ref == IncludeRef.EXCLUDE_REF:
+    if include_ref == SampleFilter.ONLY_PATIENTS:
         df = df.loc[~df["Sample name"].str.startswith(constants.REF_CHANNEL_PREFIX)]
-    elif include_ref == IncludeRef.ONLY_REF:
+    elif include_ref == SampleFilter.ONLY_REF:
         df = df.loc[df["Sample name"].str.startswith(constants.REF_CHANNEL_PREFIX)]
     return df
 

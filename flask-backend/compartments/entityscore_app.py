@@ -5,6 +5,7 @@ from flask import Blueprint, jsonify
 
 import db
 from topas_portal import utils
+from topas_portal import constants
 from topas_portal.constants import (
     IntensityUnit,
     ColumnNames,
@@ -184,7 +185,7 @@ def clean_df (intensity_df:pd.DataFrame, metadata_df:pd.DataFrame ):
     intensity_df = intensity_df.rename(columns=intensity_df.iloc[0]).drop([0])
     #return intensity_df
     metadata_df = metadata_df[[ColumnNames.SAMPLE_NAME, "code_oncotree"]] #Selection of columns for later concatenate
-    intensity_df[ColumnNames.GENE_NAME] = intensity_df[ColumnNames.GENE_NAME].str.replace('pat_','',regex=True)
+    intensity_df[ColumnNames.GENE_NAME] = intensity_df[ColumnNames.GENE_NAME].str.replace(constants.PATIENT_PREFIX,'',regex=True)
     df_merged = metadata_df.merge(intensity_df, left_on=ColumnNames.SAMPLE_NAME, right_on=ColumnNames.GENE_NAME) #merging both data sets by Sample Name
     df_merged.drop(ColumnNames.GENE_NAME, axis=1, inplace=True)
     return df_merged
