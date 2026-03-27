@@ -174,7 +174,8 @@ Check the `Makefile` for additional functionalities.
     ```
     VITE_API_HOST=http://localhost:3832 make serve
     ```
-7. Open the portal at http://localhost:8080. To upload cohort data, go to `Other tools -> Admin tools` and press the `Reload all cohorts` button at the bottom of the page.
+7. Open the portal at the address specified in the output of the previous command e.g. http://localhost:5173.
+8. To upload new cohort data, go to `Other tools -> Admin tools` and press the `Reload all cohorts` button at the bottom of the page.
 
 
 ### Option 3: deploy with docker

@@ -41,13 +41,13 @@
           <v-card-title tag="h1"> Select plot inputs </v-card-title>
           <v-card-text>
             <v-btn-toggle v-model="dimReductionMethod" color="primary" mandatory>
-              <v-btn value="ppca"> PCA </v-btn>
-              <v-btn value="umap"> UMAP </v-btn>
+              <v-btn value="ppca" class="mb-0"> PCA </v-btn>
+              <v-btn value="umap" class="mb-0"> UMAP </v-btn>
             </v-btn-toggle>
             <v-select
               v-model="inputDataType"
               prepend-icon="mdi-filter"
-              class="input_data_type my-2"
+              class="input_data_type mb-2 mt-4"
               :items="allInputDataTypes"
               label="Input Type"
               @update:model-value="loading = false"

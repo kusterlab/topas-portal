@@ -3,12 +3,12 @@
     <v-btn-toggle
       v-model="allPatients"
       color="primary"
+      density="compact"
       mandatory
       class="flex-grow-1"
-      style="min-width: 0"
     >
-      <v-btn value="cohort" class="mb-0 flex-grow-1 text-no-wrap"> Full </v-btn>
-      <v-btn value="subcohort" class="mb-0 flex-grow-1 text-no-wrap"> Sub </v-btn>
+      <v-btn value="cohort" class="mb-0 flex-grow-1"> Full </v-btn>
+      <v-btn value="subcohort" class="mb-0 flex-grow-1"> Subcohort </v-btn>
     </v-btn-toggle>
     <v-container v-if="allPatients === 'subcohort'">
       <sample-select

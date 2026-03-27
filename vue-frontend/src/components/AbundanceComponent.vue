@@ -11,10 +11,6 @@
             <v-radio-group v-model="mode" label="Input type" class="mt-2">
               <v-radio v-for="(label, value) in radioOptions" :key="value" :label="label" :value="value" />
             </v-radio-group>
-            <v-radio-group v-model="intensityUnit" label="Swarmplot intensity unit" class="mt-4">
-              <v-radio label="Z-score" value="Z-score" />
-              <v-radio label="Intensity" value="Intensity" />
-            </v-radio-group>
           </v-card-text>
         </v-card>
 
@@ -22,9 +18,9 @@
           <v-card-title tag="h1"> Select {{ radioOptions[mode] }} </v-card-title>
           <v-card-text>
             <phosphopeptide-select v-if="mode === 'psite'" :cohort-index="cohortIndex" :data-layer="mode"
-              @select-phosphopeptide="updatePhosphopeptide" />
+              @select-phosphopeptide="updateIdentifier" />
             <protein-select v-if="mode !== 'psite'" :cohort-index="cohortIndex" :data-layer="mode"
-              @select-protein="updateProtein" />
+              @select-protein="updateIdentifier" />
             <v-checkbox v-if="mode !== 'psite'" v-model="showOncokbcnv"
               label="Load OncoKB annotations" />
             <v-textarea v-if="showOncokbcnv" v-model="cnvDescription" :readonly="true" variant="outlined"
@@ -63,17 +59,26 @@
         <v-card variant="flat">
           <v-card-text>
             <v-row>
-              <v-col sm="12" md="7">
+              <v-col sm="12" md="8">
                 <expression-table :data-source="abundanceQuery" :selected-patient="selectedDotsInPlot"
                   @onRowSelect="updateSelectedRows" @table-ready="loadSwarmplot" />
               </v-col>
-              <v-col sm="12" md="5">
+              <v-col sm="12" md="4">
                 <v-skeleton-loader :loading="loading" height="200" width="200" type="image, list-item-two-line">
                   <v-responsive>
-                    <v-btn class="ma-2" color="primary" :disabled="swarmSelIds.length === 0" @click="plotSelectedRows">
-                      Plot selected samples only
-                    </v-btn>
-                    <swarm-plot v-show="swarmPlotData.length > 0" :swarm-data="swarmPlotData" swarm-id="singleGene"
+                    <v-btn-toggle v-model="swarmSelection" mandatory class="mt-2" density="default">
+                      <v-btn value="all" class="px-2">
+                        All samples
+                      </v-btn>
+                      <v-btn value="selected" :disabled="swarmSelIds.length === 0" class="px-3">
+                        Selected
+                      </v-btn>
+                    </v-btn-toggle>
+                    <v-btn-toggle v-model="intensityUnit" mandatory class="mt-2 ml-4" density="default">
+                      <v-btn value="Z-score" class="px-3"> Z-score </v-btn>
+                      <v-btn value="Intensity" class="px-3"> Intensity </v-btn>
+                    </v-btn-toggle>
+                    <swarm-plot v-show="swarmPlotDataSelected.length > 0" :swarm-data="swarmPlotDataSelected" swarm-id="singleGene"
                       :swarm-sel-ids="swarmSelIds" :swarm-title="identifier" :swarm-title-prefix="swarmPrefix"
                       field-name="Sample name" :draw-box-plot="true" :field-values="intensityUnit"
                       @onDotClick="selectDot" />
@@ -151,6 +156,7 @@ export default {
       [DataType.PHOSPHO_PROTEOME]: 'Phosphopeptide',
       [DataType.TRANSCRIPTOMICS]: 'mRNA (FPKM)'
     },
+    swarmSelection: 'all',
     intensityUnit: 'Z-score',
     selectedDotsInPlot: '',
     cnvDescription: '',
@@ -167,6 +173,13 @@ export default {
     loading: false
   }),
   computed: {
+    swarmPlotDataSelected() {
+      if (this.swarmSelection === "all") {
+        return this.swarmPlotData
+      } else {
+        return this.selectedData
+      }
+    },
     chartData() {
       const hData = this.swarmPlotData.filter(z => z[this.intensityUnit] !== 'n.d.')
       return hData.map(d => d[this.intensityUnit])
@@ -239,11 +252,7 @@ export default {
     selectDot(value) {
       this.selectedDotsInPlot = value
     },
-    updateProtein({ identifier }) {
-      this.identifier = identifier
-      this.updateId()
-    },
-    updatePhosphopeptide({ identifier }) {
+    updateIdentifier({ identifier }) {
       this.identifier = identifier
       this.updateId()
     },
@@ -313,10 +322,6 @@ export default {
 
       this.cnvDescription = `${amplification}\n${deletion}`
     },
-    plotSelectedRows() {
-      this.swarmPlotData = this.selectedData
-    },
-
     updateSelectedRows(selectedIds, selectedData) {
       // selectedData = selectedData.filter(element => element[this.intensityUnit] !== 'n.d.')
       this.selectedLines = []

@@ -5,10 +5,11 @@
       v-model="selectionMethod"
       color="primary"
       mandatory
+      class="flex-grow-1"
     >
-      <v-btn value="metadata" class="flex-grow-1 px-3"> Metadata </v-btn>
-      <v-btn v-if="showTableSelect" value="table" class="px-3"> Table </v-btn>
-      <v-btn value="samplelist" class="flex-grow-1 px-3"> List </v-btn>
+      <v-btn value="metadata" class="mb-0 flex-grow-1 px-3"> Metadata </v-btn>
+      <v-btn v-if="showTableSelect" value="table" class="mb-0 px-3"> Table </v-btn>
+      <v-btn value="samplelist" class="mb-0 flex-grow-1 px-3"> List </v-btn>
     </v-btn-toggle>
     <v-autocomplete
       v-if="selectionMethod === 'metadata'"
@@ -18,7 +19,7 @@
       :items="metaDatatypes"
       label="Metadata column"
       @update:model-value="metaDataChanged"
-      class="mt-2"
+      class="mt-4"
     />
     <v-autocomplete
       v-if="selectionMethod === 'metadata'"

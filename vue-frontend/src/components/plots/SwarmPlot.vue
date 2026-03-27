@@ -1,34 +1,36 @@
 <template>
-  <v-container :id="swarmId">
-    <v-row justify="start">
+  <v-container class="pa-0" :id="swarmId">
+    <v-row dense>
       <v-col>
-        <v-btn color="primary" @click="reDrawPlot">
-          <v-icon> mdi-pencil </v-icon>
-        </v-btn>
-      </v-col>
-      <v-col>
-        <v-btn color="primary" @click="resetPlot">
+        <v-btn color="primary" @click="resetPlot" class="mx-2">
           <v-icon> mdi-refresh </v-icon>
         </v-btn>
-      </v-col>
-      <v-col>
-        <v-btn v-if="savePlot" color="primary" @click="downloadSVG">
-
+        <v-btn v-if="savePlot" color="primary" @click="downloadSVG" class="mx-2">
           <v-icon> mdi-cloud-download </v-icon>
         </v-btn>
       </v-col>
-    </v-row>
-    <v-row class="align-center" dense>
-      <v-col class="p-0">
-        <v-text-field v-model="patientGroup" label="Group:" placeholder="G1" />
-      </v-col>
-      <v-col class="p-0">
-        <v-text-field v-model="ticksIntervals" label="Ticks:" placeholder="5" />
+      <v-col>
+        <v-number-input inset density="compact" control-variant="split" v-model="ticksIntervals" variant="outlined" label="desired y-ticks" :step="1" max-width="150"/>
       </v-col>
     </v-row>
-    <v-row>
-      <v-col width="20%">
-        <v-color-picker v-model="colorCode" hide-inputs hide-canvas swatches-max-height="50" width="300" />
+    <v-row dense>
+      <v-col>
+        <v-card variant="default" class="pa-0 bg-grey-lighten-4">
+          <v-card-title> Highlight selected samples </v-card-title>
+          <v-row>
+            <v-col>
+              <v-text-field class="px-4" density="compact" v-model="patientGroup" label="Label" placeholder="G1" max-width="200"/>
+            </v-col>
+            <v-col>
+              <v-color-picker elevation="0" v-model="colorCode" hide-inputs hide-canvas max-width="200" mode="rgb" class="bg-grey-lighten-4" />
+            </v-col>
+            <v-col>
+              <v-btn color="primary" @click="reDrawPlot" class="mx-2">
+                <v-icon> mdi-pencil </v-icon>
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-card>
       </v-col>
     </v-row>
   </v-container>
@@ -503,5 +505,9 @@ export default {
   height: auto;
   pointer-events: none;
   background-color: white;
+}
+
+.v-color-picker__controls {
+  padding: 0px;
 }
 </style>

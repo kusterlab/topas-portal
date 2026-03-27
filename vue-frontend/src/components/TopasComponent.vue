@@ -6,6 +6,7 @@
           <v-card-title tag="h1"> TOPAS scores </v-card-title>
           <v-card-text>
             <cohort-select @select-cohort="updateCohort" />
+            <v-checkbox v-model="includeRefChannels" label="Include ref channels" />
             <topas-select
               class="mt-4"
               :cohort-index="activeCohortIndex"
@@ -136,6 +137,7 @@
     data: () => ({
       topasName: '',
       cohortIndex: 0,
+      includeRefChannels: false,
       firstPatient: '',
       selectedDotsInPlot: '',
       fixedDomain: false,
@@ -157,6 +159,9 @@
       },
       activeCohortIndex() {
         return this.cohortIndex
+      },
+      includeRef() {
+        return this.includeRefChannels ? IncludeRef.INCLUDE_REF : IncludeRef.EXCLUDE_REF
       }
     },
     watch: {
@@ -190,7 +195,7 @@
           level: DataType.TOPAS_RTK_SCORE,
           identifier: this.topasName,
           imputation: ImputationMode.NO_IMPUTE,
-          include_ref: IncludeRef.EXCLUDE_REF
+          include_ref: this.includeRef
         })
       },
       async loadSwarmplot({ dataSource }) {

@@ -33,12 +33,15 @@ export default createVuetify({
       variant: 'outlined'
     },
     VBtnToggle: {
-      density: 'default',
+      density: 'compact',
       variant: 'outlined',
       divided: true
     },
     VBtn: {
       density: 'default'
+    },
+    VCheckbox: {
+      color: 'primary'
     }
   }
 })
