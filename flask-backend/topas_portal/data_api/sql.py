@@ -4,10 +4,14 @@ from typing import Union, Optional
 
 import pandas as pd
 
+from topas_portal import constants
+from topas_portal.constants import (
+    IntensityUnit,
+    IncludeRef,
+)
 import topas_portal.data_api.in_memory as in_memory
 import topas_portal.file_loaders.expression as expression_loader
 from topas_portal import settings
-from topas_portal import utils
 from topas_portal.databases.sql import SQLProvider
 from topas_portal.config import CohortConfig
 from logger import CohortLogger
@@ -101,14 +105,14 @@ class SQLCohortDataAPI:
     def get_protein_abundance_df(
         self,
         cohort_index: str,
-        intensity_unit: Optional[utils.IntensityUnit] = None,
+        intensity_unit: Optional[IntensityUnit] = None,
         identifier=None,
         patient_name=None,
-        include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+        include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
         extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
 
-        if intensity_unit == utils.IntensityUnit.INTENSITY:
+        if intensity_unit == IntensityUnit.INTENSITY:
             if identifier:
                 query = f"""SELECT patient_name,protein_name,value FROM expressionfpintensity WHERE cohort_id={cohort_index} AND protein_name='{identifier}' """
             elif patient_name:
@@ -129,10 +133,10 @@ class SQLCohortDataAPI:
                             cohort_report_dir, settings.PREPROCESSED_FP_INTENSITY
                         )
                     ),
-                    settings.FP_KEY,
+                    constants.FP_KEY,
                     patient_list,
                 )
-        elif intensity_unit == utils.IntensityUnit.Z_SCORE:
+        elif intensity_unit == IntensityUnit.Z_SCORE:
             if identifier:
                 query = f"""SELECT patient_name,protein_name,value FROM expressionfpzscores WHERE cohort_id={cohort_index} AND protein_name='{identifier}' """
             elif patient_name:
@@ -146,19 +150,19 @@ class SQLCohortDataAPI:
             else:
                 cohort_report_dir = self.config.get_report_directory(cohort_index)
                 return expression_loader.load_expression_data(
-                    Path(cohort_report_dir), settings.FP_KEY, "full_proteome"
+                    Path(cohort_report_dir), constants.FP_KEY, "full_proteome"
                 )
 
     def get_psite_abundance_df(
         self,
         cohort_index: str,
-        intensity_unit: Optional[utils.IntensityUnit] = None,
+        intensity_unit: Optional[IntensityUnit] = None,
         identifier=None,
         patient_name=None,
-        include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+        include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
         extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
-        if intensity_unit == utils.IntensityUnit.INTENSITY:
+        if intensity_unit == IntensityUnit.INTENSITY:
             if identifier:
                 query = f"""SELECT patient_name,sequence,value FROM expressionppintensity WHERE cohort_id={cohort_index} AND sequence='{identifier}' """
             elif patient_name:
@@ -179,10 +183,10 @@ class SQLCohortDataAPI:
                             cohort_report_dir, settings.PREPROCESSED_PP_INTENSITY
                         )
                     ),
-                    settings.PP_KEY,
+                    constants.PP_KEY,
                     patient_list,
                 )
-        elif intensity_unit == utils.IntensityUnit.Z_SCORE:
+        elif intensity_unit == IntensityUnit.Z_SCORE:
             if identifier:
                 query = f"""SELECT patient_name,sequence,value FROM expressionppzscores WHERE cohort_id={cohort_index} AND sequence='{identifier}' """
             elif patient_name:
@@ -196,7 +200,7 @@ class SQLCohortDataAPI:
             else:
                 cohort_report_dir = self.config.get_report_directory(cohort_index)
                 return expression_loader.load_expression_data(
-                    Path(cohort_report_dir), settings.PP_KEY, "phospho"
+                    Path(cohort_report_dir), constants.PP_KEY, "phospho"
                 )
 
     def _get_protein_peptide_mapping_df(self, cohort_index: str) -> pd.DataFrame:
@@ -204,7 +208,7 @@ class SQLCohortDataAPI:
         query = f"""SELECT gene_name,peptide,Proteins FROM modsequencetoprotein WHERE cohort_id={cohort_index} """
         df = self._convert_query_to_df(models.Modsequencetoprotein.raw(query))
         df.index = df["peptide"]
-        df.columns = settings.PEPTIDE_PROTEIN_MAPPING_COLS.values()
+        df.columns = constants.PEPTIDE_PROTEIN_MAPPING_COLS.values()
         return df
 
     def _general_topas_query_obtainer(self, cohort_index, table_name, table_class):
@@ -217,17 +221,17 @@ class SQLCohortDataAPI:
     def get_topas_rtk_scores_df(
         self,
         cohort_index: str,
-        intensity_unit: Optional[utils.IntensityUnit],
+        intensity_unit: Optional[IntensityUnit],
         identifier: str = None,
         patient_name: str = None,
-        include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+        include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
         extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
-        if intensity_unit == utils.IntensityUnit.SCORE:
+        if intensity_unit == IntensityUnit.SCORE:
             return self._general_topas_query_obtainer(
                 cohort_index, "topasscoresraw", models.Topasscoresraw
             )
-        elif intensity_unit == utils.IntensityUnit.Z_SCORE:
+        elif intensity_unit == IntensityUnit.Z_SCORE:
             return self._general_topas_query_obtainer(
                 cohort_index, "topaszscores", models.Topaszscores
             )
@@ -239,10 +243,10 @@ class SQLCohortDataAPI:
     def get_topas_ck_scores_df(
         self,
         cohort_index: str,
-        intensity_unit: Optional[utils.IntensityUnit],
+        intensity_unit: Optional[IntensityUnit],
         identifier: str = None,
         patient_name: str = None,
-        include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+        include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
         extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         raise NotImplementedError(f"Cannot return topas CK scores from SQL database")
@@ -257,10 +261,10 @@ class SQLCohortDataAPI:
     def get_phosphorylation_scores_df(
         self,
         cohort_index: str,
-        intensity_unit: Optional[utils.IntensityUnit],
+        intensity_unit: Optional[IntensityUnit],
         identifier: str = None,
         patient_name: str = None,
-        include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+        include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
         extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         query = f"""SELECT patient_name,protein_name,value FROM phosphoscores WHERE cohort_id={cohort_index} """
@@ -272,10 +276,10 @@ class SQLCohortDataAPI:
     def get_kinase_scores_df(
         self,
         cohort_index: str,
-        intensity_unit: Optional[utils.IntensityUnit],
+        intensity_unit: Optional[IntensityUnit],
         identifier: str = None,
         patient_name: str = None,
-        include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+        include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
         extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         cohort_report_dir = self.get_report_dir(cohort_index)
@@ -295,10 +299,10 @@ class SQLCohortDataAPI:
     def get_fpkm_df(
         self,
         cohort_index: Union[str, None] = None,
-        intensity_unit: Optional[utils.IntensityUnit] = None,
+        intensity_unit: Optional[IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
-        include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+        include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
         extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         fpkm_df = self.provider.FPKM

@@ -6,8 +6,7 @@ import os
 from pathlib import Path
 import joblib
 from umap import UMAP
-import topas_portal.utils as common_utils
-from typing import Dict, List
+from topas_portal.constants import IntensityUnit
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -609,7 +608,7 @@ def get_imputed_df(cohort_index: int):
     """Collescts intensity dataframe and impute it to further process"""
 
     fp = cohorts_db.get_protein_abundance_df(
-        cohort_index, intensity_unit=common_utils.IntensityUnit.INTENSITY
+        cohort_index, intensity_unit=IntensityUnit.INTENSITY
     )
 
     data_initial = fp.T

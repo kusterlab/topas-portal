@@ -16,6 +16,8 @@ import shutil
 import os
 
 from extensions import cache
+from topas_portal.data_type import DataType
+from topas_portal.constants import IntensityUnit
 import topas_portal.utils as common_utils
 from routes import PatientReportApiRoutes
 from topas_portal import prexp_preprocess as pp
@@ -159,7 +161,7 @@ immune_status_genes = [
 @cache.cached(timeout=50)
 @patient_report_page.route(PatientReportApiRoutes.PATIENT_REPORT_TABLE)
 def get_patient_report_table(
-    cohort_index: int, patient: str, level: common_utils.DataType
+    cohort_index: int, patient: str, level: DataType
 ):
     """Returns tables from the patient reports.
 
@@ -179,7 +181,7 @@ def get_patient_report_table(
             cohorts_db,
             cohort_index,
             patient,
-            common_utils.DataType(level),
+            DataType(level),
         )
     )
 
@@ -278,7 +280,7 @@ def get_tumor_antigens_swarm_plot(cohort_index: int, patient: str):
             metadata, subcohort_column, patient, background_cohort=background_cohort
         )
         fp = cohorts_db.get_protein_abundance_df(
-            cohort_index, intensity_unit=common_utils.IntensityUnit.Z_SCORE
+            cohort_index, intensity_unit=IntensityUnit.Z_SCORE
         )
 
         genes = fp.index.intersection(antigens)
@@ -329,7 +331,7 @@ def get_rtk_swarm_plot(cohort_index: int, patient: str):
 
     if svg_data is None:
         rtk = cohorts_db.get_topas_rtk_scores_df(
-            cohort_index, intensity_unit=common_utils.IntensityUnit.Z_SCORE
+            cohort_index, intensity_unit=IntensityUnit.Z_SCORE
         )
         pr = utils.PatientReport(cohort_index, patient, background_cohort)
         pr.setup_swarm_df(rtk.rename_axis("Gene names").reset_index(), subcohort)
@@ -381,7 +383,7 @@ def get_ck_nk_swarm_plot(cohort_index: int, patient: str):
     )
     if svg_data is None:
         ck_nk = cohorts_db.get_topas_ck_scores_df(
-            cohort_index, intensity_unit=common_utils.IntensityUnit.Z_SCORE
+            cohort_index, intensity_unit=IntensityUnit.Z_SCORE
         )
 
         pr = utils.PatientReport(cohort_index, patient, background_cohort)
@@ -412,7 +414,7 @@ def get_immune_status_heatmap(cohort_index: int, patient: str):
             return "Can only handle 1 patient at a time", 400
 
         fp = cohorts_db.get_protein_abundance_df(
-            cohort_index, intensity_unit=common_utils.IntensityUnit.Z_SCORE
+            cohort_index, intensity_unit=IntensityUnit.Z_SCORE
         )
 
         pr = utils.PatientReport(cohort_index, patient)

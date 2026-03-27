@@ -2,8 +2,11 @@ import traceback
 
 import pandas as pd
 
+from topas_portal.data_type import DataType
+from topas_portal.constants import IntensityUnit
+from topas_portal import constants
+
 from .. import settings
-from .. import utils
 from ..config import CohortConfig
 from ..file_loaders.cacheable import cacheable
 from ..file_loaders import topas as topas_loader
@@ -32,26 +35,26 @@ def load_sample_annotation(cohort_name: str, config: CohortConfig) -> pd.DataFra
     )
 
 
-@cacheable(utils.DataType.TRANSCRIPTOMICS)
+@cacheable(DataType.TRANSCRIPTOMICS)
 def load_transcriptomics_data(cohort_name: str, config: CohortConfig) -> pd.DataFrame:
     zscore_path, fpkm_path = config.get_transcriptomics_paths(cohort_name)
     zscore_df = tp.load_FPKM_table(zscore_path)
     fpkm_df = tp.load_FPKM_table(fpkm_path)
     return zscore_df.join(
         fpkm_df,
-        lsuffix=utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.Z_SCORE],
-        rsuffix=utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.INTENSITY],
+        lsuffix=constants.INTENSITY_UNIT_SUFFIXES[IntensityUnit.Z_SCORE],
+        rsuffix=constants.INTENSITY_UNIT_SUFFIXES[IntensityUnit.INTENSITY],
     )
 
 
-@cacheable(utils.DataType.GENOMICS)
+@cacheable(DataType.GENOMICS)
 def load_genomics_data(cohort_name: str, config: CohortConfig) -> pd.DataFrame:
     return genomics_preprocess.load_genomics_table(
         config.get_genomics_path(cohort_name)
     )
 
 
-@cacheable(utils.DataType.FULL_PROTEOME)
+@cacheable(DataType.FULL_PROTEOME)
 def load_fp_data(cohort_name: str, config: CohortConfig) -> pd.DataFrame:
     if not config.has_fp(cohort_name):
         return pd.DataFrame()
@@ -62,14 +65,14 @@ def load_fp_data(cohort_name: str, config: CohortConfig) -> pd.DataFrame:
 
     fp_intensity = expression_loader.load_annotated_intensity_file(
         fp_annotated_intensity_path,
-        settings.FP_KEY,
+        constants.FP_KEY,
         extra_columns=list(settings.ANNOTATION_COLUMNS.keys()),
     )
-    fp_df = expression_loader.load_expression_data(fp_measures_paths, settings.FP_KEY)
+    fp_df = expression_loader.load_expression_data(fp_measures_paths, constants.FP_KEY)
     return fp_df.join(fp_intensity, how="right")
 
 
-@cacheable(utils.DataType.PHOSPHO_PROTEOME)
+@cacheable(DataType.PHOSPHO_PROTEOME)
 def load_pp_data(cohort_name: str, config: CohortConfig) -> pd.DataFrame:
     if not config.has_pp(cohort_name):
         return pd.DataFrame()
@@ -80,14 +83,14 @@ def load_pp_data(cohort_name: str, config: CohortConfig) -> pd.DataFrame:
 
     pp_intensity = expression_loader.load_annotated_intensity_file(
         pp_annotated_intensity_path,
-        settings.PP_KEY,
+        constants.PP_KEY,
         extra_columns=list(settings.ANNOTATION_COLUMNS.keys()),
     )
-    pp_df = expression_loader.load_expression_data(pp_measures_paths, settings.PP_KEY)
+    pp_df = expression_loader.load_expression_data(pp_measures_paths, constants.PP_KEY)
     return pp_df.join(pp_intensity, how="right")
 
 
-@cacheable(utils.DataType.TOPAS_RTK_SCORE)
+@cacheable(DataType.TOPAS_RTK_SCORE)
 def load_topas_rtk_scores(cohort_name: str, config: CohortConfig) -> pd.DataFrame:
     topas_rtk_scores_path, topas_rtk_scores_zscored_path = (
         config.get_topas_rtk_scores_paths(cohort_name)
@@ -97,25 +100,23 @@ def load_topas_rtk_scores(cohort_name: str, config: CohortConfig) -> pd.DataFram
         z_df = topas_loader.load_topas_scores_df(topas_rtk_scores_zscored_path)
         df = df.join(
             z_df,
-            lsuffix=utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.SCORE],
-            rsuffix=utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.Z_SCORE],
+            lsuffix=constants.INTENSITY_UNIT_SUFFIXES[IntensityUnit.SCORE],
+            rsuffix=constants.INTENSITY_UNIT_SUFFIXES[IntensityUnit.Z_SCORE],
         )
     df.index.name = "TOPAS identifier"
     return df
 
 
-@cacheable(utils.DataType.TOPAS_CK_SCORE)
+@cacheable(DataType.TOPAS_CK_SCORE)
 def load_topas_ck_scores(cohort_name: str, config: CohortConfig) -> pd.DataFrame:
     return topas_loader.load_topas_scores_df(
         config.get_topas_ck_scores_path(cohort_name),
         index_col="Sample name",
-        intensity_unit_suffix=utils.INTENSITY_UNIT_SUFFIXES[
-            utils.IntensityUnit.Z_SCORE
-        ],
+        intensity_unit_suffix=constants.INTENSITY_UNIT_SUFFIXES[IntensityUnit.Z_SCORE],
     )
 
 
-@cacheable(utils.DataType.KINASE_SCORE)
+@cacheable(DataType.KINASE_SCORE)
 def load_substrate_phos_scores(cohort_name: str, config: CohortConfig) -> pd.DataFrame:
     topas_rtk_substrate_phos_path, topas_ck_scores_path = (
         config.get_topas_substrate_phos_paths(cohort_name)
@@ -123,23 +124,19 @@ def load_substrate_phos_scores(cohort_name: str, config: CohortConfig) -> pd.Dat
     rtk_df = topas_loader.load_topas_scores_df(
         topas_rtk_substrate_phos_path,
         index_col="Sample name",
-        intensity_unit_suffix=utils.INTENSITY_UNIT_SUFFIXES[
-            utils.IntensityUnit.Z_SCORE
-        ],
+        intensity_unit_suffix=constants.INTENSITY_UNIT_SUFFIXES[IntensityUnit.Z_SCORE],
     )
     ck_df = topas_loader.load_topas_scores_df(
         topas_ck_scores_path,
         index_col="Sample name",
-        intensity_unit_suffix=utils.INTENSITY_UNIT_SUFFIXES[
-            utils.IntensityUnit.Z_SCORE
-        ],
+        intensity_unit_suffix=constants.INTENSITY_UNIT_SUFFIXES[IntensityUnit.Z_SCORE],
     )
     if isinstance(rtk_df, pd.DataFrame) and isinstance(ck_df, pd.DataFrame):
         return pd.concat([rtk_df, ck_df], axis=0)
     return rtk_df
 
 
-@cacheable(utils.DataType.PHOSPHO_SCORE)
+@cacheable(DataType.PHOSPHO_SCORE)
 def load_protein_phos_scores(cohort_name: str, config: CohortConfig) -> pd.DataFrame:
     protein_phos_path, *protein_phos_measures_paths = (
         config.get_protein_phos_data_paths(cohort_name)
@@ -147,12 +144,12 @@ def load_protein_phos_scores(cohort_name: str, config: CohortConfig) -> pd.DataF
 
     protein_phos_df = expression_loader.load_annotated_intensity_file(
         protein_phos_path,
-        settings.FP_KEY,
+        constants.FP_KEY,
         extra_columns=list(settings.ANNOTATION_COLUMNS.keys()),
-        intensity_suffix=utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.Z_SCORE],
+        intensity_suffix=constants.INTENSITY_UNIT_SUFFIXES[IntensityUnit.Z_SCORE],
     )
     protein_measures_df = expression_loader.load_expression_data(
-        protein_phos_measures_paths, settings.FP_KEY
+        protein_phos_measures_paths, constants.FP_KEY
     )
     return protein_phos_df.join(protein_measures_df, how="right")
 
@@ -181,15 +178,15 @@ def load_all_tables(cohort_name: str, config: CohortConfig):
     print(f"Loading all data for cohort '{cohort_name}'")
 
     loaders = {
-        utils.DataType.PATIENT_METADATA: load_patient_metadata,
-        utils.DataType.SAMPLE_ANNOTATION: load_sample_annotation,
-        utils.DataType.FULL_PROTEOME: load_fp_data,
-        utils.DataType.PHOSPHO_PROTEOME: load_pp_data,
-        utils.DataType.TOPAS_RTK_SCORE: load_topas_rtk_scores,
-        utils.DataType.TOPAS_CK_SCORE: load_topas_ck_scores,
-        utils.DataType.KINASE_SCORE: load_substrate_phos_scores,
-        utils.DataType.PHOSPHO_SCORE: load_protein_phos_scores,
-        utils.DataType.SEARCH_QC: load_search_qc,
+        DataType.PATIENT_METADATA: load_patient_metadata,
+        DataType.SAMPLE_ANNOTATION: load_sample_annotation,
+        DataType.FULL_PROTEOME: load_fp_data,
+        DataType.PHOSPHO_PROTEOME: load_pp_data,
+        DataType.TOPAS_RTK_SCORE: load_topas_rtk_scores,
+        DataType.TOPAS_CK_SCORE: load_topas_ck_scores,
+        DataType.KINASE_SCORE: load_substrate_phos_scores,
+        DataType.PHOSPHO_SCORE: load_protein_phos_scores,
+        DataType.SEARCH_QC: load_search_qc,
     }
 
     results = {}

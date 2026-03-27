@@ -3,7 +3,7 @@ from flask import Blueprint
 import db
 from topas_portal import utils
 import topas_portal.kinase_scores_prepare as kinase_prepare
-
+from topas_portal.constants import IntensityUnit
 
 kinasescore_page = Blueprint(
     "kinasescore_page",
@@ -44,7 +44,7 @@ def kinase_scores_plot(
         one_vs_all = False
     return kinase_prepare.kinase_score_plots_prepare(
         cohorts_db.get_kinase_scores_df(
-            cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
+            cohort_index, intensity_unit=IntensityUnit.Z_SCORE
         ),
         annotation_df,
         patient_or_entity,

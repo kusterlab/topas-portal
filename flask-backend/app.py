@@ -5,6 +5,14 @@ import logging
 import threading
 from dotenv import load_dotenv
 
+from topas_portal.data_type import DataType
+from topas_portal.constants import (
+    IntensityUnit,
+    IncludeRef,
+    ColumnNames,
+    ImputationMode,
+)
+
 load_dotenv()
 
 from flask import (
@@ -214,9 +222,9 @@ def get_protein_fpkm_correlation(cohort_index: int):
         - Computes the correlation across patients.
         - Converts the resulting correlation DataFrame to JSON format before returning.
     """
-    transcript_df = cohorts_db.get_fpkm_df(intensity_unit=utils.IntensityUnit.INTENSITY)
+    transcript_df = cohorts_db.get_fpkm_df(intensity_unit=IntensityUnit.INTENSITY)
     protein_intensity_df = cohorts_db.get_protein_abundance_df(
-        cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
+        cohort_index, intensity_unit=IntensityUnit.INTENSITY
     )
     correlation_df = cp.get_correlation_across_patients(
         protein_intensity_df, transcript_df
@@ -363,13 +371,13 @@ def get_all_modality_possibilities(cohort_index: int, modality: str):
 
 @app.route(ApiRoutes.VENN_PATIENT_COMPARE)
 # http://localhost:3832/venn/0/patientcompare/fp/C3L-00032-1
-def get_patients_proteins(cohort_index: int, level: utils.DataType, patients: str):
+def get_patients_proteins(cohort_index: int, level: DataType, patients: str):
     return pp.get_patients_proteins_as_json(cohorts_db, cohort_index, level, patients)
 
 
 @app.route(ApiRoutes.VENN_BATCH_COMPARE)
 # http://localhost:3832/venn/0/batchcompare/fp/1_2_43
-def get_batches_proteins(cohort_index: int, level: utils.DataType, batchlists: str):
+def get_batches_proteins(cohort_index: int, level: DataType, batchlists: str):
     return pp.get_batches_proteins_as_json(cohorts_db, cohort_index, level, batchlists)
 
 
@@ -392,8 +400,8 @@ def get_error_log():
 # http://localhost:3832/patientcentric/summed_intensity/0/pp
 def get_sum_intensities_pp_level(
     cohort_index: int,
-    level: utils.DataType,
-    include_ref: utils.IncludeRef,
+    level: DataType,
+    include_ref: IncludeRef,
 ):
     if settings.DATABASE_MODE:
         return {}  # this query is not implemented yet in the database
@@ -408,8 +416,8 @@ def get_sum_intensities_pp_level(
 # http://localhost:3832/patientcentric/counts/0/fp
 def get_identifications_frequency(
     cohort_index: int,
-    level: utils.DataType,
-    include_ref: utils.IncludeRef,
+    level: DataType,
+    include_ref: IncludeRef,
 ):
     if settings.DATABASE_MODE:
         return {}  # this query is not implemented yet in the database
@@ -428,7 +436,7 @@ def topas_annotations():
 @app.route(ApiRoutes.ANALYTES_ANNOTATION_TABLE)
 @cache.cached(timeout=3600)
 # http://localhost:3832/0/protein/annotations
-def get_annotation_table(cohort_index: int, level: utils.DataType):
+def get_annotation_table(cohort_index: int, level: DataType):
     return utils.df_to_json(
         pp.get_annotation_df(cohorts_db, cohort_index, level).reset_index()
     )
@@ -493,7 +501,7 @@ def patients_genomics_annotations(cohort_index: int, identifier: str):
 @app.route(ApiRoutes.PATIENTS_METADATA)
 @cache.cached(timeout=50)
 # http://localhost:3832/0/metadata
-def patientsmetadata(cohort_index: int, include_ref: utils.IncludeRef):
+def patientsmetadata(cohort_index: int, include_ref: IncludeRef):
     sample_annotation_df = cohorts_db.get_sample_annotation_df(
         cohort_index, include_ref
     )
@@ -537,7 +545,7 @@ def get_patientslist_by_fieldname(
         df[fieldname] = df[fieldname].astype(str)
 
     return jsonify(
-        df[utils.ColumnNames.SAMPLE_NAME][df[fieldname].isin(field_interest)].tolist()
+        df[ColumnNames.SAMPLE_NAME][df[fieldname].isin(field_interest)].tolist()
     )
 
 
@@ -553,20 +561,20 @@ def get_genomes(identifier: str):
     genomics_df = genomics_process.get_genomics_alterations_per_identifier(
         cohorts_db, identifier
     )
-    genomics_df[utils.ColumnNames.SAMPLE_NAME] = genomics_df.index
+    genomics_df[ColumnNames.SAMPLE_NAME] = genomics_df.index
     return utils.df_to_json(genomics_df)
 
 
 @app.route(ApiRoutes.DENSITY_FPKM)
 # http://localhost:3832/density/fpkm/EGFR/z_scored
-def density_calc_fpkm(identifier: str, intensity_unit: utils.IntensityUnit):
+def density_calc_fpkm(identifier: str, intensity_unit: IntensityUnit):
     return transcript.get_density_calc_fpkm(cohorts_db, identifier, intensity_unit)
 
 
 @app.route(ApiRoutes.DENSITY_PROTEIN)
 # http://localhost:3832/0/density/protein/EGFR/z_scored
 def density_calc_protein(
-    cohort_index: int, identifier: str, intensity_unit: utils.IntensityUnit
+    cohort_index: int, identifier: str, intensity_unit: IntensityUnit
 ):
     return pp.get_density_calc_protein(
         cohorts_db, cohort_index, identifier, intensity_unit
@@ -582,17 +590,17 @@ def density_calc_protein(
 # http://localhost:3832/0/psite/abundance/_pYSPSQNpSPIHHIPSR_/noimpute
 def abundance(
     cohort_index: int,
-    level: utils.DataType,
+    level: DataType,
     identifier: str,
     imputation: str,
-    include_ref: utils.IncludeRef,
+    include_ref: IncludeRef,
 ):
     return pp.get_abundance_with_annotations(
         cohorts_db,
         cohort_index,
         level,
         identifier,
-        utils.ImputationMode(imputation),
+        ImputationMode(imputation),
         include_ref,
     )
 
@@ -604,10 +612,10 @@ def abundance(
 # http://localhost:3832/0/fpkm/correlation/protein/EGFR/z_scored
 def correlation(
     cohort_index: int,
-    level: utils.DataType,
+    level: DataType,
     identifier: str,
-    level_2: utils.DataType,
-    intensity_unit: utils.IntensityUnit,
+    level_2: DataType,
+    intensity_unit: IntensityUnit,
     patients_list: str = None,
 ):
     patients_list = None if patients_list == "all" else patients_list.split(",")
@@ -625,7 +633,7 @@ def correlation(
 @app.route(ApiRoutes.HEATMAP)
 def heatmap(
     cohort_index: int,
-    level: utils.DataType,
+    level: DataType,
     identifier: str,
     patients: str,
     output_format: str,
@@ -636,7 +644,7 @@ def heatmap(
         level,
         identifier.split(","),
         patients.split(","),
-        include_ref=utils.IncludeRef.INCLUDE_REF,
+        include_ref=IncludeRef.INCLUDE_REF,
     )
     if output_format == "plot":
         merged_df.index = merged_df["Sample name"]
@@ -659,7 +667,7 @@ def get_t_test_json(
     cohort_index: int,
     grp1_ind: str,
     grp2_ind: str,
-    level: utils.DataType,
+    level: DataType,
     y_axis_type: str,
 ):
     return utils.df_to_json(

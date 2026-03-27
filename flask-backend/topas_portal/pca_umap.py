@@ -5,8 +5,8 @@ import pandas as pd
 import numpy as np
 
 
-from . import settings
-from . import utils
+from topas_portal import constants
+from topas_portal.constants import IncludeRef
 from .dimensionality_reduction import get_dimensionality_reduction_method
 
 
@@ -17,7 +17,7 @@ def do_pca(
     meta_annot_df: pd.DataFrame,
     min_sample_occurrence_ratio: float = 0.5,
     dimensionality_reduction_method: str = "ppca",
-    include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+    include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
     include_replicates: bool = False,
 ):
     """_summary_
@@ -130,11 +130,11 @@ def filter_by_occurrence(df, min_sample_occurrence_ratio: float = 0.5):
 def merge_sample_and_metadata_annots(
     sample_annotation_df: pd.DataFrame,
     meta_data: pd.DataFrame,
-    include_ref: utils.IncludeRef,
+    include_ref: IncludeRef,
     keep_reference: bool = False,
 ) -> pd.DataFrame:
     meta_data_samples = meta_data["Sample name"].tolist()
-    if include_ref in [utils.IncludeRef.INCLUDE_REF, utils.IncludeRef.ONLY_REF]:
+    if include_ref in [IncludeRef.INCLUDE_REF, IncludeRef.ONLY_REF]:
         sample_annotation_df = get_replicate_groups(
             sample_annotation_df, meta_data_samples
         )
@@ -142,7 +142,7 @@ def merge_sample_and_metadata_annots(
         patient_samples = sample_annotation_df["Sample name"].isin(meta_data_samples)
         if keep_reference:
             patient_samples |= sample_annotation_df["Sample name"].str.startswith(
-                settings.REF_CHANNEL_PREFIX
+                constants.REF_CHANNEL_PREFIX
             )
         sample_annotation_df = sample_annotation_df.loc[patient_samples, :]
 
@@ -163,7 +163,7 @@ def merge_sample_and_metadata_annots(
     merged_annot["Batch_No"] = ""
     merged_annot["Tumor cell content"] = 0  # we bypass the get tumor cell conntent
     merged_annot["Is reference channel"] = merged_annot["Sample name"].str.startswith(
-        settings.REF_CHANNEL_PREFIX
+        constants.REF_CHANNEL_PREFIX
     )
     merged_annot = merged_annot.replace(np.nan, "nan")
     return merged_annot
@@ -176,7 +176,7 @@ def get_replicate_groups(
         ~(sample_annotation_df["Sample name"].isin(meta_data_samples))
         & ~(
             sample_annotation_df["Sample name"].str.startswith(
-                settings.REF_CHANNEL_PREFIX
+                constants.REF_CHANNEL_PREFIX
             )
         )
     ]

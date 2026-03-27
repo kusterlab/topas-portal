@@ -27,22 +27,6 @@ CI_BACKEND_PORT = os.getenv("CI_BACKEND_PORT", default=3832)
 # the chunked data size for import to DB (10000000) was tested with 512 GB RAM
 CHUNK_SIZE_IMPORT = 1000000
 
-PATIENT_PREFIX = "pat_"
-REF_CHANNEL_PREFIX = "ref_"
-IDENTIFICATION_METADATA_PREFIX = "Identification metadata "
-
-PP_KEY = "Modified sequence group"
-FP_KEY = "Gene names"
-
-# REGEX PATTERNS FOR THE PATIENTS IDS
-# patient identifiers
-
-Z_SCORE_REGEX = r" Z-score"
-REGEX_META = (
-    r"^Identification metadata"  # to get num identified peptides in FP intensity file
-)
-NUM_PEPTIDES_REGEX = r"num_peptides=(\d+)"
-
 # PATIENT DATA FILES (Paths are relative to the results folder root)
 
 # normalized intensities with gene/p-site annotations from wp3 pipeline
@@ -74,12 +58,6 @@ PHOSPHO_MEASURES = "phospho_measures_z.tsv"
 
 # meta data entity column
 ENTITY_COLUMN = "code_oncotree"
-
-PEPTIDE_PROTEIN_MAPPING_COLS = {
-    "gene_name": "Gene names",
-    "peptide": "Modified sequence",
-    "Proteins": "Proteins",
-}
 
 # the columns names to load before merging with metadata from sample annotation file
 # the idea of this file is to keep the batch information for the Replicates

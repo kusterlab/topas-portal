@@ -9,6 +9,8 @@ from topas_portal import utils
 from topas_portal import settings
 from topas_portal import topas_preprocess as topas_utils
 from topas_portal import fetch_data_matrix as data
+from topas_portal.data_type import DataType
+from topas_portal.constants import IntensityUnit
 from topas_portal.data_api import data_api
 
 
@@ -16,17 +18,17 @@ def compute_correlation_df(
     cohorts_db: data_api.CohortDataAPI,
     cohort_index: int,
     identifier: str,
-    level: utils.DataType,
-    level_2: utils.DataType,
-    intensity_unit: utils.IntensityUnit,
+    level: DataType,
+    level_2: DataType,
+    intensity_unit: IntensityUnit,
     patients_list=None,
 ):
     """
-    Wrapper function to calculate correlations between different modalities such as protein vs FPKM 
+    Wrapper function to calculate correlations between different modalities such as protein vs FPKM
     or phospho-proteins vs total proteome.
 
-    This function handles the retrieval of data for different modalities and computes the correlation 
-    between them. It can work with different levels such as `TOPAS_SCORE`, 
+    This function handles the retrieval of data for different modalities and computes the correlation
+    between them. It can work with different levels such as `TOPAS_SCORE`,
     `PHOSPHO_PROTEOME`, etc. It also handles merging additional annotations like topas weights or psite abundances.
 
     Args:
@@ -82,7 +84,7 @@ def compute_correlation_df(
         all_abundances, abundances, patients_list=patients_list
     )
 
-    if level == utils.DataType.TOPAS_RTK_SCORE:
+    if level == DataType.TOPAS_RTK_SCORE:
         # add "Topas weight column" to correlation table
         topas_complete_df = cohorts_db.get_topas_annotation_df()
         topas_annotation_df = topas_utils.get_topas_weights(topas_complete_df)
@@ -94,7 +96,7 @@ def compute_correlation_df(
         )
         correlation_df = correlation_df.fillna("")
 
-    if level_2 == utils.DataType.PHOSPHO_PROTEOME:
+    if level_2 == DataType.PHOSPHO_PROTEOME:
         psite_annotation_df = cohorts_db.get_psite_abundance_df(
             cohort_index=cohort_index
         )
@@ -115,21 +117,21 @@ def _subset_to_overlapping_patients(
     """
     Subsets the input data frames to include only the overlapping patients before computing correlations.
 
-    This function ensures that the patient data in both data frames match by finding the intersection of 
-    patient identifiers across the two data frames. If a list of specific patients is provided, it further 
+    This function ensures that the patient data in both data frames match by finding the intersection of
+    patient identifiers across the two data frames. If a list of specific patients is provided, it further
     restricts the subset to only those patients that are present in both data frames.
 
     Args:
         all_abundances (pd.DataFrame): A gene or p-site abundance matrix containing data for multiple patients.
         abundances (pd.DataFrame): A single gene or p-site abundance data for multiple patients.
-        patients_list (list, optional): A list of specific patients to include in the subset. Defaults to None, 
+        patients_list (list, optional): A list of specific patients to include in the subset. Defaults to None,
                                         meaning all overlapping patients will be considered.
 
     Returns:
         tuple: A tuple containing:
             - pd.DataFrame: The subset of `all_abundances` for the overlapping patients.
             - pd.DataFrame: The subset of `abundances` for the overlapping patients.
-            - str: An error message if no overlapping patients are found ("400 No overlapping patients found"), 
+            - str: An error message if no overlapping patients are found ("400 No overlapping patients found"),
                    or an empty string if no error occurred.
 
     Example:
@@ -140,7 +142,9 @@ def _subset_to_overlapping_patients(
             patients_list=["Patient1", "Patient2"]
         )
     """
-    overlapping_patients = utils.intersection(all_abundances.columns, abundances.columns)
+    overlapping_patients = utils.intersection(
+        all_abundances.columns, abundances.columns
+    )
     if patients_list:
         overlapping_patients = utils.intersection(overlapping_patients, patients_list)
     if (
@@ -161,9 +165,9 @@ def _get_correlations(
     """
     Computes Pearson correlations and p-values between a single gene/p-site and all other genes/p-sites.
 
-    This function calculates the Pearson correlation coefficient between the provided gene or p-site 
-    (represented by the `abundances` DataFrame) and each gene or p-site in the `all_abundances` DataFrame. 
-    It then computes the corresponding p-value using a two-sided t-test. The correlation results are 
+    This function calculates the Pearson correlation coefficient between the provided gene or p-site
+    (represented by the `abundances` DataFrame) and each gene or p-site in the `all_abundances` DataFrame.
+    It then computes the corresponding p-value using a two-sided t-test. The correlation results are
     returned along with the number of valid patients, p-values, and False Discovery Rate (FDR) adjustment.
 
     Args:
@@ -245,8 +249,8 @@ def _monotonize(fdrs):
     Makes a list of FDRs (False Discovery Rates) monotonically increasing.
 
     This function takes a list of FDR values and ensures that the list is monotonically non-decreasing
-    by applying a technique often referred to as "monotonization". It is commonly used to adjust p-values 
-    in statistical analysis, particularly in multiple testing corrections, ensuring that the FDR values 
+    by applying a technique often referred to as "monotonization". It is commonly used to adjust p-values
+    in statistical analysis, particularly in multiple testing corrections, ensuring that the FDR values
     do not decrease as the index progresses.
 
     Args:
@@ -279,9 +283,9 @@ def _get_correlation_for_one_patient(
     """
     Computes the Pearson correlation between protein and transcript Z-scores for a single patient.
 
-    This function calculates the correlation between the protein Z-scores (from `df1`) 
-    and the transcript Z-scores (from `df2`) for a specific patient. It returns the 
-    correlation value if there are enough valid protein-transcript pairs (at least 20), 
+    This function calculates the correlation between the protein Z-scores (from `df1`)
+    and the transcript Z-scores (from `df2`) for a specific patient. It returns the
+    correlation value if there are enough valid protein-transcript pairs (at least 20),
     and the number of proteins used in the correlation calculation.
 
     Args:
@@ -291,7 +295,7 @@ def _get_correlation_for_one_patient(
 
     Returns:
         tuple: A tuple containing:
-            - float or None: The Pearson correlation between the protein and transcript Z-scores for the patient, 
+            - float or None: The Pearson correlation between the protein and transcript Z-scores for the patient,
               or None if there are insufficient data points.
             - int: The number of proteins used in the correlation calculation.
 
@@ -319,11 +323,11 @@ def get_correlation_across_patients(
     """
     Computes the correlation between protein and transcript Z-scores across patients. THIS FUNCTION IS USED IN THE PATIENTS REPORT TAB OF THE PORTAL
 
-    This function calculates the Pearson correlation between protein and transcript 
-    expression values (Z-scores) for each patient. It first processes the input 
-    DataFrames to ensure that the protein and transcript data are aligned by the 
-    common set of proteins and patients. Then, for each patient, it computes the 
-    correlation across the corresponding proteins' Z-scores from both the protein 
+    This function calculates the Pearson correlation between protein and transcript
+    expression values (Z-scores) for each patient. It first processes the input
+    DataFrames to ensure that the protein and transcript data are aligned by the
+    common set of proteins and patients. Then, for each patient, it computes the
+    correlation across the corresponding proteins' Z-scores from both the protein
     and transcript datasets.
 
     Args:
@@ -331,8 +335,8 @@ def get_correlation_across_patients(
         transcripts_df (pd.DataFrame): A DataFrame containing transcript fpkms, with proteins as rows and patients as columns.** THE COLUMNS PATTERN SHOULD BE "PATIENT Z-score"
 
     Returns:
-        pd.DataFrame: A DataFrame with the patients as rows and two columns: 
-                      'correlation' (Pearson correlation between protein and transcript Z-scores) and 
+        pd.DataFrame: A DataFrame with the patients as rows and two columns:
+                      'correlation' (Pearson correlation between protein and transcript Z-scores) and
                       'num_proteins' (number of proteins used in the correlation calculation).
 
     Example:
@@ -348,12 +352,8 @@ def get_correlation_across_patients(
         x for x in transcripts_df.index if x in unested_protein_df.index
     ]
 
-    proteome_df = unested_protein_df.loc[
-        overlapping_proteins, overlapping_patients
-    ]
-    transcriptome_df = transcripts_df.loc[
-        overlapping_proteins, overlapping_patients
-    ]
+    proteome_df = unested_protein_df.loc[overlapping_proteins, overlapping_patients]
+    transcriptome_df = transcripts_df.loc[overlapping_proteins, overlapping_patients]
 
     correlation_df = pd.DataFrame(overlapping_patients, columns=["patients"])
     correlation_df["correlation"] = None
@@ -365,6 +365,3 @@ def get_correlation_across_patients(
         correlation_df["correlation"][i] = protein_correlaiton
         correlation_df["num_proteins"][i] = num_proteins
     return correlation_df
-
-
-

@@ -5,6 +5,8 @@ from pathlib import Path
 
 from topas_portal import settings
 from topas_portal import utils
+from topas_portal import constants
+from topas_portal.constants import IntensityUnit
 
 
 def load_expression_data(measure_paths: list[Path], key_col: str):
@@ -35,7 +37,7 @@ def load_measures(
     for (
         intensity_unit_candidate,
         file_suffix,
-    ) in utils.INTENSITY_UNIT_FILE_SUFFIXES.items():
+    ) in constants.INTENSITY_UNIT_FILE_SUFFIXES.items():
         if measures_path.stem.endswith(file_suffix):
             intensity_unit = intensity_unit_candidate
             break
@@ -46,14 +48,15 @@ def load_measures(
 
     def filter_columns(x: str):
         return (
-            x.startswith(utils.INTENSITY_UNIT_PREFIXES[intensity_unit]) or x == key_col
+            x.startswith(constants.INTENSITY_UNIT_PREFIXES[intensity_unit])
+            or x == key_col
         )
 
     def rename_columns(x: str):
-        if x.startswith(utils.INTENSITY_UNIT_PREFIXES[intensity_unit]):
+        if x.startswith(constants.INTENSITY_UNIT_PREFIXES[intensity_unit]):
             return (
                 "_".join(x.split("_")[1:]).strip()
-                + utils.INTENSITY_UNIT_SUFFIXES[intensity_unit]
+                + constants.INTENSITY_UNIT_SUFFIXES[intensity_unit]
             )
         return x
 
@@ -66,7 +69,7 @@ def load_measures(
         low_memory=False,
     )
     print(f"{measures_path} finished")
-    if intensity_unit == utils.IntensityUnit.RANK:
+    if intensity_unit == IntensityUnit.RANK:
         df_patient_measures = df_patient_measures.rename(
             columns={"rank_max": "Occurrence"}
         )
@@ -81,9 +84,7 @@ def load_annotated_intensity_file(
     annotated_intensity_file: os.PathLike,
     index_col: str,
     extra_columns=None,
-    intensity_suffix: str = utils.INTENSITY_UNIT_SUFFIXES[
-        utils.IntensityUnit.INTENSITY
-    ],
+    intensity_suffix: str = constants.INTENSITY_UNIT_SUFFIXES[IntensityUnit.INTENSITY],
 ):
     if extra_columns is None:
         extra_columns = []
@@ -111,14 +112,14 @@ def load_annotated_intensity_file(
         ),
     ]
 
-    identification_metadata_suffix = utils.INTENSITY_UNIT_SUFFIXES[
-        utils.IntensityUnit.IDENTIFICATION_METADATA
+    identification_metadata_suffix = constants.INTENSITY_UNIT_SUFFIXES[
+        IntensityUnit.IDENTIFICATION_METADATA
     ]
     column_rename_dict = {
-        c: c.replace(settings.PATIENT_PREFIX, "") + intensity_suffix
+        c: c.replace(constants.PATIENT_PREFIX, "") + intensity_suffix
         for c in patient_list_prefixed
     } | {
-        c: c.replace(settings.IDENTIFICATION_METADATA_PREFIX, "")
+        c: c.replace(constants.IDENTIFICATION_METADATA_PREFIX, "")
         + identification_metadata_suffix
         for c in identification_metadata_columns
     }
@@ -130,7 +131,7 @@ def load_annotated_intensity_file(
 
 
 @utils.check_path_exist
-def load_intensity_meta_data(instensitypath, key, regex=settings.REGEX_META):
+def load_intensity_meta_data(instensitypath, key, regex=constants.REGEX_META):
     cols = (
         pd.read_csv(instensitypath, low_memory=False, nrows=10)
         .filter(regex=regex)
@@ -156,7 +157,7 @@ def _post_process_meta_intensities(intensity_meta: pd.DataFrame) -> pd.DataFrame
 
 
 def load_modified_seq_protein_name_mapping(dir_path: Path):
-    filter_cols = settings.PEPTIDE_PROTEIN_MAPPING_COLS.values()
+    filter_cols = constants.PEPTIDE_PROTEIN_MAPPING_COLS.values()
     df_peptided_protein_df = pd.read_csv(
         dir_path / settings.PHOSPHO_MEASURES,
         usecols=filter_cols,
@@ -164,7 +165,7 @@ def load_modified_seq_protein_name_mapping(dir_path: Path):
         low_memory=False,
     )
     df_peptided_protein_df.index = df_peptided_protein_df[
-        settings.PEPTIDE_PROTEIN_MAPPING_COLS["peptide"]
+        constants.PEPTIDE_PROTEIN_MAPPING_COLS["peptide"]
     ]
 
     df_peptided_protein_df.index = df_peptided_protein_df.index.str.replace(

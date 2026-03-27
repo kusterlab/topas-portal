@@ -6,10 +6,11 @@ from typing import Dict, List, TYPE_CHECKING
 
 import pandas as pd
 
+from topas_portal import constants
+from topas_portal.constants import IntensityUnit
 import topas_portal.topas_preprocess
 import db_settings as database
 from topas_portal import settings
-from topas_portal import utils
 import topas_portal.file_loaders.topas as topas_loader
 import topas_portal.file_loaders.transcriptomics as tp
 import topas_portal.file_loaders.genomics as genomics_preprocess
@@ -79,7 +80,7 @@ class SQLProvider:
             basket_annotation_path
         )
         self.logger.log_message("Topas tables loaded")
-    
+
     def _load_poi_annotations(self, config: Dict):
         """The protein of interest (POI) table is independent of cohorts and will be treated as a single global variable separately"""
         self.logger.log_message("Loading POI annotation table")
@@ -98,8 +99,8 @@ class SQLProvider:
         )
         self.FPKM = self.FPKM.join(
             FPKM_not_z_scored,
-            lsuffix=utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.Z_SCORE],
-            rsuffix=utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.INTENSITY],
+            lsuffix=constants.INTENSITY_UNIT_SUFFIXES[IntensityUnit.Z_SCORE],
+            rsuffix=constants.INTENSITY_UNIT_SUFFIXES[IntensityUnit.INTENSITY],
         )
 
         self.logger.log_message("FPKM data loaded")
@@ -133,7 +134,7 @@ class SQLProvider:
         df = expression_loader.load_modified_seq_protein_name_mapping(
             Path(cohort_report_dir)
         )
-        df.columns = settings.PEPTIDE_PROTEIN_MAPPING_COLS.keys()
+        df.columns = constants.PEPTIDE_PROTEIN_MAPPING_COLS.keys()
         df["cohort_id"] = cohort_index
         models.chunkwise_insert(df, table_class)
 
@@ -178,7 +179,7 @@ class SQLProvider:
         cohort_report_dir = config.get_report_directory(cohort_index)
         df_to_insert = expression_loader.load_intensity_meta_data(
             Path(os.path.join(cohort_report_dir, settings.PREPROCESSED_FP_INTENSITY)),
-            settings.FP_KEY,
+            constants.FP_KEY,
         )
         # df_to_insert = df_to_insert.set_index('Gene names')
         df_to_insert.columns = [str(x).split(" ")[-1] for x in df_to_insert.columns]
@@ -224,9 +225,7 @@ class SQLProvider:
         topas_df = topas_loader.load_topas_scores_df(
             Path(os.path.join(cohort_report_dir, key))
         )
-        topas_df = topas_portal.topas_preprocess.get_topas_scores_long_format(
-            topas_df
-        )
+        topas_df = topas_portal.topas_preprocess.get_topas_scores_long_format(topas_df)
 
         selected_cols = {
             "Sample name": "patient_name",
@@ -251,32 +250,33 @@ class SQLProvider:
         cohort_report_dir = config.get_report_directory(cohort_index)
         meta_data_path = config.get_sample_annotation_path(cohort_name)
         meta_data_df = sample_annotation_loader.load_sample_annotation_table(
-                meta_data_path
-            )
-        patients_list = meta_data_df['Sample name'].unique().tolist()
+            meta_data_path
+        )
+        patients_list = meta_data_df["Sample name"].unique().tolist()
         if data_type == "phospho":  # for the phosohopeptides
             intensity_file = settings.PREPROCESSED_PP_INTENSITY
-            key = settings.PP_KEY
+            key = constants.PP_KEY
             df_to_insert = expression_loader.load_annotated_intensity_file(
-                Path(os.path.join(cohort_report_dir, intensity_file)), 
+                Path(os.path.join(cohort_report_dir, intensity_file)),
                 key,
-                patients_list
+                patients_list,
             )
 
         elif data_type == "phospho_scores":  # for the phospho scores
             intensity_file = settings.PHOSPHORYLATION_Z_SCORES
-            key = settings.FP_KEY
+            key = constants.FP_KEY
             df_to_insert = phospho_score_loader.load_phosphorylation_scores(
-                Path(os.path.join(cohort_report_dir, intensity_file)), add_intensity_suffix=False
+                Path(os.path.join(cohort_report_dir, intensity_file)),
+                add_intensity_suffix=False,
             )
 
         else:
             intensity_file = settings.PREPROCESSED_FP_INTENSITY
-            key = settings.FP_KEY
+            key = constants.FP_KEY
             df_to_insert = expression_loader.load_annotated_intensity_file(
                 Path(os.path.join(cohort_report_dir, intensity_file)),
                 key,
-                patients_list
+                patients_list,
             )
 
         self._final_importer(df_to_insert, table_class, cohort_index, data_type, id_key)
@@ -362,7 +362,7 @@ class SQLProvider:
             config,
             cohort_index,
             models.Expressionfpzscores(),
-            settings.FP_KEY,
+            constants.FP_KEY,
             "full_proteome",
             id_key="protein_name",
         )
@@ -404,7 +404,7 @@ class SQLProvider:
             config,
             cohort_index,
             models.Expressionppzscores(),
-            settings.PP_KEY,
+            constants.PP_KEY,
             "phospho",
             id_key="sequence",
         )

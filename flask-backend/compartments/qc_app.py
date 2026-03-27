@@ -9,6 +9,11 @@ import numpy as np
 import db
 from topas_portal import utils
 from topas_portal import settings
+from topas_portal.data_type import DataType
+from topas_portal.constants import (
+    IntensityUnit,
+    IncludeRef,
+)
 import topas_portal.pca_umap as qc_meta
 from topas_portal import fetch_data_matrix as data
 from routes import ApiRoutes
@@ -23,10 +28,10 @@ cohorts_db = db.cohorts_db
 
 
 def pca_umap(
-    input_data_type: utils.DataType,
+    input_data_type: DataType,
     cohort_index: str,
     dimensionality_reduction_method: str,
-    include_ref: utils.IncludeRef,
+    include_ref: IncludeRef,
     use_replicate: str,
     selected_genes: Optional[List[str]] = None,
     meta_col_silhoutte: str = "Paper Entity",
@@ -175,9 +180,9 @@ def pca_umap(
 
 
 def load_pca_data(
-    cohort_index: int, input_data_type: utils.DataType, include_ref: utils.IncludeRef
+    cohort_index: int, input_data_type: DataType, include_ref: IncludeRef
 ):
-    if input_data_type != utils.DataType.FP_PP:
+    if input_data_type != DataType.FP_PP:
         return load_pca_data_single(
             cohort_index,
             input_data_type,
@@ -185,7 +190,7 @@ def load_pca_data(
         )
 
     list_dfs = []
-    for plot_type in [utils.DataType.FULL_PROTEOME, utils.DataType.PHOSPHO_PROTEOME]:
+    for plot_type in [DataType.FULL_PROTEOME, DataType.PHOSPHO_PROTEOME]:
         df = load_pca_data_single(
             cohort_index,
             plot_type,
@@ -202,17 +207,17 @@ def load_pca_data(
 
 def load_pca_data_single(
     cohort_index: int,
-    plot_type: utils.DataType,
-    include_ref: utils.IncludeRef,
+    plot_type: DataType,
+    include_ref: IncludeRef,
 ):
-    intensity_unit = utils.IntensityUnit.Z_SCORE
+    intensity_unit = IntensityUnit.Z_SCORE
     if plot_type in [
-        utils.DataType.FULL_PROTEOME,
-        utils.DataType.FULL_PROTEOME_ANNOTATED,
-        utils.DataType.PHOSPHO_PROTEOME,
-        utils.DataType.PHOSPHO_PROTEOME_ANNOTATED,
+        DataType.FULL_PROTEOME,
+        DataType.FULL_PROTEOME_ANNOTATED,
+        DataType.PHOSPHO_PROTEOME,
+        DataType.PHOSPHO_PROTEOME_ANNOTATED,
     ]:
-        intensity_unit = utils.IntensityUnit.INTENSITY
+        intensity_unit = IntensityUnit.INTENSITY
 
     df = data.fetch_data_matrix(
         cohorts_db,
@@ -226,7 +231,7 @@ def load_pca_data_single(
 
 
 def _remove_prefix_from_columns(df):
-    df.columns = df.columns.str.replace(settings.PATIENT_PREFIX, "")
+    df.columns = df.columns.str.replace(PATIENT_PREFIX, "")
     return df
 
 
@@ -291,10 +296,10 @@ def metadata():
 # http://localhost:3832/qc/all/fp/Intensity/0/ppca/noref/replicate/0.9
 def dimensionality_reduction(
     selected_genes_mode: str,
-    level: utils.DataType,
+    level: DataType,
     cohort_index: int,
     dimensionality_reduction_method: str,
-    include_ref: utils.IncludeRef,
+    include_ref: IncludeRef,
     use_replicate: str,
     custom_patients: str,
     imputation_ratio: float,
@@ -375,7 +380,7 @@ def sil_df_all_genes(
     print(selected_genes)
     # selected_genes = []  # if empty conssiders all genes
     sil_df = pca_umap(
-        utils.DataType(input_data_type),
+        DataType(input_data_type),
         cohort_index,
         dimensionality_reduction_method,
         use_ref,

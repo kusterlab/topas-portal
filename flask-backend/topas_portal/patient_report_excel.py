@@ -6,7 +6,7 @@ from enum import Enum
 import pandas as pd
 import xlsxwriter
 
-from topas_portal import utils
+from topas_portal.data_type import DataType
 from . import patient_report
 
 if TYPE_CHECKING:
@@ -21,12 +21,12 @@ class ColumnFormats(Enum):
 
 # Output columns with formats and column widths
 SHEET_COLUMN_FORMATS = {
-    utils.DataType.REPORT_SUMMARY: {
+    DataType.REPORT_SUMMARY: {
         "Topas_id": (ColumnFormats.STRING, 15),
         "Score type": (ColumnFormats.STRING, 45),
         "Z-score": (ColumnFormats.TWO_DECIMALS, 8),
     },
-    utils.DataType.FULL_PROTEOME: {
+    DataType.FULL_PROTEOME: {
         "Gene names": (ColumnFormats.STRING, 12),
         "Rank": (ColumnFormats.INTEGER, 6),
         "Occurrence": (ColumnFormats.INTEGER, 12),
@@ -39,7 +39,7 @@ SHEET_COLUMN_FORMATS = {
         "POI_EXPLORATORY": (ColumnFormats.STRING, 17),
         "POI_PRODICT": (ColumnFormats.STRING, 15),
     },
-    utils.DataType.PHOSPHO_PROTEOME: {
+    DataType.PHOSPHO_PROTEOME: {
         "Modified sequence representative": (ColumnFormats.STRING, 40),
         "Gene names": (ColumnFormats.STRING, 12),
         "Site positions (MQ identified - PSP)": (ColumnFormats.STRING, 32),
@@ -64,7 +64,7 @@ SHEET_COLUMN_FORMATS = {
         "High throughput studies (PSP)": (ColumnFormats.STRING, 15),
         "Modified sequence group": (ColumnFormats.STRING, 40),
     },
-    utils.DataType.PHOSPHO_SCORE: {
+    DataType.PHOSPHO_SCORE: {
         "Gene names": (ColumnFormats.STRING, 12),
         "Rank": (ColumnFormats.INTEGER, 6),
         "Occurrence": (ColumnFormats.INTEGER, 12),
@@ -83,10 +83,10 @@ def generate_patient_report(
     report_path: str,
 ):
     sheet_names = {
-        utils.DataType.REPORT_SUMMARY: "Summary",
-        utils.DataType.FULL_PROTEOME: "Proteome",
-        utils.DataType.PHOSPHO_PROTEOME: "Phosphoproteome",
-        utils.DataType.PHOSPHO_SCORE: "Protein phosphorylation score",
+        DataType.REPORT_SUMMARY: "Summary",
+        DataType.FULL_PROTEOME: "Proteome",
+        DataType.PHOSPHO_PROTEOME: "Phosphoproteome",
+        DataType.PHOSPHO_SCORE: "Protein phosphorylation score",
     }
     with pd.ExcelWriter(report_path, engine="xlsxwriter") as writer:
         for data_type, sheet_name in sheet_names.items():

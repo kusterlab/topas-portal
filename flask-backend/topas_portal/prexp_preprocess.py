@@ -8,6 +8,13 @@ import numpy as np
 
 from topas_portal import utils
 from topas_portal import settings
+from topas_portal.data_type import DataType
+from topas_portal import constants
+from topas_portal.constants import (
+    IntensityUnit,
+    IncludeRef,
+    ImputationMode,
+)
 import topas_portal.genomics_preprocess as genomics_prep
 from . import patient_report
 
@@ -58,7 +65,7 @@ def get_expression_data_per_analyte(
     abundances,
     patients_df,
     sample_annotation_df,
-    imputation_mode: utils.ImputationMode,
+    imputation_mode: ImputationMode,
 ):
     """
     abundances: dataframe with abundances for a single gene/p-site across all patients
@@ -82,7 +89,7 @@ def get_expression_data_from_abundance_df(abundances: pd.DataFrame) -> pd.DataFr
     automatically recognizing measurement types based on configured suffixes.
     """
     # Build pattern from known suffixes
-    suffixes = list(utils.INTENSITY_UNIT_SUFFIXES.values())
+    suffixes = list(constants.INTENSITY_UNIT_SUFFIXES.values())
     pattern = r"(" + "|".join(map(re.escape, suffixes)) + r")$"
 
     # Melt to long format
@@ -104,11 +111,11 @@ def get_expression_data_from_abundance_df(abundances: pd.DataFrame) -> pd.DataFr
     ).reset_index()
 
     for intensity_unit in [
-        utils.IntensityUnit.INTENSITY,
-        utils.IntensityUnit.Z_SCORE,
-        utils.IntensityUnit.RANK,
+        IntensityUnit.INTENSITY,
+        IntensityUnit.Z_SCORE,
+        IntensityUnit.RANK,
     ]:
-        column_name = utils.INTENSITY_UNIT_SUFFIXES[intensity_unit].strip()
+        column_name = constants.INTENSITY_UNIT_SUFFIXES[intensity_unit].strip()
         if column_name in result_df.columns:
             result_df = result_df.sort_values(by=column_name, ascending=False)
             break
@@ -163,13 +170,13 @@ def add_occurrence(df: pd.DataFrame):
         return df
 
 
-def min_impute_handler(df: pd.DataFrame, imputation_mode: utils.ImputationMode):
+def min_impute_handler(df: pd.DataFrame, imputation_mode: ImputationMode):
     for col in ["Z-score", "Intensity"]:
         if col in df.columns.tolist():
-            if imputation_mode == utils.ImputationMode.IMPUTE:
+            if imputation_mode == ImputationMode.IMPUTE:
                 min_value = df[col].min()
                 df[col] = df[col].fillna(min_value)
-            elif imputation_mode == utils.ImputationMode.NO_IMPUTE:
+            elif imputation_mode == ImputationMode.NO_IMPUTE:
                 df[col] = df[col].fillna("n.d.")
             else:
                 raise ValueError(f"Unknown imputation mode {imputation_mode.value}")
@@ -180,7 +187,7 @@ def get_density_calc_protein(
     cohorts_db: data_api.CohortDataAPI,
     cohort_index,
     identifier,
-    intensity_unit: utils.IntensityUnit,
+    intensity_unit: IntensityUnit,
 ):
     samples_annotation_df = cohorts_db.get_sample_annotation_df(cohort_index)
     samples_list = samples_annotation_df["Sample name"].unique().tolist()
@@ -196,10 +203,10 @@ def get_density_calc_protein(
 def get_abundance_with_annotations(
     cohorts_db: data_api.CohortDataAPI,
     cohort_index: int,
-    level: utils.DataType,
+    level: DataType,
     identifier: str,
-    imputation_mode: utils.ImputationMode,
-    include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+    imputation_mode: ImputationMode,
+    include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
 ):
     """_summary_
 
@@ -240,10 +247,10 @@ def get_abundance_with_annotations(
     )
 
     # adding num_pep and confidence score at FP level
-    if level == utils.DataType.FULL_PROTEOME:
+    if level == DataType.FULL_PROTEOME:
         abundances_table["num_pep"] = (
             abundances_table["Identification metadata"]
-            .str.extract(settings.NUM_PEPTIDES_REGEX)
+            .str.extract(constants.NUM_PEPTIDES_REGEX)
             .fillna(0)
             .astype(int)
         )
@@ -280,11 +287,11 @@ def get_abundance_with_annotations(
 def get_abundance_df(
     cohorts_db: data_api.CohortDataAPI,
     cohort_index: int,
-    level: utils.DataType,
-    intensity_unit: Optional[utils.IntensityUnit] = None,
+    level: DataType,
+    intensity_unit: Optional[IntensityUnit] = None,
     identifier: str = None,
     patient_name: str = None,
-    include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+    include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
     extra_columns: Optional[list[str]] = None,
 ):
     """_summary_
@@ -301,13 +308,13 @@ def get_abundance_df(
     Returns:
         _type_: _description_
     """
-    get_abundance_df_dict: dict[utils.DataType, Callable[..., pd.DataFrame]] = {
-        utils.DataType.FULL_PROTEOME: cohorts_db.get_protein_abundance_df,
-        utils.DataType.PHOSPHO_PROTEOME: cohorts_db.get_psite_abundance_df,
-        utils.DataType.TRANSCRIPTOMICS: cohorts_db.get_fpkm_df,
-        utils.DataType.KINASE_SCORE: cohorts_db.get_kinase_scores_df,
-        utils.DataType.PHOSPHO_SCORE: cohorts_db.get_phosphorylation_scores_df,
-        utils.DataType.TOPAS_RTK_SCORE: cohorts_db.get_topas_rtk_scores_df,
+    get_abundance_df_dict: dict[DataType, Callable[..., pd.DataFrame]] = {
+        DataType.FULL_PROTEOME: cohorts_db.get_protein_abundance_df,
+        DataType.PHOSPHO_PROTEOME: cohorts_db.get_psite_abundance_df,
+        DataType.TRANSCRIPTOMICS: cohorts_db.get_fpkm_df,
+        DataType.KINASE_SCORE: cohorts_db.get_kinase_scores_df,
+        DataType.PHOSPHO_SCORE: cohorts_db.get_phosphorylation_scores_df,
+        DataType.TOPAS_RTK_SCORE: cohorts_db.get_topas_rtk_scores_df,
     }
 
     if level not in get_abundance_df_dict:
@@ -326,7 +333,7 @@ def get_abundance_df(
 def get_annotation_df(
     cohorts_db: data_api.CohortDataAPI,
     cohort_index: int,
-    level: utils.DataType,
+    level: DataType,
 ):
     """_summary_
 
@@ -342,13 +349,13 @@ def get_annotation_df(
     Returns:
         _type_: _description_
     """
-    get_abundance_df_dict: dict[utils.DataType, Callable[..., pd.DataFrame]] = {
-        utils.DataType.FULL_PROTEOME: cohorts_db.get_protein_abundance_df,
-        utils.DataType.PHOSPHO_PROTEOME: cohorts_db.get_psite_abundance_df,
-        utils.DataType.TRANSCRIPTOMICS: cohorts_db.get_fpkm_df,
-        utils.DataType.KINASE_SCORE: cohorts_db.get_kinase_scores_df,
-        utils.DataType.PHOSPHO_SCORE: cohorts_db.get_phosphorylation_scores_df,
-        utils.DataType.TOPAS_RTK_SCORE: cohorts_db.get_topas_rtk_scores_df,
+    get_abundance_df_dict: dict[DataType, Callable[..., pd.DataFrame]] = {
+        DataType.FULL_PROTEOME: cohorts_db.get_protein_abundance_df,
+        DataType.PHOSPHO_PROTEOME: cohorts_db.get_psite_abundance_df,
+        DataType.TRANSCRIPTOMICS: cohorts_db.get_fpkm_df,
+        DataType.KINASE_SCORE: cohorts_db.get_kinase_scores_df,
+        DataType.PHOSPHO_SCORE: cohorts_db.get_phosphorylation_scores_df,
+        DataType.TOPAS_RTK_SCORE: cohorts_db.get_topas_rtk_scores_df,
     }
 
     if level not in get_abundance_df_dict:
@@ -358,7 +365,7 @@ def get_annotation_df(
     annotation_df = get_abundance_df_dict[level](
         cohort_index,
         extra_columns=extra_columns,
-        include_ref=utils.IncludeRef.INCLUDE_REF,
+        include_ref=IncludeRef.INCLUDE_REF,
     )  # use IncludeRef.INCLUDE_REF to skip expensive filtering step
     extra_columns = [col for col in extra_columns if col in annotation_df.columns]
 
@@ -370,16 +377,16 @@ def get_annotation_df(
 def get_batches_proteins_as_json(
     cohorts_db: data_api.CohortDataAPI,
     cohort_index: int,
-    level: utils.DataType,
+    level: DataType,
     batchlists,
 ):
-    if level == utils.DataType.FULL_PROTEOME:
+    if level == DataType.FULL_PROTEOME:
         df = cohorts_db.get_protein_abundance_df(
-            cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
+            cohort_index, intensity_unit=IntensityUnit.INTENSITY
         )
-    elif level == utils.DataType.PHOSPHO_PROTEOME:
+    elif level == DataType.PHOSPHO_PROTEOME:
         df = cohorts_db.get_psite_abundance_df(
-            cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
+            cohort_index, intensity_unit=IntensityUnit.INTENSITY
         )
     else:
         raise ValueError(f"Cannot compute protein overlap for data type {level.value}")
@@ -400,16 +407,16 @@ def get_batches_proteins_as_json(
 def get_patients_proteins_as_json(
     cohorts_db: data_api.CohortDataAPI,
     cohort_index: int,
-    level: utils.DataType,
+    level: DataType,
     patientslists: str,
 ):
-    if level == utils.DataType.FULL_PROTEOME:
+    if level == DataType.FULL_PROTEOME:
         df = cohorts_db.get_protein_abundance_df(
-            cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
+            cohort_index, intensity_unit=IntensityUnit.INTENSITY
         )
-    elif level == utils.DataType.PHOSPHO_PROTEOME:
+    elif level == DataType.PHOSPHO_PROTEOME:
         df = cohorts_db.get_psite_abundance_df(
-            cohort_index, intensity_unit=utils.IntensityUnit.INTENSITY
+            cohort_index, intensity_unit=IntensityUnit.INTENSITY
         )
     else:
         raise ValueError(f"Cannot compute protein overlap for data type {level.value}")
@@ -444,20 +451,20 @@ def get_list_by_selected_modality_per_cohort(
 
 
 def num_identifications_per_patient(
-    cohorts_db: data_api.CohortDataAPI, cohort_index: int, level: utils.DataType
+    cohorts_db: data_api.CohortDataAPI, cohort_index: int, level: DataType
 ):
     num_ids_df = cohorts_db.get_search_qc_df(cohort_index)
-    if level == utils.DataType.FULL_PROTEOME:
+    if level == DataType.FULL_PROTEOME:
         num_ids_df = num_ids_df[["Proteins_fp"]]
-    elif level == utils.DataType.PHOSPHO_PROTEOME:
+    elif level == DataType.PHOSPHO_PROTEOME:
         num_ids_df = num_ids_df[["Mod_peptides_pp"]]
-    elif level == utils.DataType.FULL_PROTEOME_NUM_PEPTIDES:
+    elif level == DataType.FULL_PROTEOME_NUM_PEPTIDES:
         num_ids_df = num_ids_df[["Mod_peptides_fp"]]
     else:
         raise ValueError(f"Unsupported data type for num identifications {level}")
 
     num_ids_df = num_ids_df.drop(
-        index=num_ids_df.filter(regex=f"^{settings.REF_CHANNEL_PREFIX}", axis=0).index
+        index=num_ids_df.filter(regex=f"^{constants.REF_CHANNEL_PREFIX}", axis=0).index
     )
     num_ids_df = num_ids_df.reset_index()
     num_ids_df = num_ids_df.dropna()
@@ -466,15 +473,15 @@ def num_identifications_per_patient(
 
 
 def summed_intensities_per_patient(
-    cohorts_db: data_api.CohortDataAPI, cohort_index: int, level: utils.DataType
+    cohorts_db: data_api.CohortDataAPI, cohort_index: int, level: DataType
 ):
     """
     Getting the sum of intensities accross all patients for the PP for the Patient centric tab
     """
     summed_intensity_df = cohorts_db.get_search_qc_df(cohort_index)
-    if level == utils.DataType.FULL_PROTEOME:
+    if level == DataType.FULL_PROTEOME:
         summed_intensity_df = summed_intensity_df[["Summed peptide intensity_fp"]]
-    elif level == utils.DataType.PHOSPHO_PROTEOME:
+    elif level == DataType.PHOSPHO_PROTEOME:
         summed_intensity_df = summed_intensity_df[["Summed phosphopeptide intensity"]]
     else:
         raise ValueError(f"Unsupported data type for summed intensity {level}")
@@ -482,7 +489,7 @@ def summed_intensities_per_patient(
     summed_intensity_df: pd.DataFrame = np.log10(summed_intensity_df)
     summed_intensity_df = summed_intensity_df.drop(
         index=summed_intensity_df.filter(
-            regex=f"^{settings.REF_CHANNEL_PREFIX}", axis=0
+            regex=f"^{constants.REF_CHANNEL_PREFIX}", axis=0
         ).index
     )
     summed_intensity_df = summed_intensity_df.reset_index()
@@ -495,7 +502,7 @@ def get_reports_per_patient(
     cohorts_db: data_api.CohortDataAPI,
     cohort_index: int,
     patient: str,
-    level: utils.DataType,
+    level: DataType,
 ):
     return patient_report.get_reports_per_patient(
         cohorts_db, level, cohort_index, patient

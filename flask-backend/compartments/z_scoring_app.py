@@ -1,12 +1,12 @@
 import pandas as pd
 
+from topas_portal.data_type import DataType
+from topas_portal.constants import IntensityUnit
 import topas_portal.fetch_data_matrix as data
 from flask import Blueprint
 from topas_portal.utils import (
     calculate_z_scores,
     df_to_json,
-    DataType,
-    IntensityUnit,
     merge_with_patients_meta_df,
 )
 import db

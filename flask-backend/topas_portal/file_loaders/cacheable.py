@@ -3,11 +3,11 @@ from pathlib import Path
 from functools import wraps
 import pandas as pd
 
-from .. import utils
+from ..data_type import DataType
 from ..config import CohortConfig
 
 
-def cacheable(data_type_key: utils.DataType):
+def cacheable(data_type_key: DataType):
     """
     Decorator to cache loader outputs as Feather files if config['cache_dir'] is set.
     Preserves original index (including MultiIndex) and columns (including MultiIndex).
@@ -48,7 +48,7 @@ def cacheable(data_type_key: utils.DataType):
     return decorator
 
 
-def _get_cache_paths(cohort_name: str, cache_dir: Path, data_type_key: utils.DataType):
+def _get_cache_paths(cohort_name: str, cache_dir: Path, data_type_key: DataType):
     """Return paths for feather file and metadata json."""
     feather_path = cache_dir / cohort_name / f"{data_type_key.value}.feather"
     meta_path = feather_path.with_suffix(".meta.json")

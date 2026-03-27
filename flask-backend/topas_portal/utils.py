@@ -1,8 +1,6 @@
 import os
 import random
 import json
-from enum import Enum
-from io import BytesIO
 import pandas as pd
 import numpy as np
 from flask import Response
@@ -11,49 +9,8 @@ from datetime import datetime
 import re
 
 from topas_portal import settings
-
-# remember to update the corresponding constant in vue-frontend/src/constants.js
-class DataType(str, Enum):
-    FULL_PROTEOME = "protein"
-    FULL_PROTEOME_ANNOTATED = "protein_annotated"
-    FULL_PROTEOME_NUM_PEPTIDES = "num_peptides"
-    PHOSPHO_PROTEOME = "psite"
-    FP_PP = "FP_PP"
-    PHOSPHO_PROTEOME_ANNOTATED = "psite_annotated"
-    PHOSPHO_SCORE = "phospho_score"
-    PHOSPHO_SCORE_PSITE = "phospho_psite"
-    KINASE_SCORE = "kinase"
-    KINASE_SUBSTRATE = "kinase_substrate"
-    TOPAS_KINASE_SCORE = "topas_kinase"
-    TOPAS_KINASE_SUBSTRATE = "topas_kinase_substrate"
-    TOPAS_PHOSPHO_SCORE = "topas_phospho"
-    TOPAS_PHOSPHO_SCORE_PSITE = (
-        "topas_phospho_psite"  # p-sites making up a phosphoprotein score
-    )
-    TOPAS_PROTEIN = "topas_expression"
-    TOPAS_RTK_SCORE = "topas_rtk"
-    TOPAS_CK_SCORE = "topas_ck"
-    TOPAS_SUBSCORE = "topas_subscore"
-    BIOMARKER = "biomarker"
-    REPORT_SUMMARY = "report_summary"
-
-    PATIENT_METADATA = "patients_df"
-    SAMPLE_ANNOTATION = "sample_annotation_df"
-    SEARCH_QC = "search_qc"
-
-    TRANSCRIPTOMICS = "fpkm"
-    GENOMICS = "genomics"
-
-
-class ColumnNames(str, Enum):
-    SAMPLE_NAME = "Sample name"
-    GENE_NAME = "Gene names"
-
-
-class IncludeRef(str, Enum):
-    INCLUDE_REF = "include_ref"
-    EXCLUDE_REF = "exclude_ref"
-    ONLY_REF = "only_ref"
+from topas_portal import constants
+from topas_portal.data_type import DataType
 
 
 def get_selection_list_data_type(level: DataType):
@@ -65,52 +22,11 @@ def get_selection_list_data_type(level: DataType):
         return level
 
 
-class IntensityUnit(str, Enum):
-    INTENSITY = "intensity"
-    Z_SCORE = "z_scored"
-    FOLD_CHANGE = "fc"
-    RANK = "rank"
-    BATCH_RANK = "batchrank"
-    SCORE = "score"
-    IDENTIFICATION_METADATA = "identification_metadata"
-
-
-INTENSITY_UNIT_PREFIXES = {
-    IntensityUnit.Z_SCORE: "zscore_",
-    IntensityUnit.FOLD_CHANGE: "fc_",
-    IntensityUnit.RANK: "rank_",
-    IntensityUnit.BATCH_RANK: "batchrank_",
-    IntensityUnit.IDENTIFICATION_METADATA: "Identification metadata ",
-}
-
-INTENSITY_UNIT_SUFFIXES = {
-    IntensityUnit.INTENSITY: " Intensity",
-    IntensityUnit.Z_SCORE: " Z-score",
-    IntensityUnit.FOLD_CHANGE: " FC",
-    IntensityUnit.RANK: " Rank",
-    IntensityUnit.BATCH_RANK: " BatchRank",
-    IntensityUnit.SCORE: " Score",
-    IntensityUnit.IDENTIFICATION_METADATA: " Identification metadata",
-}
-
-INTENSITY_UNIT_FILE_SUFFIXES = {
-    IntensityUnit.Z_SCORE: "_z",
-    IntensityUnit.FOLD_CHANGE: "_fc",
-    IntensityUnit.RANK: "_rank",
-    IntensityUnit.BATCH_RANK: "_batchrank",
-}
-
-
-class ImputationMode(str, Enum):
-    NO_IMPUTE = "noimpute"
-    IMPUTE = "impute"
-
-
 def add_patient_prefix(patient_list: list[str]):
     return [
         (
-            settings.PATIENT_PREFIX + x
-            if not x.startswith(settings.REF_CHANNEL_PREFIX)
+            constants.PATIENT_PREFIX + x
+            if not x.startswith(constants.REF_CHANNEL_PREFIX)
             else x
         )
         for x in patient_list
@@ -118,25 +34,31 @@ def add_patient_prefix(patient_list: list[str]):
 
 
 def add_identification_metadata_prefix(patient_list: list[str]):
-    return [settings.IDENTIFICATION_METADATA_PREFIX + x for x in patient_list]
+    return [
+        constants.IDENTIFICATION_METADATA_PREFIX + x for x in patient_list
+    ]
 
 
 def remove_patient_prefix(df, from_col=True) -> pd.DataFrame:
     if from_col:
         try:
-            df.columns = df.columns.str.replace(settings.PATIENT_PREFIX, "", regex=True)
+            df.columns = df.columns.str.replace(
+                constants.PATIENT_PREFIX, "", regex=True
+            )
         except:
             pass
     else:
         try:
-            df.index = df.index.str.replace(settings.PATIENT_PREFIX, "", regex=True)
+            df.index = df.index.str.replace(
+                constants.PATIENT_PREFIX, "", regex=True
+            )
         except:
             pass
 
         if "Sample name" in df.columns or "sample" in df.columns:
             try:
                 df["Sample name"] = df["Sample name"].str.replace(
-                    settings.PATIENT_PREFIX, "", regex=True
+                    constants.PATIENT_PREFIX, "", regex=True
                 )
             except:
                 pass
@@ -511,9 +433,10 @@ def whitespace_remover(df: pd.DataFrame) -> pd.DataFrame:
             pass
     return df
 
+
 def to_snake_case(text):
     text = text.lower()
-    text = re.sub(r'[^a-z0-9]+', '_', text)
-    text = re.sub(r'_+', '_', text)
-    text = text.strip('_')
+    text = re.sub(r"[^a-z0-9]+", "_", text)
+    text = re.sub(r"_+", "_", text)
+    text = text.strip("_")
     return text

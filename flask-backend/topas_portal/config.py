@@ -2,10 +2,12 @@ import json
 from pathlib import Path
 
 from topas_portal import settings
-from topas_portal import utils
 
 # imports just for type hints
 from logger import CohortLogger
+from topas_portal.data_type import DataType
+from topas_portal.constants import IntensityUnit
+from topas_portal import constants
 
 
 def get_config_path():
@@ -136,14 +138,14 @@ class CohortConfig:
         fp_data_paths = [self.get_fp_annotated_intensity_path(cohort_name)]
         report_dir = self.get_report_directory(cohort_name)
         for intensity_unit in [
-            utils.IntensityUnit.FOLD_CHANGE,
-            utils.IntensityUnit.Z_SCORE,
-            utils.IntensityUnit.RANK,
-            utils.IntensityUnit.BATCH_RANK,
+            IntensityUnit.FOLD_CHANGE,
+            IntensityUnit.Z_SCORE,
+            IntensityUnit.RANK,
+            IntensityUnit.BATCH_RANK,
         ]:
             fp_data_paths.append(
                 report_dir
-                / f"full_proteome_measures{utils.INTENSITY_UNIT_FILE_SUFFIXES[intensity_unit]}.tsv"
+                / f"full_proteome_measures{constants.INTENSITY_UNIT_FILE_SUFFIXES[intensity_unit]}.tsv"
             )
         return tuple(fp_data_paths)
 
@@ -160,14 +162,14 @@ class CohortConfig:
         pp_data_paths = [self.get_pp_annotated_intensity_path(cohort_name)]
         report_dir = self.get_report_directory(cohort_name)
         for intensity_unit in [
-            utils.IntensityUnit.FOLD_CHANGE,
-            utils.IntensityUnit.Z_SCORE,
-            utils.IntensityUnit.RANK,
-            utils.IntensityUnit.BATCH_RANK,
+            IntensityUnit.FOLD_CHANGE,
+            IntensityUnit.Z_SCORE,
+            IntensityUnit.RANK,
+            IntensityUnit.BATCH_RANK,
         ]:
             pp_data_paths.append(
                 report_dir
-                / f"phospho_measures{utils.INTENSITY_UNIT_FILE_SUFFIXES[intensity_unit]}.tsv"
+                / f"phospho_measures{constants.INTENSITY_UNIT_FILE_SUFFIXES[intensity_unit]}.tsv"
             )
         return tuple(pp_data_paths)
 
@@ -212,12 +214,12 @@ class CohortConfig:
         ]
         report_dir = self.get_report_directory(cohort_name)
         for intensity_unit in [
-            utils.IntensityUnit.RANK,
-            utils.IntensityUnit.BATCH_RANK,
+            IntensityUnit.RANK,
+            IntensityUnit.BATCH_RANK,
         ]:
             protein_phos_data_paths.append(
                 report_dir
-                / f"phospho_score_measures{utils.INTENSITY_UNIT_FILE_SUFFIXES[intensity_unit]}.tsv"
+                / f"phospho_score_measures{constants.INTENSITY_UNIT_FILE_SUFFIXES[intensity_unit]}.tsv"
             )
         return tuple(protein_phos_data_paths)
 
@@ -236,19 +238,17 @@ class CohortConfig:
     def get_drug_annotation_path(self) -> Path:
         return Path(self.config["drug_annotation_path"])
 
-    def get_input_file_paths(
-        self, cohort_name: str, data_type: utils.DataType
-    ) -> list[Path]:
+    def get_input_file_paths(self, cohort_name: str, data_type: DataType) -> list[Path]:
         """For the caching functionality"""
         input_file_dict = {
-            utils.DataType.TRANSCRIPTOMICS: self.get_transcriptomics_paths,
-            utils.DataType.GENOMICS: self.get_genomics_path,
-            utils.DataType.FULL_PROTEOME: self.get_fp_data_paths,
-            utils.DataType.PHOSPHO_PROTEOME: self.get_pp_data_paths,
-            utils.DataType.TOPAS_RTK_SCORE: self.get_topas_rtk_scores_paths,
-            utils.DataType.TOPAS_CK_SCORE: self.get_topas_ck_scores_path,
-            utils.DataType.KINASE_SCORE: self.get_topas_substrate_phos_paths,
-            utils.DataType.PHOSPHO_SCORE: self.get_protein_phos_data_paths,
+            DataType.TRANSCRIPTOMICS: self.get_transcriptomics_paths,
+            DataType.GENOMICS: self.get_genomics_path,
+            DataType.FULL_PROTEOME: self.get_fp_data_paths,
+            DataType.PHOSPHO_PROTEOME: self.get_pp_data_paths,
+            DataType.TOPAS_RTK_SCORE: self.get_topas_rtk_scores_paths,
+            DataType.TOPAS_CK_SCORE: self.get_topas_ck_scores_path,
+            DataType.KINASE_SCORE: self.get_topas_substrate_phos_paths,
+            DataType.PHOSPHO_SCORE: self.get_protein_phos_data_paths,
         }
         input_files = input_file_dict[data_type](cohort_name)
         if isinstance(input_files, tuple):
@@ -263,4 +263,3 @@ class CohortConfig:
 
     def get_report_template_pptx(self) -> Path:
         return Path(self.config["report_template_pptx_path"])
-        

@@ -1,53 +1,54 @@
-from . import utils
+from topas_portal.data_type import DataType
+from topas_portal.constants import IntensityUnit
 
 
 # the first 5 are used for heatmaps of TOPAS subscore components, the last 2 are used for PCA/UMAP
 TOPAS_LEVEL_MAPPING = {
-    utils.DataType.TOPAS_KINASE_SCORE: {
-        "data_level": utils.DataType.KINASE_SCORE,
-        "scoring_rule_level": utils.DataType.KINASE_SCORE,
+    DataType.TOPAS_KINASE_SCORE: {
+        "data_level": DataType.KINASE_SCORE,
+        "scoring_rule_level": DataType.KINASE_SCORE,
     },
-    utils.DataType.TOPAS_KINASE_SUBSTRATE: {
-        "data_level": utils.DataType.KINASE_SUBSTRATE,
-        "scoring_rule_level": utils.DataType.KINASE_SCORE,
+    DataType.TOPAS_KINASE_SUBSTRATE: {
+        "data_level": DataType.KINASE_SUBSTRATE,
+        "scoring_rule_level": DataType.KINASE_SCORE,
     },
-    utils.DataType.TOPAS_PHOSPHO_SCORE: {
-        "data_level": utils.DataType.PHOSPHO_SCORE,
-        "scoring_rule_level": utils.DataType.PHOSPHO_SCORE,
+    DataType.TOPAS_PHOSPHO_SCORE: {
+        "data_level": DataType.PHOSPHO_SCORE,
+        "scoring_rule_level": DataType.PHOSPHO_SCORE,
     },
-    utils.DataType.TOPAS_PHOSPHO_SCORE_PSITE: {
-        "data_level": utils.DataType.PHOSPHO_SCORE_PSITE,
-        "scoring_rule_level": utils.DataType.PHOSPHO_SCORE,
+    DataType.TOPAS_PHOSPHO_SCORE_PSITE: {
+        "data_level": DataType.PHOSPHO_SCORE_PSITE,
+        "scoring_rule_level": DataType.PHOSPHO_SCORE,
     },
-    utils.DataType.TOPAS_PROTEIN: {
-        "data_level": utils.DataType.FULL_PROTEOME,
-        "scoring_rule_level": utils.DataType.FULL_PROTEOME,
+    DataType.TOPAS_PROTEIN: {
+        "data_level": DataType.FULL_PROTEOME,
+        "scoring_rule_level": DataType.FULL_PROTEOME,
     },
-    utils.DataType.FULL_PROTEOME_ANNOTATED: {
-        "data_level": utils.DataType.FULL_PROTEOME,
-        "scoring_rule_level": utils.DataType.FULL_PROTEOME,
+    DataType.FULL_PROTEOME_ANNOTATED: {
+        "data_level": DataType.FULL_PROTEOME,
+        "scoring_rule_level": DataType.FULL_PROTEOME,
     },
-    utils.DataType.PHOSPHO_PROTEOME_ANNOTATED: {
-        "data_level": utils.DataType.PHOSPHO_PROTEOME,
-        "scoring_rule_level": utils.DataType.PHOSPHO_PROTEOME,
-    }
+    DataType.PHOSPHO_PROTEOME_ANNOTATED: {
+        "data_level": DataType.PHOSPHO_PROTEOME,
+        "scoring_rule_level": DataType.PHOSPHO_PROTEOME,
+    },
 }
 
 TOPAS_SCORING_RULES = {
-    utils.DataType.FULL_PROTEOME: "highest z-score",
-    utils.DataType.PHOSPHO_SCORE: "highest protein phosphorylation score (2nd level z-score, FH)",
-    utils.DataType.KINASE_SCORE: "highest kinase score (2nd level z-score, FH)",
-    utils.DataType.PHOSPHO_PROTEOME: "highest z-score (p-site)",
+    DataType.FULL_PROTEOME: "highest z-score",
+    DataType.PHOSPHO_SCORE: "highest protein phosphorylation score (2nd level z-score, FH)",
+    DataType.KINASE_SCORE: "highest kinase score (2nd level z-score, FH)",
+    DataType.PHOSPHO_PROTEOME: "highest z-score (p-site)",
 }
 
 TOPAS_DIFFERENTIAL_INTENSITY_UNITS = {
-    utils.DataType.TOPAS_RTK_SCORE: utils.IntensityUnit.SCORE,
-    utils.DataType.KINASE_SCORE: utils.IntensityUnit.Z_SCORE,
-    utils.DataType.PHOSPHO_SCORE: utils.IntensityUnit.Z_SCORE,
-    utils.DataType.FULL_PROTEOME: utils.IntensityUnit.INTENSITY,
-    utils.DataType.PHOSPHO_PROTEOME: utils.IntensityUnit.INTENSITY,
-    utils.DataType.TRANSCRIPTOMICS: utils.IntensityUnit.INTENSITY,
-    utils.DataType.KINASE_SUBSTRATE: utils.IntensityUnit.INTENSITY,
+    DataType.TOPAS_RTK_SCORE: IntensityUnit.SCORE,
+    DataType.KINASE_SCORE: IntensityUnit.Z_SCORE,
+    DataType.PHOSPHO_SCORE: IntensityUnit.Z_SCORE,
+    DataType.FULL_PROTEOME: IntensityUnit.INTENSITY,
+    DataType.PHOSPHO_PROTEOME: IntensityUnit.INTENSITY,
+    DataType.TRANSCRIPTOMICS: IntensityUnit.INTENSITY,
+    DataType.KINASE_SUBSTRATE: IntensityUnit.INTENSITY,
 }
 
 # the following topas names should be changed as exception as below to aavoid problems in fronend

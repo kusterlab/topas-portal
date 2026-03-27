@@ -6,6 +6,11 @@ from typing import TYPE_CHECKING
 import pandas as pd
 
 from topas_portal import utils
+from topas_portal.data_type import DataType
+from topas_portal.constants import (
+    IntensityUnit,
+    IncludeRef,
+)
 import topas_portal.topas_scores_meta as topas
 
 if TYPE_CHECKING:
@@ -15,11 +20,11 @@ if TYPE_CHECKING:
 def fetch_data_matrix_with_sample_annotations(
     cohorts_db: data_api.CohortDataAPI,
     cohort_index: str,
-    level: utils.DataType,
+    level: DataType,
     identifiers: list[str],
     sample_ids: list[str],
-    intensity_unit: utils.IntensityUnit = utils.IntensityUnit.Z_SCORE,
-    include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+    intensity_unit: IntensityUnit = IntensityUnit.Z_SCORE,
+    include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
 ) -> pd.DataFrame:
     z_scores_df = fetch_data_matrix(
         cohorts_db=cohorts_db,
@@ -40,56 +45,56 @@ def fetch_data_matrix_with_sample_annotations(
 def fetch_data_matrix(
     cohorts_db: data_api.CohortDataAPI,
     cohort_index: str,
-    level: utils.DataType,
+    level: DataType,
     identifiers: list[str] | None = None,
-    intensity_unit: utils.IntensityUnit = utils.IntensityUnit.Z_SCORE,
-    include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+    intensity_unit: IntensityUnit = IntensityUnit.Z_SCORE,
+    include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
 ) -> pd.DataFrame:
     if level in topas.TOPAS_LEVEL_MAPPING:
         topas_df = cohorts_db.get_topas_annotation_df()
         level, identifiers = _update_level_and_identifiers(topas_df, level, identifiers)
 
     # TODO: refactor using prexp_preprocess.get_abundance()
-    if level == utils.DataType.FULL_PROTEOME:
+    if level == DataType.FULL_PROTEOME:
         df = cohorts_db.get_protein_abundance_df(
             cohort_index, intensity_unit=intensity_unit, include_ref=include_ref
         )
-    elif level == utils.DataType.PHOSPHO_PROTEOME:
+    elif level == DataType.PHOSPHO_PROTEOME:
         df = cohorts_db.get_psite_abundance_df(
             cohort_index, intensity_unit=intensity_unit, include_ref=include_ref
         )
-    elif level == utils.DataType.KINASE_SCORE:
+    elif level == DataType.KINASE_SCORE:
         df = cohorts_db.get_kinase_scores_df(
             cohort_index, intensity_unit=intensity_unit
         )
-    elif level == utils.DataType.PHOSPHO_SCORE:
+    elif level == DataType.PHOSPHO_SCORE:
         df = cohorts_db.get_phosphorylation_scores_df(
             cohort_index, intensity_unit=intensity_unit
         )
-    elif level == utils.DataType.PHOSPHO_SCORE_PSITE:
+    elif level == DataType.PHOSPHO_SCORE_PSITE:
         df, identifiers = _get_phosphorylation_psite_df(
             cohorts_db.get_psite_abundance_df(cohort_index),
             identifiers,
         )
-    elif level == utils.DataType.KINASE_SUBSTRATE:
+    elif level == DataType.KINASE_SUBSTRATE:
         df, identifiers = _get_kinase_substrates_df(
             cohorts_db.get_psite_abundance_df(cohort_index),
             identifiers,
         )
-    elif level == utils.DataType.TOPAS_CK_SCORE:
+    elif level == DataType.TOPAS_CK_SCORE:
         df = cohorts_db.get_topas_ck_scores_df(
             cohort_index, intensity_unit=intensity_unit
         )
-    elif level == utils.DataType.TOPAS_RTK_SCORE:
+    elif level == DataType.TOPAS_RTK_SCORE:
         df = cohorts_db.get_topas_rtk_scores_df(
             cohort_index, intensity_unit=intensity_unit
         )
-    elif level == utils.DataType.TRANSCRIPTOMICS:
+    elif level == DataType.TRANSCRIPTOMICS:
         df = cohorts_db.get_fpkm_df(intensity_unit=intensity_unit)
     else:
         raise ValueError(f"Unknown data layer for fetch_data_matrix: {level.value}.")
 
-    if level == utils.DataType.TRANSCRIPTOMICS:
+    if level == DataType.TRANSCRIPTOMICS:
         # Unnest the protein_groups A;B as two separate rows with the same values
         df = utils.unnest_proteingroups(df)
 
@@ -100,7 +105,7 @@ def fetch_data_matrix(
 
 
 def _update_level_and_identifiers(
-    topas_df: pd.DataFrame, level: utils.DataType, identifiers: list[str]
+    topas_df: pd.DataFrame, level: DataType, identifiers: list[str]
 ):
     scoring_rule_level = topas.TOPAS_LEVEL_MAPPING[level]["scoring_rule_level"]
     level = topas.TOPAS_LEVEL_MAPPING[level]["data_level"]
@@ -180,7 +185,7 @@ def _merge_with_sample_annotation_df(
 def _get_topas_proteins(
     topas_annotation_df: pd.DataFrame,
     topas_names: list[str] | None,
-    level: utils.DataType,
+    level: DataType,
 ) -> list:
     """
     Gives the list of the protein based on the given criteria
@@ -204,7 +209,7 @@ def _get_topas_proteins(
     )
 
     identifier_column = "GENE NAME"
-    if level == utils.DataType.PHOSPHO_PROTEOME:
+    if level == DataType.PHOSPHO_PROTEOME:
         identifier_column = "MODIFIED SEQUENCE"
 
     topas_proteins = topas_proteins[topas_proteins["SCORING RULE"] == scoring_rule]

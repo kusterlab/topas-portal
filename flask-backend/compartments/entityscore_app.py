@@ -5,7 +5,11 @@ from flask import Blueprint, jsonify
 
 import db
 from topas_portal import utils
-from topas_portal import settings 
+from topas_portal.constants import (
+    IntensityUnit,
+    ColumnNames,
+)
+
 
 
 entityscore_page = Blueprint(
@@ -39,7 +43,7 @@ def get_the_probalities_df(df_Z_scores_clean,final_models):
             continue
         
     ref_model_df = ref_model_df.round(3)
-    return ref_model_df.rename(columns={utils.ColumnNames.GENE_NAME:utils.ColumnNames.SAMPLE_NAME})
+    return ref_model_df.rename(columns={ColumnNames.GENE_NAME:ColumnNames.SAMPLE_NAME})
 
 
 
@@ -179,10 +183,10 @@ def clean_df (intensity_df:pd.DataFrame, metadata_df:pd.DataFrame ):
     intensity_df.reset_index(inplace=True)
     intensity_df = intensity_df.rename(columns=intensity_df.iloc[0]).drop([0])
     #return intensity_df
-    metadata_df = metadata_df[[utils.ColumnNames.SAMPLE_NAME, "code_oncotree"]] #Selection of columns for later concatenate
-    intensity_df[utils.ColumnNames.GENE_NAME] = intensity_df[utils.ColumnNames.GENE_NAME].str.replace('pat_','',regex=True)
-    df_merged = metadata_df.merge(intensity_df, left_on=utils.ColumnNames.SAMPLE_NAME, right_on=utils.ColumnNames.GENE_NAME) #merging both data sets by Sample Name
-    df_merged.drop(utils.ColumnNames.GENE_NAME, axis=1, inplace=True)
+    metadata_df = metadata_df[[ColumnNames.SAMPLE_NAME, "code_oncotree"]] #Selection of columns for later concatenate
+    intensity_df[ColumnNames.GENE_NAME] = intensity_df[ColumnNames.GENE_NAME].str.replace('pat_','',regex=True)
+    df_merged = metadata_df.merge(intensity_df, left_on=ColumnNames.SAMPLE_NAME, right_on=ColumnNames.GENE_NAME) #merging both data sets by Sample Name
+    df_merged.drop(ColumnNames.GENE_NAME, axis=1, inplace=True)
     return df_merged
 
 
@@ -243,19 +247,19 @@ def get_list_classifiers():
 def get_entity_scores_cohort(cohort_ind):
     """"""
 
-    df_Z_scores = cohorts_db.get_protein_abundance_df(cohort_ind,intensity_unit=utils.IntensityUnit.Z_SCORE)
-    df_Z_scores[utils.ColumnNames.GENE_NAME] = df_Z_scores.index
-    first_column = df_Z_scores.pop(utils.ColumnNames.GENE_NAME) 
-    df_Z_scores.insert(0, utils.ColumnNames.GENE_NAME, first_column) 
+    df_Z_scores = cohorts_db.get_protein_abundance_df(cohort_ind,intensity_unit=IntensityUnit.Z_SCORE)
+    df_Z_scores[ColumnNames.GENE_NAME] = df_Z_scores.index
+    first_column = df_Z_scores.pop(ColumnNames.GENE_NAME) 
+    df_Z_scores.insert(0, ColumnNames.GENE_NAME, first_column) 
     df_Z_scores.reset_index(drop=True, inplace=True)
 
     df_ent_ = cohorts_db.get_patient_metadata_df(cohort_ind)
     df_Z_scores_clean, final_models = run_preprocessing_pipeline(df_Z_scores,FINAL_MODELS_PICKLE)
     all_probalities = get_the_probalities_df(df_Z_scores_clean,final_models)
     all_probalities = all_probalities.fillna(0)
-    all_probalities[utils.ColumnNames.SAMPLE_NAME] = all_probalities[utils.ColumnNames.SAMPLE_NAME].str.replace(settings.PATIENT_PREFIX,'',regex=True)
+    all_probalities[ColumnNames.SAMPLE_NAME] = all_probalities[ColumnNames.SAMPLE_NAME].str.replace(PATIENT_PREFIX,'',regex=True)
     try:
-        final_df = all_probalities.merge(df_ent_[[utils.ColumnNames.SAMPLE_NAME,'code_oncotree']],on=utils.ColumnNames.SAMPLE_NAME)
+        final_df = all_probalities.merge(df_ent_[[ColumnNames.SAMPLE_NAME,'code_oncotree']],on=ColumnNames.SAMPLE_NAME)
     except:
         final_df = all_probalities  # in case code_oncotree does not exist in the data
     list_cols_to_exclude = ['EPIS','DDLS','MPNS','MFH'] # these classifiers are not reliable

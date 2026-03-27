@@ -16,7 +16,7 @@ from topas_portal.data_api.exceptions import (
     CohortDataNotLoadedError,
     DataLayerUnavailableError,
 )
-from topas_portal import utils
+from topas_portal.data_type import DataType
 from . import table_loaders
 import topas_portal.file_loaders.topas as topas_loader
 import topas_portal.file_loaders.transcriptomics as tp
@@ -29,15 +29,15 @@ if TYPE_CHECKING:
 
 # in memory dataframes for each cohort
 DICT_ALL_DATA = {
-    utils.DataType.PATIENT_METADATA: [],
-    utils.DataType.SAMPLE_ANNOTATION: [],
-    utils.DataType.PHOSPHO_PROTEOME: [],
-    utils.DataType.FULL_PROTEOME: [],
-    utils.DataType.TOPAS_RTK_SCORE: [],
-    utils.DataType.TOPAS_CK_SCORE: [],
-    utils.DataType.KINASE_SCORE: [],
-    utils.DataType.PHOSPHO_SCORE: [],
-    utils.DataType.SEARCH_QC: [],
+    DataType.PATIENT_METADATA: [],
+    DataType.SAMPLE_ANNOTATION: [],
+    DataType.PHOSPHO_PROTEOME: [],
+    DataType.FULL_PROTEOME: [],
+    DataType.TOPAS_RTK_SCORE: [],
+    DataType.TOPAS_CK_SCORE: [],
+    DataType.KINASE_SCORE: [],
+    DataType.PHOSPHO_SCORE: [],
+    DataType.SEARCH_QC: [],
 }
 
 SHARED_COHORT = "shared"
@@ -153,9 +153,9 @@ class InMemoryProvider:
         self.logger.log_message("oncoKB annotations data loaded")
 
     def get_dataframe(
-        self, cohort_index: Union[str, None], data_layer: utils.DataType
+        self, cohort_index: Union[str, None], data_layer: DataType
     ) -> pd.DataFrame:
-        if data_layer == utils.DataType.TRANSCRIPTOMICS:
+        if data_layer == DataType.TRANSCRIPTOMICS:
             df = self.FPKM
         else:
             if int(cohort_index) >= len(self.dict_all_data[data_layer]):

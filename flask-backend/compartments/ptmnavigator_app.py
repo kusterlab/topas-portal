@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
-from topas_portal import settings, differential_expression as differential_test, utils
+from topas_portal import settings, differential_expression as differential_test
+from topas_portal.data_type import DataType
 from routes import PtmNavigatorApiRoutes
 from db import cohorts_db, mongodb
 from repositories.pathway import PathwayRepository
@@ -59,7 +60,7 @@ def get_enrichments(cohort_index: str, grp_ind: str):
             cohort_index,
             grp_ind,
             "index",
-            utils.DataType.FULL_PROTEOME,
+            DataType.FULL_PROTEOME,
             "p_values",
         )
         data_list = []

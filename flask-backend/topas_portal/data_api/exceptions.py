@@ -1,4 +1,5 @@
-from .. import utils
+from topas_portal.data_type import DataType
+from topas_portal.constants import IntensityUnit
 
 
 class CohortDataNotLoadedError(Exception):
@@ -12,7 +13,7 @@ class CohortDataNotLoadedError(Exception):
 class DataLayerUnavailableError(Exception):
     """Exception raised when specific data layer is unavailable for a cohort."""
 
-    def __init__(self, data_layer: utils.DataType):
+    def __init__(self, data_layer: DataType):
         self.message = (
             f"Try reloading the data layer '{data_layer}' for the current cohort."
         )
@@ -22,6 +23,6 @@ class DataLayerUnavailableError(Exception):
 class IntensityUnitUnavailableError(Exception):
     """Exception raised when specific intensity unit is unavailable for a cohort."""
 
-    def __init__(self, intensity_unit: utils.IntensityUnit):
+    def __init__(self, intensity_unit: IntensityUnit):
         self.message = f"Make sure intensity unit '{intensity_unit}' is available for your data layer for the current cohort."
         super().__init__(self.message)

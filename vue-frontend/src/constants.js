@@ -1,11 +1,12 @@
-// this mirrors the DataType Enum in flask-backend/bin/utils.py
+// this is an automatically generated file that mirrors the enums in flask-backend/topas_portal/constants.py
 
 export const DataType = Object.freeze({
   FULL_PROTEOME: 'protein',
   FULL_PROTEOME_ANNOTATED: 'protein_annotated',
-  PHOSPHO_PROTEOME: 'psite',
-  PHOSPHO_PROTEOME_ANNOTATED: 'psite_annotated',
   FULL_PROTEOME_NUM_PEPTIDES: 'num_peptides',
+  PHOSPHO_PROTEOME: 'psite',
+  FP_PP: 'FP_PP',
+  PHOSPHO_PROTEOME_ANNOTATED: 'psite_annotated',
   PHOSPHO_SCORE: 'phospho_score',
   PHOSPHO_SCORE_PSITE: 'phospho_psite',
   KINASE_SCORE: 'kinase',
@@ -17,22 +18,32 @@ export const DataType = Object.freeze({
   TOPAS_PROTEIN: 'topas_expression',
   TOPAS_RTK_SCORE: 'topas_rtk',
   TOPAS_CK_SCORE: 'topas_ck',
-  TRANSCRIPTOMICS: 'fpkm',
   TOPAS_SUBSCORE: 'topas_subscore',
   BIOMARKER: 'biomarker',
   REPORT_SUMMARY: 'report_summary',
+  PATIENT_METADATA: 'patients_df',
+  SAMPLE_ANNOTATION: 'sample_annotation_df',
   SEARCH_QC: 'search_qc',
-  FP_PP: 'FP_PP'
+  TRANSCRIPTOMICS: 'fpkm',
+  GENOMICS: 'genomics'
 })
 
-export const IncludeRef = Object.freeze({
-  INCLUDE_REF: 'include_ref',
-  EXCLUDE_REF: 'exclude_ref'
+
+export const ColumnNames = Object.freeze({
+  SAMPLE_NAME: 'Sample name',
+  GENE_NAME: 'Gene names'
 })
+
 
 export const ImputationMode = Object.freeze({
   NO_IMPUTE: 'noimpute',
   IMPUTE: 'impute'
+})
+
+export const IncludeRef = Object.freeze({
+  INCLUDE_REF: 'include_ref',
+  EXCLUDE_REF: 'exclude_ref',
+  ONLY_REF: 'only_ref'
 })
 
 export const IntensityUnit = Object.freeze({
@@ -44,3 +55,4 @@ export const IntensityUnit = Object.freeze({
   SCORE: 'score',
   IDENTIFICATION_METADATA: 'identification_metadata'
 })
+

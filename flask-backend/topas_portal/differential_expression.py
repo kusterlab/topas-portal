@@ -10,6 +10,7 @@ from statsmodels.stats.multitest import fdrcorrection
 
 from topas_portal import utils
 from topas_portal import settings
+from topas_portal.data_type import DataType
 import topas_portal.fetch_data_matrix as data
 import topas_portal.topas_scores_meta as topas
 
@@ -22,7 +23,7 @@ def get_data_for_t_test(
     cohort_index: str,
     grp1_indexes: str,
     grp2_indexes: str,
-    level: utils.DataType,
+    level: DataType,
     y_axis_type: str,
 ):
     """
@@ -97,7 +98,7 @@ def get_data_for_t_test(
     t_test_df = t_test_df.dropna()
 
     # adding psite_annotation for the PP data
-    if level == utils.DataType.PHOSPHO_PROTEOME:
+    if level == DataType.PHOSPHO_PROTEOME:
         t_test_df = _add_PSP_annotation(cohorts_db, t_test_df, cohort_index)
 
     return t_test_df
@@ -205,7 +206,7 @@ def _preparare_input_for_t_test(
     cohorts_db: data_api.CohortDataAPI,
     cohort_index: str,
     patients_list: list[str],
-    level: utils.DataType,
+    level: DataType,
 ):
     """
     Prepares input data for performing a t-test by fetching relevant data matrices.

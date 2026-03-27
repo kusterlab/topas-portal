@@ -6,8 +6,9 @@ import random
 import pandas as pd
 
 from topas_portal import settings
-from topas_portal import utils
+from topas_portal import constants
 from topas_portal import config
+from topas_portal.data_type import DataType
 from topas_portal.databases import table_loaders
 
 
@@ -24,15 +25,15 @@ def check_integretability_cohort(cohort):
     configs = config.load(settings.PORTAL_CONFIG_FILE)
     try:
         all_data = table_loaders.load_all_tables(cohort, configs)
-        if len(all_data[utils.DataType.PATIENT_METADATA].columns) > 0 & set(
-            all_data[utils.DataType.PATIENT_METADATA].columns
+        if len(all_data[DataType.PATIENT_METADATA].columns) > 0 & set(
+            all_data[DataType.PATIENT_METADATA].columns
         ).issubset(settings.PATIENTS_META_DATA):
             final_msg.append(f"{cohort}:The patients_meta_data_columns_matching")
         else:
             final_msg.append(f"{cohort}:The columns mismatch in patients data")
 
-        if len(all_data[utils.DataType.SAMPLE_ANNOTATION].columns) > 0 & set(
-            all_data[utils.DataType.SAMPLE_ANNOTATION].columns
+        if len(all_data[DataType.SAMPLE_ANNOTATION].columns) > 0 & set(
+            all_data[DataType.SAMPLE_ANNOTATION].columns
         ).issubset(settings.SAMPLE_ANNOTATION):
             final_msg.append(f"{cohort}:The sample_annotation_data_columns_matching")
         else:
@@ -40,24 +41,24 @@ def check_integretability_cohort(cohort):
 
         num_patients = str(
             len(
-                all_data[utils.DataType.PHOSPHO_SCORE]
-                .filter(regex=settings.Z_SCORE_REGEX)
+                all_data[DataType.PHOSPHO_SCORE]
+                .filter(regex=constants.Z_SCORE_REGEX)
                 .columns
             )
         )
         final_msg.append(f"Number_patients_in_phospho_scores:{num_patients}")
         num_patients = str(
             len(
-                all_data[utils.DataType.PHOSPHO_PROTEOME]
-                .filter(regex=settings.Z_SCORE_REGEX)
+                all_data[DataType.PHOSPHO_PROTEOME]
+                .filter(regex=constants.Z_SCORE_REGEX)
                 .columns
             )
         )
         final_msg.append(f"Number_patients_in_pp_df_patientes:{num_patients}")
         num_patients = str(
             len(
-                all_data[utils.DataType.FULL_PROTEOME]
-                .filter(regex=settings.Z_SCORE_REGEX)
+                all_data[DataType.FULL_PROTEOME]
+                .filter(regex=constants.Z_SCORE_REGEX)
                 .columns
             )
         )
@@ -99,14 +100,14 @@ def z_score_checker(PORTAL_CONFIG_FILE, LOCAL_HTTTP, cohort, protein_name="EGFR"
     random_index_patient = random.randint(0, len(expresison_z_scores) - 1)
     patient_sample_name = expresison_z_scores[random_index_patient]["Sample name"]
     portal_z_score = expresison_z_scores[random_index_patient]["Z-score"]
-    patient_sample_name = f"zscore_{settings.PATIENT_PREFIX}{patient_sample_name}"
+    patient_sample_name = f"zscore_{constants.PATIENT_PREFIX}{patient_sample_name}"
     pipeline_data = pd.read_csv(
         f"{report_dir}/full_proteome_measures_z.tsv",
-        usecols=[settings.FP_KEY, patient_sample_name],
+        usecols=[constants.FP_KEY, patient_sample_name],
         sep="\t",
     )
     pipeline_z_score = pipeline_data[patient_sample_name][
-        pipeline_data[settings.FP_KEY] == protein_name
+        pipeline_data[constants.FP_KEY] == protein_name
     ]
     # pipeline_z_score = pd.to_numeric(pipeline_z_score,errors='coerce')
     print(type(pipeline_z_score))
@@ -135,7 +136,7 @@ def topas_score_checker(PORTAL_CONFIG_FILE, LOCAL_HTTTP, cohort, topas_name="ABL
     topas_z_scores = endpoint_reader(LOCAL_HTTTP, endpoint=end_point)
     random_index_patient = random.randint(0, len(topas_z_scores) - 1)
     patient_sample_name = topas_z_scores[random_index_patient]["Sample name"]
-    patient_sample_name = f"{settings.PATIENT_PREFIX}{patient_sample_name}"
+    patient_sample_name = f"{constants.PATIENT_PREFIX}{patient_sample_name}"
     portal_z_score = topas_z_scores[random_index_patient]["Z-score"]
     topas_scores = os.path.join(report_dir, settings.TOPAS_RTK_SCORES_FILE)
     topas_scores_df = pd.read_csv(topas_scores, sep="\t", index_col="Sample")

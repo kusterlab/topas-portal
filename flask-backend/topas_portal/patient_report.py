@@ -4,8 +4,12 @@ from typing import TYPE_CHECKING, Callable
 
 import pandas as pd
 
-from topas_portal import utils
 from topas_portal import settings
+from topas_portal.data_type import DataType
+from topas_portal.constants import (
+    IntensityUnit,
+    IncludeRef,
+)
 import topas_portal.topas_preprocess as topas_loader
 
 if TYPE_CHECKING:
@@ -14,19 +18,19 @@ if TYPE_CHECKING:
 
 def get_reports_per_patient(
     cohorts_db: data_api.CohortDataAPI,
-    level: utils.DataType,
+    level: DataType,
     cohort_index: int,
     patient: str,
 ) -> pd.DataFrame:
     level_func_map = {
-        utils.DataType.REPORT_SUMMARY: _report_summary,
-        utils.DataType.PHOSPHO_PROTEOME: _phospho_proteome,
-        utils.DataType.FULL_PROTEOME: _full_proteome,
-        utils.DataType.TOPAS_RTK_SCORE: _topas_rtk_score,
-        utils.DataType.TOPAS_CK_SCORE: _topas_ck_score,
-        utils.DataType.KINASE_SCORE: _kinase_score,
-        utils.DataType.PHOSPHO_SCORE: _phospho_score,
-        utils.DataType.TRANSCRIPTOMICS: _transcriptomics,
+        DataType.REPORT_SUMMARY: _report_summary,
+        DataType.PHOSPHO_PROTEOME: _phospho_proteome,
+        DataType.FULL_PROTEOME: _full_proteome,
+        DataType.TOPAS_RTK_SCORE: _topas_rtk_score,
+        DataType.TOPAS_CK_SCORE: _topas_ck_score,
+        DataType.KINASE_SCORE: _kinase_score,
+        DataType.PHOSPHO_SCORE: _phospho_score,
+        DataType.TRANSCRIPTOMICS: _transcriptomics,
     }
 
     # Call the corresponding function or return empty DataFrame if level not found
@@ -48,7 +52,7 @@ def _report_summary(
 
     # proteins of interest
     fp_df = _full_proteome(
-        cohorts_db, cohort_index, patient, intensity_units=[utils.IntensityUnit.Z_SCORE]
+        cohorts_db, cohort_index, patient, intensity_units=[IntensityUnit.Z_SCORE]
     )
     fp_df = fp_df.reset_index(drop=True)
 
@@ -71,7 +75,7 @@ def _phospho_proteome(
     cohorts_db: data_api.CohortDataAPI,
     cohort_index: int,
     patient: str,
-    intensity_units: list[utils.IntensityUnit] = None,
+    intensity_units: list[IntensityUnit] = None,
 ) -> pd.DataFrame:
     sub_df = _load_proteome(
         cohort_index,
@@ -86,7 +90,7 @@ def _full_proteome(
     cohorts_db: data_api.CohortDataAPI,
     cohort_index: int,
     patient: str,
-    intensity_units: list[utils.IntensityUnit] = None,
+    intensity_units: list[IntensityUnit] = None,
 ) -> pd.DataFrame:
     return _load_proteome(
         cohort_index,
@@ -100,29 +104,29 @@ def _load_proteome(
     cohort_index: int,
     patient: str,
     get_abundance_df: Callable[..., pd.DataFrame],
-    intensity_units: list[utils.IntensityUnit] = None,
+    intensity_units: list[IntensityUnit] = None,
 ) -> pd.DataFrame:
     if intensity_units is None:
         intensity_units = [
-            utils.IntensityUnit.RANK,
-            utils.IntensityUnit.Z_SCORE,
-            utils.IntensityUnit.FOLD_CHANGE,
-            utils.IntensityUnit.BATCH_RANK,
-            utils.IntensityUnit.INTENSITY,
-            utils.IntensityUnit.IDENTIFICATION_METADATA,
+            IntensityUnit.RANK,
+            IntensityUnit.Z_SCORE,
+            IntensityUnit.FOLD_CHANGE,
+            IntensityUnit.BATCH_RANK,
+            IntensityUnit.INTENSITY,
+            IntensityUnit.IDENTIFICATION_METADATA,
         ]
 
     extra_columns = settings.ANNOTATION_COLUMNS.keys()
     cohort_df = get_abundance_df(
         cohort_index,
         extra_columns=extra_columns,
-        include_ref=utils.IncludeRef.INCLUDE_REF,
+        include_ref=IncludeRef.INCLUDE_REF,
     )  # use IncludeRef.INCLUDE_REF to skip expensive filtering step
     extra_columns = cohort_df.columns.intersection(extra_columns).to_list()
 
     patient_columns = {
         patient
-        + utils.INTENSITY_UNIT_SUFFIXES[intensity_unit]: utils.INTENSITY_UNIT_SUFFIXES[
+        + INTENSITY_UNIT_SUFFIXES[intensity_unit]: INTENSITY_UNIT_SUFFIXES[
             intensity_unit
         ].strip()
         for intensity_unit in intensity_units
@@ -131,7 +135,7 @@ def _load_proteome(
     proteome_df = cohort_df[list(patient_columns.keys()) + extra_columns]
     proteome_df = proteome_df.rename(columns=patient_columns)
     proteome_df = proteome_df.reset_index()  # make "Gene names" a regular column
-    zscore_col = utils.INTENSITY_UNIT_SUFFIXES[utils.IntensityUnit.Z_SCORE].strip()
+    zscore_col = INTENSITY_UNIT_SUFFIXES[IntensityUnit.Z_SCORE].strip()
 
     return proteome_df.dropna(subset=zscore_col).sort_values(
         by=zscore_col, ascending=False
@@ -142,7 +146,7 @@ def _topas_rtk_score(
     cohorts_db: data_api.CohortDataAPI, cohort_index: int, patient: str
 ) -> pd.DataFrame:
     sub_df = cohorts_db.get_topas_rtk_scores_df(
-        cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
+        cohort_index, intensity_unit=IntensityUnit.Z_SCORE
     )
     sub_df = topas_loader.get_topas_scores_long_format(sub_df)
     sub_df = sub_df[sub_df["Sample name"] == patient]
@@ -153,7 +157,7 @@ def _topas_ck_score(
     cohorts_db: data_api.CohortDataAPI, cohort_index: int, patient: str
 ) -> pd.DataFrame:
     sub_df = cohorts_db.get_topas_ck_scores_df(
-        cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
+        cohort_index, intensity_unit=IntensityUnit.Z_SCORE
     )
     sub_df = topas_loader.get_topas_scores_long_format(sub_df)
     sub_df = sub_df[sub_df["Sample name"] == patient]
@@ -164,7 +168,7 @@ def _kinase_score(
     cohorts_db: data_api.CohortDataAPI, cohort_index: int, patient: str
 ) -> pd.DataFrame:
     sub_df = cohorts_db.get_kinase_scores_df(
-        cohort_index, intensity_unit=utils.IntensityUnit.Z_SCORE
+        cohort_index, intensity_unit=IntensityUnit.Z_SCORE
     )
     sub_df["Kinase_names"] = sub_df.index
     return sub_df[["Kinase_names", patient]].dropna()
@@ -174,9 +178,9 @@ def _phospho_score(
     cohorts_db: data_api.CohortDataAPI, cohort_index: int, patient: str
 ) -> pd.DataFrame:
     intensity_units = [
-        utils.IntensityUnit.RANK,
-        utils.IntensityUnit.Z_SCORE,
-        utils.IntensityUnit.BATCH_RANK,
+        IntensityUnit.RANK,
+        IntensityUnit.Z_SCORE,
+        IntensityUnit.BATCH_RANK,
     ]
     return _load_proteome(
         cohort_index,
@@ -189,6 +193,6 @@ def _phospho_score(
 def _transcriptomics(
     cohorts_db: data_api.CohortDataAPI, cohort_index: int, patient: str
 ) -> pd.DataFrame:
-    sub_df = cohorts_db.get_fpkm_df(intensity_unit=utils.IntensityUnit.Z_SCORE)
+    sub_df = cohorts_db.get_fpkm_df(intensity_unit=IntensityUnit.Z_SCORE)
     sub_df["Gene names"] = sub_df.index
     return sub_df[["Gene names", patient]]

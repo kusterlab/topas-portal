@@ -4,7 +4,10 @@ from typing import Union, Protocol, TYPE_CHECKING, Optional
 
 import pandas as pd
 
-import topas_portal.utils as utils
+from topas_portal.constants import (
+    IntensityUnit,
+    IncludeRef,
+)
 
 if TYPE_CHECKING:
     from topas_portal.databases.data_provider import DataProvider
@@ -34,10 +37,10 @@ class CohortDataAPI(Protocol):
     def get_protein_abundance_df(
         self,
         cohort_index: str,
-        intensity_unit: Optional[utils.IntensityUnit] = None,
+        intensity_unit: Optional[IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
-        include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+        include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
         extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         """Z-scored protein intensities per sample on full proteome level"""
@@ -45,10 +48,10 @@ class CohortDataAPI(Protocol):
     def get_psite_abundance_df(
         self,
         cohort_index: str,
-        intensity_unit: Optional[utils.IntensityUnit] = None,
+        intensity_unit: Optional[IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
-        include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+        include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
         extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         """Z-scored p-site intensities per sample on phospho proteome level"""
@@ -56,10 +59,10 @@ class CohortDataAPI(Protocol):
     def get_topas_rtk_scores_df(
         self,
         cohort_index: str,
-        intensity_unit: Optional[utils.IntensityUnit] = None,
+        intensity_unit: Optional[IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
-        include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+        include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
         extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         """Topas RTK scores per sample"""
@@ -67,10 +70,10 @@ class CohortDataAPI(Protocol):
     def get_topas_ck_scores_df(
         self,
         cohort_index: str,
-        intensity_unit: Optional[utils.IntensityUnit] = None,
+        intensity_unit: Optional[IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
-        include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+        include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
         extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         """Topas CK scores per sample"""
@@ -78,10 +81,10 @@ class CohortDataAPI(Protocol):
     def get_phosphorylation_scores_df(
         self,
         cohort_index: str,
-        intensity_unit: Optional[utils.IntensityUnit] = None,
+        intensity_unit: Optional[IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
-        include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+        include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
         extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         """Protein phosphorylation scores per sample"""
@@ -89,10 +92,10 @@ class CohortDataAPI(Protocol):
     def get_kinase_scores_df(
         self,
         cohort_index: str,
-        intensity_unit: Optional[utils.IntensityUnit] = None,
+        intensity_unit: Optional[IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
-        include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+        include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
         extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         """Protein Kinase scores per sample"""
@@ -100,10 +103,10 @@ class CohortDataAPI(Protocol):
     def get_fpkm_df(
         self,
         cohort_index: Union[str, None] = None,
-        intensity_unit: Optional[utils.IntensityUnit] = None,
+        intensity_unit: Optional[IntensityUnit] = None,
         identifier: str = None,
         patient_name: str = None,
-        include_ref: utils.IncludeRef = utils.IncludeRef.EXCLUDE_REF,
+        include_ref: IncludeRef = IncludeRef.EXCLUDE_REF,
         extra_columns: Optional[list[str]] = None,
     ) -> pd.DataFrame:
         """"""

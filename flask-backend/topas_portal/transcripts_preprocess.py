@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from topas_portal.constants import IntensityUnit
 import topas_portal.utils as utils
 
 if TYPE_CHECKING:
@@ -12,7 +13,7 @@ if TYPE_CHECKING:
 def get_density_calc_fpkm(
     cohorts_db: data_api.CohortDataAPI,
     identifier: str,
-    intensity_unit: utils.IntensityUnit,
+    intensity_unit: IntensityUnit,
 ):
     """
     Computes density estimates for FPKM (Fragments Per Kilobase of transcript per Million mapped reads) data.
@@ -22,9 +23,9 @@ def get_density_calc_fpkm(
 
     Args:
         cohorts_db (data_api.CohortDataAPI): The database interface for retrieving FPKM data.
-        identifier (str): The specific gene or transcript identifier for which density calculations 
+        identifier (str): The specific gene or transcript identifier for which density calculations
                           should be performed.
-        intensity_unit (utils.IntensityUnit): The unit of intensity measurement to be used 
+        intensity_unit (utils.IntensityUnit): The unit of intensity measurement to be used
                                               when fetching FPKM data.
 
     Returns:
@@ -36,5 +37,7 @@ def get_density_calc_fpkm(
         - The processed data is converted to JSON format before being returned.
     """
     fpkm_df = cohorts_db.get_fpkm_df(intensity_unit=intensity_unit)
-    count_df_fpkm = utils.count_df_to_density_plot_df(fpkm_df, identifier,list(fpkm_df.columns))
+    count_df_fpkm = utils.count_df_to_density_plot_df(
+        fpkm_df, identifier, list(fpkm_df.columns)
+    )
     return utils.df_to_json(count_df_fpkm)
