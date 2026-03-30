@@ -136,7 +136,7 @@ def load_substrate_phos_scores(cohort_name: str, config: CohortConfig) -> pd.Dat
     return rtk_df
 
 
-@cacheable(DataType.PHOSPHO_SCORE)
+# @cacheable(DataType.PHOSPHO_SCORE)
 def load_protein_phos_scores(cohort_name: str, config: CohortConfig) -> pd.DataFrame:
     protein_phos_path, *protein_phos_measures_paths = (
         config.get_protein_phos_data_paths(cohort_name)

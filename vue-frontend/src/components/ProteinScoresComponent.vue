@@ -6,10 +6,7 @@
           <v-card-title tag="h1"> Protein Phosph. Scores </v-card-title>
           <v-card-text>
             <cohort-select @select-cohort="updateCohort" />
-            <v-checkbox
-              v-model="includeRefChannels"
-              label="Include ref channels"
-            />
+            <sample-filter-select @update-sample-filter="updateSampleFilter" />
             <protein-select
               :cohort-index="cohortIndex"
               label-override="Phosphoprotein"
@@ -93,6 +90,7 @@
   import { mapMutations } from 'vuex'
 
   import CohortSelect from './partials/CohortSelect.vue'
+  import SampleFilterSelect from '@/components/partials/SampleFilterSelect.vue'
   import proteinscoreTable from '@/components/tables/ProteinScoresTable.vue'
   import SwarmPlot from '@/components/plots/SwarmPlot.vue'
   import ProteinSelect from '@/components/partials/ProteinSelect.vue'
@@ -106,12 +104,13 @@
       proteinscoreTable,
       SwarmPlot,
       CohortSelect,
+      SampleFilterSelect,
       ProteinSelect
     },
     data: () => ({
       proteinidentifier: '',
-      includeRefChannels: false,
       cohortIndex: 0,
+      sampleFilter: SampleFilter.ONLY_PATIENTS,
       swarmShow: false,
       loading: false,
       plotData: [],
@@ -121,15 +120,12 @@
       selectedData: []
     }),
     computed: {
-      includeRef() {
-        return this.includeRefChannels ? SampleFilter.PATIENTS_AND_REF : SampleFilter.ONLY_PATIENTS
-      }
     },
     watch: {
       cohortIndex: function () {
         this.updateId()
       },
-      includeRefChannels: function () {
+      sampleFilter: function () {
         this.updateId()
       },
       proteinidentifier: function () {
@@ -142,6 +138,9 @@
       }),
       updateCohort({ cohortIndex }) {
         this.cohortIndex = cohortIndex
+      },
+      updateSampleFilter({ sampleFilter }) {
+        this.sampleFilter = sampleFilter
       },
       updateProtein({ identifier }) {
         this.proteinidentifier = identifier
@@ -157,7 +156,7 @@
             level: DataType.PHOSPHO_SCORE,
             identifier: this.proteinidentifier,
             imputation: ImputationMode.NO_IMPUTE,
-            include_ref: this.includeRef
+            include_ref: this.sampleFilter
           })
         }
       },

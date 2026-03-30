@@ -7,10 +7,7 @@
           <v-card-title tag="h1"> Patient Reports </v-card-title>
           <v-card-text>
             <cohort-select @select-cohort="updateCohort" />
-            <v-checkbox
-              v-model="includeRefChannels"
-              label="Include ref channels"
-            />
+            <sample-filter-select @update-sample-filter="updateSampleFilter" />
             <v-select
               v-model="scoreType"
               class="input_data_type mb-2 mt-4"
@@ -413,6 +410,7 @@
   import { mapMutations } from 'vuex'
 
   import CohortSelect from './partials/CohortSelect.vue'
+  import SampleFilterSelect from '@/components/partials/SampleFilterSelect.vue'
   import patientscoreTable from '@/components/tables/PatientScoresTable.vue'
   import PatientReportTable from '@/components/tables/PatientReportTable.vue'
   import histogram from '@/components/plots/GenericHistogram.vue'
@@ -423,6 +421,7 @@
     name: 'ReportComponent',
     components: {
       CohortSelect,
+      SampleFilterSelect,
       PatientReportTable,
       histogram,
       patientscoreTable
@@ -439,7 +438,7 @@
     },
     data: () => ({
       cohortIndex: -1,
-      includeRefChannels: false,
+      sampleFilter: SampleFilter.ONLY_PATIENTS,
       topasName: '',
       isCollapsed: true,
       fixedDomain: false,
@@ -550,9 +549,6 @@
           patients: ':patients'
         })
       },
-      includeRef() {
-        return this.includeRefChannels ? SampleFilter.PATIENTS_AND_REF : SampleFilter.ONLY_PATIENTS
-      },
       firstPatient() {
         if (this.selectedData.length > 0) {
           return this.selectedData[0]['Sample name']
@@ -597,7 +593,7 @@
           this.backgroundCohort = 'default'
         }
       },
-      includeRefChannels() {
+      sampleFilter() {
         this.getPatientData()
       },
       firstPatient() {
@@ -721,6 +717,9 @@
       updateCohort({ cohortIndex }) {
         this.cohortIndex = cohortIndex
       },
+      updateSampleFilter({ sampleFilter }) {
+        this.sampleFilter = sampleFilter
+      },
       toggleDiv(type) {
         this.type = type
       },
@@ -731,7 +730,7 @@
             name: 'patientData',
             endpoint: api.PATIENTS_METADATA({
               cohort_index: this.cohortIndex,
-              include_ref: this.includeRef
+              include_ref: this.sampleFilter
             }),
             errorMessage: 'Error: Could not load patient metadata'
           },
@@ -740,7 +739,7 @@
             endpoint: api.PATIENT_CENTRIC_SUMMED_INTENSITY({
               cohort_index: this.cohortIndex,
               level: DataType.PHOSPHO_PROTEOME,
-              include_ref: this.includeRef
+              include_ref: this.sampleFilter
             }),
             errorMessage: 'Error: could not load phospho intensities data'
           },
@@ -749,7 +748,7 @@
             endpoint: api.PATIENT_CENTRIC_SUMMED_INTENSITY({
               cohort_index: this.cohortIndex,
               level: DataType.FULL_PROTEOME,
-              include_ref: this.includeRef
+              include_ref: this.sampleFilter
             }),
             errorMessage: 'Error: could not load full proteome intensities data'
           },
@@ -758,7 +757,7 @@
             endpoint: api.PATIENT_CENTRIC_COUNTS({
               cohort_index: this.cohortIndex,
               level: DataType.FULL_PROTEOME,
-              include_ref: this.includeRef
+              include_ref: this.sampleFilter
             }),
             errorMessage: 'Error: could not load protein counts data'
           },
@@ -767,7 +766,7 @@
             endpoint: api.PATIENT_CENTRIC_COUNTS({
               cohort_index: this.cohortIndex,
               level: DataType.PHOSPHO_PROTEOME,
-              include_ref: this.includeRef
+              include_ref: this.sampleFilter
             }),
             errorMessage: 'Error: could not load phosphoproteome peptide counts data'
           },
@@ -776,7 +775,7 @@
             endpoint: api.PATIENT_CENTRIC_COUNTS({
               cohort_index: this.cohortIndex,
               level: DataType.FULL_PROTEOME_NUM_PEPTIDES,
-              include_ref: this.includeRef
+              include_ref: this.sampleFilter
             }),
             errorMessage: 'Error: could not load full proteome peptide counts data'
           }

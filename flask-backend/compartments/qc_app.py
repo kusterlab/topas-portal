@@ -9,6 +9,7 @@ import numpy as np
 import db
 from topas_portal import utils
 from topas_portal import settings
+from topas_portal import constants
 from topas_portal.data_type import DataType
 from topas_portal.constants import (
     IntensityUnit,
@@ -231,7 +232,7 @@ def load_pca_data_single(
 
 
 def _remove_prefix_from_columns(df):
-    df.columns = df.columns.str.replace(PATIENT_PREFIX, "")
+    df.columns = df.columns.str.replace(constants.PATIENT_PREFIX, "")
     return df
 
 

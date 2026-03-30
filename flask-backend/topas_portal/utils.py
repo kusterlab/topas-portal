@@ -26,7 +26,10 @@ def add_patient_prefix(patient_list: list[str]):
     return [
         (
             constants.PATIENT_PREFIX + x
-            if not x.startswith(constants.REF_CHANNEL_PREFIX)
+            if not (
+                x.startswith(constants.REF_CHANNEL_PREFIX)
+                or x.startswith(constants.EXCLUDED_CHANNEL_PREFIX)
+            )
             else x
         )
         for x in patient_list
@@ -34,9 +37,7 @@ def add_patient_prefix(patient_list: list[str]):
 
 
 def add_identification_metadata_prefix(patient_list: list[str]):
-    return [
-        constants.IDENTIFICATION_METADATA_PREFIX + x for x in patient_list
-    ]
+    return [constants.IDENTIFICATION_METADATA_PREFIX + x for x in patient_list]
 
 
 def remove_patient_prefix(df, from_col=True) -> pd.DataFrame:
@@ -49,9 +50,7 @@ def remove_patient_prefix(df, from_col=True) -> pd.DataFrame:
             pass
     else:
         try:
-            df.index = df.index.str.replace(
-                constants.PATIENT_PREFIX, "", regex=True
-            )
+            df.index = df.index.str.replace(constants.PATIENT_PREFIX, "", regex=True)
         except:
             pass
 

@@ -15,7 +15,7 @@
     </v-row>
     <v-row dense>
       <v-col>
-        <v-card variant="default" class="pa-0 bg-grey-lighten-4">
+        <v-card class="pa-0 bg-grey-lighten-4">
           <v-card-title> Highlight selected samples </v-card-title>
           <v-row>
             <v-col>

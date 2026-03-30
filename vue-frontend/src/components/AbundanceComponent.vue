@@ -7,8 +7,7 @@
           <v-card-title tag="h1"> Protein/p-site abundance </v-card-title>
           <v-card-text>
             <cohort-select @select-cohort="updateCohort" />
-            <v-checkbox v-model="showRefChannels" label="Show ref channels" density="compact" class="mt-2"/>
-            <v-checkbox v-model="showExcludedChannels" label="Show excluded channels" density="compact" class="mb-4"/>
+            <sample-filter-select @update-sample-filter="updateSampleFilter" />
             <v-radio-group v-model="mode" label="Data type" class="mt-2">
               <v-radio v-for="(label, value) in radioOptions" :key="value" :label="label" :value="value" />
             </v-radio-group>
@@ -122,6 +121,7 @@ import SwarmPlot from '@/components/plots/SwarmPlot.vue'
 import ProteinSelect from '@/components/partials/ProteinSelect.vue'
 import PhosphopeptideSelect from '@/components/partials/PhosphopeptideSelect.vue'
 import CohortSelect from './partials/CohortSelect.vue'
+import SampleFilterSelect from './partials/SampleFilterSelect.vue'
 import { DataType, SampleFilter, ImputationMode } from '@/constants'
 import { api } from '@/routes.ts'
 
@@ -131,6 +131,7 @@ export default {
     expressionTable,
     histogram,
     CohortSelect,
+    SampleFilterSelect,
     SwarmPlot,
     ProteinSelect,
     PhosphopeptideSelect
@@ -149,9 +150,8 @@ export default {
   data: () => ({
     identifier: '',
     cohortIndex: 0,
+    sampleFilter: SampleFilter.ONLY_PATIENTS,
     mode: DataType.FULL_PROTEOME,
-    showRefChannels: false,
-    showExcludedChannels: false,
     showOncokbcnv: false,
     radioOptions: {
       [DataType.FULL_PROTEOME]: 'Protein',
@@ -221,21 +221,6 @@ export default {
         return '_AAAAAPApSED_'
       }
     },
-    sampleFilter() {
-      if (this.showRefChannels) {
-        if (this.showExcludedChannels) {
-          return SampleFilter.ALL
-        } else {
-          return SampleFilter.PATIENTS_AND_REF
-        }
-      } else {
-        if (this.showExcludedChannels) {
-          return SampleFilter.PATIENTS_AND_EXCLUDED
-        } else {
-          return SampleFilter.ONLY_PATIENTS
-        }
-      }
-    }
   },
   watch: {
     showOncokbcnv: function () {
@@ -272,6 +257,9 @@ export default {
     },
     updateCohort({ cohortIndex }) {
       this.cohortIndex = cohortIndex
+    },
+    updateSampleFilter({ sampleFilter }) {
+      this.sampleFilter = sampleFilter
     },
     updateId() {
       if (this.identifier.length > 0) {

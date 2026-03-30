@@ -365,8 +365,8 @@ def get_annotation_df(
     annotation_df = get_abundance_df_dict[level](
         cohort_index,
         extra_columns=extra_columns,
-        include_ref=SampleFilter.PATIENTS_AND_REF,
-    )  # use IncludeRef.INCLUDE_REF to skip expensive filtering step
+        include_ref=SampleFilter.ALL,
+    )  # use IncludeRef.ALL to skip expensive filtering step
     extra_columns = [col for col in extra_columns if col in annotation_df.columns]
 
     annotation_df = annotation_df[extra_columns]

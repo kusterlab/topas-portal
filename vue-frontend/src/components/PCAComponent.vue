@@ -167,7 +167,7 @@
   import SilhouetteScoresTable from '@/components/tables/SilhouetteScoresTable.vue'
   import QcPlot from '@/components/plots/QCPlot.vue'
   import LollipopPlot from './plots/LollipopPlot.vue'
-  import { DataType } from '@/constants'
+  import { DataType, SampleFilter } from '@/constants'
   import CohortSelect from './partials/CohortSelect.vue'
   import SubcohortSelect from './partials/SubcohortSelect.vue'
 
@@ -276,7 +276,7 @@
             const dimReductionMethod = this.dimReductionMethod
             const numPatient = parseInt(this.minNumPatients)
             const inputDataType = this.inputDataType
-            let referenceChannel = this.includeReferenceChannels ? 'include_ref' : 'exclude_ref'
+            let referenceChannel = this.includeReferenceChannels ? SampleFilter.PATIENTS_AND_REF : SampleFilter.ONLY_PATIENTS
             referenceChannel = this.onlyReferenceChannels ? 'only_ref' : referenceChannel
             const replicate =
               this.includeReplicates & !this.onlyReferenceChannels ? 'replicate' : 'noreplicate'
@@ -379,7 +379,7 @@
         const customGroup = this.customGroup.length === 0 ? 'all' : this.customGroup
         const inputDataType = this.inputDataType
         const dimReductionMethod = this.dimReductionMethod
-        let referenceChannel = this.includeReferenceChannels ? 'include_ref' : 'exclude_ref'
+        let referenceChannel = this.includeReferenceChannels ? SampleFilter.PATIENTS_AND_REF : SampleFilter.ONLY_PATIENTS
         referenceChannel = this.onlyReferenceChannels ? 'only_ref' : referenceChannel
         const allSelected = this.allorSelectedgenes
         const replicate = this.includeReplicates ? 'replicate' : 'noreplicate'

@@ -6,10 +6,10 @@
           <v-card-title tag="h1"> TOPAS scores </v-card-title>
           <v-card-text>
             <cohort-select @select-cohort="updateCohort" />
-            <v-checkbox v-model="includeRefChannels" label="Include ref channels" />
+            <sample-filter-select @update-sample-filter="updateSampleFilter" />
             <topas-select
               class="mt-4"
-              :cohort-index="activeCohortIndex"
+              :cohort-index="cohortIndex"
               @select-topas="updateTopas"
             />
             <v-checkbox
@@ -110,6 +110,7 @@
   import SwarmPlot from '@/components/plots/SwarmPlot.vue'
   import TopasTable from '@/components/tables/TopasTable.vue'
   import TopasSelect from '@/components/partials/TopasSelect.vue'
+  import SampleFilterSelect from '@/components/partials/SampleFilterSelect.vue'
   import multiGroupPlot from '@/components/plots/MultiGroupPlot.vue'
   import { api } from '@/routes.ts'
   import { DataType, SampleFilter, ImputationMode } from '@/constants'
@@ -120,6 +121,7 @@
       TopasTable,
       SwarmPlot,
       CohortSelect,
+      SampleFilterSelect,
       TopasSelect,
       multiGroupPlot
     },
@@ -137,7 +139,7 @@
     data: () => ({
       topasName: '',
       cohortIndex: 0,
-      includeRefChannels: false,
+      sampleFilter: SampleFilter.ONLY_PATIENTS,
       firstPatient: '',
       selectedDotsInPlot: '',
       fixedDomain: false,
@@ -156,16 +158,13 @@
     computed: {
       swarmPrefix() {
         return 'TOPAS Z-score'
-      },
-      activeCohortIndex() {
-        return this.cohortIndex
-      },
-      includeRef() {
-        return this.includeRefChannels ? SampleFilter.PATIENTS_AND_REF : SampleFilter.ONLY_PATIENTS
       }
     },
     watch: {
-      activeCohortIndex: function () {
+      cohortIndex: function () {
+        this.getTopasData()
+      },
+      sampleFilter: function () {
         this.getTopasData()
       }
     },
@@ -184,6 +183,9 @@
       updateCohort({ cohortIndex }) {
         this.cohortIndex = cohortIndex
       },
+      updateSampleFilter({ sampleFilter }) {
+        this.sampleFilter = sampleFilter
+      },
       async getTopasData() {
         if (this.topasName.length === 0) return
 
@@ -195,7 +197,7 @@
           level: DataType.TOPAS_RTK_SCORE,
           identifier: this.topasName,
           imputation: ImputationMode.NO_IMPUTE,
-          include_ref: this.includeRef
+          include_ref: this.sampleFilter
         })
       },
       async loadSwarmplot({ dataSource }) {

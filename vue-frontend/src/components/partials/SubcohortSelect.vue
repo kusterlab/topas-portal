@@ -10,7 +10,7 @@
       <v-btn value="cohort" class="mb-0 flex-grow-1"> Full </v-btn>
       <v-btn value="subcohort" class="mb-0 flex-grow-1"> Subcohort </v-btn>
     </v-btn-toggle>
-    <v-container v-if="allPatients === 'subcohort'">
+    <v-card variant="flat" class="bg-grey-lighten-4 pa-2 ma-0 flex-grow-1" v-if="allPatients === 'subcohort'">
       <sample-select
         :cohort-index="cohortIndex"
         :sample-ids="sampleIds"
@@ -18,7 +18,7 @@
         @update-group="updateSampleGroup"
         @update-selection-method="updateSelectionMethodGroup"
       />
-    </v-container>
+    </v-card>
   </v-row>
 </template>
 <script>

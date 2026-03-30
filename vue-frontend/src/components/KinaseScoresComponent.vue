@@ -6,6 +6,7 @@
           <v-card-title tag="h1"> Substrate Phosph. scores </v-card-title>
           <v-card-text>
             <cohort-select @select-cohort="updateCohort" />
+            <sample-filter-select @update-sample-filter="updateSampleFilter" />
             <protein-select
               :cohort-index="cohortIndex"
               data-layer="kinase"
@@ -85,6 +86,7 @@
 <script>
   import axios from 'axios'
   import CohortSelect from './partials/CohortSelect.vue'
+  import SampleFilterSelect from '@/components/partials/SampleFilterSelect.vue'
   import kinasescoreTable from '@/components/tables/KinasescoreTable.vue'
   import SwarmPlot from '@/components/plots/SwarmPlot.vue'
   import ProteinSelect from '@/components/partials/ProteinSelect.vue'
@@ -95,12 +97,14 @@
     name: 'KinaseComponent',
     components: {
       CohortSelect,
+      SampleFilterSelect,
       kinasescoreTable,
       SwarmPlot,
       ProteinSelect
     },
     data: () => ({
       cohortIndex: 0,
+      sampleFilter: SampleFilter.ONLY_PATIENTS,
       selectedData: [],
       singleswarmData: [],
       url: '',
@@ -109,20 +113,33 @@
       loading: false,
       activeKinase: ''
     }),
-    computed: {},
+    watch: {
+      cohortIndex: function () {
+        this.getKinaseData()
+      },
+      sampleFilter: function () {
+        this.getKinaseData()
+      }
+    },
     methods: {
       updateCohort({ cohortIndex }) {
         this.cohortIndex = cohortIndex
       },
+      updateSampleFilter({ sampleFilter }) {
+        this.sampleFilter = sampleFilter
+      },
       updateKinase({ identifier }) {
         this.activeKinase = identifier
+        this.getKinaseData()
+      },
+      getKinaseData() {
         this.loading = true
         this.url = api.ABUNDANCE({
           cohort_index: this.cohortIndex,
           level: DataType.KINASE_SCORE,
           identifier: this.activeKinase,
           imputation: ImputationMode.NO_IMPUTE,
-          include_ref: SampleFilter.ONLY_PATIENTS
+          include_ref: this.sampleFilter
         })
       },
       updateSelectedRows(selectedIds, selectedData) {

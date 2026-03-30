@@ -269,11 +269,9 @@ def _filter_for_ref(
 def _filter_for_ref_sample_annotation(
     df: pd.DataFrame, include_ref: SampleFilter
 ) -> pd.DataFrame:
-    if include_ref == SampleFilter.ONLY_PATIENTS:
-        df = df.loc[~df["Sample name"].str.startswith(constants.REF_CHANNEL_PREFIX)]
-    elif include_ref == SampleFilter.ONLY_REF:
-        df = df.loc[df["Sample name"].str.startswith(constants.REF_CHANNEL_PREFIX)]
-    return df
+    return _filter_for_ref(
+        df.set_index("Sample name").T, include_ref=include_ref
+    ).T.reset_index()
 
 
 def extract_columns_and_remove_suffix(

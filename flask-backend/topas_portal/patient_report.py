@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Callable
 import pandas as pd
 
 from topas_portal import settings
+from topas_portal import constants
 from topas_portal.data_type import DataType
 from topas_portal.constants import (
     IntensityUnit,
@@ -120,13 +121,13 @@ def _load_proteome(
     cohort_df = get_abundance_df(
         cohort_index,
         extra_columns=extra_columns,
-        include_ref=SampleFilter.PATIENTS_AND_REF,
-    )  # use IncludeRef.INCLUDE_REF to skip expensive filtering step
+        include_ref=SampleFilter.ALL,
+    )  # use IncludeRef.ALL to skip expensive filtering step
     extra_columns = cohort_df.columns.intersection(extra_columns).to_list()
 
     patient_columns = {
         patient
-        + INTENSITY_UNIT_SUFFIXES[intensity_unit]: INTENSITY_UNIT_SUFFIXES[
+        + constants.INTENSITY_UNIT_SUFFIXES[intensity_unit]: constants.INTENSITY_UNIT_SUFFIXES[
             intensity_unit
         ].strip()
         for intensity_unit in intensity_units
@@ -135,7 +136,7 @@ def _load_proteome(
     proteome_df = cohort_df[list(patient_columns.keys()) + extra_columns]
     proteome_df = proteome_df.rename(columns=patient_columns)
     proteome_df = proteome_df.reset_index()  # make "Gene names" a regular column
-    zscore_col = INTENSITY_UNIT_SUFFIXES[IntensityUnit.Z_SCORE].strip()
+    zscore_col = constants.INTENSITY_UNIT_SUFFIXES[IntensityUnit.Z_SCORE].strip()
 
     return proteome_df.dropna(subset=zscore_col).sort_values(
         by=zscore_col, ascending=False
