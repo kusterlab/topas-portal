@@ -8,19 +8,20 @@
             <cohort-select @select-cohort="updateCohort" />
             <v-btn-toggle
               v-model="dataType"
-              class="mt-4"
+              class="mt-4 flex-grow-1"
               @update:model-value="getvennData"
             >
-              <v-btn v-for="option in allInputDataTypes" :key="option.value" :value="option.value">
-                {{ option.text }}
+              <v-btn v-for="option in allInputDataTypes" :key="option.value" :value="option.value" class="mb-0 flex-grow-1">
+                {{ option.title }}
               </v-btn>
             </v-btn-toggle>
             <v-btn-toggle
               v-model="modalityType"
+              class="my-4 flex-grow-1"
               @update:model-value="getBatchlist"
             >
-              <v-btn value="batchcompare"> Batches </v-btn>
-              <v-btn value="patientcompare"> Patients </v-btn>
+              <v-btn value="batchcompare" class="mb-0 flex-grow-1"> Batches </v-btn>
+              <v-btn value="patientcompare" class="mb-0 flex-grow-1"> Patients </v-btn>
             </v-btn-toggle>
             <v-select
               v-model="activeBatches"

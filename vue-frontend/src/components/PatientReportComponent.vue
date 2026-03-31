@@ -11,7 +11,7 @@
             <v-select
               v-model="scoreType"
               class="input_data_type mb-2 mt-4"
-              prepend-icon="mdi-filter"
+              prepend-icon="mdi-layers-triple"
               :items="allInputDataTypes"
               label="Data Type"
               @update:model-value="getscoresTable"

@@ -14,7 +14,7 @@
             <v-select
               v-model="modality"
               class="input_data_type mb-2 mt-4"
-              prepend-icon="mdi-filter"
+              prepend-icon="mdi-layers-triple"
               :items="allInputDataTypes"
               label="Input Data Type"
             />

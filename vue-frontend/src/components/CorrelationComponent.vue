@@ -28,7 +28,7 @@
           <v-card-text>
             <v-select
               v-model="correlationInputType"
-              prepend-icon="mdi-filter"
+              prepend-icon="mdi-layers-triple"
               :items="dataTypes"
               label="Input type"
               @update:model-value="jsonUrl = ''"
@@ -57,7 +57,7 @@
             <v-select
               v-model="correlationType"
               :items="dataTypes"
-              prepend-icon="mdi-filter"
+              prepend-icon="mdi-layers-triple"
               label="Correlate against"
               class="mt-4"
               @update:model-value="jsonUrl = ''"

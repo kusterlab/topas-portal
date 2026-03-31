@@ -46,7 +46,7 @@
             </v-btn-toggle>
             <v-select
               v-model="inputDataType"
-              prepend-icon="mdi-filter"
+              prepend-icon="mdi-layers-triple"
               class="input_data_type mb-2 mt-4"
               :items="allInputDataTypes"
               label="Input Type"

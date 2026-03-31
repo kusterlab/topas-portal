@@ -23,7 +23,7 @@
             <v-select
               v-model="mode"
               class="input_data_type mb-4"
-              prepend-icon="mdi-filter"
+              prepend-icon="mdi-layers-triple"
               :items="allInputDataTypes"
               label="Data Type"
             />
