@@ -65,7 +65,7 @@
               </v-col>
               <v-col sm="12" md="4">
                 <v-skeleton-loader :loading="loading" height="200" width="200" type="image, list-item-two-line">
-                  <v-responsive>
+                  <v-responsive v-show="swarmPlotDataSelected.length > 0">
                     <v-btn-toggle v-model="swarmSelection" mandatory class="mt-2" density="default">
                       <v-btn value="all" class="px-2">
                         All samples
@@ -78,7 +78,7 @@
                       <v-btn value="Z-score" class="px-3"> Z-score </v-btn>
                       <v-btn value="Intensity" class="px-3"> Intensity </v-btn>
                     </v-btn-toggle>
-                    <swarm-plot v-show="swarmPlotDataSelected.length > 0" :swarm-data="swarmPlotDataSelected" swarm-id="singleGene"
+                    <swarm-plot :swarm-data="swarmPlotDataSelected" swarm-id="singleGene"
                       :swarm-sel-ids="swarmSelIds" :swarm-title="identifier" :swarm-title-prefix="swarmPrefix"
                       field-name="Sample name" :draw-box-plot="true" :field-values="intensityUnit"
                       @onDotClick="selectDot" />
