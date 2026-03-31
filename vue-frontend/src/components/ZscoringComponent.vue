@@ -25,7 +25,7 @@
               class="input_data_type mb-4"
               prepend-icon="mdi-layers-triple"
               :items="allInputDataTypes"
-              label="Data Type"
+              label="Data type"
             />
             <topas-select
               v-if="mode === 'topas'"

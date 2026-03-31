@@ -28,7 +28,7 @@
               class="input_data_type mb-2"
               prepend-icon="mdi-layers-triple"
               :items="allInputDataTypes"
-              label="Input Data Type"
+              label="Data type"
               @update:model-value="updateHeatmap"
             />
 

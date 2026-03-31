@@ -13,7 +13,7 @@
               class="input_data_type mb-2 mt-4"
               prepend-icon="mdi-layers-triple"
               :items="allInputDataTypes"
-              label="Data Type"
+              label="Data type"
               @update:model-value="getscoresTable"
             />
             <v-switch

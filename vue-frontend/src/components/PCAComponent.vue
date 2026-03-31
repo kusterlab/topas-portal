@@ -44,7 +44,7 @@
               prepend-icon="mdi-layers-triple"
               class="input_data_type mb-2 mt-4"
               :items="allInputDataTypes"
-              label="Data Type"
+              label="Data type"
               @update:model-value="loading = false"
             />
             <v-switch
