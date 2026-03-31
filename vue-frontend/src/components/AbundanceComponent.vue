@@ -8,7 +8,7 @@
           <v-card-text>
             <cohort-select @select-cohort="updateCohort" />
             <sample-filter-select @update-sample-filter="updateSampleFilter" />
-            <v-radio-group v-model="mode" label="Data type" class="mt-2">
+            <v-radio-group v-model="mode" label="Data type" class="mt-0">
               <v-radio v-for="(label, value) in radioOptions" :key="value" :label="label" :value="value" />
             </v-radio-group>
           </v-card-text>

@@ -17,6 +17,8 @@
 <script>
   import axios from 'axios'
   import { mapMutations } from 'vuex'
+  import { DataType } from '@/constants'
+  import { api } from '@/routes.ts'
 
   export default {
     name: 'ProteinSelect',
@@ -31,7 +33,7 @@
       },
       dataLayer: {
         type: String,
-        default: 'protein'
+        default: DataType.FULL_PROTEOME
       },
       multiple: {
         type: Boolean,
@@ -75,7 +77,7 @@
         if (this.cohortIndex < 0) return
         try {
           const response = await axios.get(
-            `${import.meta.env.VITE_API_HOST}/${this.cohortIndex}/${this.dataLayer}/list`
+            api.PROTEIN_LIST({ cohort_index: this.cohortIndex, level: this.dataLayer })
           )
           this.allProteins = response.data
         } catch (error) {
