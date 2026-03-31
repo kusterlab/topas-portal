@@ -7,7 +7,7 @@
       @change="updatePatientTable"
     />
 
-    <v-checkbox
+    <v-switch
       v-model="advancedFilter"
       label="Advanced table filter"
     />

@@ -7,8 +7,8 @@
       mandatory
       class="flex-grow-1"
     >
-      <v-btn value="cohort" class="mb-0 flex-grow-1"> Full </v-btn>
-      <v-btn value="subcohort" class="mb-0 flex-grow-1"> Subcohort </v-btn>
+      <v-btn value="cohort" class="mb-0 flex-grow-1 px-0"> Full </v-btn>
+      <v-btn value="subcohort" class="mb-0 flex-grow-1 px-0"> Subcohort </v-btn>
     </v-btn-toggle>
     <v-card variant="flat" class="bg-grey-lighten-4 pa-2 ma-0 flex-grow-1" v-if="allPatients === 'subcohort'">
       <sample-select

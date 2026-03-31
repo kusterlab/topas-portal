@@ -1,42 +1,39 @@
 <template>
   <div id="container">
-    <v-btn v-if="savePlot" class="ma-2" color="primary" @click="downloadSVG">
-      <v-icon> mdi-cloud-download </v-icon>
-    </v-btn>
-    <v-btn class="ma-2" color="primary" @click="resetDotColors">
-      <v-icon> mdi-refresh </v-icon>
-    </v-btn>
-
-    <v-btn class="ma-2" color="primary" @click="changetheseSamplescolors">
-      <v-icon> mdi-pencil </v-icon>
-    </v-btn>
-    <v-row>
-      <v-col width="50%">
-        <v-color-picker
-          v-model="colorCode"
-          hide-inputs
-          hide-canvas
-          swatches-max-height="50"
-          width="300"
-        />
+    <v-row dense>
+      <v-col sm="3">
+        <v-btn v-if="savePlot" class="ma-2" color="primary" @click="downloadSVG">
+          <v-icon> mdi-cloud-download </v-icon>
+        </v-btn>
+        <v-btn class="ma-2" color="primary" @click="resetDotColors">
+          <v-icon> mdi-refresh </v-icon>
+        </v-btn>
       </v-col>
-      <v-col width="50%">
-        <v-text-field v-model="patientGroup" class="qcbtn" label="Group:" placeholder="G1" />
+      <v-col sm="3">
+        <v-switch v-model="showLegend" label="Show legend" />
       </v-col>
     </v-row>
-    <v-checkbox v-model="showLegend" label="Show the legends" />
+    <v-row dense>
+      <v-col>
+        <highlight-selection @highlight-selection="highlightSelection" />
+      </v-col>
+    </v-row>
 
-    <div id="qcplot" />
+    <div id="qcplot" class="mt-4" />
     <canvas id="canvasId" style="display: none" />
   </div>
 </template>
 
 <script>
   import utils from '@/plugins/DownloadUtils'
+  import HighlightSelection from '@/components/partials/HighlightSelection.vue'
 
   import * as d3 from 'd3'
   export default {
     name: 'QcPlot',
+    components: {
+      HighlightSelection
+    },
     props: {
       savePlot: {
         type: Boolean,
@@ -116,6 +113,12 @@
           element.rSize = 20
         })
         this.plotQc(false)
+      },
+
+      highlightSelection({ groupLabel, colorCode }) {
+        this.patientGroup = groupLabel
+        this.colorCode = colorCode
+        this.changetheseSamplescolors()
       },
 
       changetheseSamplescolors() {

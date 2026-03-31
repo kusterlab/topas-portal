@@ -24,7 +24,7 @@
         <div id="venn" />
       </v-col>
       <v-col sm="12" md="5" lg="5">
-        <v-checkbox
+        <v-switch
           v-model="showProteinTable"
           label="Show table of proteins in selected group"
         />

@@ -13,27 +13,22 @@
               @update-group="updateSampleGroup"
               @update-selection-method="updateSelectionMethodGroup"
             />
-            <v-checkbox
+            <v-switch
               v-if="!onlyReferenceChannels"
               v-model="includeReplicates"
               label="Include replicates"
+              density="compact"
             />
-            <v-checkbox
+            <v-switch
               v-if="!onlyReferenceChannels"
               v-model="includeReferenceChannels"
               label="Include reference channels"
+              density="compact"
             />
-            <v-checkbox
+            <v-switch
               v-model="onlyReferenceChannels"
               label="Only reference channels"
-            />
-            <v-text-field
-              v-model="imputationRatio"
-              class="mt-4"
-              label="Min. sample occurrence [%]"
-              hint="Only use proteins/p-peptides occurring in >x% of total samples. The remaining missing values are imputed by PPCA."
-              persistent-hint
-              type="number"
+              density="compact"
             />
           </v-card-text>
         </v-card>
@@ -49,35 +44,32 @@
               prepend-icon="mdi-layers-triple"
               class="input_data_type mb-2 mt-4"
               :items="allInputDataTypes"
-              label="Input Type"
+              label="Data Type"
               @update:model-value="loading = false"
             />
-            <v-checkbox
+            <v-switch
               v-model="geneSubsetActive"
-              label="Use custom identifier list"
+              label="Upload custom identifier list"
+              density="compact"
             />
             <v-file-input
               v-show="geneSubsetActive"
               v-model="file"
-              class="mt-4"
+              class="mt-0"
               placeholder="Upload a txt file"
               accept="text/*,.txt"
-              hint="one gene name/p-peptide per line"
+              hint="one identifier per line"
               persistent-hint
             />
-
-            <v-select
-              v-model="activeMeta"
-              prepend-icon="mdi-palette"
-              class="metadata mt-4"
-             
-              variant="outlined"
-              hide-details
-              :items="metaData"
-              label="Color by Metadata"
-              @update:model-value="loading = false"
+            <v-text-field
+              v-model="imputationRatio"
+              class="mt-4"
+              label="Min. sample occurrence [%]"
+              hint="Filter for analytes occurring in >x% of samples. Remaining missing values are imputed by PPCA."
+              persistent-hint
+              type="number"
             />
-            <v-btn class="bg-primary mt-4" @click="updatePCA"> Generate plot </v-btn>
+            <v-btn class="bg-primary mt-4 mb-0" @click="updatePCA"> Perform PCA/UMAP </v-btn>
           </v-card-text>
         </v-card>
         <v-card variant="flat" class="mt-4">
@@ -89,16 +81,14 @@
               hide-details
               type="number"
             />
-            <v-radio-group v-model="silhouetteInputType" label="Input type">
+            <v-radio-group v-model="silhouetteInputType" label="Input type" class="mt-2">
               <v-radio label="Raw data" value="beforeCluster" />
-
               <v-radio
                 :label="dimReductionMethod.toUpperCase() + ' coordinates'"
                 value="afterCluster"
               />
             </v-radio-group>
-
-            <v-btn class="bg-primary ma-2" :loading="loading" @click="updateSilhouette">
+            <v-btn class="bg-primary mt-4 mb-0" :loading="loading" @click="updateSilhouette">
               Generate Silhouette
             </v-btn>
           </v-card-text>
@@ -108,16 +98,27 @@
         <v-card variant="flat">
           <v-card-text>
             <v-row>
-              <v-col sm="12" md="5" lg="5">
+              <v-col sm="12" md="6" lg="6">
                 <qc-table
                   :data-source="qcData"
                   :is-loading="isLoading"
                   @onRowSelect="updateSelectedRows"
                 />
               </v-col>
-              <v-col sm="12" md="3" lg="3">
+              <v-col sm="12" md="6" lg="6">
+                <v-select
+                  v-show="qcData.length > 0"
+                  v-model="activeMeta"
+                  prepend-icon="mdi-palette"
+                  class="metadata mt-2"
+                  density="compact"
+                  :items="metaData"
+                  label="Color by Metadata"
+                  @update:model-value="loading = false"
+                  max-width="250"
+                />
                 <qc-plot
-                  v-if="activeMeta"
+                  v-show="qcData.length > 0"
                   :save-plot="true"
                   :qc-type="dimReductionMethod"
                   :qc-meta="activeMeta"

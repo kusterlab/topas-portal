@@ -13,14 +13,6 @@
               @update-group="updateSampleGroup"
               @update-selection-method="updateSelectionMethodGroup"
             />
-            <v-radio-group v-model="intensityUnit" label="Intensity unit" class="mt-4">
-              <v-radio
-                v-for="u in intensityUnits"
-                :key="u.value"
-                :label="u.title"
-                :value="u.value"
-              />
-            </v-radio-group>
           </v-card-text>
         </v-card>
         <v-card variant="flat" class="mt-4">
@@ -30,7 +22,7 @@
               v-model="correlationInputType"
               prepend-icon="mdi-layers-triple"
               :items="dataTypes"
-              label="Input type"
+              label="Data type"
               @update:model-value="jsonUrl = ''"
             />
             <phosphopeptide-select
@@ -59,12 +51,12 @@
               :items="dataTypes"
               prepend-icon="mdi-layers-triple"
               label="Correlate against"
-              class="mt-4"
+              class="mt-6"
               @update:model-value="jsonUrl = ''"
             />
 
             <v-btn class="mt-4" color="primary" :loading="loading" @click="loadCorrelation">
-              Run Analysis
+              Compute correlations
             </v-btn>
           </v-card-text>
         </v-card>
@@ -112,6 +104,21 @@
                 />
               </v-col>
               <v-col sm="12" md="4" lg="4">
+                <v-btn-toggle v-model="intensityUnit" mandatory class="mt-2 ml-4" density="default">
+                  <v-btn
+                    v-for="u in intensityUnits"
+                    :key="u.value"
+                    :label="u.title"
+                    :value="u.value"
+                     class="px-3"
+                  > {{ u.title }} </v-btn>
+                </v-btn-toggle>
+                <v-switch
+                  v-if="jsonUrl !== ''"
+                  v-model="doImpute"
+                  label="Impute NA on Plot"
+                  @update:model-value="fetchExpressionData"
+                />
                 <scatter-plot
                   v-if="jsonUrl !== ''"
                   id="correlationPlot"
@@ -126,16 +133,10 @@
                   :expressions2="expressionData2"
                   :sel-ids="selectedSamples"
                   :score-type="plotScoreType"
-                  :label-x="labelX"
-                  :label-y="labelY"
+                  :label-x="plotScoreType"
+                  :label-y="plotScoreType"
                   class="mt-4"
                   @onDotSelect="selectDot"
-                />
-                <v-checkbox
-                  v-if="jsonUrl !== ''"
-                  v-model="doImpute"
-                  label="Impute NA on Plot"
-                  @update:model-value="fetchExpressionData"
                 />
               </v-col>
             </v-row>
@@ -155,7 +156,7 @@
                 />
               </v-col>
               <v-col sm="12" md="4" lg="4">
-                <v-checkbox
+                <v-switch
                   v-model="Showdensity"
                   label="Show Density Distribution"
                   @update:model-value="fetchDensityData"
@@ -223,9 +224,7 @@
       yaxisTable: 'Scores2',
       intensityUnit: IntensityUnit.Z_SCORE,
       phospho: 'FP',
-      labelX: '',
-      labelY: '',
-      doImpute: true,
+      doImpute: false,
       componentKey: 0,
       customGroup: [],
       selectionMethod: [],
@@ -249,7 +248,6 @@
       response: [],
       selectedSamples: [],
       selectedDotsInPlot: '',
-      plotScoreType: 'Z-score',
       intensityUnits: [
         {
           title: 'Z-scores',
@@ -307,6 +305,9 @@
         } else {
           return 'EGFR'
         }
+      },
+      plotScoreType() {
+        return this.intensityUnit === IntensityUnit.Z_SCORE ? 'Z-score' : 'Intensity'
       }
     },
     watch: {
@@ -366,8 +367,6 @@
       async fetchExpressionData(identifierNumber) {
         const key = identifierNumber === 1 ? this.identifier1 : this.identifier2
         if (!key) return
-        this.labelX = this.plotScoreType
-        this.labelY = this.plotScoreType
         const modality = identifierNumber === 1 ? this.correlationInputType : this.correlationType
         const imputeString = this.doImpute ? ImputationMode.IMPUTE : ImputationMode.NO_IMPUTE
         const url = api.ABUNDANCE({

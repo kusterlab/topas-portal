@@ -6,7 +6,7 @@
           <v-card-title tag="h1"> Differential Expression </v-card-title>
           <v-card-text>
             <cohort-select @select-cohort="updateCohort" />
-            <v-checkbox
+            <v-switch
               v-model="applyMultipleTestingCorrection"
               class="mt-4"
               label="Multiple testing correction (Benjamini-Hochberg)"
@@ -40,12 +40,12 @@
               @update-selection-method="updateSelectionMethodGroup1"
             />
 
-            <p class="mt-4 mb-2 d-inline-flex"> Group2 </p>
-            <v-checkbox
+            <v-switch
               v-model="secondGroup"
               class="d-inline-flex ml-2 mt-0"
-              label="All - Group1"
+              label="Group2 = All - Group1"
             />
+            <p v-if="!secondGroup" class="mb-2 d-inline-flex"> Group2 </p>
             <sample-select
               v-if="!secondGroup"
               :cohort-index="cohortIndex"

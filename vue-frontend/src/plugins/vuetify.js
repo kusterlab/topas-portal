@@ -42,6 +42,9 @@ export default createVuetify({
     },
     VCheckbox: {
       color: 'primary'
+    },
+    VSwitch: {
+      color: 'primary'
     }
   }
 })

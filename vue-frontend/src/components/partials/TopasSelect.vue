@@ -3,7 +3,6 @@
     <v-autocomplete
       v-model="selectedTopasIds"
       label="Select kinase"
-      class="topas mt-1"
       prepend-icon="mdi-filter"
       auto-select-first
       :items="allTopasIds"
@@ -15,10 +14,7 @@
     >
       <template v-if="multiple" #prepend-item>
         <v-list-item v-show="multiple" ripple>
-          <v-list-item-action>
-            <v-checkbox v-model="allSelected" hide-details @update:model-value="selectAll" />
-          </v-list-item-action>
-          <v-list-item-title>Select All</v-list-item-title>
+          <v-checkbox-btn v-model="allSelected" @update:model-value="selectAll" label="Select All"></v-checkbox-btn>
         </v-list-item>
         <v-divider v-show="multiple" />
       </template>

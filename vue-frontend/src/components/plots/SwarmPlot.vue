@@ -15,22 +15,7 @@
     </v-row>
     <v-row dense>
       <v-col>
-        <v-card class="pa-0 bg-grey-lighten-4">
-          <v-card-title> Highlight selected samples </v-card-title>
-          <v-row>
-            <v-col>
-              <v-text-field class="px-4" density="compact" v-model="patientGroup" label="Label" placeholder="G1" max-width="200"/>
-            </v-col>
-            <v-col>
-              <v-color-picker elevation="0" v-model="colorCode" hide-inputs hide-canvas max-width="200" mode="rgb" class="bg-grey-lighten-4" />
-            </v-col>
-            <v-col>
-              <v-btn color="primary" @click="reDrawPlot" class="mx-2">
-                <v-icon> mdi-pencil </v-icon>
-              </v-btn>
-            </v-col>
-          </v-row>
-        </v-card>
+        <highlight-selection @highlight-selection="highlightSelection" />
       </v-col>
     </v-row>
   </v-container>
@@ -38,10 +23,14 @@
 
 <script>
 import utils from '@/plugins/DownloadUtils'
+import HighlightSelection from '@/components/partials/HighlightSelection.vue'
 
 import * as d3 from 'd3'
 export default {
   name: 'SwarmPlot',
+  components: {
+    HighlightSelection
+  },
   props: {
     swarmData: {
       type: Array,
@@ -67,12 +56,10 @@ export default {
       type: String,
       default: undefined
     },
-
     drawBoxPlot: {
       type: Boolean,
       default: false
     },
-
     margin: {
       type: Object,
       default: function () {
@@ -91,7 +78,6 @@ export default {
       type: String,
       default: undefined
     },
-
     fieldValues: {
       type: String,
       default: undefined
@@ -138,6 +124,13 @@ export default {
       this.legendArray = []
       // this.initSwarm()
       // this.rePlot()
+    },
+
+    highlightSelection({ groupLabel, colorCode }) {
+      // Handle the redraw event from the child component
+      this.patientGroup = groupLabel
+      this.colorCode = colorCode
+      this.reDrawPlot()
     },
 
     boxPlot: function (dataSet, fieldOfTable, width, yScale, margin, svg) {

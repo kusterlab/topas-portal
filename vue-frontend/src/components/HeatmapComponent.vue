@@ -36,6 +36,7 @@
               v-if="String(inputDataType).startsWith('topas')"
               :cohort-index="cohortIndex"
               :multiple="true"
+              class="mt-4"
               @select-topas="updateIdentifier"
             />
             <protein-select

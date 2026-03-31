@@ -16,7 +16,7 @@
               label="Data Type"
               @update:model-value="getscoresTable"
             />
-            <v-checkbox
+            <v-switch
               v-model="showCorrelation"
               label="Show FPKM/protein correlation histogram"
               @update:model-value="getPatientData"

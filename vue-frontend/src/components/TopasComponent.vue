@@ -12,9 +12,9 @@
               :cohort-index="cohortIndex"
               @select-topas="updateTopas"
             />
-            <v-checkbox
+            <v-switch
               v-model="showTopasSubscore"
-              label="Show TOPAS subscore plots"
+              label="TOPAS subscore plots"
               @update:model-value="getTopasData"
             />
           </v-card-text>

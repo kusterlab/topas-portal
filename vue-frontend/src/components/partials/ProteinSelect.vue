@@ -39,7 +39,7 @@
       }
     },
     data: () => ({
-      selectedProteins: '',
+      selectedProteins: undefined,
       allProteins: []
     }),
     computed: {

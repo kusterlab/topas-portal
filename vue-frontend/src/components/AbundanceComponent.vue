@@ -21,7 +21,7 @@
               @select-phosphopeptide="updateIdentifier" />
             <protein-select v-if="mode !== 'psite'" :cohort-index="cohortIndex" :data-layer="mode"
               @select-protein="updateIdentifier" />
-            <v-checkbox v-if="mode !== 'psite'" v-model="showOncokbcnv"
+            <v-switch v-if="mode !== 'psite'" v-model="showOncokbcnv"
               label="Load OncoKB annotations" />
             <v-textarea v-if="showOncokbcnv" v-model="cnvDescription" :readonly="true" variant="outlined"
               rows="4" />

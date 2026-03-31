@@ -1,7 +1,7 @@
 <template>
   <div>
-    <v-checkbox v-model="showRefChannels" label="Show ref channels" density="compact" class="mt-2"/>
-    <v-checkbox v-model="showExcludedChannels" label="Show excluded channels" density="compact" class="mb-4"/>
+    <v-switch v-model="showRefChannels" label="Show ref channels" density="compact" class="mt-2"/>
+    <v-switch v-model="showExcludedChannels" label="Show excluded channels" density="compact" class="mb-4"/>
   </div>
 </template>
 <script>
