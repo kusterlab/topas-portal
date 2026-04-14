@@ -1,8 +1,8 @@
 <template>
-  <v-container class="pa-0" :id="swarmId">
+  <v-container class="pa-0 mt-2" :id="swarmId">
     <v-row dense>
       <v-col>
-        <v-btn color="primary" @click="resetPlot" class="mx-2">
+        <v-btn color="primary" @click="redrawPlot(true)" class="mx-2">
           <v-icon> mdi-refresh </v-icon>
         </v-btn>
         <v-btn v-if="savePlot" color="primary" @click="downloadSVG" class="mx-2">
@@ -56,7 +56,19 @@ export default {
       type: String,
       default: undefined
     },
+    drawSwarmPlot: {
+      type: Boolean,
+      default: true
+    },
+    drawStripPlot: {
+      type: Boolean,
+      default: false
+    },
     drawBoxPlot: {
+      type: Boolean,
+      default: false
+    },
+    drawViolinPlot: {
       type: Boolean,
       default: false
     },
@@ -102,7 +114,7 @@ export default {
       this.initSwarm()
     },
     drawBoxPlot: function () {
-      this.reDrawPlot()
+      this.redrawPlot()
     }
   },
   mounted() {
@@ -122,71 +134,111 @@ export default {
       this.patientGroup = ''
       this.LegendY = 40
       this.legendArray = []
-      // this.initSwarm()
-      // this.rePlot()
     },
 
     highlightSelection({ groupLabel, colorCode }) {
       // Handle the redraw event from the child component
       this.patientGroup = groupLabel
       this.colorCode = colorCode
-      this.reDrawPlot()
+      this.redrawPlot()
     },
 
     boxPlot: function (dataSet, fieldOfTable, width, yScale, margin, svg) {
-      // Box plot display on the back ground
-      if (this.drawBoxPlot) {
-        const dataBoxplot = []
-        dataSet.forEach(element => {
-          dataBoxplot.push(element[fieldOfTable])
+      if (!this.drawBoxPlot) return
+
+      // Box plot in the background
+      const dataBoxplot = []
+      dataSet.forEach(element => {
+        dataBoxplot.push(element[fieldOfTable])
+      })
+      const dataSorted = dataBoxplot.sort(d3.ascending)
+      const q1 = d3.quantile(dataSorted, 0.25)
+      const median = d3.quantile(dataSorted, 0.5)
+      const q3 = d3.quantile(dataSorted, 0.75)
+      
+      // Using IQR to determine outliers
+      const interQuantileRange = q3 - q1
+      const min = q1 - 1.5 * interQuantileRange
+      const max = q1 + 1.5 * interQuantileRange
+      const recHeigth = yScale(q1) - yScale(q3)
+      var boxWidth = (width - margin.left - margin.right) / 2
+      if (this.drawViolinPlot) boxWidth /= 5
+
+      svg
+        .append('line')
+        .attr('opacity', 0.7)
+        .attr('x1', width / 2)
+        .attr('x2', width / 2)
+        .attr('y1', yScale(min))
+        .attr('y2', yScale(max))
+        .attr('stroke', 'black')
+
+      svg
+        .append('rect')
+        .attr('x', width / 2 - boxWidth / 2)
+        .attr('y', yScale(q3))
+        .attr('height', recHeigth)
+        .attr('width', boxWidth)
+        .attr('stroke', 'grey')
+        .attr('opacity', 0.4)
+        .style('fill', 'grey')
+      svg
+        .selectAll('toto')
+        .data([min, median, max])
+        .enter()
+        .append('line')
+        .attr('opacity', 0.7)
+        .attr('x1', width / 2 - boxWidth / 2)
+        .attr('x2', width / 2 + boxWidth / 2)
+        .attr('y1', function (d) {
+          return yScale(d)
         })
-        const dataSorted = dataBoxplot.sort(d3.ascending)
-        const q1 = d3.quantile(dataSorted, 0.25)
-        const median = d3.quantile(dataSorted, 0.5)
-        // Using IQR for the outliars
-        const q3 = d3.quantile(dataSorted, 0.75)
-        const interQuantileRange = q3 - q1
-        const min = q1 - 1.5 * interQuantileRange
-        const max = q1 + 1.5 * interQuantileRange
-        const recHeigth = yScale(q1) - yScale(q3)
-        const center = width - margin.left
-
-        svg
-          .append('line')
-          .attr('opacity', 0.7)
-          .attr('x1', center - 3 * margin.left)
-          .attr('x2', center - 3 * margin.left)
-          .attr('y1', yScale(min))
-          .attr('y2', yScale(max))
-          .attr('stroke', 'black')
-
-        svg
-          .append('rect')
-          .attr('x', center - (4 * margin.left + margin.right))
-          .attr('y', yScale(q3))
-          .attr('height', recHeigth)
-          .attr('width', 2 * (margin.left + margin.right))
-          .attr('stroke', 'grey')
-          .attr('opacity', 0.4)
-          .style('fill', 'grey')
-        svg
-          .selectAll('toto')
-          .data([min, median, max])
-          .enter()
-          .append('line')
-          .attr('opacity', 0.7)
-          .attr('x1', center - (4 * margin.left + margin.right))
-          .attr('x2', center - (2 * margin.left - margin.right))
-          .attr('y1', function (d) {
-            return yScale(d)
-          })
-          .attr('y2', function (d) {
-            return yScale(d)
-          })
-          .attr('stroke', 'grey')
-      }
+        .attr('y2', function (d) {
+          return yScale(d)
+        })
+        .attr('stroke', 'grey')
     },
-    simulationSwarm: function (dataSet, width, svg, fieldOfTable, yScale, nominalField) {
+    /**
+     * Adapted from https://d3-graph-gallery.com/graph/violin_basicHist.html
+     */
+    violinPlot: function (dataSet, fieldOfTable, width, yScale, margin, svg) {
+      if (!this.drawViolinPlot) return
+
+      // Box plot in the background
+      const dataViolinPlot = []
+      dataSet.forEach(element => {
+        dataViolinPlot.push(element[fieldOfTable])
+      })
+      var histogram = d3.histogram()
+        .domain(yScale.domain())
+        .thresholds(yScale.ticks(20)) // Important: how many bins approx are going to be made? It is the 'resolution' of the violin plot
+        .value(d => d)
+      
+      var bins = histogram(dataViolinPlot)
+      const boxWidth = (width - margin.left - margin.right) / 2
+
+      var maxNum = d3.max(bins, a => a.length)
+
+      var xNum = d3.scaleLinear()
+        .range([0, boxWidth])
+        .domain([-maxNum, maxNum])
+
+      svg
+        .append("g")
+          .attr("transform", function(d){ return("translate(" + (width / 2 - boxWidth / 2) + " ,0)") } )
+        .append("path")
+          .datum(bins)
+          .style("stroke", "none")
+          .attr('opacity', 0.4)
+          .style("fill", "grey")
+          .attr("d", d3.area()
+            .x0(function(d){ return(xNum(-d.length)) } )
+            .x1(function(d){ return(xNum(d.length)) } )
+            .y(function(d){ return(yScale(d.x0)) } )
+            .curve(d3.curveCatmullRom)    // This makes the line smoother to give the violin appearance. Try d3.curveStep to see the difference
+          )
+    },
+    simulationSwarm: function (dataSet, width, svg, fieldOfTable, yScale, margin, nominalField) {
       const spreadingFactor = dataSet.length > 1 ? 2 : 10
 
       // Initialize positions before simulation starts
@@ -197,22 +249,31 @@ export default {
 
       // const simulationItrations = dataSet.length + 1000
       // const simulationItrations = 100
-      const simulation = d3
-        .forceSimulation(dataSet)
-        .force('x', d3.forceX(width / 2 + spreadingFactor))
-        .force('y', d3.forceY(d => yScale(d[fieldOfTable])).strength(10)) // Increase velocity
-        .force('collide', d3.forceCollide(3))
-        .alpha(0.3)
-        .stop()
+      if (this.drawSwarmPlot) {
+        const simulation = d3
+          .forceSimulation(dataSet)
+          .force('x', d3.forceX(width / 2 + spreadingFactor))
+          .force('y', d3.forceY(d => yScale(d[fieldOfTable])).strength(10)) // Increase velocity
+          .force('collide', d3.forceCollide(3))
+          .alpha(0.3)
+          .stop()
 
-      // for (let i = 0; i < simulationItrations; ++i) {
-      for (
-        let i = 0,
-        n = Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay()));
-        i < n;
-        ++i
-      ) {
-        simulation.tick()
+        // for (let i = 0; i < simulationItrations; ++i) {
+        for (
+          let i = 0,
+          n = Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay()));
+          i < n;
+          ++i
+        ) {
+          simulation.tick()
+        }
+      } else if (this.drawStripPlot) {
+        const random = this.mulberry32(42)  // use pseudo random numbers for reproducibility
+
+        const boxWidth = (width - margin.left - margin.right) / 2
+        dataSet.forEach(d => {
+          d.x = d.x + (random()-0.5)*boxWidth
+        })
       }
       const namesCircles = svg.selectAll('.names').data(dataSet, function (d) {
         return d[nominalField]
@@ -245,7 +306,15 @@ export default {
       })
       this.scatterPoints = scatterData
     },
-
+    mulberry32: function (seed) {
+      return function() {
+        seed |= 0; // Ensure seed is an integer
+        seed = seed + 0x6D2B79F5 | 0;
+        let t = Math.imul(seed ^ seed >>> 15, seed | 1);
+        t = t + Math.imul(t ^ t >>> 7, t | 61) ^ t;
+        return ((t ^ t >>> 14) >>> 0) / 4294967296; // Return a float in [0, 1)
+      };
+    },
     addLegend: function (svg) {
       if (this.patientGroup && this.colorCode) {
         const legend = {}
@@ -316,13 +385,11 @@ export default {
         })
     },
 
-    prepFunc: function (svg, margin, yScale) {
+    prepareAxisAndTooltip: function (svg, margin, yScale) {
       svg.append('g').attr('class', 'y axis')
-
       svg.append('g').attr('class', 'lines')
-      svg.append('g').attr('class', 'selcirc')
 
-      const titlePlot = this.swarmTitlePrefix + ' (' + this.swarmTitle + ')'
+      const ylabel = this.swarmTitlePrefix + ' (' + this.swarmTitle + ')'
       svg
         .append('text')
         // .attr("class", "y label")
@@ -330,7 +397,7 @@ export default {
         .attr('text-anchor', 'middle')
         .attr('x', -this.height / 2)
         .attr('y', 15)
-        .text(titlePlot)
+        .text(ylabel)
 
       const xLine = svg
         .append('line')
@@ -376,15 +443,11 @@ export default {
 
       return { yScale, svg }
     },
-    reDrawPlot: function () {
-      const resetPlot = false
-      this.rePlot(resetPlot)
-    },
-    resetPlot() {
-      const resetPlot = true
-      this.rePlot(resetPlot)
-    },
-    rePlot: function (resetPlot) {
+    /**
+     * Draw all elements from plot from scratch but reuse swarm coordinates
+     * @param {Boolean} resetPlot - remove highlights from all points
+     */
+    redrawPlot: function (resetPlot = false) {
       const fieldOfTable = this.fieldValues // Data field for the y position values
       const nominalField = this.fieldName // Identifier of the data on the table
       const dataSet = this.scatterPoints
@@ -413,17 +476,17 @@ export default {
       const pltobj = this.initAxes(this.width, this.height, this.margin, dataSet, fieldOfTable)
       const svg = pltobj.svg
       const yScale = pltobj.yScale
+      this.violinPlot(dataSet, fieldOfTable, this.width, yScale, this.margin, svg) // draw boxplot
       this.boxPlot(dataSet, fieldOfTable, this.width, yScale, this.margin, svg) // draw boxplot
-      const plotObject = this.prepFunc(svg, this.margin, yScale)
+      const plotObject = this.prepareAxisAndTooltip(svg, this.margin, yScale)
       const tooltip = plotObject.tooltip
       const xLine = plotObject.xLine
 
       // scatter plot
-      const scatterPoints = this.scatterPoints
       svg
         .append('g')
         .selectAll('dot')
-        .data(scatterPoints)
+        .data(this.scatterPoints)
         .enter()
         .append('circle')
         .attr('class', 'names')
@@ -440,13 +503,14 @@ export default {
           return !d.y ? 'white' : d.colorID
         })
 
-      this.mouseHover(pltobj, nominalField, fieldOfTable, tooltip, xLine) // at mouse  hover
+      this.mouseHover(pltobj, nominalField, fieldOfTable, tooltip, xLine)
       this.patientGroup = ''
     },
 
     initSwarm: function () {
       if (this.swarmData.length === 0) return
 
+      this.disposeLabels()
       const swarmDataFiltered = this.swarmData.filter(
         d => typeof d[this.fieldValues] === 'number'
       )
@@ -457,6 +521,14 @@ export default {
         swarmDataFiltered,
         this.fieldValues
       )
+      this.violinPlot(
+        swarmDataFiltered,
+        this.fieldValues,
+        this.width,
+        pltobj.yScale,
+        this.margin,
+        pltobj.svg
+      ) // draw violinplot
       this.boxPlot(
         swarmDataFiltered,
         this.fieldValues,
@@ -465,7 +537,7 @@ export default {
         this.margin,
         pltobj.svg
       ) // draw boxplot
-      const plotObject = this.prepFunc(pltobj.svg, this.margin, pltobj.yScale)
+      const plotObject = this.prepareAxisAndTooltip(pltobj.svg, this.margin, pltobj.yScale)
       const tooltip = plotObject.tooltip
       const xLine = plotObject.xLine
       this.simulationSwarm(
@@ -474,6 +546,7 @@ export default {
         pltobj.svg,
         this.fieldValues,
         pltobj.yScale,
+        this.margin,
         this.fieldName
       ) // 1st simulation of the data on the plot
       this.mouseHover(pltobj, this.fieldName, this.fieldValues, tooltip, xLine) // at mouse hover

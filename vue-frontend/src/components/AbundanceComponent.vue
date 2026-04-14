@@ -80,7 +80,8 @@
                     </v-btn-toggle>
                     <swarm-plot :swarm-data="swarmPlotDataSelected" swarm-id="singleGene"
                       :swarm-sel-ids="swarmSelIds" :swarm-title="identifier" :swarm-title-prefix="swarmPrefix"
-                      field-name="Sample name" :draw-box-plot="true" :field-values="intensityUnit"
+                      field-name="Sample name" :field-values="intensityUnit"
+                      :draw-box-plot="true" :draw-violin-plot="true" :draw-strip-plot="true" :draw-swarm-plot="false"
                       @onDotClick="selectDot" />
                   </v-responsive>
                 </v-skeleton-loader>

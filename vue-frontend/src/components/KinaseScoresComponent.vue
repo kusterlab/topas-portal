@@ -70,6 +70,9 @@
                       swarm-title-prefix="kinase_scores"
                       field-name="Sample name"
                       :draw-box-plot="true"
+                      :draw-violin-plot="true"
+                      :draw-strip-plot="true"
+                      :draw-swarm-plot="false"
                       field-values="Z-score"
                     />
                   </v-responsive>

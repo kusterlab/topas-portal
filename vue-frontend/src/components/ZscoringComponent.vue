@@ -107,6 +107,9 @@
                     swarm-title-prefix="z-score"
                     field-name="Sample name"
                     :draw-box-plot="true"
+                    :draw-violin-plot="true"
+                    :draw-strip-plot="true"
+                    :draw-swarm-plot="false"
                     field-values="subcohort_zscore"
                     @onDotClick="selectDot"
                   /> -->
