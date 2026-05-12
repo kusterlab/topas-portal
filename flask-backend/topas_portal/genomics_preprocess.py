@@ -218,7 +218,7 @@ def _split_genomics_annotation(x: str):
                 "fusion": _clean_annotation(fusion),
             }
     except:
-        return {"cnv": "missing", "snv": "missing", "fusion": "missing"}
+        return {"cnv":x , "snv":x, "fusion":x}
 
 
 def make_final_genomics_annotation(df):
