@@ -99,11 +99,12 @@ def normalize_dataframe(df: pd.DataFrame, normalization_params: StandardScaler) 
         return None
 
 
+
 @entityscore_page.route("/entityscore/classifiers_list")
 # http://localhost:3832/entityscore/classifiers_list
-def get_list_classifiers():
-    MODELS_LIST = cohorts_db.config.config.get('models_list', [])
-    return jsonify(MODELS_LIST)
+def get_classifiers_list():
+
+    return list(MODELS.keys())
 
 
 @entityscore_page.route("/entityscore/<cohort_ind>")

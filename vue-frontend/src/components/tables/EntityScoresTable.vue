@@ -22,7 +22,16 @@
   >
     <DxExport :enabled="true" :allow-export-selected-data="true" />
     <DxFilterRow :visible="true" />
+    <DxColumn data-field="Sample name" data-type="string" />
+    <DxColumn data-field="code_oncotree" data-type="string" />
 
+    <DxColumn
+      v-for="entity in allEntities"
+      :key="entity"
+      :data-field="entity"
+      data-type="number"
+      :format="{ type: 'fixedPoint', precision: 3 }"
+    />
     <DxPager
       :allowed-page-sizes="pageSizes"
       :show-page-size-selector="true"
@@ -33,7 +42,7 @@
   </DxDataGrid>
 </template>
 <script>
-  import { DxDataGrid, DxPager, DxExport, DxPaging, DxFilterRow } from 'devextreme-vue/data-grid'
+  import { DxDataGrid, DxPager, DxExport, DxPaging, DxFilterRow, DxColumn } from 'devextreme-vue/data-grid'
 
   import 'devextreme/dist/css/dx.light.css'
   import axios from 'axios'
@@ -45,7 +54,8 @@
       DxExport,
       DxPager,
       DxPaging,
-      DxFilterRow
+      DxFilterRow,
+      DxColumn
     },
     props: {
       dataSource: undefined,
@@ -110,18 +120,20 @@
         this.allEntities.forEach(element => {
           const fieldName = element.toString()
           if (e.rowType === 'data') {
-            if (e.column.dataField === fieldName && e.data[fieldName] > 0.75) {
-              e.cellElement.style.cssText = 'color: white; background-color: red'
+            if (e.column.dataField === fieldName && e.data[fieldName] > 0.9) {
+              e.cellElement.style.cssText = 'color: white; background-color: #06a77d'
             }
+
             if (
               e.column.dataField === fieldName &&
-              e.data[fieldName] <= 0.75 &&
+              e.data[fieldName] <= 0.9 &&
               e.data[fieldName] > 0.5
             ) {
-              e.cellElement.style.cssText = 'color: black; background-color: yellow'
+              e.cellElement.style.cssText = 'color: black; background-color: #e8f7ee'
             }
-            if (e.column.dataField === fieldName && e.data[fieldName] <= 0.35) {
-              e.cellElement.style.cssText = 'color: white; background-color: grey'
+
+            if (e.column.dataField === fieldName && e.data[fieldName] <= 0.5) {
+              e.cellElement.style.cssText = 'color: black; background-color: #E0E0E0'
             }
           }
         })

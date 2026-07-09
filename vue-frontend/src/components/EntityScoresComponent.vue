@@ -4,8 +4,13 @@
       <v-col sm="12" md="3" lg="2">
         <v-card variant="flat">
           <v-card-title tag="h1"> Entity scores </v-card-title>
+          <v-card-text>
           <cohort-select @select-cohort="updateCohort" />
+
+          <div class="d-flex justify-center">
           <v-btn class="ma-2" color="primary" @click="getScores"> Predict Scores </v-btn>
+          </div>
+          </v-card-text>
         </v-card>
         <!-- Collapsible Help Box -->
         <v-card elevation="2" class="pa-4 mt-4">
