@@ -12,7 +12,6 @@ import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap, BoundaryNorm
 import seaborn as sns
-
 matplotlib.use("svg")
 
 
@@ -422,6 +421,7 @@ class PatientReport:
             "BA_ANGS": "(B)ANGS",
             "LMS_ULMS": "(U)LMS",
             "MEL_UM": "(U)MEL",
+            "COAD_READ_COADREAD": "COAD-READ",
         }
         row.index = row.index.to_series().replace(rename_map)
 
@@ -522,8 +522,6 @@ def get_background_cohort_indices(
 
 
 # PRODICT
-
-
 # Load necessary files - Classification models and Tumor Type Signatues
 def load_signatures_from_folder(folder_path):
     folder = Path(folder_path)
@@ -553,6 +551,34 @@ def load_sklearn_models(folder_path):
     return models
 
 
+def load_normalization_parameters(path):
+    """Loads pickelized sklearn normalization parameters from folder"""
+    path = Path(path)
+
+    if not path.exists():
+        raise FileNotFoundError(f"Path does not exist: {path}")
+
+    # If folder provided
+    if path.is_file():
+        if path.suffix != ".pkl":
+            raise ValueError(f"Expected a .pkl file, got: {path}")
+
+        with open(path, "rb") as f:
+            normalization_params = joblib.load(f)
+
+        return normalization_params
+
+    # If file provided
+    if path.is_dir():
+        for file_path in path.glob("*.pkl"):
+            with open(file_path, "rb") as f:
+                normalization_params = joblib.load(f)
+
+        return normalization_params
+
+    raise ValueError(f"Path is neither a file nor a directory: {path}")
+
+
 def impute_normal_down_shift_distribution(
     unimputed_dataframe: pd.DataFrame,
     column_wise: bool = True,
@@ -564,38 +590,37 @@ def impute_normal_down_shift_distribution(
     Performs imputation across a matrix columnswise
     """
 
-    unimputed_df = unimputed_dataframe.copy()
-    unimputed_df.replace({pd.NA: np.nan}, inplace=True)
-    unimputed_matrix = unimputed_df.to_numpy()
-    columns_names = unimputed_df.columns
-    rownames = unimputed_df.index
+    unimputerd_df = unimputed_dataframe.apply(pd.to_numeric, errors="coerce")
+    if unimputerd_df.shape[1] == 0:
+        raise ValueError("No numeric columns found in the input dataframe for imputation.")
 
-    unimputed_matrix[~np.isfinite(unimputed_matrix)] = np.nan
-    main_mean = np.nanmean(unimputed_matrix)
-    main_std = np.nanstd(unimputed_matrix)
+    unimputerd_matrix = unimputerd_df.to_numpy(dtype=np.float64)
+    unimputerd_matrix[~np.isfinite(unimputerd_matrix)] = np.nan
+
+    columns_names = unimputerd_df.columns
+    rownames = unimputerd_df.index
+
+    main_mean = np.nanmean(unimputerd_matrix)
+    main_std = np.nanstd(unimputerd_matrix)
     np.random.seed(seed=seed)
 
     def impute_normal_per_vector(temp: np.ndarray, width=width, downshift=downshift):
-        """Performs imputation for a single vector"""
+        """ Performs imputation for a single vector """
         if column_wise:
             temp_sd = np.nanstd(temp)
             temp_mean = np.nanmean(temp)
         else:
+            # over all matrix
             temp_sd = main_std
             temp_mean = main_mean
 
         shrinked_sd = width * temp_sd
         downshifted_mean = temp_mean - (downshift * temp_sd)
         n_missing = np.count_nonzero(np.isnan(temp))
-
-        if n_missing > 0:
-            temp[np.isnan(temp)] = np.random.normal(
-                loc=downshifted_mean, scale=shrinked_sd, size=n_missing
-            )
-
+        temp[np.isnan(temp)] = np.random.normal(loc=downshifted_mean, scale=shrinked_sd, size=n_missing)
         return temp
 
-    final_matrix = np.apply_along_axis(impute_normal_per_vector, 0, unimputed_matrix)
+    final_matrix = np.apply_along_axis(impute_normal_per_vector, 0, unimputerd_matrix)
     final_df = pd.DataFrame(final_matrix)
     final_df.index = rownames
     final_df.columns = columns_names
@@ -608,7 +633,7 @@ def get_imputed_df(cohort_index: int):
     """Collescts intensity dataframe and impute it to further process"""
 
     fp = cohorts_db.get_protein_abundance_df(
-        cohort_index, intensity_unit=IntensityUnit.INTENSITY
+        cohort_index, intensity_unit=IntensityUnit.Z_SCORE
     )
 
     data_initial = fp.T
@@ -620,8 +645,6 @@ def get_imputed_df(cohort_index: int):
 
 
 # Prediction function
-
-
 def probabilities_calculator(models: dict, input_data: pd.DataFrame) -> dict:
     """
     Calculates the probability of a sample for every classifier avaialeble

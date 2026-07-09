@@ -258,6 +258,9 @@ class CohortConfig:
     def get_models_folder(self) -> Path:
         return Path(self.config["models_folder"])
 
+    def get_prodict_normalization_parameters(self) -> Path:
+        return Path(self.config["prodict_normalization_parameters_path"])
+
     def get_signatures_folder(self) -> Path:
         return Path(self.config["signatures_folder"])
 
