@@ -11,6 +11,8 @@ from topas_portal.constants import IntensityUnit
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap, BoundaryNorm
+from sklearn.preprocessing import StandardScaler
+
 import seaborn as sns
 matplotlib.use("svg")
 
@@ -680,3 +682,37 @@ def can_be_int(value):
         return True
     except (ValueError, TypeError):
         return False
+
+
+def normalize_dataframe(df: pd.DataFrame, normalization_params: StandardScaler) -> pd.DataFrame:
+    """
+    Normalizes the input DataFrame using the provided normalization parameters.
+    df: Intensities with gene names as columns and samples as rows
+    normalization_params: sklearn object containing mean and scale for each feature used during model training
+    """
+
+    try:
+        expected = pd.Index(normalization_params.feature_names_in_)
+        common = expected.intersection(df.columns)
+
+        if len(common) == 0:
+            print("Normalization not successful. No matching columns found.")
+            return None
+
+        normalized_df = df.copy()
+
+        idx = expected.get_indexer(common)
+
+        values = normalized_df.loc[:, common].to_numpy(dtype=np.float64, copy=True)
+
+        values = (
+            values - normalization_params.mean_[idx]
+        ) / normalization_params.scale_[idx]
+
+        normalized_df.loc[:, common] = values
+
+        return normalized_df
+
+    except Exception as e:
+        print(f"Normalization not successful. Error: {e}.")
+        return None

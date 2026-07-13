@@ -65,41 +65,6 @@ def probabilities_calculator(models: dict, input_data: pd.DataFrame) -> pd.DataF
     return pd.DataFrame(predictions)
 
 
-def normalize_dataframe(df: pd.DataFrame, normalization_params: StandardScaler) -> pd.DataFrame:
-    """
-    Normalizes the input DataFrame using the provided normalization parameters.
-    df: Intensities with gene names as columns and samples as rows
-    normalization_params: sklearn object containing mean and scale for each feature used during model training
-    """
-
-    try:
-        expected = pd.Index(normalization_params.feature_names_in_)
-        common = expected.intersection(df.columns)
-
-        if len(common) == 0:
-            print("Normalization not successful. No matching columns found.")
-            return None
-
-        normalized_df = df.copy()
-
-        idx = expected.get_indexer(common)
-
-        values = normalized_df.loc[:, common].to_numpy(dtype=np.float64, copy=True)
-
-        values = (
-            values - normalization_params.mean_[idx]
-        ) / normalization_params.scale_[idx]
-
-        normalized_df.loc[:, common] = values
-
-        return normalized_df
-
-    except Exception as e:
-        print(f"Normalization not successful. Error: {e}.")
-        return None
-
-
-
 @entityscore_page.route("/entityscore/classifiers_list")
 # http://localhost:3832/entityscore/classifiers_list
 def get_classifiers_list():
@@ -120,7 +85,7 @@ def get_entity_scores_cohort(cohort_ind):
     data_imputed = prutils.impute_normal_down_shift_distribution(data_intensities)
     data_imputed = data_imputed.T
 
-    data_normalized = normalize_dataframe(data_imputed, normalization_params)
+    data_normalized = prutils.normalize_dataframe(data_imputed, normalization_params)
 
     predictions = probabilities_calculator(models, data_normalized)
     predictions.index = data_normalized.index

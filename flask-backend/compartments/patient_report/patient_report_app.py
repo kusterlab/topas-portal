@@ -23,6 +23,7 @@ from routes import PatientReportApiRoutes
 from topas_portal import prexp_preprocess as pp
 
 from topas_portal import patient_report_excel
+import compartments.patient_report.utils as prutils
 
 from pptx import Presentation
 from pptx.util import Inches
@@ -43,6 +44,8 @@ patient_report_page = Blueprint(
 
 cohorts_db = db.cohorts_db
 config = cohorts_db.config
+MODELS = prutils.load_sklearn_models(config.get_models_folder())
+NORMALIZATION_PARAMS = prutils.load_normalization_parameters(config.get_prodict_normalization_parameters())
 
 
 antigens = [
@@ -439,14 +442,24 @@ def get_probabilities(cohort_index: int, patient: str):
 
     if svg_data is None:
         try:
-            models = utils.load_sklearn_models(config.get_models_folder())
-            data_clean = utils.get_imputed_df(cohort_index)
-            patient_input_data = pd.DataFrame(data_clean.loc[patient]).T
+            models = MODELS
+            normalization_params = NORMALIZATION_PARAMS
 
+            data_intensities = cohorts_db.get_protein_abundance_df(
+                cohort_index, intensity_unit=IntensityUnit.INTENSITY)
+            data_imputed = utils.impute_normal_down_shift_distribution(data_intensities)
+            data_imputed = data_imputed.T
+
+            data_normalized = prutils.normalize_dataframe(data_imputed, normalization_params)
+
+            patient_input_data = pd.DataFrame(data_normalized.loc[patient]).T
             predictions = utils.probabilities_calculator(models, patient_input_data)
+
             pr = utils.PatientReport(cohort_index, patient)
             pr.setup_prodict_scores(predictions)
+
             pr.generate_prodict_lollipop(f"PROdict Classification - {patient}")
+
             svg_data = pr.output_format(pr.get_prodict_prob_cache_id("svg"), "svg")
             pr.output_format(pr.get_prodict_prob_cache_id("png"), "png")
 
