@@ -423,7 +423,8 @@ class PatientReport:
             "BA_ANGS": "(B)ANGS",
             "LMS_ULMS": "(U)LMS",
             "MEL_UM": "(U)MEL",
-            "COAD_READ_COADREAD": "COAD-READ",
+            "COAD_READ_COADREAD": "COADREAD",
+            "CHS_MYCHS_EMCHS": "CHS",
         }
         row.index = row.index.to_series().replace(rename_map)
 
